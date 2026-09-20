@@ -224,6 +224,13 @@ run = "bun run --cwd apps/site dev"
 description = "Build the site to apps/site/dist"
 run = "bun run --cwd apps/site build"
 
+[tasks."pdf:build"]
+description = "Build the one-page architecture sheet as HTML and PDF"
+# READS apps/site/src/data/architecture.ts, so the sheet and the pages that
+# render the same layers cannot drift. Needs e2e:install: the renderer is the
+# Chromium the acceptance tests already use.
+run = "uv run python scripts/build_onepager.py"
+
 [tasks."test:e2e"]
 description = "Acceptance tests: a real browser against the built site (needs site:install)"
 # AGAINST THE BUILD, NOT THE DEV SERVER. The dev server transforms on demand, so
