@@ -51,7 +51,11 @@ members = ["tooling"]
 strict = true
 
 [[tool.mypy.overrides]]
-module = ["playwright.*", "pytest_playwright.*"]
+# pypdf JOINS THEM FOR THE SAME REASON. It lives in the e2e extra, which the
+# tooling workflow does not install, so mypy resolved it on this laptop and not
+# on a runner. Third time this exact gap has appeared: an optional dependency
+# imported inside a function still needs saying so to the type checker.
+module = ["playwright.*", "pytest_playwright.*", "pypdf.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
