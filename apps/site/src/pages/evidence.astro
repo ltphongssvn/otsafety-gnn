@@ -1,0 +1,83 @@
+---
+// apps/site/src/pages/evidence.astro
+// Execution produces evidence; an evaluator produces a verdict; both are kept.
+import Base from "../layouts/Base.astro";
+import { runs, settingsChecks } from "../data/evidence";
+
+const recordedRuns = runs();
+const checks = settingsChecks();
+const fmt = (ms: number) => (ms / 1000).toFixed(1) + "s";
+---
+<Base
+  title="Evidence"
+  lead="Code expresses intent; execution produces evidence; evaluators produce
+        verdicts. These are read from the repository when the site is built, so a
+        record that does not match its contract fails the build."
+>
+  <h2>Task runs</h2>
+  <p class="c">Contract <code>run-record/v1</code> — every recorded task run, newest first.</p>
+  {recordedRuns.length === 0 ? (
+    <p class="empty">No runs recorded on the machine that built this site.</p>
+  ) : (
+    <table>
+      <thead><tr><th>Task</th><th>Outcome</th><th>Took</th><th>Branch</th><th>Commit</th></tr></thead>
+      <tbody>
+        {recordedRuns.map((r) => (
+          <tr>
+            <td><code>{r.task}</code></td>
+            <td data-verdict={r.outcome} class={r.exit_code === 0 ? "ok" : "bad"}>
+              {r.outcome} ({r.exit_code})
+            </td>
+            <td>{fmt(r.duration_ms)}</td>
+            <td>{r.branch}</td>
+            <td><code>{r.commit.slice(0, 12)}</code></td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
+
+  <h2>Repository settings</h2>
+  <p class="c">
+    Contract <code>repository-settings-check/v1</code> — the declared merge policy
+    compared against what GitHub holds. A visible difference fails; a setting
+    GitHub will not show is unknown, never a pass.
+  </p>
+  {checks.length === 0 ? (
+    <p class="empty">No settings checks recorded.</p>
+  ) : (
+    <ul class="checks">
+      {checks.map((c) => (
+        <li>
+          <span data-verdict={c.verdict} class={c.verdict === "pass" ? "ok" : "bad"}>
+            {c.verdict}
+          </span>
+          <span class="when">{c.recorded_at ?? ""}</span>
+          {c.findings?.length > 0 && (
+            <ul class="findings">
+              {c.findings.map((f) => <li><code>{f.rule}</code> {f.detail}</li>)}
+            </ul>
+          )}
+        </li>
+      ))}
+    </ul>
+  )}
+
+  <style>
+    h2 { margin-top: 2.2rem; font-size: 1.1rem; }
+    .c { color: var(--muted); font-size: .85rem; max-width: 44rem; }
+    .empty { color: var(--amber); font-size: .88rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .85rem; }
+    th { text-align: left; font-size: .68rem; text-transform: uppercase;
+         letter-spacing: .06em; color: var(--muted);
+         border-bottom: 2px solid var(--ink); padding: 0 .5rem .35rem; }
+    td { padding: .45rem .5rem; border-bottom: 1px solid var(--hair); }
+    code { font-family: ui-monospace, Menlo, monospace; font-size: .8rem; }
+    .ok { color: var(--teal); font-weight: 600; }
+    .bad { color: var(--red); font-weight: 600; }
+    .checks { list-style: none; padding: 0; }
+    .checks > li { border-bottom: 1px solid var(--hair); padding: .5rem 0; }
+    .when { color: var(--muted); font-size: .78rem; margin-left: .6rem; }
+    .findings { margin: .4rem 0 0; font-size: .82rem; color: var(--red); }
+  </style>
+</Base>
