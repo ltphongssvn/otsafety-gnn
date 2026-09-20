@@ -23,6 +23,18 @@ ml = [
     "mlflow>=3.10,<4",
 ]
 
+# THE BROWSER, INSTALLED ONLY WHERE THE SITE IS TESTED. Playwright ships a
+# driver and downloads browser binaries, which the git tasks never need: a
+# machine that only syncs and opens pull requests installs none of it. The
+# acceptance tests import it at module scope and skip when it is absent, so
+# mise run test stays the fast gate and mise run test:e2e is the browser one.
+#
+#   uv sync --extra e2e && uv run playwright install chromium
+e2e = [
+    "playwright>=1.50,<2",
+    "pytest-playwright>=0.7,<1",
+]
+
 [[tool.mypy.overrides]]
 # MLflow IS OPTIONAL BY DESIGN, so a machine that installed only the git tasks
 # cannot resolve it, and mypy said so in continuous integration while passing on
@@ -30,7 +42,7 @@ ml = [
 # same statement for the type checker. Strictness is untouched everywhere else,
 # and the adapter imports mlflow inside its methods so nothing else depends on
 # it being present.
-module = ["mlflow.*"]
+module = ["mlflow.*", "playwright.*", "pytest_playwright.*"]
 ignore_missing_imports = true
 
 [dependency-groups]

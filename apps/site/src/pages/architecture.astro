@@ -1,0 +1,70 @@
+---
+// apps/site/src/pages/architecture.astro
+// The nine layers and the three nested questions, rendered from typed data so
+// this page and the one-page PDF cannot disagree about what the project is.
+import Base from "../layouts/Base.astro";
+import { LAYERS, QUESTIONS } from "../data/architecture";
+---
+<Base
+  title="Architecture"
+  lead="Nine layers from biological truth to a deployable decision. Four of them —
+        2, 4, 7 and 9 — are additions to the obvious five-layer model, and four of
+        the nine failure modes live in exactly those four."
+>
+  <table>
+    <thead>
+      <tr><th>#</th><th>Layer</th><th>Failure if unguarded</th><th>Guard</th></tr>
+    </thead>
+    <tbody>
+      {LAYERS.map((l) => (
+        <tr class={l.added ? "added" : ""}>
+          <td class="n">{l.n}</td>
+          <td>
+            <strong>{l.name}</strong>
+            {l.added && <span class="tag">added</span>}
+            <div class="q">{l.question}</div>
+          </td>
+          <td class="fail">{l.failure}</td>
+          <td class="guard">{l.guard}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+
+  <h2>The three nested questions</h2>
+  <p class="note">
+    Each is stated in full rather than by label: the first draft of the PDF named
+    Q2 and Q3 in a panel and defined them nowhere.
+  </p>
+  {QUESTIONS.map((q) => (
+    <section class="nq">
+      <h3><span class="badge">{q.id}</span> {q.question}</h3>
+      <p><strong>Contrast:</strong> {q.contrast}</p>
+      <p class="tied"><strong>If the contrast ties:</strong> {q.whenTied}</p>
+    </section>
+  ))}
+
+  <style>
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; }
+    th { text-align: left; font-size: .7rem; text-transform: uppercase;
+         letter-spacing: .06em; color: var(--muted);
+         border-bottom: 2px solid var(--ink); padding: 0 .5rem .4rem; }
+    td { vertical-align: top; padding: .7rem .5rem; border-bottom: 1px solid var(--hair); }
+    tr.added td { background: var(--added); }
+    td.n { width: 2rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .tag { font-size: .6rem; text-transform: uppercase; letter-spacing: .06em;
+           color: var(--amber); margin-left: .4rem; }
+    .q { color: var(--muted); font-size: .8rem; margin-top: .2rem; }
+    .fail { color: var(--red); }
+    .guard { color: var(--teal); font-family: ui-monospace, Menlo, monospace;
+             font-size: .76rem; }
+    h2 { margin-top: 2.5rem; font-size: 1.15rem; }
+    .note { color: var(--muted); font-size: .85rem; max-width: 44rem; }
+    .nq { border-left: 3px solid var(--indigo); padding-left: .9rem; margin: 1.4rem 0; }
+    .nq h3 { margin: 0 0 .4rem; font-size: 1rem; }
+    .badge { background: var(--indigo); color: #fff; font-size: .7rem;
+             padding: .1rem .4rem; border-radius: 3px; margin-right: .4rem; }
+    .nq p { margin: .3rem 0; font-size: .88rem; }
+    .tied { color: var(--muted); }
+  </style>
+</Base>

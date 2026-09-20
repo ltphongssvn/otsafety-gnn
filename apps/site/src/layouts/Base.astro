@@ -1,0 +1,49 @@
+---
+// apps/site/src/layouts/Base.astro
+// One shell for every page. No client JavaScript: Astro ships none unless a
+// component asks for it, and nothing here needs to.
+interface Props { title: string; lead?: string }
+const { title, lead } = Astro.props;
+const nav = [
+  { href: "/", label: "Overview" },
+  { href: "/architecture", label: "Architecture" },
+];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} — otsafety-gnn</title>
+    <style>
+      :root {
+        --ink: #14171a; --muted: #5b6672; --line: #d6dce2; --hair: #eef1f4;
+        --teal: #0e5f6b; --indigo: #2f3f8f; --red: #a5312b; --amber: #a86400;
+        --added: #fff9ef;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0; color: var(--ink); line-height: 1.5;
+        font: 16px/1.5 "Helvetica Neue", Helvetica, Arial, sans-serif;
+      }
+      .wrap { max-width: 68rem; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+      header { border-bottom: 2px solid var(--ink); padding-bottom: .75rem; }
+      h1 { font-size: 1.6rem; margin: 0 0 .4rem; letter-spacing: -.02em; }
+      .lead { color: var(--muted); margin: 0; max-width: 46rem; }
+      nav { margin-top: 1rem; display: flex; gap: 1.25rem; }
+      nav a { color: var(--indigo); text-decoration: none; font-size: .9rem; }
+      nav a:hover { text-decoration: underline; }
+      main { margin-top: 2rem; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1>{title}</h1>
+        {lead && <p class="lead">{lead}</p>}
+        <nav>{nav.map((n) => <a href={n.href}>{n.label}</a>)}</nav>
+      </header>
+      <main><slot /></main>
+    </div>
+  </body>
+</html>

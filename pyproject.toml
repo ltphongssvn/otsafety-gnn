@@ -2,7 +2,7 @@
 dev = [
     # git hooks; the PyPI wheel is lefthook's official binary
     "lefthook==2.1.14",
-    # spell checker; must equal the rev frozen in .pre-commit-config.yaml (CI)
+    # spell checker; mise run lint invokes it directly, and CI runs that task
     "typos==1.49.0",
     "prek>=0.4.14,<1.0.0",
     "typer>=0.27.1,<1.0.0",
@@ -29,18 +29,48 @@ required-environments = [
 ]
 
 [tool.uv.workspace]
-members = ["backend", "tooling"]
+members = ["tooling"]
+
+# RUFF FOR EVERY PYTHON FILE OUTSIDE THE TOOLING PACKAGE. Without this section
+# apps/site/tests resolved against no configuration at all: ruff ran with its
+# default rules, so the bandit checks the tooling package selects deliberately
+# were simply off, and the noqa directives written for them were reported as
+# unused. Deleting those directives would have silenced the message and left the
+# site tests held to a weaker standard than the rest of the repository. The
+# selection matches tooling/pyproject.toml so one bar applies everywhere.
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "N", "T20", "BLE"]
+
+[tool.ruff.lint.per-file-ignores]
+# S101 assert is what pytest is built on. S603/S607 launch the site's own build
+# and preview through bun, by a fixed argument list with no shell. S310 opens
+# a hard-coded localhost URL to wait for that server. BLE001 catches whatever
+# the not-yet-listening socket raises while polling. E402 imports playwright
+# after importorskip, so the module still collects where the extra is absent.
+"apps/site/tests/**" = ["S101", "S603", "S607", "S310", "BLE001", "E402"]
+# scripts/ WAS LINTED BY RUFF'S DEFAULTS UNTIL THIS FILE EXISTED, so selecting S
+# and T20 above surfaced eight findings in a file that had not changed. Each is
+# a reviewed decision, not a suppression of a real risk:
+#   T201  a bootstrap CLI prints what it installed; that is its purpose, and the
+#         tooling package carries the same exemption for its own entry points.
+#   S603  subprocess.run([executable, "--version"]) is a fixed argument list with
+#         no shell, verifying the binary it has just installed.
+#   S310  urlretrieve reads a URL from toolchain.json, and the NEXT line is
+#         verify(archive, plan.sha256). The digest is the control.
+#   S202  extractall runs inside a TemporaryDirectory on an archive whose sha256
+#         was verified first.
+"scripts/**" = ["T201", "S603", "S310", "S202"]
 
 [tool.typos.files]
 extend-exclude = [
-    "img/",
     "uv.lock",
     "bun.lock",
-    "backend/coverage/",
-    "backend/htmlcov/",
-    "backend/app/frontend/",
-    "frontend/dist/",
-    "frontend/public/assets/images/",
+    ".artifacts/",
+    "apps/site/dist/",
+    "apps/site/node_modules/",
 ]
 
 [tool.typos.default]

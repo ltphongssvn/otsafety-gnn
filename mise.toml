@@ -112,14 +112,14 @@ description = "Apply every safe autofix: formatting AND import ordering"
 # `;` NOT `&&`: ruff check --fix exits non-zero on a finding with no safe fix,
 # and the formatter is often what resolves it. Each directory uses its own
 # pyproject's ruff settings.
-run = "uv run ruff check --fix tooling scripts ; uv run ruff format tooling scripts"
+run = "uv run ruff check --fix tooling scripts apps/site/tests ; uv run ruff format tooling scripts apps/site/tests"
 
 [tasks.lint]
 description = "Lint, and check formatting and spelling, without changing anything"
 run = '''
 set -euo pipefail
-uv run ruff check tooling scripts
-uv run ruff format --check tooling scripts
+uv run ruff check tooling scripts apps/site/tests
+uv run ruff format --check tooling scripts apps/site/tests
 # SPELLING, AS CI CHECKS IT: the template's pre-commit job runs typos
 # (v1.49.0, pinned identically in uv.lock) with the same flag and the
 # [tool.typos] settings in pyproject.toml. Without this, a spelling
@@ -142,7 +142,7 @@ uv run --directory tooling mypy --platform darwin src tests
 uv run --directory tooling mypy --platform linux src tests
 # scripts/ IS STANDALONE: it has no package settings of its own, and it
 # runs before anything is installed, so it is checked strictly as a file.
-uv run mypy --strict scripts
+uv run mypy --strict scripts apps/site/tests
 '''
 
 [tasks.test]
@@ -171,6 +171,69 @@ fi
 uv run pytest "${paths[@]}"
 '''
 
+
+# --- The project site ---------------------------------------------------------
+# apps/site is Astro with React islands, built by bun. Its acceptance tests run
+# under Python so `mise run test` stays the one fast gate and the browser tests
+# stay out of the pre-push hook, the same split test:backend used upstream.
+
+[tasks."e2e:install"]
+description = "Install Playwright and the browser the acceptance tests drive"
+# SEPARATE FROM site:install, AND IT MUST BE. Bundling the two meant the browser
+# could not be installed until apps/site/package.json existed, which blocks the
+# first acceptance test from ever running red for the right reason -- it would
+# error on a missing dependency instead of failing on absent content.
+#
+# TWO INSTALLS, NOT ONE. uv sync --extra e2e gets the Playwright package; the
+# browser binary lives outside the venv (~/Library/Caches/ms-playwright on
+# macOS) and is fetched separately.
+run = '''
+set -euo pipefail
+uv sync --extra e2e
+uv run playwright install chromium
+'''
+
+[tasks."site:lock"]
+description = "Resolve the site's dependencies into bun.lock, upgrading nothing else"
+# THE BOOTSTRAP CASE, AND ONLY THAT. bun install --frozen-lockfile does NOT
+# refuse when bun.lock is absent, unlike uv sync --locked which does: the first
+# install here reported 242 packages and wrote no lockfile, so nothing pinned
+# them and every clone would have resolved its own Astro. This task writes the
+# lockfile deliberately; site:install then requires it.
+run = "bun install --cwd apps/site --save-text-lockfile"
+
+[tasks."site:install"]
+description = "Install the site's JavaScript dependencies from bun.lock"
+# REFUSES A MISSING LOCKFILE, which bun does not do on its own. Run site:lock
+# once to create it, and treat any later refusal as a real disagreement between
+# package.json and bun.lock rather than a bootstrap problem.
+run = '''
+set -euo pipefail
+test -f apps/site/bun.lock || {
+  echo "refusing: apps/site/bun.lock is missing. Run: mise run site:lock" >&2
+  exit 1
+}
+bun install --cwd apps/site --frozen-lockfile
+'''
+
+[tasks."site:dev"]
+description = "Run the site's dev server on http://localhost:4321"
+run = "bun run --cwd apps/site dev"
+
+[tasks."site:build"]
+description = "Build the site to apps/site/dist"
+run = "bun run --cwd apps/site build"
+
+[tasks."test:e2e"]
+description = "Acceptance tests: a real browser against the built site (needs site:install)"
+# AGAINST THE BUILD, NOT THE DEV SERVER. The dev server transforms on demand, so
+# a page can render there and fail once built; the proposal ships the build, so
+# that is what the tests must judge. The fixture starts a preview server and
+# stops it, including when a test fails.
+run = '''
+set -euo pipefail
+uv run pytest apps/site/tests
+'''
 
 # --- Repository settings ------------------------------------------------------
 # contracts/repository-settings.json is the merge policy; these tasks enforce it
