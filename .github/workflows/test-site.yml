@@ -58,3 +58,20 @@ jobs:
 
       - name: Acceptance tests against the built site
         run: mise run test:e2e
+
+      # THE SHEET IS BUILT HERE, NOT IN test-tooling. Its four assertions read a
+      # rendered pdf, so they need Chromium and pypdf, which the tooling workflow
+      # does not install: they have been skipping there since they were written,
+      # and a gate that never runs is not a gate. This job already has both.
+      - name: Build the one-page architecture sheet
+        run: mise run pdf:build
+
+      - name: Assert the rendered sheet carries every section
+        run: mise run test -- tooling/tests/test_onepager.py
+
+      - name: Keep the sheet as a downloadable artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: project-architecture
+          path: build/onepager/
+          if-no-files-found: error
