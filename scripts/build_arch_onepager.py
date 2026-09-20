@@ -27,11 +27,21 @@ RESEARCH_QUESTION = (
     "statistics, and from target-level features that require no graph at all?"
 )
 
-RQ_NOTE = (
-    "The operative word in the brief is <i>whether</i>: this is a feasibility question "
-    "with an admissible negative answer, not a maximise-the-metric question. The second "
-    "is <i>relationships</i>: the brief does not ask whether a neural network can predict "
-    "safety, but whether relational structure is what does the predicting."
+DATA_NOTE = (
+    "<b>DATA</b> &mdash; <b>Open Targets 26.03</b>, open Parquet: <b>target</b> "
+    "(safety nested inside), <b>drug_warning</b> (Tier 1 labels), "
+    "<b>evidence_clinical_precedence</b> (earns a negative), drug_mechanism_of_action, "
+    "openfda_significant_adverse_drug_reactions (Tier 3). Hetionet / PrimeKG for "
+    "replication. Endpoint DAG from <b>EFO</b> / MONDO / HPO; <b>MedDRA</b> is licensed "
+    "and not redistributed."
+)
+
+STACK_NOTE = (
+    "<b>STACK</b> &mdash; <b>uv 0.12.7</b> &middot; <b>bun 1.4.2</b> &middot; gh 2.101.0 "
+    "&middot; <b>mise 2026.9.9</b>, each the vendor&#39;s artifact for darwin and linux, "
+    "with its published <b>sha256</b> in <b>toolchain.json</b>; nix flake check runs "
+    "every tool and asserts the version it reports. Astro 7.3.3 &middot; Python 3.13.15 "
+    "&middot; PyG &middot; PyKEEN."
 )
 
 CENTRAL_GOAL = (
@@ -482,11 +492,12 @@ def build_html() -> str:
   <div class="qcell hero">
     <h2>The research question</h2>
     <div class="qbody">{RESEARCH_QUESTION}</div>
-    <div class="qnote">{RQ_NOTE}</div>
+    <div class="qnote">{DATA_NOTE}</div>
   </div>
   <div class="qcell">
     <h2>Central goal</h2>
     <div class="qbody">{CENTRAL_GOAL}</div>
+    <div class="qnote">{STACK_NOTE}</div>
   </div>
   <div class="qcell">
     <h2>The machine learning objective</h2>
