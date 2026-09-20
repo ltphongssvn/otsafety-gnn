@@ -186,3 +186,10 @@ outputs/
 .artifacts/
 .cache/
 .idea/
+
+# --- The project site ---
+# Build output and generated types; bun.lock is TRACKED, because without it
+# --frozen-lockfile has nothing to be frozen against.
+apps/site/node_modules/
+apps/site/dist/
+apps/site/.astro/

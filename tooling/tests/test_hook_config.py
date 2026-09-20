@@ -205,9 +205,10 @@ def test_the_gates_cover_every_python_directory() -> None:
     one that governs it.
     """
     tasks = _tasks()
-    for gate in ("lint", "fmt"):
-        assert "scripts" in tasks[gate]["run"], f"the {gate} task does not cover scripts/"
-    assert "scripts" in tasks["types"]["run"], "the types task does not cover scripts/"
+    for directory in ("scripts", "apps/site/tests"):
+        for gate in ("lint", "fmt"):
+            assert directory in tasks[gate]["run"], f"the {gate} task does not cover {directory}/"
+        assert directory in tasks["types"]["run"], f"the types task does not cover {directory}/"
 
 
 def test_the_cluster_keeps_its_package_cache_beside_the_environment() -> None:
