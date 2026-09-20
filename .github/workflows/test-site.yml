@@ -1,0 +1,60 @@
+# .github/workflows/test-site.yml
+# The site's acceptance tests, on Linux, for every pull request.
+#
+# WHY A SECOND WORKFLOW. test-tooling.yml runs lint, types and test -- the fast
+# gates, which install no browser. These tests build the site with bun and drive
+# a real Chromium against the BUILT output, which takes a browser download and
+# several minutes. Keeping them apart means a tooling change is not made to wait
+# on a browser, and a site change is still checked on the platform it is served
+# from. Without this workflow the site could break on Linux and merge unnoticed,
+# which is the failure test-tooling.yml was written to end.
+#
+# BOOTSTRAPPED THE SAME WAY: scripts/bootstrap.sh installs the toolchain.json
+# releases and verifies every digest, and MISE_ENV=ood selects the task shell for
+# machines without Nix, which a GitHub runner is.
+#
+# THROUGH THE TASKS, NOT AROUND THEM. site:install and test:e2e are the same
+# commands the laptop runs, so "passing" cannot mean something different here.
+name: Test Site
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  MISE_ENV: ood
+
+jobs:
+  test-site:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install the declared toolchain
+        run: |
+          sh scripts/bootstrap.sh
+          # GITHUB_PATH, not a step-level env: PATH, which would replace the
+          # runner's own because env.HOME and env.PATH are empty in that context.
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Trust this checkout's task configuration
+        run: mise trust
+
+      - name: Install the site's dependencies from bun.lock
+        run: mise run site:install
+
+      - name: Install Playwright and its browser
+        run: mise run e2e:install
+
+      - name: Acceptance tests against the built site
+        run: mise run test:e2e
