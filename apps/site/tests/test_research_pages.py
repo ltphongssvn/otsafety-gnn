@@ -61,3 +61,36 @@ def test_the_stack_page_names_the_pinned_toolchain(page: Page, site_server: str)
     body = page.locator("body")
     for tool in ("toolchain.json", "uv", "bun", "mise", "Astro"):
         expect(body).to_contain_text(tool)
+
+
+# --- /data against the verified 26.03 release -----------------------------------
+# The page was written before the live server was listed, so it named "Open
+# Targets Platform" with no release and omitted the two datasets that turned out
+# to matter most. Every name below was read off the 26.03 output directory, and
+# conf/config.yaml ingests exactly these.
+
+DATA_2603 = [
+    "26.03",
+    "drug_warning",
+    "evidence_clinical_precedence",
+    "drug_mechanism_of_action",
+    "openfda_significant_adverse_drug_reactions",
+    "Parquet",
+]
+
+
+def test_the_data_page_names_the_pinned_release_and_its_datasets(
+    page: Page, site_server: str
+) -> None:
+    page.goto(f"{site_server}/data")
+    body = page.locator("body")
+    for text in DATA_2603:
+        expect(body).to_contain_text(text)
+
+
+def test_the_data_page_names_the_endpoint_hierarchy(page: Page, site_server: str) -> None:
+    """A DAG from open ontologies, because MedDRA cannot be redistributed."""
+    page.goto(f"{site_server}/data")
+    body = page.locator("body")
+    for text in ("EFO", "MONDO", "HPO", "DAG"):
+        expect(body).to_contain_text(text)

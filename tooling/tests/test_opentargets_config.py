@@ -152,3 +152,27 @@ def test_the_label_sources_are_not_also_relations() -> None:
         f"{sorted(overlap)} appear as both a label source and an edge relation; "
         f"the model would read its own labels off the message graph"
     )
+
+
+# --- the site states what the config ingests ----------------------------------
+# /data restated the sources in apps/site/src/data/research.ts and drifted: it
+# named "Open Targets Platform" with no release while conf/config.yaml pinned
+# 26.03, and omitted the two datasets that turned out to matter most. Reading the
+# TypeScript for exact strings is brittle, but the check it replaces was a human
+# noticing, which is how the drift went unnoticed in the first place.
+
+SITE_DATA = REPO_ROOT / "apps" / "site" / "src" / "data" / "research.ts"
+
+
+def test_the_site_names_the_release_the_config_pins() -> None:
+    version = _config()["data"]["platform_version"]
+    assert f'release: "{version}"' in SITE_DATA.read_text(encoding="utf-8"), (
+        f"the site does not state release {version}, which conf/config.yaml pins"
+    )
+
+
+def test_the_site_names_every_label_source_the_config_ingests() -> None:
+    site = SITE_DATA.read_text(encoding="utf-8")
+    named = _named_datasets(_config())
+    for dataset in sorted(named["labels"]):
+        assert f'"{dataset}"' in site, f"the site does not name label source {dataset}"

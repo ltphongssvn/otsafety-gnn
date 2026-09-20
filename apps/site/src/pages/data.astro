@@ -10,10 +10,19 @@ import { SOURCES } from "../data/research";
 >
   {SOURCES.map((s) => (
     <section class="src">
-      <h2>{s.name} <span class={s.open ? "open" : "closed"}>
+      <h2>{s.name}{s.release && <span class="rel"> {s.release}</span>} <span class={s.open ? "open" : "closed"}>
         {s.open ? "open" : "licensed"}</span></h2>
       <p>{s.role}</p>
       <p class="lic"><strong>Licence:</strong> {s.licence}</p>
+      {s.datasets && (
+        <table class="ds">
+          <tbody>
+            {s.datasets.map((ds) => (
+              <tr><td><code>{ds.name}</code></td><td>{ds.role}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </section>
   ))}
   <style>
@@ -27,5 +36,10 @@ import { SOURCES } from "../data/research";
               padding: .05rem .35rem; }
     .src p { font-size: .88rem; margin: .3rem 0; }
     .lic { color: var(--muted); }
+    .rel { color: var(--teal); font-weight: 700; }
+    .ds { border-collapse: collapse; width: 100%; font-size: .84rem; margin-top: .5rem; }
+    .ds td { padding: .35rem .5rem; border-bottom: 1px solid var(--hair); vertical-align: top; }
+    .ds td:first-child { width: 22rem; white-space: nowrap; }
+    .ds code { font-family: ui-monospace, Menlo, monospace; font-size: .8rem; color: var(--teal); }
   </style>
 </Base>
