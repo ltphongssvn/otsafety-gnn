@@ -18,7 +18,7 @@ import pytest
 
 from otsafety_tooling.paths import REPO_ROOT
 
-GENERATOR = REPO_ROOT / "scripts" / "build_onepager.py"
+GENERATOR = REPO_ROOT / "scripts" / "build_arch_onepager.py"
 
 # Phases as the revised plan states them. Phase 5 is deliberately absent: the
 # rule against architecture decision records removed it, and a sheet that still
@@ -66,13 +66,22 @@ def test_the_generator_names_no_cancelled_practice() -> None:
         assert term not in block, f"the rendered phase band still names {term!r}"
 
 
-def test_the_generator_reads_the_sites_data_rather_than_copying_it() -> None:
-    """One source for the layers and the questions, or they will disagree."""
+def test_the_generator_declares_every_section_the_sheet_renders() -> None:
+    """The sheet carries nine sections, and a generator missing one renders a
+    page that looks complete and is not.
+
+    An earlier version read these tables from apps/site/src/data for a single
+    source of truth. The round trip through a plain-string parser silently
+    dropped the inline emphasis, the As Code and As Data columns, the SVG
+    execution spine and the workstream band, and the sheet rendered four of
+    nine sections. Declaring them here and asserting the RENDERED pdf below is
+    the trade that keeps the sheet whole.
+    """
     src = _generator_source()
-    assert "apps/site/src/data" in src, (
-        "the generator does not read the site's data; a second copy of the "
-        "layers and questions will drift from the pages that render them"
-    )
+    for table in ("LAYERS", "NESTED", "SWEEP", "STAGES", "SCOPE_IN", "THREADS"):
+        assert f"{table} = [" in src, f"the generator does not declare {table}"
+    for fn in ("flow_svg", "thread_rows", "layer_rows"):
+        assert f"def {fn}" in src, f"the generator does not render {fn}"
 
 
 def test_the_generator_asserts_its_own_page_count() -> None:
