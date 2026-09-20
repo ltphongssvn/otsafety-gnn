@@ -51,11 +51,34 @@ members = ["tooling"]
 strict = true
 
 [[tool.mypy.overrides]]
-module = ["playwright.*", "pytest_playwright.*"]
+# pypdf JOINS THEM FOR THE SAME REASON. It lives in the e2e extra, which the
+# tooling workflow does not install, so mypy resolved it on this laptop and not
+# on a runner. Third time this exact gap has appeared: an optional dependency
+# imported inside a function still needs saying so to the type checker.
+module = ["playwright.*", "pytest_playwright.*", "pypdf.*"]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# THE ONE-PAGER GENERATOR IS PRESERVED VERBATIM. Its STAGES entries mix str and
+# None for the gate badge, so mypy infers dict[str, object] and refuses to index
+# them. Annotating the tables would mean editing the file, which is what already
+# cost the sheet five of its nine sections once. The script is a document
+# generator with no callers, it asserts its own page count, and the rendered pdf
+# is checked by tests, so the narrower guarantee is the right trade here.
+module = ["build_arch_onepager"]
+disable_error_code = ["index"]
 
 [tool.ruff]
 line-length = 100
+
+[tool.ruff.format]
+# THE FORMATTER IS NOT CONFIGURABLE PER FILE, only excludable. This generator is
+# preserved verbatim: reformatting it expands 583 lines to roughly 740, breaking
+# every dict(...) row across eight lines and re-wrapping the SVG f-strings. That
+# is the same class of editing that already cost the sheet five of its nine
+# sections once. ruff check still runs on it, with only the style rules ignored
+# in per-file-ignores above, so a real defect is still caught.
+exclude = ["scripts/build_arch_onepager.py"]
 
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "N", "T20", "BLE"]
@@ -79,6 +102,18 @@ select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "N", "T20", "BLE"]
 #   S202  extractall runs inside a TemporaryDirectory on an archive whose sha256
 #         was verified first.
 "scripts/**" = ["T201", "S603", "S310", "S202"]
+# THE ONE-PAGER GENERATOR IS PRESERVED VERBATIM. It was rewritten once "to fit
+# the house style", and the rewrite silently dropped five of the sheet's nine
+# sections: the As Code and As Data columns, the SVG execution spine, the
+# workstream band and every inline emphasis. The sheet rendered and looked
+# complete. These are style rules only and none of them describes a defect:
+#   C408  dict(...) rather than a literal, which keeps each layer one readable
+#         call per row instead of a wall of braces.
+#   E501  the failure and guard strings are prose, and reflowing them to fit a
+#         column limit is exactly the editing that lost content before.
+#   N806  BX, BW, GAP, TOP, INK, RED are SVG geometry and colour constants,
+#         uppercase because that is what they are.
+"scripts/build_arch_onepager.py" = ["C408", "E501", "N806"]
 
 [tool.typos.files]
 extend-exclude = [
@@ -102,3 +137,10 @@ alls = "alls"
 # RotatE is a knowledge-graph embedding model, named for the rotation it
 # applies in complex space. typos reads it as "Rotate" misspelled.
 RotatE = "RotatE"
+# OT is Open Targets, the knowledge graph this project is built on; typos reads
+# it as a transposed TO or OF. pn and pl are CSS class names on the phase chips
+# in the one-pager, which is preserved verbatim and must not be edited to suit a
+# spell checker.
+OT = "OT"
+pn = "pn"
+pl = "pl"

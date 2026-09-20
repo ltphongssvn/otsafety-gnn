@@ -193,3 +193,9 @@ outputs/
 apps/site/node_modules/
 apps/site/dist/
 apps/site/.astro/
+
+# --- Generated documents ---
+# The one-page sheet is generated from apps/site/src/data, never authored, so
+# committing it would create a second copy to keep in step. mise run pdf:build
+# rebuilds it, and CI uploads it as a workflow artifact.
+build/
