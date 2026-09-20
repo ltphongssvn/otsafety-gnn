@@ -79,3 +79,64 @@ def test_the_generator_asserts_its_own_page_count() -> None:
     """A one-page sheet that silently becomes two pages is not a one-pager."""
     src = _generator_source()
     assert "PAGE_COUNT" in src, "the generator does not report its page count"
+
+
+# --- the rendered sheet, when one has been built -----------------------------
+# READING THE SOURCE IS NOT READING THE OUTPUT. The tests above check what the
+# generator declares; these check what Chromium actually laid out. A section
+# that is declared and then dropped by a layout error passes the first set and
+# fails this one.
+
+PDF = REPO_ROOT / "build" / "onepager" / "project-architecture.pdf"
+
+REQUIRED_SECTIONS = [
+    "THE RESEARCH QUESTION",
+    "CENTRAL GOAL",
+    "MACHINE LEARNING OBJECTIVE",
+    "REQUIRED MODEL SWEEP",
+    "THREE NESTED QUESTIONS",
+    "HOW IT RUNS",
+    "SCOPE BOUNDARIES",
+    "DELIVERY PHASES",
+]
+
+REQUIRED_CONTENT = [
+    "HALT",  # the audit gate stops the run
+    "REJECT",  # the promotion gate does not
+    "RotatE",  # the shallow-KGE rung
+    "GraphSAGE",  # the relation-agnostic control that isolates Q3
+    "Open Targets",
+    "BIKG",
+]
+
+
+def _pdf_text() -> str:
+    if not PDF.is_file():
+        pytest.skip(f"no sheet at {PDF}; run `mise run pdf:build`")
+    pypdf = pytest.importorskip("pypdf", reason="the e2e extra is not installed")
+    # extract_text is untyped, and strict mypy will not return Any as str.
+    text: str = pypdf.PdfReader(str(PDF)).pages[0].extract_text()
+    return text
+
+
+def test_the_rendered_sheet_carries_every_section() -> None:
+    text = _pdf_text().upper()
+    for section in REQUIRED_SECTIONS:
+        assert section in text, f"the sheet does not render the section {section!r}"
+
+
+def test_the_rendered_sheet_carries_the_content_a_reader_needs() -> None:
+    text = _pdf_text()
+    for item in REQUIRED_CONTENT:
+        assert item in text, f"the sheet does not render {item!r}"
+
+
+def test_the_rendered_sheet_is_one_page() -> None:
+    if not PDF.is_file():
+        pytest.skip("no sheet built")
+    pypdf = pytest.importorskip("pypdf")
+    assert len(pypdf.PdfReader(str(PDF)).pages) == 1
+
+
+def test_the_rendered_sheet_names_no_cancelled_practice() -> None:
+    assert "ADR" not in _pdf_text()
