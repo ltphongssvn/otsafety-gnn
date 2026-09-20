@@ -99,3 +99,6 @@ extend-ignore-re = [
 
 [tool.typos.default.extend-identifiers]
 alls = "alls"
+# RotatE is a knowledge-graph embedding model, named for the rotation it
+# applies in complex space. typos reads it as "Rotate" misspelled.
+RotatE = "RotatE"
