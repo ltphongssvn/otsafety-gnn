@@ -149,3 +149,47 @@ def test_the_rendered_sheet_is_one_page() -> None:
 
 def test_the_rendered_sheet_names_no_cancelled_practice() -> None:
     assert "ADR" not in _pdf_text()
+
+
+# --- DATA and STACK in the question band --------------------------------------
+# The research-question card carried a note on the words "whether" and
+# "relationships". It was replaced by what a reader needs to judge feasibility:
+# which data, under what licence, and which pinned tools reproduce the result.
+# Every dataset name below was read off the 26.03 release listing.
+
+DATA_TERMS = [
+    "DATA",
+    "Open Targets 26.03",
+    "drug_warning",
+    "evidence_clinical_precedence",
+    "MedDRA",
+    "EFO",
+]
+
+STACK_TERMS = [
+    "STACK",
+    "uv 0.12.7",
+    "bun 1.4.2",
+    "mise 2026.9.9",
+    "toolchain.json",
+    "sha256",
+]
+
+REMOVED_NOTE = "The operative word in the brief is"
+
+
+def test_the_rendered_sheet_carries_the_data_block() -> None:
+    text = _pdf_text()
+    for term in DATA_TERMS:
+        assert term in text, f"the DATA block does not render {term!r}"
+
+
+def test_the_rendered_sheet_carries_the_stack_block() -> None:
+    text = _pdf_text()
+    for term in STACK_TERMS:
+        assert term in text, f"the STACK block does not render {term!r}"
+
+
+def test_the_research_question_note_is_gone() -> None:
+    """Replaced, not appended: the space it held is where DATA now sits."""
+    assert REMOVED_NOTE not in _pdf_text()
