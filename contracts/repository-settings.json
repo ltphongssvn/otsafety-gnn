@@ -1,0 +1,11 @@
+{
+  "$comment": "contracts/repository-settings.json -- the repository's merge policy, applied by `mise run repo:configure` and verified by `mise run repo:check`. GitFlow: merge commits only; merged branches are deleted; pr merges synchronously, so auto-merge stays off.",
+  "contract": "repository-settings/v1",
+  "settings": {
+    "allow_merge_commit": true,
+    "allow_squash_merge": false,
+    "allow_rebase_merge": false,
+    "allow_auto_merge": false,
+    "delete_branch_on_merge": true
+  }
+}

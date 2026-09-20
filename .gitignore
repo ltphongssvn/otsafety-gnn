@@ -1,8 +1,9 @@
+# .gitignore
 # ============================================================================
 # File:     otsafety-gnn/.gitignore
 # Purpose:  Root-level Git ignore rules preventing tool artifacts, secrets,
 #           and platform-specific build outputs from ever being tracked in
-#           the FleetManagement monorepo.
+#           this repository, copied from FleetManagement.
 #
 # Why it exists:
 #   The Frozen Stack (Fleet-Management-Stack.pdf) mandates a polyglot
@@ -157,7 +158,8 @@ __pycache__/
 *$py.class
 .venv/
 venv/
-.python-version
+# .python-version is TRACKED: it is the CPython pin flake.nix reads and
+# uv installs from, so every environment must receive it.
 *.egg-info/
 .eggs/
 .pytest_cache/
@@ -175,3 +177,12 @@ outputs/
 *.pkl
 *.pth
 *.onnx
+
+# --- Shared evidence and scratch ---
+# Every worktree records into the MAIN checkout's .artifacts/, because
+# `git worktree remove` deletes ignored files along with the directory.
+# .cache/ holds PYTHONPYCACHEPREFIX bytecode; .idea/ is IntelliJ's, kept out so
+# an IDE cannot stage its own settings.
+.artifacts/
+.cache/
+.idea/

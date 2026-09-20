@@ -1,0 +1,55 @@
+[dependency-groups]
+dev = [
+    # git hooks; the PyPI wheel is lefthook's official binary
+    "lefthook==2.1.14",
+    # spell checker; must equal the rev frozen in .pre-commit-config.yaml (CI)
+    "typos==1.49.0",
+    "prek>=0.4.14,<1.0.0",
+    "typer>=0.27.1,<1.0.0",
+    "zizmor>=1.29.0",
+]
+
+github-actions = [
+    "smokeshow >=0.5.0",
+]
+
+[tool.uv]
+# Must equal toolchain.json's uv version; uv refuses to run otherwise.
+required-version = "==0.12.7"
+# Never an unmanaged interpreter (course, Homebrew or Nix Python).
+python-preference = "only-managed"
+# Lock for, and require wheels on, exactly the laptop and the cluster.
+environments = [
+  "sys_platform == 'darwin' and platform_machine == 'arm64'",
+  "sys_platform == 'linux' and platform_machine == 'x86_64'",
+]
+required-environments = [
+  "sys_platform == 'darwin' and platform_machine == 'arm64'",
+  "sys_platform == 'linux' and platform_machine == 'x86_64'",
+]
+
+[tool.uv.workspace]
+members = ["backend", "tooling"]
+
+[tool.typos.files]
+extend-exclude = [
+    "img/",
+    "uv.lock",
+    "bun.lock",
+    "backend/coverage/",
+    "backend/htmlcov/",
+    "backend/app/frontend/",
+    "frontend/dist/",
+    "frontend/public/assets/images/",
+]
+
+[tool.typos.default]
+extend-ignore-re = [
+    # GitHub usernames in @mentions
+    "@[a-zA-Z0-9](?:-?[a-zA-Z0-9])*",
+    # Name of the package in the PR title
+    "Bump certifi ",
+]
+
+[tool.typos.default.extend-identifiers]
+alls = "alls"
