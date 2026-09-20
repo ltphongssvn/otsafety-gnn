@@ -1,0 +1,68 @@
+# tooling/pyproject.toml
+# REPOSITORY TOOLING: the git workflow, and later the gates, policy and
+# evidence ledger. A workspace member of its own, so none of it ships in the
+# backend image and none of the backend's dependencies leak into it.
+[project]
+name = "otsafety-tooling"
+version = "0.1.0"
+description = "Repository tooling for otsafety-gnn: git workflow, gates, policy"
+requires-python = "==3.13.*"
+dependencies = [
+    "pydantic>=2.9,<3",
+]
+
+[project.optional-dependencies]
+# THE EXPERIMENT TRACKER, INSTALLED ONLY WHERE EXPERIMENTS RUN. MLflow is a
+# large dependency and the git tasks do not need it: a machine that only syncs
+# and opens pull requests installs none of this. The adapter imports it inside
+# its methods, so otsafety_tooling.tracking loads without it, and its tests skip
+# when it is absent.
+#
+#   uv sync --extra ml
+ml = [
+    "mlflow>=3.10,<4",
+]
+
+[[tool.mypy.overrides]]
+# MLflow IS OPTIONAL BY DESIGN, so a machine that installed only the git tasks
+# cannot resolve it, and mypy said so in continuous integration while passing on
+# a laptop that had the ml extra. The tests skip when it is absent; this is the
+# same statement for the type checker. Strictness is untouched everywhere else,
+# and the adapter imports mlflow inside its methods so nothing else depends on
+# it being present.
+module = ["mlflow.*"]
+ignore_missing_imports = true
+
+[dependency-groups]
+dev = [
+    "mypy>=1.8,<3",
+    "pytest>=8,<10",
+    "ruff>=0.15,<1",
+]
+
+[build-system]
+requires = ["uv_build>=0.12,<0.13"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "otsafety_tooling"
+
+[tool.pytest.ini_options]
+# A typo'd marker or config key is an error, not a silent new marker; a
+# passing xfail is a failure, so a fixed bug cannot leave an empty test behind.
+addopts = ["--strict-markers", "--strict-config", "-ra"]
+xfail_strict = true
+testpaths = ["tests"]
+
+[tool.mypy]
+strict = true
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+# S (bandit) is selected so every `noqa: S603/S607` in this package is a
+# reviewed decision rather than a rule nobody enabled.
+select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "N", "T20"]
+# CLI entry points print by design.
+per-file-ignores = { "tests/**" = ["S101", "S603", "S607"], "src/otsafety_tooling/git/*.py" = ["T201"] }
