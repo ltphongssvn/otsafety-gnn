@@ -38,6 +38,22 @@ members = ["tooling"]
 # unused. Deleting those directives would have silenced the message and left the
 # site tests held to a weaker standard than the rest of the repository. The
 # selection matches tooling/pyproject.toml so one bar applies everywhere.
+# MYPY FOR EVERY PYTHON FILE OUTSIDE THE TOOLING PACKAGE. The playwright
+# override lives in tooling/pyproject.toml, which apps/site/tests does not
+# resolve against, so the laptop passed only because the e2e extra was installed
+# there and CI failed on an unresolved import. Same shape as the ruff gap above:
+# a configuration that exists in one package and nowhere else.
+#
+# PLAYWRIGHT IS OPTIONAL BY DESIGN. mise run test is the fast gate and installs
+# none of it; mise run test:e2e is the browser one. The test module skips when
+# the extra is absent, and this is that statement for the type checker.
+[tool.mypy]
+strict = true
+
+[[tool.mypy.overrides]]
+module = ["playwright.*", "pytest_playwright.*"]
+ignore_missing_imports = true
+
 [tool.ruff]
 line-length = 100
 
