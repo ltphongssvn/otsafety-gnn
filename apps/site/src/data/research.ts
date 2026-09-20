@@ -46,14 +46,24 @@ export const LADDER_RULE =
   "resolve a 0.02 difference in average precision, and most reported wins on " +
   "biomedical knowledge graphs sit inside that band.";
 
+export type Dataset = { name: string; role: string };
+
 export type Source = {
   name: string; role: string; licence: string; open: boolean;
+  release?: string; datasets?: Dataset[];
 };
 
 export const SOURCES: Source[] = [
-  { name: "Open Targets Platform", open: true,
-    role: "The substrate. Quarterly Parquet releases, jointly maintained by EMBL-EBI, the Sanger Institute and industry partners, carrying the target-safety widget that draws on ToxCast, AOPWiki and ClinPGx.",
-    licence: "Open, redistributable. Pinned by release version and content hash in the run record." },
+  { name: "Open Targets Platform", open: true, release: "26.03",
+    role: "The substrate, ingested as Parquet rather than through the GraphQL API: the vendor's own documentation says GraphQL serves a single target, disease, drug or association and directs systematic queries to the downloads. Jointly maintained by EMBL-EBI, the Sanger Institute and industry partners.",
+    licence: "Open, redistributable. Pinned to 26.03 in conf/config.yaml; every dataset name below was read off the release listing, because post-25.03 the paths became snake_case and singular and the older camelCase names download nothing.",
+    datasets: [
+      { name: "target", role: "Target safety lives here, nested. There is no top-level safety dataset." },
+      { name: "drug_warning", role: "Withdrawals and black-box warnings: curated, drug-level, the Tier 1 label source." },
+      { name: "evidence_clinical_precedence", role: "Earns a negative: phase 3 or above with no liability recorded." },
+      { name: "drug_mechanism_of_action", role: "Drug to target, the edge the attribution step deconvolves." },
+      { name: "openfda_significant_adverse_drug_reactions", role: "Drug to adverse event. Tier 3 only, never pooled with Tier 1." },
+    ] },
   { name: "Hetionet / PrimeKG", open: true,
     role: "Secondary graphs, used to replicate whatever result Open Targets gives on a different construction of the same biology.",
     licence: "Open, redistributable." },
