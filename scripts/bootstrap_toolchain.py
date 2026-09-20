@@ -93,9 +93,7 @@ def installed_version(binary: str) -> str | None:
     return parse_version(result.stdout) if result.returncode == 0 else None
 
 
-def plan_tool(
-    name: str, entry: dict[str, Any], key: str, installed: str | None
-) -> Plan:
+def plan_tool(name: str, entry: dict[str, Any], key: str, installed: str | None) -> Plan:
     """Skip, install, or refuse, for one declared tool."""
     wanted = entry["version"]
     artifact = entry["artifacts"].get(key)
@@ -115,9 +113,7 @@ def plan_tool(
     )
 
 
-def plan_all(
-    toolchain: dict[str, Any], key: str, installed: dict[str, str | None]
-) -> list[Plan]:
+def plan_all(toolchain: dict[str, Any], key: str, installed: dict[str, str | None]) -> list[Plan]:
     """A plan for every declared tool, in declaration order."""
     return [
         plan_tool(name, entry, key, installed.get(name))
@@ -156,9 +152,7 @@ def _extract(archive: Path, into: Path) -> None:
         bundle.extractall(into, filter="data")
 
 
-def install(
-    plan: Plan, entry: dict[str, Any], key: str, destination: Path
-) -> list[Path]:
+def install(plan: Plan, entry: dict[str, Any], key: str, destination: Path) -> list[Path]:
     """Download, verify, extract, and place every declared binary."""
     artifact = entry["artifacts"][key]
     installed: list[Path] = []
@@ -192,9 +186,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"platform: {key}")
     print(f"destination: {destination}")
 
-    names = [
-        n for n, e in toolchain.items() if isinstance(e, dict) and "artifacts" in e
-    ]
+    names = [n for n, e in toolchain.items() if isinstance(e, dict) and "artifacts" in e]
     installed = {name: installed_version(name) for name in names}
     plans = plan_all(toolchain, key, installed)
 
