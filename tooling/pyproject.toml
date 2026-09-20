@@ -9,6 +9,11 @@ description = "Repository tooling for otsafety-gnn: git workflow, gates, policy"
 requires-python = "==3.13.*"
 dependencies = [
     "pydantic>=2.9,<3",
+    # conf/config.yaml is read by the ingestion config test and by data:check.
+    # NOT an optional extra: a test that skips when a parser is absent is a test
+    # that never runs on a runner, and the config it guards names datasets that
+    # silently downloaded nothing for three releases.
+    "pyyaml>=6,<7",
 ]
 
 [project.optional-dependencies]
@@ -51,6 +56,9 @@ ignore_missing_imports = true
 [dependency-groups]
 dev = [
     "mypy>=1.8,<3",
+    # yaml ships no inline types, and strict mypy will not read an untyped
+    # import. Stubs rather than an ignore: the config shape is worth checking.
+    "types-PyYAML>=6,<7",
     "pytest>=8,<10",
     "ruff>=0.15,<1",
 ]
