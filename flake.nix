@@ -106,6 +106,10 @@
               "gh version ${toolchain.gh.version} "*) ;;
               *) echo "gh version mismatch" >&2; exit 1 ;;
             esac
+            railway_reported="$(${tools.railway}/bin/railway --version)"
+            echo "railway: $railway_reported"
+            [ "$railway_reported" = "railway ${toolchain.railway.version}" ] \
+              || { echo "railway version mismatch" >&2; exit 1; }
             echo ok > $out
           '';
         });
