@@ -10,18 +10,12 @@
 // experiment, resampling test pairs. Across SEEDS, with five values, a
 // percentile bootstrap is unreliable; this is the t-interval,
 // mean +/- t(0.975, n-1) * s / sqrt(n), and the page labels it as that.
-import { readFileSync, readdirSync, existsSync } from "node:fs";
-import { join } from "node:path";
-import { ARTIFACTS } from "./evidence";
+import { readRecords } from "./evidence";
+import { experimentRunV1Schema } from "../contracts/experiment-run.v1.gen";
 
 export const PRIMARY_METRIC = "average_precision";
 export const REQUIRED_SEEDS = 5;
 
-type Record = {
-  experiment: string; status: string; dataset_digest: string;
-  working_tree_clean: boolean; deterministic: boolean; commit: string;
-  metrics: { [name: string]: number };
-};
 
 // Two-sided 95% critical values of Student's t, by degrees of freedom.
 const T975: { [df: number]: number } = {
@@ -46,20 +40,17 @@ export type Summary = {
   enoughSeeds: boolean;
 };
 
-function readRecords(): Record[] {
-  const dir = join(ARTIFACTS, "experiments");
-  if (!existsSync(dir)) return [];
-  return readdirSync(dir)
-    .filter((f) => f.endsWith(".json"))
-    .map((f) => JSON.parse(readFileSync(join(dir, f), "utf-8")) as Record)
-    .filter((r) => r.status === "completed");
+// Parsed at the trust boundary by the Zod generated from ExperimentRun: a record
+// that does not match experiment-run/v1 fails the build rather than a figure.
+function completedRuns() {
+  return readRecords("experiments", experimentRunV1Schema).filter((r) => r.status === "completed");
 }
 
 export function summarise(experiments: string[]): {
   summaries: { [experiment: string]: Summary };
   reference: string | null;
 } {
-  const records = readRecords();
+  const records = completedRuns();
 
   // THE REFERENCE DATASET is the one most records were measured on. A rung on
   // another digest measured something else, and setting it beside the others

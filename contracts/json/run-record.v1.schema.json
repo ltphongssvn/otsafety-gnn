@@ -1,0 +1,130 @@
+{
+  "additionalProperties": false,
+  "description": "What one task run did: its identity, timing, outcome and output.",
+  "properties": {
+    "contract": {
+      "const": "run-record/v1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "id": {
+      "maxLength": 32,
+      "minLength": 6,
+      "pattern": "^[0-9a-f]+$",
+      "title": "Id",
+      "type": "string"
+    },
+    "task": {
+      "pattern": "^[a-z][a-z0-9]*(?:[:-][a-z0-9]+)*$",
+      "title": "Task",
+      "type": "string"
+    },
+    "arguments": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Arguments",
+      "type": "array"
+    },
+    "started_at": {
+      "format": "date-time",
+      "title": "Started At",
+      "type": "string"
+    },
+    "ended_at": {
+      "format": "date-time",
+      "title": "Ended At",
+      "type": "string"
+    },
+    "duration_ms": {
+      "minimum": 0,
+      "title": "Duration Ms",
+      "type": "integer"
+    },
+    "exit_code": {
+      "title": "Exit Code",
+      "type": "integer"
+    },
+    "outcome": {
+      "enum": [
+        "success",
+        "failure"
+      ],
+      "title": "Outcome",
+      "type": "string"
+    },
+    "error_type": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Error Type"
+    },
+    "repository": {
+      "minLength": 1,
+      "title": "Repository",
+      "type": "string"
+    },
+    "branch": {
+      "minLength": 1,
+      "title": "Branch",
+      "type": "string"
+    },
+    "commit": {
+      "pattern": "^[0-9a-f]{40}$",
+      "title": "Commit",
+      "type": "string"
+    },
+    "machine": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "title": "Machine",
+      "type": "string"
+    },
+    "output_file": {
+      "minLength": 1,
+      "title": "Output File",
+      "type": "string"
+    },
+    "output_bytes": {
+      "minimum": 0,
+      "title": "Output Bytes",
+      "type": "integer"
+    },
+    "output_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Output Sha256",
+      "type": "string"
+    },
+    "truncated": {
+      "title": "Truncated",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "contract",
+    "id",
+    "task",
+    "arguments",
+    "started_at",
+    "ended_at",
+    "duration_ms",
+    "exit_code",
+    "outcome",
+    "error_type",
+    "repository",
+    "branch",
+    "commit",
+    "machine",
+    "output_file",
+    "output_bytes",
+    "output_sha256",
+    "truncated"
+  ],
+  "title": "RunRecord",
+  "type": "object"
+}

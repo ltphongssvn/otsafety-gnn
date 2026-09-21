@@ -1,0 +1,117 @@
+{
+  "additionalProperties": false,
+  "description": "One settings check, recorded as data.",
+  "properties": {
+    "contract": {
+      "const": "repository-settings-check/v1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "repository": {
+      "minLength": 1,
+      "title": "Repository",
+      "type": "string"
+    },
+    "findings": {
+      "items": {
+        "additionalProperties": false,
+        "description": "One reason the repository does not match its declared settings.",
+        "properties": {
+          "rule_id": {
+            "enum": [
+              "S001",
+              "S002",
+              "S003"
+            ],
+            "title": "Rule Id",
+            "type": "string"
+          },
+          "reason_code": {
+            "title": "Reason Code",
+            "type": "string"
+          },
+          "message": {
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
+          },
+          "setting": {
+            "anyOf": [
+              {
+                "enum": [
+                  "allow_merge_commit",
+                  "allow_squash_merge",
+                  "allow_rebase_merge",
+                  "allow_auto_merge",
+                  "delete_branch_on_merge"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Setting"
+          },
+          "expected": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected"
+          },
+          "observed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed"
+          }
+        },
+        "required": [
+          "rule_id",
+          "reason_code",
+          "message",
+          "setting",
+          "expected",
+          "observed"
+        ],
+        "title": "SettingFinding",
+        "type": "object"
+      },
+      "title": "Findings",
+      "type": "array"
+    },
+    "verdict": {
+      "enum": [
+        "pass",
+        "fail",
+        "unknown"
+      ],
+      "title": "Verdict",
+      "type": "string"
+    }
+  },
+  "required": [
+    "contract",
+    "generated_at",
+    "repository",
+    "findings",
+    "verdict"
+  ],
+  "title": "SettingsCheckReport",
+  "type": "object"
+}

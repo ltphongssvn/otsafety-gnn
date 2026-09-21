@@ -52,10 +52,10 @@ const fmt = (ms: number) => (ms / 1000).toFixed(1) + "s";
           <span data-verdict={c.verdict} class={c.verdict === "pass" ? "ok" : "bad"}>
             {c.verdict}
           </span>
-          <span class="when">{c.recorded_at ?? ""}</span>
-          {c.findings?.length > 0 && (
+          <span class="when">{c.generated_at.replace("T", " ").slice(0, 16)}</span>
+          {c.findings.length > 0 && (
             <ul class="findings">
-              {c.findings.map((f) => <li><code>{f.rule}</code> {f.detail}</li>)}
+              {c.findings.map((f) => <li><code>{f.rule_id}</code> {f.message}</li>)}
             </ul>
           )}
         </li>

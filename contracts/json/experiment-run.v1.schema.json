@@ -1,0 +1,166 @@
+{
+  "additionalProperties": false,
+  "description": "One experiment: what was run, on what, with what, and what came out.",
+  "properties": {
+    "contract": {
+      "const": "experiment-run/v1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "id": {
+      "maxLength": 32,
+      "minLength": 6,
+      "pattern": "^[0-9a-f]+$",
+      "title": "Id",
+      "type": "string"
+    },
+    "experiment": {
+      "pattern": "^[a-z][a-z0-9]*(?:[:-][a-z0-9]+)*$",
+      "title": "Experiment",
+      "type": "string"
+    },
+    "started_at": {
+      "format": "date-time",
+      "title": "Started At",
+      "type": "string"
+    },
+    "ended_at": {
+      "format": "date-time",
+      "title": "Ended At",
+      "type": "string"
+    },
+    "duration_ms": {
+      "minimum": 0,
+      "title": "Duration Ms",
+      "type": "integer"
+    },
+    "status": {
+      "enum": [
+        "completed",
+        "failed"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "error_type": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Error Type"
+    },
+    "commit": {
+      "pattern": "^[0-9a-f]{40}$",
+      "title": "Commit",
+      "type": "string"
+    },
+    "working_tree_clean": {
+      "title": "Working Tree Clean",
+      "type": "boolean"
+    },
+    "dataset": {
+      "minLength": 1,
+      "title": "Dataset",
+      "type": "string"
+    },
+    "dataset_digest": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Dataset Digest",
+      "type": "string"
+    },
+    "seeds": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "minProperties": 1,
+      "title": "Seeds",
+      "type": "object"
+    },
+    "deterministic": {
+      "title": "Deterministic",
+      "type": "boolean"
+    },
+    "python_version": {
+      "pattern": "^\\d+\\.\\d+",
+      "title": "Python Version",
+      "type": "string"
+    },
+    "packages": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "minProperties": 1,
+      "title": "Packages",
+      "type": "object"
+    },
+    "params": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "integer"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      },
+      "title": "Params",
+      "type": "object"
+    },
+    "metrics": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Metrics",
+      "type": "object"
+    },
+    "artifacts": {
+      "additionalProperties": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "title": "Artifacts",
+      "type": "object"
+    },
+    "machine": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "title": "Machine",
+      "type": "string"
+    }
+  },
+  "required": [
+    "contract",
+    "id",
+    "experiment",
+    "started_at",
+    "ended_at",
+    "duration_ms",
+    "status",
+    "error_type",
+    "commit",
+    "working_tree_clean",
+    "dataset",
+    "dataset_digest",
+    "seeds",
+    "deterministic",
+    "python_version",
+    "packages",
+    "params",
+    "metrics",
+    "artifacts",
+    "machine"
+  ],
+  "title": "ExperimentRun",
+  "type": "object"
+}

@@ -271,6 +271,17 @@ uv sync --extra e2e --inexact
 uv run playwright install chromium
 '''
 
+[tasks."contracts:generate"]
+description = "Regenerate the contract pipeline: Pydantic -> JSON Schema -> the site's Zod"
+# IN ORDER, AND BOTH HALVES. The Pydantic models are the single source; their JSON
+# Schema is committed under contracts/json/, and the site's Zod is generated from
+# that. Tests fail when either committed half differs from what this produces.
+run = """
+set -euo pipefail
+uv run python -m otsafety_tooling.contracts.schemas
+bun run apps/site/scripts/generate-contracts.ts
+"""
+
 [tasks."site:lock"]
 description = "Resolve the site's dependencies into bun.lock, upgrading nothing else"
 # THE BOOTSTRAP CASE, AND ONLY THAT. bun install --frozen-lockfile does NOT
