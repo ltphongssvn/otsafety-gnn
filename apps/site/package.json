@@ -10,9 +10,13 @@
     "check": "astro check"
   },
   "dependencies": {
-    "astro": "^7.3.1",
     "@astrojs/react": "^5.0.0",
+    "astro": "^7.3.1",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "json-schema-to-zod": "2.8.1"
   }
 }

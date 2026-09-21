@@ -1,0 +1,6 @@
+// GENERATED from contracts/json/run-record.v1.schema.json by scripts/generate-contracts.ts.
+// Do not edit: change the Pydantic model and run mise run contracts:generate.
+import { z } from "zod"
+
+export const runRecordV1Schema = z.object({ "contract": z.literal("run-record/v1"), "id": z.string().regex(new RegExp("^[0-9a-f]+$")).min(6).max(32), "task": z.string().regex(new RegExp("^[a-z][a-z0-9]*(?:[:-][a-z0-9]+)*$")), "arguments": z.array(z.string()), "started_at": z.string().datetime({ offset: true }), "ended_at": z.string().datetime({ offset: true }), "duration_ms": z.number().int().gte(0), "exit_code": z.number().int(), "outcome": z.enum(["success","failure"]), "error_type": z.union([z.string().min(1), z.null()]), "repository": z.string().min(1), "branch": z.string().min(1), "commit": z.string().regex(new RegExp("^[0-9a-f]{40}$")), "machine": z.string().regex(new RegExp("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")), "output_file": z.string().min(1), "output_bytes": z.number().int().gte(0), "output_sha256": z.string().regex(new RegExp("^[0-9a-f]{64}$")), "truncated": z.boolean() }).strict().describe("What one task run did: its identity, timing, outcome and output.")
+
