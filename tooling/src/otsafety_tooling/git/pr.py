@@ -57,6 +57,11 @@ from otsafety_tooling.paths import REPO_ROOT
 
 PROTECTED = frozenset({"develop", "main"})
 INTEGRATION_BRANCH = "develop"
+RELEASE_BRANCH = "main"
+
+# FleetManagement's empty-release loop: a content-free back-merge re-ran CI,
+# which promoted again and cut an empty release. [skip ci] ends it.
+BACK_MERGE_MESSAGE = "chore: back-merge main into develop [skip ci]"
 
 # HOW LONG EACH PHASE MAY TAKE.
 # Registration is fast: a workflow appears within seconds of a push.
@@ -339,16 +344,16 @@ def verify_checks(checks: tuple[Check, ...]) -> None:
         raise SystemExit(f"merge refused: unacceptable checks: {', '.join(failing)}")
 
 
-def verify_target(pr: PullRequest) -> None:
-    """Refuse a pull request that does not target the integration branch.
+def verify_target(pr: PullRequest, base: str = INTEGRATION_BRANCH) -> None:
+    """Refuse a pull request that does not target the expected branch.
 
-    GITFLOW: feature and dependency updates enter through develop. main changes
-    only through release and hotfix branches, which this task does not merge.
+    GITFLOW: feature and dependency updates enter through develop, which is the
+    default, so `mise run pr` still cannot merge into main. Only `promote` asks
+    for main, explicitly.
     """
-    if pr.base != INTEGRATION_BRANCH:
+    if pr.base != base:
         raise SystemExit(
-            f"merge refused: PR #{pr.number} targets {pr.base or '(unknown)'!r}, "
-            f"not {INTEGRATION_BRANCH!r}"
+            f"merge refused: PR #{pr.number} targets {pr.base or '(unknown)'!r}, not {base!r}"
         )
 
 
@@ -379,7 +384,9 @@ def execute_merge(pr_number: int) -> MergeResult:
     return MergeResult.model_validate_json(response.stdout)
 
 
-def merge_when_green(pr_number: int | None = None) -> MergeResult | None:
+def merge_when_green(
+    pr_number: int | None = None, base: str = INTEGRATION_BRANCH
+) -> MergeResult | None:
     """Observe, verify, act, observe the result."""
     if not wait_for_checks_to_register(time.monotonic() + CHECKS_APPEAR_TIMEOUT, pr_number):
         raise SystemExit(f"no checks registered within {CHECKS_APPEAR_TIMEOUT}s")
@@ -389,7 +396,7 @@ def merge_when_green(pr_number: int | None = None) -> MergeResult | None:
         print(f"PR #{observed.number} is already {observed.state}")
         return None
 
-    verify_target(observed)
+    verify_target(observed, base)
     verify_checks(observed.checks)
 
     result = execute_merge(observed.number)
@@ -414,6 +421,137 @@ def merge_existing(pr_number: int) -> int:
     return 0
 
 
+class PromotionPlan(BaseModel, frozen=True, extra="forbid"):
+    """Whether develop has anything main lacks."""
+
+    action: Literal["promote", "nothing"]
+    ahead: NonNegativeInt = Field(strict=True)
+
+
+def plan_promotion(ahead: int) -> PromotionPlan:
+    return PromotionPlan(action="promote" if ahead else "nothing", ahead=ahead)
+
+
+def _git_or_exit(*args: str, why: str) -> str:
+    result = git(*args, cwd=REPO_ROOT)
+    if result.returncode != 0:
+        report(result)
+        raise SystemExit(why)
+    return result.stdout.strip()
+
+
+def back_merge() -> None:
+    """Bring main's merge commit into develop, so develop never drifts behind.
+
+    FleetManagement's third bug: without this, develop falls one commit behind
+    main at every release.
+    """
+    _git_or_exit(
+        "fetch",
+        "origin",
+        RELEASE_BRANCH,
+        INTEGRATION_BRANCH,
+        "--quiet",
+        why="fetch failed before the back-merge",
+    )
+    contained = git(
+        "merge-base", "--is-ancestor", f"origin/{RELEASE_BRANCH}", "HEAD", cwd=REPO_ROOT
+    )
+    if contained.returncode == 0:
+        print(f"{INTEGRATION_BRANCH} already contains {RELEASE_BRANCH}; no back-merge needed")
+        return
+    _git_or_exit(
+        "merge",
+        "--no-ff",
+        f"origin/{RELEASE_BRANCH}",
+        "-m",
+        BACK_MERGE_MESSAGE,
+        why="back-merge failed; develop is unchanged on origin",
+    )
+    _git_or_exit("push", "origin", INTEGRATION_BRANCH, why="push of the back-merge refused")
+    print(f"back-merged {RELEASE_BRANCH} into {INTEGRATION_BRANCH} with [skip ci]")
+
+
+def promote() -> int:
+    """Merge develop into main through a verified pull request, then back-merge.
+
+    Ported from FleetManagement's promote.yml. Run under the person's own gh
+    login, so the merge emits a push event and release.yml cuts the version;
+    a GITHUB_TOKEN merge would not, which is why FleetManagement needed an App.
+    """
+    branch = _git_or_exit("rev-parse", "--abbrev-ref", "HEAD", why="cannot read the branch")
+    if branch != INTEGRATION_BRANCH:
+        raise SystemExit(f"refusing: promote runs from {INTEGRATION_BRANCH}, not {branch!r}")
+    if _git_or_exit("status", "--porcelain", why="cannot read the working tree"):
+        raise SystemExit("refusing: the working tree is not clean")
+    _git_or_exit("fetch", "origin", "--prune", "--tags", "--quiet", why="fetch failed")
+    local = _git_or_exit("rev-parse", "HEAD", why="cannot resolve HEAD")
+    remote = _git_or_exit("rev-parse", f"origin/{INTEGRATION_BRANCH}", why="no origin/develop")
+    if local != remote:
+        raise SystemExit(
+            f"refusing: local {INTEGRATION_BRANCH} differs from origin; run mise run sync"
+        )
+
+    ahead = int(
+        _git_or_exit(
+            "rev-list",
+            "--count",
+            f"origin/{RELEASE_BRANCH}..origin/{INTEGRATION_BRANCH}",
+            why="cannot compare main with develop",
+        )
+    )
+    if plan_promotion(ahead).action == "nothing":
+        print(f"nothing to promote: {RELEASE_BRANCH} already has every commit")
+        return 0
+
+    query = (
+        "pr",
+        "list",
+        "--base",
+        RELEASE_BRANCH,
+        "--head",
+        INTEGRATION_BRANCH,
+        "--state",
+        "open",
+        "--json",
+        "number",
+        "--jq",
+        ".[0].number // empty",
+    )
+    existing = gh(*query).strip()
+    if existing:
+        print(f"reusing open promotion PR #{existing}")
+    else:
+        gh(
+            "pr",
+            "create",
+            "--base",
+            RELEASE_BRANCH,
+            "--head",
+            INTEGRATION_BRANCH,
+            "--title",
+            "release: promote develop to main",
+            "--body",
+            f"{ahead} commit(s) from {INTEGRATION_BRANCH}. Merging runs "
+            "release.yml, which cuts the version tag and GitHub Release.",
+        )
+        existing = gh(*query).strip()
+    number = int(existing)
+    print(f"promoting {ahead} commit(s) through PR #{number}\n")
+
+    merge_when_green(number, base=RELEASE_BRANCH)
+    final = pr_state(number)
+    if not final.is_merged:
+        raise SystemExit(f"PR #{number} is {final.state}, not MERGED")
+
+    back_merge()
+    print(
+        "\npromoted. next: the Release workflow cuts the tag; then check out the "
+        "tag and run mise run deploy:site"
+    )
+    return 0
+
+
 def parse_number(argv: list[str]) -> int:
     """The single positive integer argument of `merge`, or a usage error."""
     if len(argv) != 1 or not argv[0].isdigit() or int(argv[0]) < 1:
@@ -425,8 +563,10 @@ def main(argv: list[str] | None = None) -> int:
     args = sys.argv[1:] if argv is None else argv
     if args[:1] == ["merge"]:
         return merge_existing(parse_number(args[1:]))
+    if args == ["promote"]:
+        return promote()
     if args:
-        raise SystemExit("usage: python -m otsafety_tooling.git.pr [merge <number>]")
+        raise SystemExit("usage: python -m otsafety_tooling.git.pr [merge <number> | promote]")
 
     branch = git("rev-parse", "--abbrev-ref", "HEAD", cwd=REPO_ROOT).stdout.strip()
     if branch in PROTECTED:
