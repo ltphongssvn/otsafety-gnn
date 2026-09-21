@@ -224,13 +224,19 @@ PHASES = [
     ("11", "Research execution", "todo"),
 ]
 
+# Workstream B was the sandbox spike. It is gone, not paused: every line is
+# re-derived red-first in this repository, so there is nothing left to port.
 THREADS = [
     ("A", "Research definition", 100, "done",
      "Question, ML objective, Q1/Q2/Q3, granularity, label source"),
-    ("B", "Reference spike", 100, "quarantined",
-     "28 files, 25 tests green — NOT TDD-derived, reference only"),
-    ("C", "Engineering platform", 0, "active",
-     "Repo, GitFlow, worktree, stack, contracts, policy, CI, evidence"),
+    ("B", "Engineering platform", 100, "done",
+     "Toolchain pinned, 41 tasks, evidence, policy, CI on macOS and Linux"),
+    ("C", "Deliverables", 70, "active",
+     "Site: architecture, method, data, stack, evidence. Sheet: fonts vendored"),
+    ("D", "Experiment tracking", 100, "done",
+     "MLflow + W&B behind one port, in the default composition, 22 tests on CI"),
+    ("E", "The GNN package", 0, "todo",
+     "Contracts, ingest, splits, leakage, degree null, attribution, the ladder"),
 ]
 
 # Execution spine. Each stage names the As-Code artifact that DEFINES it and the
@@ -498,7 +504,7 @@ td.ad{width:36mm;color:var(--green);}
 .flownote b{color:var(--red);}
 
 footer{margin-top:auto;border-top:1.6px solid var(--ink);padding-top:6px;
-  display:grid;grid-template-columns:1fr 78mm 74mm;gap:6mm;}
+  display:grid;grid-template-columns:1fr 70mm 84mm;gap:5mm;}
 .ftitle{font-size:6.5pt;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);
   font-weight:700;margin-bottom:4px;}
 .scope{display:grid;grid-template-columns:1fr 46mm;gap:5mm;}
@@ -516,20 +522,21 @@ footer{margin-top:auto;border-top:1.6px solid var(--ink);padding-top:6px;
 .chip .pl{font-size:6.6pt;}
 .chip.now{background:var(--ink);border-color:var(--ink);}
 .chip.now .pn,.chip.now .pl{color:#fff;font-weight:700;}
-.thread{margin-bottom:4px;}
-.th-head{font-size:7.1pt;}
+.threads{display:grid;grid-template-columns:1fr 1fr;gap:2px 5mm;}
+.thread{margin-bottom:2px;}
+.th-head{font-size:6.6pt;}
 .th-head b{color:var(--indigo);}
 .st{font-size:5.7pt;text-transform:uppercase;letter-spacing:.5px;padding:1px 4px;
   border-radius:2px;margin-left:4px;font-weight:700;}
 .st.done{background:#dff0e6;color:var(--green);}
-.st.quarantined{background:#fdeede;color:var(--amber);}
 .st.active{background:#e6e9f7;color:var(--indigo);}
+.st.todo{background:#eef1f4;color:var(--muted);}
 .bar{height:3.5px;background:#eef1f4;border-radius:2px;margin:2.5px 0 2px;overflow:hidden;}
 .fill{height:100%;}
 .fill.done{background:var(--green);}
-.fill.quarantined{background:var(--amber);}
 .fill.active{background:var(--indigo);}
-.th-note{font-size:6.3pt;color:var(--muted);}
+.fill.todo{background:var(--line);}
+.th-note{font-size:5.9pt;color:var(--muted);line-height:1.2;}
 """
 
 
@@ -541,7 +548,7 @@ def build_html() -> str:
 
 <header>
   <h1>Project Architecture &mdash; Target-Safety GNN on a Biomedical Knowledge Graph</h1>
-  <div class="hstat"><b>Status</b> Phase 0 / Step 0.1 &middot; nothing written to disk yet</div>
+  <div class="hstat"><b>Status</b> Phase 8 &middot; 383 tests, 11 pull requests &middot; both trackers verified on Linux</div>
 </header>
 
 <div class="qband">
@@ -614,7 +621,7 @@ def build_html() -> str:
   </div>
   <div>
     <div class="ftitle">Workstreams</div>
-    {thread_rows()}
+    <div class="threads">{thread_rows()}</div>
   </div>
 </footer>
 
