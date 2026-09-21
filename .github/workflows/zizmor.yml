@@ -3,7 +3,8 @@ name: Zizmor
 on:
   push:
     branches:
-      - master
+      - develop
+      - main
   pull_request:
   workflow_dispatch:
 

@@ -7,6 +7,7 @@ dev = [
     "prek>=0.4.14,<1.0.0",
     "typer>=0.27.1,<1.0.0",
     "zizmor>=1.29.0",
+    "python-semantic-release==10.6.2",
 ]
 
 github-actions = [
@@ -144,3 +145,22 @@ RotatE = "RotatE"
 OT = "OT"
 pn = "pn"
 pl = "pl"
+
+# RELEASES, PORTED FROM FleetManagement WITH A PYTHON ENGINE. On a push to main,
+# python-semantic-release reads the Conventional Commits since the last tag and
+# creates the next vX.Y.Z tag and a GitHub Release. Nothing is committed back to
+# main -- FleetManagement omits @semantic-release/git for the same reason -- so
+# the GitHub Release is the changelog of record.
+#
+# DEFAULTS ARE STATED, because a default is what an upgrade changes silently.
+# One is tightened: the default branch pattern is (main|master), and no master
+# exists here to be matched by accident.
+[tool.semantic_release]
+commit_parser = "conventional"
+tag_format = "v{version}"
+allow_zero_version = false
+major_on_zero = true
+
+[tool.semantic_release.branches.main]
+match = "^main$"
+prerelease = false
