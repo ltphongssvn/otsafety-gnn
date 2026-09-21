@@ -1,0 +1,45 @@
+---
+// apps/site/src/pages/data.astro
+import Base from "../layouts/Base.astro";
+import { SOURCES } from "../data/research";
+---
+<Base
+  title="Data"
+  lead="A public, open-source knowledge graph is the specification, so what can and
+        cannot be redistributed is part of the method rather than a footnote."
+>
+  {SOURCES.map((s) => (
+    <section class="src">
+      <h2>{s.name}{s.release && <span class="rel"> {s.release}</span>} <span class={s.open ? "open" : "closed"}>
+        {s.open ? "open" : "licensed"}</span></h2>
+      <p>{s.role}</p>
+      <p class="lic"><strong>Licence:</strong> {s.licence}</p>
+      {s.datasets && (
+        <table class="ds">
+          <tbody>
+            {s.datasets.map((ds) => (
+              <tr><td><code>{ds.name}</code></td><td>{ds.role}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </section>
+  ))}
+  <style>
+    .src { border-bottom: 1px solid var(--hair); padding: 1rem 0; }
+    .src h2 { font-size: 1rem; margin: 0 0 .4rem; }
+    .open { font-size: .68rem; text-transform: uppercase; letter-spacing: .06em;
+            color: var(--teal); border: 1px solid var(--teal); border-radius: 3px;
+            padding: .05rem .35rem; }
+    .closed { font-size: .68rem; text-transform: uppercase; letter-spacing: .06em;
+              color: var(--red); border: 1px solid var(--red); border-radius: 3px;
+              padding: .05rem .35rem; }
+    .src p { font-size: .88rem; margin: .3rem 0; }
+    .lic { color: var(--muted); }
+    .rel { color: var(--teal); font-weight: 700; }
+    .ds { border-collapse: collapse; width: 100%; font-size: .84rem; margin-top: .5rem; }
+    .ds td { padding: .35rem .5rem; border-bottom: 1px solid var(--hair); vertical-align: top; }
+    .ds td:first-child { width: 22rem; white-space: nowrap; }
+    .ds code { font-family: ui-monospace, Menlo, monospace; font-size: .8rem; color: var(--teal); }
+  </style>
+</Base>

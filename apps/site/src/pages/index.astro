@@ -1,0 +1,21 @@
+---
+// apps/site/src/pages/index.astro
+import Base from "../layouts/Base.astro";
+import { QUESTIONS } from "../data/architecture";
+---
+<Base
+  title="Target-Safety GNN on a Biomedical Knowledge Graph"
+  lead="Do the typed relationships in a public biomedical knowledge graph predict
+        drug-safety endpoints for protein targets — beyond node popularity, and
+        beyond target features that need no graph at all?"
+>
+  <p>
+    The operative word in the brief is <em>whether</em>. This is a feasibility
+    question with an admissible negative answer, and the pipeline is built so it
+    can return one.
+  </p>
+  <ul>
+    {QUESTIONS.map((q) => <li><strong>{q.id}</strong> — {q.question}</li>)}
+  </ul>
+  <p><a href="/architecture/">The nine layers, and what fails at each →</a></p>
+</Base>

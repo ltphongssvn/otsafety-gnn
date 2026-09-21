@@ -1,0 +1,770 @@
+# mise.toml
+# TASKS. Tool versions live in toolchain.json (executables, installed by
+# flake.nix) and uv.lock (Python packages, including every linter, test runner
+# and git hook); this file owns neither.
+#
+# EVERY PROJECT OPERATION IS A TASK, ON EVERY MACHINE. The laptop, Lightning AI
+# and FAS OnDemand run these same definitions; no git or gh command is typed by
+# hand. A one-off CLI invocation is behaviour that exists only in one person's
+# shell history: untested, undiscoverable, and invisible to review.
+#
+# Mirrors cscie103-olap-oltp. NO [tools] BLOCK and NO [settings] BLOCK: a second
+# declaration of the toolchain is the drift this repository removes.
+
+min_version = "2026.9.9"
+
+[env]
+# BYTECODE IS WRITTEN OUTSIDE THE SOURCE TREE. Python otherwise creates a
+# __pycache__ beside every imported module, and a directory commit swept 17 of
+# them into history before any rule ignored them. PYTHONPYCACHEPREFIX (Python
+# 3.8+) redirects every .pyc into one ignored directory per checkout; the root
+# .gitignore and the commit task's artifact check remain as further layers.
+PYTHONPYCACHEPREFIX = "{{config_root}}/.cache/pycache"
+
+# WEIGHTS & BIASES MODE IS ENVIRONMENT, NEVER CODE. Offline unless the
+# environment already chose: get_env keeps an explicit WANDB_MODE, so Lightning AI
+# setting online is not overridden here, while the laptop and CI default to
+# offline and need no key. The tracker never reads or sets the mode itself.
+#
+# NO WANDB_DIR HERE. config_root is the worktree in a linked worktree, so runs
+# written there would die with `git worktree remove`; the adapter resolves the
+# evidence root instead, as MLflow's store does.
+WANDB_MODE = "{{ get_env(name='WANDB_MODE', default='offline') }}"
+WANDB_PROJECT = "{{ get_env(name='WANDB_PROJECT', default='otsafety-gnn') }}"
+# THE ENTITY IS NOT DECLARED HERE, AND THAT IS DELIBERATE. Without one an online
+# run lands in whoever ran it personal project rather than a shared one, which is
+# how results scatter across accounts. But exporting WANDB_ENTITY="" is worse
+# than leaving it unset: an empty string is still a value, and it would only fail
+# the first time anyone ran online. This repository owns no account, so the
+# environment that runs online sets it, and wandb:check refuses online without it.
+
+[task_config]
+# EVERY TASK RUNS INSIDE THE NIX DEVSHELL, so uv, bun and gh resolve to the
+# toolchain.json releases rather than whatever PATH holds. FAS OnDemand cannot
+# run Nix practically; mise.ood.toml (MISE_ENV=ood) replaces this shell there.
+#
+# THE SHELL IS PINNED TO BASH, and every multi-command task opens with
+# `set -euo pipefail`: bash does not set errexit, so otherwise a task reports
+# only its LAST command's exit code.
+shell = "nix develop --command bash -c"
+
+# --- Nix ----------------------------------------------------------------------
+
+[tasks."nix:shell"]
+description = "Enter the Nix devShell interactively"
+run = "nix develop"
+
+[tasks."nix:flake-check"]
+description = "Build and run the toolchain check for this platform; evaluate every platform"
+# --all-systems evaluates Linux from the laptop; building it happens in CI.
+run = '''
+set -euo pipefail
+nix flake check --print-build-logs
+nix flake check --no-build --all-systems
+'''
+
+# --- Dependencies -------------------------------------------------------------
+
+[tasks."deps:lock"]
+description = "Resolve new or changed dependencies into uv.lock, upgrading nothing else"
+# The pinned uv (required-version) resolves; FAS OnDemand and CI then install
+# exactly this lock with --locked. Upgrades are a separate, deliberate task.
+run = "uv lock"
+
+# --- Onboarding ---------------------------------------------------------------
+
+[tasks.setup]
+description = "One-command onboarding: dependencies and git hooks"
+# `lefthook install` writes into .git/hooks, which is not version controlled,
+# so a fresh clone has no hooks until this runs.
+#
+# NEVER ADD -f TO lefthook install: with core.hooksPath pointing at a global
+# directory, forcing would make this repo's hooks run in every repository.
+run = '''
+set -euo pipefail
+
+hooks_path="$(git config --get core.hooksPath || true)"
+if [ -n "$hooks_path" ]; then
+  echo "refusing: core.hooksPath is set to '$hooks_path'." >&2
+  echo "lefthook would decline rather than clobber it, leaving no hooks." >&2
+  echo "inspect:  git config --show-origin --get-all core.hooksPath" >&2
+  echo "then clear it deliberately: git config --unset core.hooksPath" >&2
+  exit 1
+fi
+
+uv sync --locked --all-packages --all-groups
+
+locked="$(uv run lefthook version)"
+uv run lefthook install
+
+# VERIFY WHAT WAS INSTALLED, rather than trusting the configuration.
+# lefthook.yml's `lefthook:` option makes each hook call THIS checkout's
+# .venv/bin/lefthook before anything on PATH, so a global copy (a mise or
+# Homebrew lefthook) can no longer run instead of uv.lock's version.
+hooks_dir="$(git rev-parse --git-path hooks)"
+for hook in pre-commit pre-push; do
+  if ! grep -q '/.venv/bin/lefthook' "$hooks_dir/$hook" 2>/dev/null; then
+    echo "refusing: $hooks_dir/$hook does not call the project's locked lefthook." >&2
+    exit 1
+  fi
+done
+
+echo
+echo "setup complete (lefthook $locked, pinned by lefthook.yml). hooks active:"
+# The hooks path was resolved above: in a linked worktree .git is a file.
+if [ -d "$hooks_dir" ]; then
+  ls "$hooks_dir" | grep -v sample | sed 's|^|  |'
+else
+  echo "  (none found at $hooks_dir)"
+fi
+'''
+
+# --- Individual gates ---------------------------------------------------------
+# EACH IS ITS OWN TASK so it works standalone during iteration. `check`
+# aggregates them and does not replace them, so there is no second copy of the
+# list to drift.
+# EVERY TASK RUNS PYTHON THROUGH uv, NEVER A BARE python3.
+
+[tasks.fmt]
+description = "Apply every safe autofix: formatting AND import ordering"
+# `;` NOT `&&`: ruff check --fix exits non-zero on a finding with no safe fix,
+# and the formatter is often what resolves it. Each directory uses its own
+# pyproject's ruff settings.
+run = "uv run ruff check --fix tooling scripts apps/site/tests ; uv run ruff format tooling scripts apps/site/tests"
+
+[tasks.lint]
+description = "Lint, and check formatting and spelling, without changing anything"
+run = '''
+set -euo pipefail
+uv run ruff check tooling scripts apps/site/tests
+uv run ruff format --check tooling scripts apps/site/tests
+# SPELLING, AS CI CHECKS IT: the template's pre-commit job runs typos
+# (v1.49.0, pinned identically in uv.lock) with the same flag and the
+# [tool.typos] settings in pyproject.toml. Without this, a spelling
+# error passed every local hook and failed only after the push.
+uv run typos --force-exclude
+'''
+
+[tasks.types]
+description = "Strict static type check of the tooling, for both platforms it runs on"
+# mypy narrows sys.platform comparisons to the OS it runs on, so a Darwin-only
+# branch is invisible to a Linux run and vice versa: check both.
+#
+# THE TASK RUNS FROM THE REPOSITORY ROOT, LIKE EVERY OTHER TASK. A task-level
+# `dir` would start `nix develop` in tooling/, where it has to search upward for
+# flake.nix. `uv run --directory` moves only mypy, which reads its settings
+# from tooling/pyproject.toml.
+run = '''
+set -euo pipefail
+uv run --directory tooling mypy --platform darwin src tests
+uv run --directory tooling mypy --platform linux src tests
+# scripts/ IS STANDALONE: it has no package settings of its own, and it
+# runs before anything is installed, so it is checked strictly as a file.
+uv run mypy --strict scripts apps/site/tests
+'''
+
+[tasks.test]
+description = "Hermetic tooling tests: no network, no credentials, no Docker"
+# OPTIONAL PATHS, THE WHOLE SUITE BY DEFAULT. The TDD inner loop runs one file,
+# since each new test module must be seen failing and then passing on its own;
+# the pre-push hook and CI pass no paths and so run everything.
+#
+#   mise run test -- tooling/tests/test_branch_report_contract.py
+#
+# The arguments are parsed by mise, so pytest options are not passed through.
+#
+# NO BASH ARRAY LENGTH (dollar, brace, hash) IN TASK SCRIPTS: mise renders them
+# as Tera templates, where brace-hash opens a comment and rendering fails.
+# Emptiness is tested on the string mise provides instead.
+usage = '''
+arg "[paths]..." var=#true help="Test files or directories; the whole tooling suite when omitted"
+'''
+run = '''
+set -euo pipefail
+if [ -n "${usage_paths-}" ]; then
+  eval "paths=(${usage_paths})"
+else
+  paths=(tooling)
+fi
+uv run pytest "${paths[@]}"
+'''
+
+
+# --- The project site ---------------------------------------------------------
+# apps/site is Astro with React islands, built by bun. Its acceptance tests run
+# under Python so `mise run test` stays the one fast gate and the browser tests
+# stay out of the pre-push hook, the same split test:backend used upstream.
+
+[tasks."ml:install"]
+description = "Install the ml extra: MLflow, recording experiments into a SQLite store"
+# PORTED, NEVER RUN. tracking_mlflow.py and its test arrived with the tooling
+# port from cs1090a-recsys, and the test has skipped on every run here because
+# nothing installed this extra -- so the adapter was claimed and unverified.
+#
+# SQLITE, NOT ./mlruns: MLflow 3.16 refuses the file store as maintenance mode.
+# One file inside the evidence root keeps it offline and serverless, and it is
+# what the Results page reads when the site is built.
+# --inexact: additive, like e2e:install. setup stays exact on purpose -- it is
+# the reset to baseline; these tasks add to it.
+run = "uv sync --extra ml --inexact"
+
+[tasks."wandb:check"]
+description = "Report the W&B mode, and refuse an online run that would land nowhere"
+# ONLINE HAS TWO REQUIREMENTS AND FAILS DIFFERENTLY WITHOUT EACH. No API key and
+# wandb.init raises in a headless environment, which is loud and fine. No entity
+# and it succeeds, writing to whoever ran it personal project -- silent, and only
+# noticed when someone goes looking for results that are not there. This refuses
+# the second, before a run rather than after it.
+run = '''
+set -euo pipefail
+echo "WANDB_MODE=${WANDB_MODE:-unset}"
+echo "WANDB_PROJECT=${WANDB_PROJECT:-unset}"
+echo "WANDB_ENTITY=${WANDB_ENTITY:-unset}"
+echo "WANDB_API_KEY=$([ -n "${WANDB_API_KEY:-}" ] && echo present || echo absent)"
+if [ "${WANDB_MODE:-offline}" = "online" ]; then
+  [ -n "${WANDB_ENTITY:-}" ] || {
+    echo "refusing: WANDB_MODE=online with no WANDB_ENTITY; runs would land in a personal project" >&2
+    exit 1
+  }
+  [ -n "${WANDB_API_KEY:-}" ] || {
+    echo "refusing: WANDB_MODE=online with no WANDB_API_KEY" >&2
+    exit 1
+  }
+fi
+'''
+
+[tasks."wandb:sync"]
+description = "Push offline W&B runs to the server; needs a key, idempotent"
+# THE POST-RUN HOOK. Offline runs that are never synced are the failure cs1090b
+# recorded as "50+ offline runs on disk" beside a README claiming operational.
+# wandb sync is idempotent, so running it twice is safe.
+run = '''
+set -euo pipefail
+[ -n "${WANDB_API_KEY:-}" ] || {
+  echo "refusing: wandb sync needs WANDB_API_KEY" >&2
+  exit 1
+}
+uv run wandb sync --sync-all
+'''
+
+[tasks."wandb:install"]
+description = "Install the wandb extra: Weights & Biases, a first-class tracker beside MLflow"
+# --inexact, like every install task: add this extra without evicting the others.
+run = "uv sync --extra wandb --inexact"
+
+[tasks."e2e:install"]
+description = "Install Playwright and the browser the acceptance tests drive"
+# SEPARATE FROM site:install, AND IT MUST BE. Bundling the two meant the browser
+# could not be installed until apps/site/package.json existed, which blocks the
+# first acceptance test from ever running red for the right reason -- it would
+# error on a missing dependency instead of failing on absent content.
+#
+# TWO INSTALLS, NOT ONE. uv sync --extra e2e gets the Playwright package; the
+# browser binary lives outside the venv (~/Library/Caches/ms-playwright on
+# macOS) and is fetched separately.
+run = '''
+set -euo pipefail
+# --inexact: ADD this extra, do not evict the others. uv sync is exact by
+# default, so installing one extra silently removed every other -- ml:install
+# uninstalled Playwright and pypdf, and e2e:install would remove MLflow.
+uv sync --extra e2e --inexact
+uv run playwright install chromium
+'''
+
+[tasks."site:lock"]
+description = "Resolve the site's dependencies into bun.lock, upgrading nothing else"
+# THE BOOTSTRAP CASE, AND ONLY THAT. bun install --frozen-lockfile does NOT
+# refuse when bun.lock is absent, unlike uv sync --locked which does: the first
+# install here reported 242 packages and wrote no lockfile, so nothing pinned
+# them and every clone would have resolved its own Astro. This task writes the
+# lockfile deliberately; site:install then requires it.
+run = "bun install --cwd apps/site --save-text-lockfile"
+
+[tasks."site:install"]
+description = "Install the site's JavaScript dependencies from bun.lock"
+# REFUSES A MISSING LOCKFILE, which bun does not do on its own. Run site:lock
+# once to create it, and treat any later refusal as a real disagreement between
+# package.json and bun.lock rather than a bootstrap problem.
+run = '''
+set -euo pipefail
+test -f apps/site/bun.lock || {
+  echo "refusing: apps/site/bun.lock is missing. Run: mise run site:lock" >&2
+  exit 1
+}
+bun install --cwd apps/site --frozen-lockfile
+'''
+
+[tasks."site:dev"]
+description = "Run the site's dev server on http://localhost:4321"
+# THE SITE READS WHAT PYTHON WRITES. Exported from artifacts_root(), so a
+# build in a linked worktree reads the main checkout's evidence, not its own
+# empty .artifacts/.
+run = '''
+set -euo pipefail
+export OTSAFETY_ARTIFACTS="$(uv run python -m otsafety_tooling.artifacts)"
+bun run --cwd apps/site dev
+'''
+
+[tasks."site:build"]
+description = "Build the site to apps/site/dist"
+# THE SITE READS WHAT PYTHON WRITES. Exported from artifacts_root(), so a
+# build in a linked worktree reads the main checkout's evidence, not its own
+# empty .artifacts/.
+run = '''
+set -euo pipefail
+export OTSAFETY_ARTIFACTS="$(uv run python -m otsafety_tooling.artifacts)"
+bun run --cwd apps/site build
+'''
+
+[tasks."site:stage"]
+description = "Build the site against the real evidence and assemble exactly what is uploaded"
+# BUILT HERE, NEVER ON RAILWAY. /evidence and /results are computed from
+# .artifacts/, which git ignores; a build on Railway's builder would publish both
+# pages empty. The stage directory is the whole upload: the service files and
+# the built output, nothing else from the repository.
+run = """
+set -euo pipefail
+export OTSAFETY_ARTIFACTS="$(uv run python -m otsafety_tooling.artifacts)"
+bun run --cwd apps/site build
+rm -rf build/deploy-site
+mkdir -p build/deploy-site
+cp deploy/site/Dockerfile deploy/site/Caddyfile deploy/site/railway.json build/deploy-site/
+cp -R apps/site/dist build/deploy-site/dist
+echo "staged build/deploy-site from evidence at $OTSAFETY_ARTIFACTS"
+"""
+
+[tasks."site:smoke"]
+description = "Build the serving image from the stage and assert real status codes, before any deploy"
+# THE FILES BEING RIGHT IS NOT THE IMAGE WORKING. Tests read the Caddyfile; this
+# runs it. The 404 check matters most: the SPA fallback every Railway example
+# uses would return the home page with a 200 for a mistyped address.
+run = """
+set -euo pipefail
+mise run site:stage
+docker build --platform linux/amd64 -t otsafety-site:smoke build/deploy-site
+cid="$(docker run -d --platform linux/amd64 -e PORT=8080 -p 18080:8080 otsafety-site:smoke)"
+trap 'docker rm -f "$cid" >/dev/null' EXIT
+for i in $(seq 1 40); do curl -sf -o /dev/null http://127.0.0.1:18080/ && break; sleep 0.5; done
+uv run python scripts/check_site.py http://127.0.0.1:18080
+"""
+
+[tasks."release:promote"]
+description = "Merge develop into main through a verified PR, then back-merge with [skip ci]"
+# Ported from FleetManagement's promote.yml. Runs under the person's gh login, so
+# the merge emits a push event and release.yml cuts the version tag.
+run = "uv run python -m otsafety_tooling.git.pr promote"
+
+[tasks."release:preview"]
+description = "Print the version the next release would cut, changing nothing"
+run = "uv run --project tools/release semantic-release --noop version --print"
+
+[tasks."release:version"]
+description = "Cut the next release from main: tag and GitHub Release, nothing committed"
+# Run by .github/workflows/release.yml on every push to main. --no-commit and
+# --no-changelog keep main untouched: the GitHub Release is the changelog.
+run = "uv run --project tools/release semantic-release version --no-commit --no-changelog --tag --push --vcs-release"
+
+[tasks."deploy:site"]
+description = "Deploy the site to Railway: clean tree, smoke-tested image, the commit named"
+# THE TARGET IS EXPLICIT. `railway init` links a directory in ~/.railway on one
+# machine only, so relying on the link would deploy from this laptop and fail on
+# any other. The project and service IDs are not secrets; they need auth to use.
+#
+# TWO FLAGS FAIL SILENTLY WITHOUT THEM, read from `railway up --help` (v5.54.1).
+# build/ is ignored by git, so without --no-gitignore the stage uploads empty.
+# Without --path-as-root the archive root is the project directory, and the
+# Dockerfile is not at the root where Railway looks for it.
+#
+# -m records the commit and branch on the deployment itself, so Railway's own
+# history says which code each deployment came from.
+run = """
+set -euo pipefail
+if [ -n "$(git status --porcelain)" ]; then
+  echo "refusing: the working tree is not clean, so no commit describes what would deploy" >&2
+  exit 1
+fi
+# PRODUCTION RUNS RELEASES, NEVER A BRANCH. The first deploy came from develop
+# because this task checked only for a clean tree. It now refuses unless HEAD is
+# exactly a vX.Y.Z tag that main contains: check out the tag, then deploy.
+git fetch origin main --tags --quiet
+tag="$(git describe --exact-match --tags --match 'v*' HEAD 2>/dev/null)" || {
+  echo "refusing: HEAD is not a release tag; production deploys only vX.Y.Z cut on main" >&2
+  exit 1
+}
+git merge-base --is-ancestor HEAD origin/main || {
+  echo "refusing: $tag is not on origin/main" >&2
+  exit 1
+}
+commit="$(git rev-parse --short=12 HEAD)"
+mise run site:smoke
+railway up build/deploy-site --path-as-root --no-gitignore \
+  --project 1e5d094a-e1f5-4b16-943a-9a499fc29576 \
+  --service 979ff174-ffc2-444f-a91d-54175c55d3a2 \
+  --environment production \
+  --ci -m "deploy $tag ($commit)"
+"""
+
+[tasks."deploy:verify"]
+description = "Check the live site with the same assertions the image passed before deploying"
+run = "uv run python scripts/check_site.py https://otsafetygnn.thanhphongle.net"
+
+[tasks."pdf:render"]
+description = "Render the sheet inside the pinned image: the same bytes on every machine"
+# ONE PINNED IMAGE, BUT NOT ONE RENDER. Pinning the image removed real drift --
+# Chromium and the text-shaping stack were unpinned before this. It did NOT make
+# this laptop reproduce CI: an Apple laptop runs the amd64 image under emulation,
+# and the emulated render floors the page to whole inches (A3's 16.54x11.69in
+# came out 16x11). Bit-for-bit results need a native host of that architecture.
+#
+# SO CI IS THE RENDER OF RECORD. This task is a close preview here; the sheet
+# that publishes is the one a native amd64 runner produces.
+#
+# --platform linux/amd64 is not optional on an Apple laptop: without it Docker
+# runs the arm64 image and the divergence returns wearing a different hat. The
+# digest names the single-platform manifest for the same reason.
+#
+# pdf:build remains, as a preview. This is what publishes.
+run = '''
+set -euo pipefail
+# BUILT, NOT BYPASSED. The first version ran the base image directly, so the
+# Dockerfile's pip layer never applied and the render failed on a missing
+# playwright -- a test asserted the two named the same digest, which is not the
+# same as the task using the file.
+docker build --platform linux/amd64 \
+  -f docker/render.Dockerfile -t otsafety-render:pinned docker/
+docker run --rm --platform linux/amd64 \
+  -v "{{config_root}}:/repo" -w /repo \
+  otsafety-render:pinned \
+  python scripts/build_arch_onepager.py
+'''
+
+[tasks."pdf:build"]
+description = "Preview the sheet with this machine's own browser (see pdf:render)"
+# THE SHEET DECLARES ITS OWN TABLES. An earlier generator read them from
+# apps/site/src/data/architecture.ts for a single source of truth, and the round
+# trip through a plain-string parser silently dropped the inline emphasis, the
+# As Code and As Data columns, the SVG execution spine and the workstream band:
+# the sheet rendered four of nine sections and looked complete. Keeping the
+# tables here preserves the sheet exactly; the site and the sheet are compared
+# by tests rather than by sharing a parser.
+#
+# Needs e2e:install: the renderer is the Chromium the acceptance tests use.
+run = "uv run python scripts/build_arch_onepager.py"
+
+[tasks."test:e2e"]
+description = "Acceptance tests: a real browser against the built site (needs site:install)"
+# AGAINST THE BUILD, NOT THE DEV SERVER. The dev server transforms on demand, so
+# a page can render there and fail once built; the proposal ships the build, so
+# that is what the tests must judge. The fixture starts a preview server and
+# stops it, including when a test fails.
+run = '''
+set -euo pipefail
+uv run pytest apps/site/tests
+'''
+
+# --- Repository settings ------------------------------------------------------
+# contracts/repository-settings.json is the merge policy; these tasks enforce it
+# and record every run under .artifacts/repo-settings/. GitHub shows merge
+# settings only to administrative readers, so a check that cannot see them
+# reports unknown, never pass.
+
+[tasks."repo:check"]
+description = "Verify GitHub's merge settings against contracts/repository-settings.json"
+run = "uv run python -m otsafety_tooling.github.settings check"
+
+[tasks."repo:configure"]
+description = "Apply contracts/repository-settings.json to GitHub, then verify it"
+# CHANGES LIVE SETTINGS. Review the contract file first; the run ends with a check.
+run = "uv run python -m otsafety_tooling.github.settings configure"
+
+# --- Workflow -----------------------------------------------------------------
+
+[tasks.status]
+description = "Show branch, working tree, and how it relates to develop"
+run = '''
+set -euo pipefail
+echo "branch:   $(git rev-parse --abbrev-ref HEAD)"
+echo "upstream: $(git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null || echo '(none)')"
+echo
+echo "--- working tree ---"
+if [ -z "$(git status --porcelain)" ]; then
+  echo "clean"
+else
+  git status --short
+fi
+echo
+echo "--- unmerged into develop ---"
+git log --oneline develop..HEAD 2>/dev/null || echo "(on develop)"
+'''
+
+[tasks.branches]
+description = "Record every branch's state as data and judge it against GitFlow"
+# Fetches with pruning, writes branch-report/v1 to .artifacts/branch-report/,
+# and exits 0 only when the verdict is pass. The rules (B001-B005) are in
+# tooling/src/otsafety_tooling/git/branches.py.
+run = "uv run python -m otsafety_tooling.git.branches"
+
+[tasks."branches:prune"]
+description = "Delete merged remote branches found by the latest branch report (plan unless --apply)"
+# EVIDENCE-DRIVEN: only the newest branch report's B003 findings are candidates,
+# each re-checked against origin before deletion. Every run is recorded under
+# .artifacts/branch-prune/; without --apply nothing is deleted.
+#
+#   mise run branches:prune           # plan
+#   mise run branches:prune --apply   # delete
+usage = '''
+flag "--apply" help="Delete the planned branches on origin instead of only planning"
+'''
+run = '''
+set -euo pipefail
+if [ "${usage_apply-}" = "true" ]; then
+  uv run python -m otsafety_tooling.git.prune --apply
+else
+  uv run python -m otsafety_tooling.git.prune
+fi
+'''
+
+[tasks.run]
+description = "Run any task with its execution recorded as run-record/v1"
+# EVERY RUN LEAVES EVIDENCE: the task, its arguments, exit code, duration,
+# branch and commit, with the output captured in one ordered stream and named
+# after the run, so no two runs overwrite each other.
+#
+#   mise run run branches
+#   mise run run branches:prune --apply
+#
+# The exit code is the wrapped task's, so recording changes nothing else.
+usage = '''
+arg "<task>" help="The task to run, e.g. branches"
+arg "[arguments]..." var=#true help="Arguments passed to that task"
+'''
+run = '''
+set -euo pipefail
+if [ -n "${usage_arguments-}" ]; then
+  eval "arguments=(${usage_arguments})"
+else
+  arguments=()
+fi
+uv run python -m otsafety_tooling.runs "${usage_task?}" "${arguments[@]}"
+'''
+
+[tasks."artifacts:path"]
+description = "Print the clone's shared evidence folder, the main checkout's .artifacts"
+# Every worktree records into the MAIN checkout's .artifacts/, because removing
+# a linked worktree deletes its ignored files. Write shell logs through it:
+#
+#   mise run -q test > "$(mise run -q artifacts:path)/logs/test.log" 2>&1
+#
+# The folder is created by whatever writes into it.
+run = "uv run python -m otsafety_tooling.artifacts"
+
+[tasks."start:check"]
+description = "Refuse to work on a protected branch"
+# Wired into pre-commit so the guard fires before a commit lands.
+run = '''
+set -euo pipefail
+branch="$(git rev-parse --abbrev-ref HEAD)"
+case "$branch" in
+  develop|main)
+    echo "refusing: on protected branch '$branch'." >&2
+    echo "" >&2
+    echo "GitFlow: work happens on a feature branch cut from origin/develop." >&2
+    echo "" >&2
+    echo "nothing is lost -- carry the work across with:" >&2
+    echo "  eval \"\$(mise run start:here <slug>)\"" >&2
+    exit 1 ;;
+esac
+echo "on $branch (not protected)"
+'''
+
+[tasks."start:here"]
+description = "Cut a feature branch from origin/develop in THIS shell"
+# PRINTS the command instead of running it: a task runs in a subshell and
+# cannot change the invoking shell's branch. Use:
+#
+#   eval "$(mise run -q start:here <slug>)"
+#
+# Uncommitted and untracked files come along, as with any `git switch -c`.
+#
+# --no-track: otherwise git may make origin/develop the branch's upstream
+# (machine-dependent, via branch.autoSetupMerge), and sync would never see the
+# merged branch as gone. `pr` sets the real upstream when it pushes.
+usage = '''
+arg "<slug>" help="Short kebab-case description, e.g. git-workflow-tasks"
+'''
+run = '''
+set -euo pipefail
+slug="${usage_slug?}"
+
+case "$slug" in
+  *[!a-z0-9-]*|"")
+    echo "echo 'slug must be lowercase kebab-case: $slug' >&2; false" ;;
+  *)
+    echo "git fetch origin --prune --quiet && git switch --no-track -c feature/$slug origin/develop" ;;
+esac
+'''
+
+[tasks."start:switch"]
+description = "Move THIS shell to an existing branch, e.g. back to develop"
+# PRINTS the command, like start:here: a task runs in a subshell and cannot
+# change the invoking shell's branch. Use:
+#
+#   eval "$(mise run -q start:switch develop)"
+#
+# Refuses an unknown branch, and one another worktree holds, before git would.
+usage = '''
+arg "<branch>" help="An existing local branch, e.g. develop"
+'''
+run = 'uv run python -m otsafety_tooling.git.sync switch "${usage_branch?}"'
+
+[tasks.check]
+description = "Every gate, run to completion, with all failures reported in one pass"
+# NOT `depends`. mise runs dependencies in PARALLEL and reports failure as soon
+# as one fails, so a slower gate may never report at all -- and a gate whose
+# result is never printed is indistinguishable from one that passed. That is how
+# MLflow's seven tests sat green-because-skipped for an entire session here.
+#
+# Ported from cscie103-data-engineering, which observed it directly: "test failed
+# at 1.4s and types never reported at all".
+#
+#   mise run check            laptop: everything, including Nix and Docker
+#   mise run check -- --ci    runner: browser and container, no Nix
+#   mise run check -- --fast  hooks: lint, types, test only
+usage = '''
+arg "[mode]" help="--fast, --ci, or omitted for everything this machine can run"
+'''
+run = "uv run python scripts/check_all.py ${usage_mode-}"
+
+[tasks.commit]
+description = "Commit exactly the named paths with a conventional message, through the hooks"
+# The one git operation cscie103-olap-oltp left to hand-typed commands. Stages
+# only the named paths, refuses if anything else is already staged or a named
+# path has no changes, and lets the pre-commit hook decide as usual.
+#
+#   mise run commit -m "feat(scope): summary" -b "why" -- path/one path/two
+usage = '''
+flag "-m --message <subject>" required=#true help="Conventional subject: type(scope): summary"
+flag "-b --body <body>" default="" help="Explanatory paragraph"
+arg "<paths>..." var=#true help="Files or directories to commit"
+'''
+run = '''
+set -euo pipefail
+eval "paths=(${usage_paths?})"
+uv run python -m otsafety_tooling.git.commit \
+  --message "${usage_message?}" \
+  --body "${usage_body-}" \
+  -- "${paths[@]}"
+'''
+
+[tasks."commit:undo"]
+description = "Undo the last commit, keeping its changes, only if it has not been pushed"
+# Refuses on develop/main, for a pushed, merge or first commit, and when
+# anything is staged. A pushed mistake is fixed with a new commit instead.
+run = "uv run python -m otsafety_tooling.git.commit undo"
+
+[tasks."commit:unstage"]
+description = "Remove the named paths from the index, leaving the files untouched"
+# For files staged by something else (an IDE adding new files automatically);
+# the commit task refuses to run while unrelated files are staged.
+usage = '''
+arg "<paths>..." var=#true help="Files or directories to unstage"
+'''
+run = '''
+set -euo pipefail
+eval "paths=(${usage_paths?})"
+uv run python -m otsafety_tooling.git.commit unstage -- "${paths[@]}"
+'''
+
+# --- Worktrees ----------------------------------------------------------------
+# Sibling checkouts named <repo>-<slug>, on feature/<slug> cut from a freshly
+# fetched origin/develop, with setup run. The ? in ${usage_slug?} fails on a
+# missing argument instead of expanding to an empty string.
+
+[tasks."worktree:add"]
+description = "Create a sibling worktree on a new feature branch, with setup run"
+usage = '''
+arg "<slug>" help="Short kebab-case description, e.g. run-records"
+'''
+run = 'uv run python -m otsafety_tooling.git.worktree add "${usage_slug?}"'
+
+[tasks."worktree:list"]
+description = "List worktrees, their branches, and any locked or prunable flags"
+run = "uv run python -m otsafety_tooling.git.worktree list"
+
+[tasks."worktree:refresh"]
+description = "Rebase an unpushed worktree branch onto current origin/develop"
+# Refuses a dirty tree, and a branch that was already pushed (a rebase would
+# need a force push, which this repository never does).
+usage = '''
+arg "<slug>" help="The slug used with worktree:add"
+'''
+run = 'uv run python -m otsafety_tooling.git.worktree refresh "${usage_slug?}"'
+
+[tasks."worktree:remove"]
+description = "Remove a worktree and delete its merged branch, never forcing either"
+usage = '''
+arg "<slug>" help="The slug used with worktree:add"
+'''
+run = 'uv run python -m otsafety_tooling.git.worktree remove "${usage_slug?}"'
+
+[tasks.sync]
+description = "Advance develop, leave a finished branch, remove branches that are safe to remove"
+# STATE-DRIVEN, NOT A PIPELINE: the cleanup plan is computed before anything is
+# deleted, and every skipped branch is reported with its reason.
+run = "uv run python -m otsafety_tooling.git.sync"
+
+[tasks.pr]
+description = "Open (or reuse) a PR into develop and block until it is merged"
+# Verifies every check before merging with a merge commit, then confirms the
+# merge happened. See tooling/src/otsafety_tooling/git/pr.py.
+run = "uv run python -m otsafety_tooling.git.pr"
+
+[tasks."pr:merge"]
+description = "Verify and merge an existing PR into develop by number, without checking it out"
+# For Dependabot updates and branches opened on another machine. The same
+# checks-verified merge as `pr`, and it refuses a PR that does not target develop.
+usage = '''
+arg "<number>" help="The pull request number, e.g. 8"
+'''
+run = 'uv run python -m otsafety_tooling.git.pr merge "${usage_number?}"'
+
+[tasks."pr:logs"]
+description = "Show why CI failed: failing job logs, or one named step, for this branch's current commit"
+# The merge refusal names the failing checks; this shows the reason, without a
+# browser. Only runs for exactly HEAD are read, so an older run cannot mislead.
+#
+# --step EXISTS BECAUSE --log-failed IS NOT ENOUGH. A step marked
+# continue-on-error never counts as failed, so its output is omitted -- and the
+# template's pre-commit job does its real work in exactly such a step, then
+# fails later with a bare `exit 1`.
+usage = '''
+flag "--lines <n>" default="80" help="Lines to show from the end of each log"
+flag "--step <text>" default="" help="Show the full log of steps whose name contains this text"
+'''
+run = '''
+set -euo pipefail
+sha="$(git rev-parse HEAD)"
+ids="$(gh run list \
+  --commit "$sha" \
+  --status failure \
+  --json databaseId \
+  --jq '.[].databaseId')"
+if [ -z "$ids" ]; then
+  echo "no failed workflow runs for ${sha:0:12}"
+  exit 0
+fi
+for id in $ids; do
+  echo "=== run $id: $(gh run view "$id" --json workflowName --jq .workflowName)"
+  if [ -z "${usage_step-}" ]; then
+    gh run view "$id" --log-failed | tail -n "${usage_lines?}"
+  else
+    gh run view "$id" --log \
+      | awk -F'\t' -v want="${usage_step}" 'index($2, want) > 0' \
+      | tail -n "${usage_lines?}"
+  fi
+done
+'''
+
+[tasks."pr-status"]
+description = "Show merge state and checks for the current branch's PR"
+run = "gh pr view --json number,title,mergeable,mergeStateStatus,statusCheckRollup --jq '{pr:.number,title,mergeable,state:.mergeStateStatus,checks:[.statusCheckRollup[]|{name,conclusion}]}'"

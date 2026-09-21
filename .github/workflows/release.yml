@@ -1,0 +1,54 @@
+# .github/workflows/release.yml
+# Cut a release on every push to main. Ported from FleetManagement's release.yml:
+# python-semantic-release reads the Conventional Commits since the last tag and
+# creates the next vX.Y.Z tag and a GitHub Release. Nothing is committed back.
+#
+# THROUGH THE TASK, bootstrapped as every other workflow is, so a release on a
+# runner and a preview on a laptop run the same command.
+#
+# LEAST PRIVILEGE: the workflow grants nothing, and only this job may write
+# contents, which pushing a tag and creating a release require.
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: release-main
+  cancel-in-progress: false
+
+permissions: {}
+
+env:
+  MISE_ENV: ood
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Every commit and tag, so the last release is found and every commit
+          # since it is read.
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install the declared toolchain
+        run: |
+          sh scripts/bootstrap.sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Trust this checkout's task configuration
+        run: mise trust
+
+      - name: Cut the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: mise run release:version

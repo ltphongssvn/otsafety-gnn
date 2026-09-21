@@ -1,0 +1,102 @@
+# tooling/pyproject.toml
+# REPOSITORY TOOLING: the git workflow, and later the gates, policy and
+# evidence ledger. A workspace member of its own, so none of it ships in the
+# backend image and none of the backend's dependencies leak into it.
+[project]
+name = "otsafety-tooling"
+version = "0.1.0"
+description = "Repository tooling for otsafety-gnn: git workflow, gates, policy"
+requires-python = "==3.13.*"
+dependencies = [
+    "pydantic>=2.9,<3",
+    # conf/config.yaml is read by the ingestion config test and by data:check.
+    # NOT an optional extra: a test that skips when a parser is absent is a test
+    # that never runs on a runner, and the config it guards names datasets that
+    # silently downloaded nothing for three releases.
+    "pyyaml>=6,<7",
+]
+
+[project.optional-dependencies]
+# THE EXPERIMENT TRACKER, INSTALLED ONLY WHERE EXPERIMENTS RUN. MLflow is a
+# large dependency and the git tasks do not need it: a machine that only syncs
+# and opens pull requests installs none of this. The adapter imports it inside
+# its methods, so otsafety_tooling.tracking loads without it, and its tests skip
+# when it is absent.
+#
+#   uv sync --extra ml
+ml = [
+    "mlflow>=3.10,<4",
+]
+
+# WEIGHTS & BIASES, A FIRST-CLASS TRACKER FROM DAY ONE. cs1090a-recsys reserved a
+# slot for it and never filled one: "adding W&B later is a composition rather
+# than a rewrite" is exactly how it stayed unimplemented. Here it ships beside
+# MLflow, tested beside MLflow, in the default composition.
+#
+# THE MODE IS ENVIRONMENT, NEVER CODE. WANDB_MODE, WANDB_PROJECT and WANDB_DIR are
+# declared once in mise.toml; the adapter never decides online or offline.
+wandb = [
+    "wandb>=0.22,<1",
+]
+
+# THE BROWSER, INSTALLED ONLY WHERE THE SITE IS TESTED. Playwright ships a
+# driver and downloads browser binaries, which the git tasks never need: a
+# machine that only syncs and opens pull requests installs none of it. The
+# acceptance tests import it at module scope and skip when it is absent, so
+# mise run test stays the fast gate and mise run test:e2e is the browser one.
+#
+#   uv sync --extra e2e && uv run playwright install chromium
+e2e = [
+    "playwright>=1.50,<2",
+    "pytest-playwright>=0.7,<1",
+    # The one-pager generator renders through the same Chromium and asserts its
+    # own page count, so a sheet that silently becomes two pages fails the build.
+    "pypdf>=5,<7",
+]
+
+[[tool.mypy.overrides]]
+# MLflow IS OPTIONAL BY DESIGN, so a machine that installed only the git tasks
+# cannot resolve it, and mypy said so in continuous integration while passing on
+# a laptop that had the ml extra. The tests skip when it is absent; this is the
+# same statement for the type checker. Strictness is untouched everywhere else,
+# and the adapter imports mlflow inside its methods so nothing else depends on
+# it being present.
+module = ["mlflow.*", "wandb.*", "playwright.*", "pytest_playwright.*"]
+ignore_missing_imports = true
+
+[dependency-groups]
+dev = [
+    "mypy>=1.8,<3",
+    # yaml ships no inline types, and strict mypy will not read an untyped
+    # import. Stubs rather than an ignore: the config shape is worth checking.
+    "types-PyYAML>=6,<7",
+    "pytest>=8,<10",
+    "ruff>=0.15,<1",
+]
+
+[build-system]
+requires = ["uv_build>=0.12,<0.13"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "otsafety_tooling"
+
+[tool.pytest.ini_options]
+# A typo'd marker or config key is an error, not a silent new marker; a
+# passing xfail is a failure, so a fixed bug cannot leave an empty test behind.
+addopts = ["--strict-markers", "--strict-config", "-ra"]
+xfail_strict = true
+testpaths = ["tests"]
+
+[tool.mypy]
+strict = true
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+# S (bandit) is selected so every `noqa: S603/S607` in this package is a
+# reviewed decision rather than a rule nobody enabled.
+select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "N", "T20"]
+# CLI entry points print by design.
+per-file-ignores = { "tests/**" = ["S101", "S603", "S607"], "src/otsafety_tooling/git/*.py" = ["T201"] }

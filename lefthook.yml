@@ -1,0 +1,67 @@
+# lefthook.yml
+# Git hooks, committed so they belong to the repository rather than to one
+# machine. lefthook itself is pinned in uv.lock; `mise run setup` installs the
+# hooks on the laptop, Lightning AI and FAS OnDemand alike.
+#
+# NO VERSIONS OR BINARY PATHS APPEAR HERE. Everything runs through `mise run`,
+# so the hooks use the same task definitions -- and the same pinned tools --
+# as a person does.
+#
+# THE STAGING
+#   pre-commit  fast and offline: branch guard, format, lint. Seconds.
+#   pre-push    offline checks: strict types and the hermetic tests.
+#   CI          everything, including checks that need Docker or the network.
+# A hook that fails on a plane is one people bypass with --no-verify.
+#
+# NEXT: pre-push will run the aggregated offline gate (`check:offline`) once the
+# gate runner exists, instead of naming individual checks here.
+#
+# SYNTAX: `jobs:`, not `commands:` (lefthook 2.x).
+
+# THE EXECUTABLE THE HOOKS RUN, FIXED BY THE PROJECT, NOT BY PATH.
+#
+# A generated hook otherwise tries `lefthook` on PATH before this checkout's
+# locked copy. On the laptop a GLOBAL mise tool (lefthook 2.1.10, from
+# ~/.config/mise/config.toml) sat first on PATH and would have run instead of
+# uv.lock's 2.1.14 -- the version a hook runs must not depend on which machine
+# or shell invoked it.
+#
+# lefthook documents this option for exactly that: forcing the version from
+# the project's dependencies. The path is resolved per checkout, so every clone
+# and every linked worktree runs its own .venv's lefthook.
+lefthook: '"$(git rev-parse --show-toplevel)/.venv/bin/lefthook"'
+
+# FAIL, DO NOT SKIP, if that executable is missing (for example before
+# `mise run setup`). A hook that silently runs nothing is a gate that passed
+# without looking.
+assert_lefthook_installed: true
+
+pre-commit:
+  # PIPED, NOT MERELY SEQUENTIAL. `parallel: false` still runs every job after
+  # one fails, so a refused commit on develop was still reformatted and
+  # re-staged -- observed while testing this file, and present in
+  # cscie103-olap-oltp. `piped: true` runs jobs in order and stops at the first
+  # failure, which is what "branch guard first, before any work" requires.
+  piped: true
+  jobs:
+    # BRANCH GUARD FIRST, BEFORE ANY WORK.
+    - name: branch
+      run: mise run start:check
+
+    - name: format
+      run: mise run fmt
+      # Re-stage what the formatter rewrote, so a commit cannot omit its own fix.
+      stage_fixed: true
+
+    - name: lint
+      run: mise run lint
+
+pre-push:
+  # Piped as well: nothing after a failing check is worth waiting for.
+  piped: true
+  jobs:
+    - name: types
+      run: mise run types
+
+    - name: test
+      run: mise run test

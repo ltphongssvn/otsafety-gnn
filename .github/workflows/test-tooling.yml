@@ -1,0 +1,77 @@
+# .github/workflows/test-tooling.yml
+# The tooling gates, on Linux, for every pull request.
+#
+# WHY THIS EXISTS. 335 tests and twenty-seven merged pull requests, and not one
+# of those tests had ever run on GitHub: a Linux-only regression could merge
+# unnoticed. FAS OnDemand caught exactly such a bug by running them on Linux by
+# hand. This makes that automatic.
+#
+# THROUGH THE TASKS, NOT AROUND THEM. It runs `mise run lint`, `types` and
+# `test`, the same commands a laptop and the cluster run, so "passing" cannot
+# mean something different here. Raw commands would be a fourth definition of
+# the gates.
+#
+# BOOTSTRAPPED THE SAME WAY EVERY MACHINE IS: scripts/bootstrap.sh installs the
+# toolchain.json releases and verifies every digest. MISE_ENV=ood selects the
+# task shell for machines without Nix, which a GitHub runner also is.
+name: Test Tooling
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  MISE_ENV: ood
+
+jobs:
+  test-tooling:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # uv, bun, gh and mise come from toolchain.json, each verified against its
+      # declared digest; the script installs nothing on a mismatch.
+      - name: Install the declared toolchain
+        run: |
+          sh scripts/bootstrap.sh
+          # GITHUB_PATH, NOT A step-level env: PATH. Setting PATH in a step's env
+          # replaced the runner's own, because env.HOME and env.PATH are empty in
+          # that context -- the value became "/.local/bin:" and mise could not be
+          # found. Appending here applies to every later step, which is the
+          # mechanism GitHub provides for exactly this.
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Trust this checkout's task configuration
+        run: mise trust
+
+      - name: Lint, and check formatting and spelling
+        run: mise run lint
+
+      - name: Strict types, for both platforms
+        run: mise run types
+
+      # THE TRACKERS ARE NOT OPTIONAL ON A RUNNER, only their extras are. Without
+      # these, all 22 MLflow and W&B tests skip here -- which is how MLflow sat
+      # claimed and unverified for an entire session while every run reported
+      # green. W&B stays offline: mise.toml defaults WANDB_MODE to offline, so no
+      # secret and no network are needed, and nothing can leak from a public repo.
+      - name: Install the experiment trackers
+        run: |
+          mise run ml:install
+          mise run wandb:install
+
+      - name: Confirm W&B is offline here, so no run needs a key
+        run: mise run wandb:check
+
+      - name: Tooling tests
+        run: mise run test

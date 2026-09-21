@@ -1,0 +1,28 @@
+# mise.ood.toml
+# Overrides for machines without Nix, loaded when MISE_ENV=ood.
+#
+# NAMED FOR FAS ONDEMAND, WHERE IT STARTED, but it describes a property rather
+# than a place: no Nix. The cluster cannot run Nix practically (per-session
+# Lustre stores, a ~70,000-file unpack each session), and a GitHub runner has
+# none either, so continuous integration loads this file too.
+#
+# The same executables are still pinned: scripts/bootstrap.sh installs the
+# toolchain.json releases, verifying every digest, and uv enforces
+# required-version from pyproject.toml.
+[env]
+# THE PACKAGE CACHE LIVES BESIDE THE ENVIRONMENT IT FILLS. uv hardlinks wheels
+# from its cache into .venv when both sit on one filesystem, and copies them
+# when they do not. On FAS OnDemand the default cache in ~/.cache and the
+# checkout are on different mounts, so installing 81 packages copied every wheel
+# and took two minutes nineteen, with uv reporting the fallback itself:
+#
+#   warning: Failed to hardlink files; falling back to full copy. This may lead
+#   to degraded performance. If the cache and target directories are on
+#   different filesystems, hardlinking may not be supported.
+#
+# A cache inside the checkout shares the filesystem with .venv by construction.
+# .cache/ is already ignored, and each worktree keeps its own.
+UV_CACHE_DIR = "{{config_root}}/.cache/uv"
+
+[task_config]
+shell = "bash -c"

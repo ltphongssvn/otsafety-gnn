@@ -1,0 +1,165 @@
+[dependency-groups]
+dev = [
+    # git hooks; the PyPI wheel is lefthook's official binary
+    "lefthook==2.1.14",
+    # spell checker; mise run lint invokes it directly, and CI runs that task
+    "typos==1.49.0",
+    "prek>=0.4.14,<1.0.0",
+    "typer>=0.27.1,<1.0.0",
+    "zizmor>=1.29.0",
+]
+
+github-actions = [
+    "smokeshow >=0.5.0",
+]
+
+[tool.uv]
+# Must equal toolchain.json's uv version; uv refuses to run otherwise.
+required-version = "==0.12.7"
+# Never an unmanaged interpreter (course, Homebrew or Nix Python).
+python-preference = "only-managed"
+# Lock for, and require wheels on, exactly the laptop and the cluster.
+environments = [
+  "sys_platform == 'darwin' and platform_machine == 'arm64'",
+  "sys_platform == 'linux' and platform_machine == 'x86_64'",
+]
+required-environments = [
+  "sys_platform == 'darwin' and platform_machine == 'arm64'",
+  "sys_platform == 'linux' and platform_machine == 'x86_64'",
+]
+
+[tool.uv.workspace]
+members = ["tooling"]
+
+# RUFF FOR EVERY PYTHON FILE OUTSIDE THE TOOLING PACKAGE. Without this section
+# apps/site/tests resolved against no configuration at all: ruff ran with its
+# default rules, so the bandit checks the tooling package selects deliberately
+# were simply off, and the noqa directives written for them were reported as
+# unused. Deleting those directives would have silenced the message and left the
+# site tests held to a weaker standard than the rest of the repository. The
+# selection matches tooling/pyproject.toml so one bar applies everywhere.
+# MYPY FOR EVERY PYTHON FILE OUTSIDE THE TOOLING PACKAGE. The playwright
+# override lives in tooling/pyproject.toml, which apps/site/tests does not
+# resolve against, so the laptop passed only because the e2e extra was installed
+# there and CI failed on an unresolved import. Same shape as the ruff gap above:
+# a configuration that exists in one package and nowhere else.
+#
+# PLAYWRIGHT IS OPTIONAL BY DESIGN. mise run test is the fast gate and installs
+# none of it; mise run test:e2e is the browser one. The test module skips when
+# the extra is absent, and this is that statement for the type checker.
+[tool.mypy]
+strict = true
+
+[[tool.mypy.overrides]]
+# pypdf JOINS THEM FOR THE SAME REASON. It lives in the e2e extra, which the
+# tooling workflow does not install, so mypy resolved it on this laptop and not
+# on a runner. Third time this exact gap has appeared: an optional dependency
+# imported inside a function still needs saying so to the type checker.
+module = ["playwright.*", "pytest_playwright.*", "pypdf.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# THE ONE-PAGER GENERATOR IS PRESERVED VERBATIM. Its STAGES entries mix str and
+# None for the gate badge, so mypy infers dict[str, object] and refuses to index
+# them. Annotating the tables would mean editing the file, which is what already
+# cost the sheet five of its nine sections once. The script is a document
+# generator with no callers, it asserts its own page count, and the rendered pdf
+# is checked by tests, so the narrower guarantee is the right trade here.
+module = ["build_arch_onepager"]
+disable_error_code = ["index"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.format]
+# THE FORMATTER IS NOT CONFIGURABLE PER FILE, only excludable. This generator is
+# preserved verbatim: reformatting it expands 583 lines to roughly 740, breaking
+# every dict(...) row across eight lines and re-wrapping the SVG f-strings. That
+# is the same class of editing that already cost the sheet five of its nine
+# sections once. ruff check still runs on it, with only the style rules ignored
+# in per-file-ignores above, so a real defect is still caught.
+exclude = ["scripts/build_arch_onepager.py"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "N", "T20", "BLE"]
+
+[tool.ruff.lint.per-file-ignores]
+# S101 assert is what pytest is built on. S603/S607 launch the site's own build
+# and preview through bun, by a fixed argument list with no shell. S310 opens
+# a hard-coded localhost URL to wait for that server. BLE001 catches whatever
+# the not-yet-listening socket raises while polling. E402 imports playwright
+# after importorskip, so the module still collects where the extra is absent.
+"apps/site/tests/**" = ["S101", "S603", "S607", "S310", "BLE001", "E402"]
+# scripts/ WAS LINTED BY RUFF'S DEFAULTS UNTIL THIS FILE EXISTED, so selecting S
+# and T20 above surfaced eight findings in a file that had not changed. Each is
+# a reviewed decision, not a suppression of a real risk:
+#   T201  a bootstrap CLI prints what it installed; that is its purpose, and the
+#         tooling package carries the same exemption for its own entry points.
+#   S603  subprocess.run([executable, "--version"]) is a fixed argument list with
+#         no shell, verifying the binary it has just installed.
+#   S310  urlretrieve reads a URL from toolchain.json, and the NEXT line is
+#         verify(archive, plan.sha256). The digest is the control.
+#   S202  extractall runs inside a TemporaryDirectory on an archive whose sha256
+#         was verified first.
+"scripts/**" = ["T201", "S603", "S310", "S202"]
+# THE ONE-PAGER GENERATOR IS PRESERVED VERBATIM. It was rewritten once "to fit
+# the house style", and the rewrite silently dropped five of the sheet's nine
+# sections: the As Code and As Data columns, the SVG execution spine, the
+# workstream band and every inline emphasis. The sheet rendered and looked
+# complete. These are style rules only and none of them describes a defect:
+#   C408  dict(...) rather than a literal, which keeps each layer one readable
+#         call per row instead of a wall of braces.
+#   E501  the failure and guard strings are prose, and reflowing them to fit a
+#         column limit is exactly the editing that lost content before.
+#   N806  BX, BW, GAP, TOP, INK, RED are SVG geometry and colour constants,
+#         uppercase because that is what they are.
+"scripts/build_arch_onepager.py" = ["C408", "E501", "N806"]
+
+[tool.typos.files]
+extend-exclude = [
+    "uv.lock",
+    "bun.lock",
+    ".artifacts/",
+    "apps/site/dist/",
+    "apps/site/node_modules/",
+]
+
+[tool.typos.default]
+extend-ignore-re = [
+    # GitHub usernames in @mentions
+    "@[a-zA-Z0-9](?:-?[a-zA-Z0-9])*",
+    # Name of the package in the PR title
+    "Bump certifi ",
+]
+
+[tool.typos.default.extend-identifiers]
+alls = "alls"
+# RotatE is a knowledge-graph embedding model, named for the rotation it
+# applies in complex space. typos reads it as "Rotate" misspelled.
+RotatE = "RotatE"
+# OT is Open Targets, the knowledge graph this project is built on; typos reads
+# it as a transposed TO or OF. pn and pl are CSS class names on the phase chips
+# in the one-pager, which is preserved verbatim and must not be edited to suit a
+# spell checker.
+OT = "OT"
+pn = "pn"
+pl = "pl"
+
+# RELEASES, PORTED FROM FleetManagement WITH A PYTHON ENGINE. On a push to main,
+# python-semantic-release reads the Conventional Commits since the last tag and
+# creates the next vX.Y.Z tag and a GitHub Release. Nothing is committed back to
+# main -- FleetManagement omits @semantic-release/git for the same reason -- so
+# the GitHub Release is the changelog of record.
+#
+# DEFAULTS ARE STATED, because a default is what an upgrade changes silently.
+# One is tightened: the default branch pattern is (main|master), and no master
+# exists here to be matched by accident.
+[tool.semantic_release]
+commit_parser = "conventional"
+tag_format = "v{version}"
+allow_zero_version = false
+major_on_zero = true
+
+[tool.semantic_release.branches.main]
+match = "^main$"
+prerelease = false

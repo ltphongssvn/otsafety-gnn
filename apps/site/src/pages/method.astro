@@ -1,0 +1,33 @@
+---
+// apps/site/src/pages/method.astro
+import Base from "../layouts/Base.astro";
+import { RUNGS, LADDER_RULE } from "../data/research";
+---
+<Base
+  title="Method"
+  lead="The ablation ladder is the experiment. Each rung removes exactly one
+        capability from the rung above it, and the first rung that is NOT beaten
+        is the research answer — not the top rung's score."
+>
+  <p class="rule">{LADDER_RULE}</p>
+  {RUNGS.map((r) => (
+    <section class="rung">
+      <h2><span class="n">{r.n}</span> {r.name} <span class="q">{r.answers}</span></h2>
+      <p class="asks">{r.asks}</p>
+      <p class="models">{r.models}</p>
+      <p class="not"><strong>If this rung is not beaten:</strong> {r.ifNotBeaten}</p>
+    </section>
+  ))}
+  <style>
+    .rule { color: var(--muted); font-size: .88rem; border-left: 3px solid var(--teal);
+            padding-left: .9rem; max-width: 46rem; }
+    .rung { border-bottom: 1px solid var(--hair); padding: 1rem 0; }
+    .rung h2 { font-size: 1rem; margin: 0 0 .3rem; }
+    .n { display: inline-block; min-width: 1.6rem; color: #fff; background: var(--ink);
+         border-radius: 3px; text-align: center; font-size: .75rem; padding: .1rem .3rem; }
+    .q { color: var(--indigo); font-size: .75rem; font-weight: 700; margin-left: .3rem; }
+    .asks { color: var(--muted); font-size: .85rem; margin: .2rem 0; }
+    .models { font-size: .88rem; margin: .4rem 0; }
+    .not { font-size: .85rem; color: var(--red); margin: .4rem 0 0; }
+  </style>
+</Base>

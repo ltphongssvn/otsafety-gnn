@@ -1,0 +1,79 @@
+---
+// apps/site/src/pages/results.astro
+// What was measured, and nothing that was not. Every number is computed from
+// experiment-run/v1 records at build time; none is typed into this file.
+import Base from "../layouts/Base.astro";
+import { RUNGS } from "../data/research";
+import { summarise, PRIMARY_METRIC, REQUIRED_SEEDS } from "../data/results";
+
+const { summaries, reference } = summarise(RUNGS.map((r) => r.experiment));
+const f = (v: number | null) => (v === null ? "" : v.toFixed(3));
+---
+<Base
+  title="Results"
+  lead="Every number here is computed from recorded experiment runs when the site
+        is built, never typed. A rung that has not run says so; a rung with too
+        few seeds says so; a rung measured on different data is not set beside
+        the others as though it were comparable."
+>
+  <p class="c">
+    Metric: <code>{PRIMARY_METRIC}</code>. Interval: 95% t-interval across seeds,
+    mean &plusmn; t(0.975, n&minus;1)&middot;s/&radic;n. The protocol requires at
+    least {REQUIRED_SEEDS} seeds per rung.
+    {reference && <span> Reference dataset digest <code>{reference.slice(0, 12)}</code>.</span>}
+  </p>
+
+  {RUNGS.map((rung) => {
+    const s = summaries[rung.experiment];
+    return (
+      <section class="rung" data-rung={rung.experiment}>
+        <h2><span class="n">{rung.n}</span> {rung.name}</h2>
+        {s.n === 0 ? (
+          <p class="state none">not yet run</p>
+        ) : (
+          <div>
+            <p class="value">
+              <strong>{f(s.mean)}</strong>
+              {s.low !== null && (
+                <span class="ci" data-interval>[{f(s.low)}, {f(s.high)}]</span>
+              )}
+              <span class="seeds">{s.n} {s.n === 1 ? "seed" : "seeds"}</span>
+            </p>
+            {!s.enoughSeeds && (
+              <p class="state warn">
+                {s.n} {s.n === 1 ? "seed" : "seeds"}, below the {REQUIRED_SEEDS} the
+                protocol requires: not enough to resolve a 0.02 difference.
+              </p>
+            )}
+            {!s.comparable && (
+              <p class="state bad">
+                not comparable: measured on dataset
+                {s.digests.map((d) => <code> {d.slice(0, 12)}</code>)}, not the
+                reference the other rungs share.
+              </p>
+            )}
+            <p class="meta">{s.reproducible} of {s.n} reproducible
+              (clean tree and deterministic)</p>
+          </div>
+        )}
+      </section>
+    );
+  })}
+
+  <style>
+    .c { color: var(--muted); font-size: .85rem; max-width: 46rem; }
+    .rung { border-bottom: 1px solid var(--hair); padding: .9rem 0; }
+    .rung h2 { font-size: 1rem; margin: 0 0 .3rem; }
+    .n { display: inline-block; min-width: 1.6rem; color: #fff; background: var(--ink);
+         border-radius: 3px; text-align: center; font-size: .75rem; padding: .1rem .3rem; }
+    .value strong { font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+    .ci { margin-left: .5rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .seeds { margin-left: .7rem; font-size: .8rem; color: var(--muted); }
+    .state { font-size: .85rem; margin: .3rem 0; }
+    .none { color: var(--muted); font-style: italic; }
+    .warn { color: var(--amber); }
+    .bad { color: var(--red); }
+    .meta { font-size: .78rem; color: var(--muted); margin: .2rem 0 0; }
+    code { font-family: ui-monospace, Menlo, monospace; font-size: .8rem; }
+  </style>
+</Base>

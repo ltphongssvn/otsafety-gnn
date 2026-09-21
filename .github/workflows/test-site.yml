@@ -1,0 +1,90 @@
+# .github/workflows/test-site.yml
+# The site's acceptance tests, on Linux, for every pull request.
+#
+# WHY A SECOND WORKFLOW. test-tooling.yml runs lint, types and test -- the fast
+# gates, which install no browser. These tests build the site with bun and drive
+# a real Chromium against the BUILT output, which takes a browser download and
+# several minutes. Keeping them apart means a tooling change is not made to wait
+# on a browser, and a site change is still checked on the platform it is served
+# from. Without this workflow the site could break on Linux and merge unnoticed,
+# which is the failure test-tooling.yml was written to end.
+#
+# BOOTSTRAPPED THE SAME WAY: scripts/bootstrap.sh installs the toolchain.json
+# releases and verifies every digest, and MISE_ENV=ood selects the task shell for
+# machines without Nix, which a GitHub runner is.
+#
+# THROUGH THE TASKS, NOT AROUND THEM. site:install and test:e2e are the same
+# commands the laptop runs, so "passing" cannot mean something different here.
+name: Test Site
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  MISE_ENV: ood
+
+jobs:
+  test-site:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install the declared toolchain
+        run: |
+          sh scripts/bootstrap.sh
+          # GITHUB_PATH, not a step-level env: PATH, which would replace the
+          # runner's own because env.HOME and env.PATH are empty in that context.
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Trust this checkout's task configuration
+        run: mise trust
+
+      - name: Install the site's dependencies from bun.lock
+        run: mise run site:install
+
+      - name: Install Playwright and its browser
+        run: mise run e2e:install
+
+      - name: Acceptance tests against the built site
+        run: mise run test:e2e
+
+      # THE SHEET IS BUILT HERE, NOT IN test-tooling. Its four assertions read a
+      # rendered pdf, so they need Chromium and pypdf, which the tooling workflow
+      # does not install: they have been skipping there since they were written,
+      # and a gate that never runs is not a gate. This job already has both.
+      # pdf:render, NOT pdf:build. The runner has Docker, so it renders inside the
+      # digest-pinned image exactly as the laptop does. Using pdf:build here
+      # would keep the runner on its own Chromium and text-shaping stack, which
+      # is the divergence the pin exists to remove -- the pin would be
+      # decorative, asserted by tests and used by nobody.
+      - name: Render the one-page architecture sheet in the pinned image
+        run: mise run pdf:render
+
+      - name: Assert the rendered sheet carries every section
+        run: mise run test -- tooling/tests/test_onepager.py
+
+      # if: always() BECAUSE A FAILING RENDER IS THE ONE WORTH INSPECTING. The
+      # render refuses a two-page sheet and exits, so this step never ran on any
+      # failure and the runner's own pdf was never available to look at. Four
+      # theories were argued from a laptop about a file nobody had opened, and
+      # 2026 guidance on browser-rendered pdfs is blunt: page-by-page text
+      # extraction or a pixel diff is the only reliable signal, and self-reported
+      # "looks the same" is not.
+      - name: Keep the sheet as a downloadable artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: project-architecture
+          path: build/onepager/
+          if-no-files-found: error

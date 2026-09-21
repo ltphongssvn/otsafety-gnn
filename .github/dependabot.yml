@@ -1,0 +1,75 @@
+version: 2
+# SCOPE. Python packages are NOT updated here: Dependabot's uv updater
+# chooses its own Python (it ignores .python-version and requires-python;
+# dependabot-core#13858, #13424) and its own uv, so it cannot honour the
+# pinned CPython 3.13.15 or required-version ==0.12.7. uv.lock is upgraded
+# by a repository task running the pinned toolchain instead.
+#
+# GITFLOW. Every ecosystem targets develop explicitly; updates reach main
+# only through a release branch.
+updates:
+  # GitHub Actions
+  - package-ecosystem: github-actions
+    target-branch: develop
+    directory: /
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: ⬆
+    labels:
+      - "internal"
+      - "dependencies"
+      - "github_actions"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+  # bun
+  - package-ecosystem: bun
+    target-branch: develop
+    directory: /
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: ⬆
+    labels: [dependencies, internal]
+    ignore:
+      - dependency-name: "@hey-api/openapi-ts"
+    groups:
+      npm-packages:
+        patterns:
+          - "*"
+  # Docker
+  - package-ecosystem: docker
+    target-branch: develop
+    directories:
+      - /backend
+      - /frontend
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: ⬆
+    groups:
+      docker:
+        patterns:
+          - "*"
+  # Docker Compose
+  - package-ecosystem: docker-compose
+    target-branch: develop
+    directory: /
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: ⬆
+    groups:
+      docker-compose:
+        patterns:
+          - "*"
