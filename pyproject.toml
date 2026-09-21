@@ -81,7 +81,7 @@ line-length = 100
 exclude = ["scripts/build_arch_onepager.py"]
 
 [tool.ruff.lint]
-select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "N", "T20", "BLE"]
+select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "N", "T20", "BLE", "TID251"]
 
 [tool.ruff.lint.per-file-ignores]
 # S101 assert is what pytest is built on. S603/S607 launch the site's own build
@@ -163,3 +163,14 @@ major_on_zero = true
 [tool.semantic_release.branches.main]
 match = "^main$"
 prerelease = false
+
+# SCHEMA-FIRST, ENFORCED BY THE LINTER RATHER THAN BY REVIEW. A raw parse returns
+# untyped data, which is how the site's hand-written types drifted from the
+# contracts they read. Pydantic parses JSON itself: Model.model_validate_json.
+# YAML has no Pydantic parser, so it is read in one sanctioned place that goes
+# straight into model_validate. Every exemption below names its reason.
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"json.loads".msg = "parse with Model.model_validate_json(...) -- schema-first"
+"json.load".msg = "parse with Model.model_validate_json(...) -- schema-first"
+"yaml.safe_load".msg = "read YAML through the sanctioned reader into a Pydantic model"
+"yaml.load".msg = "read YAML through the sanctioned reader into a Pydantic model"

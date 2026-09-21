@@ -19,11 +19,11 @@ would look like a working page. It gets a real 404.
 
 from __future__ import annotations
 
-import json
-from typing import Any
-
 import pytest
 
+from otsafety_tooling.contracts.files import read_json
+from otsafety_tooling.contracts.railway_config import RailwayConfig
+from otsafety_tooling.contracts.toolchain import Toolchain
 from otsafety_tooling.paths import REPO_ROOT
 
 DEPLOY = REPO_ROOT / "deploy" / "site"
@@ -46,17 +46,15 @@ def _directives(text: str) -> str:
     return "\n".join(line.split("#", 1)[0] for line in text.splitlines())
 
 
-def _toolchain() -> dict[str, Any]:
-    loaded: dict[str, Any] = json.loads((REPO_ROOT / "toolchain.json").read_text())
-    return loaded
+def _toolchain() -> Toolchain:
+    return read_json(REPO_ROOT / "toolchain.json", Toolchain)
 
 
 def test_the_serving_image_is_declared_beside_every_other_executable() -> None:
-    entry = _toolchain().get("site_image")
-    assert entry, "toolchain.json pins the render image but not the one serving the site"
-    assert entry["platform"] == "linux/amd64"
-    assert entry["digest"] == AMD64, "the amd64 manifest, never the multi-platform index"
-    assert "2.11.4" in entry["reference"]
+    entry = _toolchain().site_image
+    assert entry.platform == "linux/amd64"
+    assert entry.digest == AMD64, "the amd64 manifest, never the multi-platform index"
+    assert "2.11.4" in entry.reference
 
 
 def test_the_dockerfile_pins_the_same_digest() -> None:
@@ -82,9 +80,9 @@ def test_a_missing_page_is_a_404_not_the_home_page() -> None:
 
 def test_railway_is_told_to_use_the_dockerfile() -> None:
     """Config as code, rather than relying on detection by whichever builder runs."""
-    config: dict[str, Any] = json.loads(_read("railway.json"))
-    assert config["build"]["builder"] == "DOCKERFILE"
-    assert config["deploy"]["healthcheckPath"] == "/"
+    config = RailwayConfig.model_validate_json(_read("railway.json"))
+    assert config.build.builder == "DOCKERFILE"
+    assert config.deploy.healthcheck_path == "/"
 
 
 PROJECT = "1e5d094a-e1f5-4b16-943a-9a499fc29576"

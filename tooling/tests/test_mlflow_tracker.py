@@ -11,14 +11,14 @@ reproducibility facts become tags, and the experiment-run/v1 record is attached
 as an artifact so MLflow never becomes the only copy of what happened.
 """
 
-import json
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
 import pytest
+from pydantic import TypeAdapter
 
-from otsafety_tooling.contracts.experiment_run import ExperimentRun
+from otsafety_tooling.contracts.experiment_run import Digest, ExperimentRun
 
 mlflow = pytest.importorskip("mlflow", reason="the ml group is not installed")
 
@@ -140,4 +140,5 @@ def test_artifact_digests_are_recorded_as_tags(tmp_path: Path) -> None:
     _tracker(tmp_path).record(_run())
 
     tags = _recorded(tmp_path, "baseline-ridge").data.tags
-    assert json.loads(tags["artifact_digests"]) == {"model.joblib": DIGEST}
+    digests = TypeAdapter(dict[str, Digest]).validate_json(tags["artifact_digests"])
+    assert digests == {"model.joblib": DIGEST}

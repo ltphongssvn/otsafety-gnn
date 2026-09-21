@@ -181,7 +181,11 @@ def main(argv: list[str] | None = None) -> int:
     repo_root = Path(__file__).resolve().parent.parent
     destination = Path(args[0]) if args else Path.home() / ".local" / "bin"
 
-    toolchain = json.loads((repo_root / "toolchain.json").read_text(encoding="utf-8"))
+    # EXEMPT FROM THE SCHEMA-FIRST BAN, AND ONLY HERE. This installs the toolchain
+    # on a machine with nothing, under the system python3 -- Pydantic cannot exist
+    # yet. The file is not unchecked: test_config_contracts.py validates it against
+    # the Toolchain model in the gate, before any bootstrap reads it.
+    toolchain = json.loads((repo_root / "toolchain.json").read_text(encoding="utf-8"))  # noqa: TID251
     key = platform_key(platform.system(), platform.machine())
     print(f"platform: {key}")
     print(f"destination: {destination}")

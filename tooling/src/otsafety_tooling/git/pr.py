@@ -42,7 +42,6 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Literal, Self
 
-import yaml
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -53,6 +52,8 @@ from pydantic import (
     model_validator,
 )
 
+from otsafety_tooling.contracts.files import read_yaml
+from otsafety_tooling.contracts.workflow import Workflow
 from otsafety_tooling.git.env import git
 from otsafety_tooling.paths import REPO_ROOT
 
@@ -308,18 +309,16 @@ def required_checks(root: Path) -> frozenset[str]:
     in a workflow that runs on pull_request is required, under the name GitHub
     gives its check -- the job's `name`, else its key. A job with its own `if:`
     may legitimately not run, so it is verified if present rather than required.
-    PyYAML reads a bare `on` key as the boolean true, per YAML 1.1.
+    Read through the Workflow model, which restores the `on` key YAML 1.1 loads as true.
     """
     required: set[str] = set()
     for path in sorted((root / ".github" / "workflows").glob("*.y*ml")):
-        workflow = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-        triggers = workflow.get(True, workflow.get("on"))
-        names = [triggers] if isinstance(triggers, str) else list(triggers or [])
-        if "pull_request" not in names:
+        workflow = read_yaml(path, Workflow)
+        if not workflow.runs_on("pull_request"):
             continue
-        for key, job in (workflow.get("jobs") or {}).items():
-            if "if" not in job:
-                required.add(str(job.get("name", key)))
+        for key, job in workflow.jobs.items():
+            if job.if_ is None:
+                required.add(job.name or key)
     return frozenset(required)
 
 

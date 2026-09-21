@@ -22,8 +22,9 @@ import tomllib
 from typing import Any
 
 import pytest
-import yaml
 
+from otsafety_tooling.contracts.files import read_yaml
+from otsafety_tooling.contracts.workflow import Workflow
 from otsafety_tooling.paths import REPO_ROOT
 
 
@@ -41,23 +42,11 @@ def _task(name: str) -> str:
     return run
 
 
-def _workflow(name: str) -> dict[str, Any]:
+def _workflow(name: str) -> Workflow:
     path = REPO_ROOT / ".github" / "workflows" / name
     if not path.is_file():
         pytest.fail(f"no workflow {name}")
-    loaded: dict[str, Any] = yaml.safe_load(path.read_text())
-    return loaded
-
-
-def _triggers(workflow: dict[Any, Any]) -> dict[str, Any]:
-    """A workflow's `on:` block.
-
-    PyYAML follows YAML 1.1, where a bare `on` is the boolean true, so the key
-    loads as True rather than "on". Stated once here instead of worked around
-    at every call.
-    """
-    block: dict[str, Any] = workflow[True] if True in workflow else workflow["on"]
-    return block
+    return read_yaml(path, Workflow)
 
 
 def test_versions_come_from_conventional_commits_as_v_tags() -> None:
@@ -86,15 +75,17 @@ def test_a_release_tags_and_publishes_but_commits_nothing() -> None:
 
 def test_the_release_workflow_runs_on_main_through_the_task() -> None:
     wf = _workflow("release.yml")
-    assert _triggers(wf)["push"]["branches"] == ["main"]
-    steps = wf["jobs"]["release"]["steps"]
-    runs = " ".join(s.get("run", "") for s in steps)
+    push = wf.on["push"]
+    assert push is not None and push.branches == ("main",)
+    steps = wf.jobs["release"].steps
+    runs = " ".join(s.run or "" for s in steps)
     assert "mise run release:version" in runs, "through the task, not around it"
-    checkout = next(s for s in steps if "actions/checkout" in s.get("uses", ""))
-    assert checkout["with"]["fetch-depth"] == 0, "the last tag must be reachable"
-    assert checkout["with"]["persist-credentials"] is False
-    assert wf["permissions"] == {}, "the workflow grants nothing by default"
-    assert wf["jobs"]["release"]["permissions"]["contents"] == "write"
+    checkout = next(s for s in steps if "actions/checkout" in (s.uses or ""))
+    assert checkout.with_["fetch-depth"] == 0, "the last tag must be reachable"
+    assert checkout.with_["persist-credentials"] is False
+    assert wf.permissions == {}, "the workflow grants nothing by default"
+    permissions = wf.jobs["release"].permissions
+    assert permissions is not None and permissions["contents"] == "write"
 
 
 def test_production_deploys_only_a_release_tag_on_main() -> None:
@@ -106,8 +97,9 @@ def test_production_deploys_only_a_release_tag_on_main() -> None:
 
 def test_the_workflow_scan_runs_on_pushes_to_main() -> None:
     """zizmor.yml named master, which does not exist, so it never ran on a push."""
-    wf = _workflow("zizmor.yml")
-    branches = _triggers(wf)["push"]["branches"]
+    push = _workflow("zizmor.yml").on["push"]
+    assert push is not None
+    branches = push.branches
     assert "master" not in branches
     assert "main" in branches
 

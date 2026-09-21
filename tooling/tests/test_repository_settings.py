@@ -23,6 +23,7 @@ from pydantic import ValidationError
 from otsafety_tooling.contracts.repository_settings import (
     MergeSettings,
     ObservedSettings,
+    RepositoryResponse,
     SettingsCheckReport,
 )
 from otsafety_tooling.git.ghcli import NotAuthenticatedError
@@ -55,13 +56,15 @@ class InMemoryRepository:
         self.unreachable = unreachable
         self.updates: list[dict[str, bool]] = []
 
-    def read(self) -> dict[str, Any]:
+    def read(self) -> RepositoryResponse:
         if self.unreachable:
             raise NotAuthenticatedError("gh is not authenticated (exit 4).")
         visible = {key: value for key, value in self.state.items() if key not in self.hidden}
-        return {**visible, "full_name": "owner/repo", "private": True}
+        return RepositoryResponse.model_validate(
+            {**visible, "full_name": "owner/repo", "private": True}
+        )
 
-    def update(self, changes: dict[str, bool]) -> dict[str, Any]:
+    def update(self, changes: dict[str, bool]) -> RepositoryResponse:
         self.updates.append(dict(changes))
         for key, value in changes.items():
             if key not in self.ignored:

@@ -39,7 +39,9 @@ def test_the_committed_schema_matches_the_model(contract: str) -> None:
     """Regenerate with `mise run contracts:generate` when a model changes."""
     path = REPO_ROOT / schemas.schema_path(contract)
     assert path.is_file(), f"no committed schema at {path}"
-    committed = json.loads(path.read_text(encoding="utf-8"))
+    # EXEMPT: a drift gate compares the committed document itself; parsing it
+    # into a model would test the model against itself.
+    committed = json.loads(path.read_text(encoding="utf-8"))  # noqa: TID251
     assert committed == schemas.json_schema(contract), (
         f"{path.name} has drifted from its model; run mise run contracts:generate"
     )
