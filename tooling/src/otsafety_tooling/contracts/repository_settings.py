@@ -92,6 +92,17 @@ class ObservedSettings(BaseModel, frozen=True, extra="ignore"):
     delete_branch_on_merge: StrictBool | None = None
 
 
+class RepositoryResponse(ObservedSettings, frozen=True, extra="ignore"):
+    """GitHub's repository response: the merge settings, and the repository's name.
+
+    A SUBCLASS, NOT A FIELD ON ObservedSettings, which is deliberately exactly the
+    merge setting names -- two tests hold that. check() read the name from the raw
+    response with an isinstance guard; it is now a validated field here instead.
+    """
+
+    full_name: str | None = None
+
+
 class SettingFinding(BaseModel, frozen=True, extra="forbid"):
     """One reason the repository does not match its declared settings."""
 

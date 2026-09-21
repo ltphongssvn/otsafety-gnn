@@ -20,11 +20,10 @@ pin by digest, target linux/amd64.
 
 from __future__ import annotations
 
-import json
-from typing import Any
-
 import pytest
 
+from otsafety_tooling.contracts.files import read_json
+from otsafety_tooling.contracts.toolchain import Toolchain
 from otsafety_tooling.paths import REPO_ROOT
 
 TOOLCHAIN = REPO_ROOT / "toolchain.json"
@@ -37,35 +36,32 @@ EXPECTED_PLATFORM = "linux/amd64"
 DIGEST_PREFIX = "sha256:96b39581"
 
 
-def _toolchain() -> dict[str, Any]:
-    if not TOOLCHAIN.is_file():
-        pytest.fail(f"no toolchain at {TOOLCHAIN}")
-    loaded: dict[str, Any] = json.loads(TOOLCHAIN.read_text(encoding="utf-8"))
-    return loaded
+def _toolchain() -> Toolchain:
+    return read_json(TOOLCHAIN, Toolchain)
 
 
 def test_the_render_image_is_declared_beside_every_other_executable() -> None:
     """A renderer pinned somewhere else is a renderer nobody audits."""
-    toolchain = _toolchain()
-    assert "render_image" in toolchain, (
+    image = _toolchain().render_image
+    assert image.digest and image.reference, (
         "toolchain.json pins uv, bun, gh and mise but not the browser that renders the deliverable"
     )
 
 
 def test_the_render_image_is_pinned_by_digest_to_one_platform() -> None:
-    entry = _toolchain()["render_image"]
-    assert entry["platform"] == EXPECTED_PLATFORM
-    assert entry["digest"].startswith(DIGEST_PREFIX), (
+    entry = _toolchain().render_image
+    assert entry.platform == EXPECTED_PLATFORM
+    assert entry.digest.startswith(DIGEST_PREFIX), (
         "the digest must be the linux/amd64 manifest, not the multi-platform "
         "index: an index resolves to arm64 on a laptop and amd64 on a runner"
     )
-    assert "@sha256:" in entry["reference"], "the reference must carry its digest"
+    assert "@sha256:" in entry.reference, "the reference must carry its digest"
 
 
 def test_the_render_image_matches_the_pinned_playwright() -> None:
     """A browser from a different Playwright is a different browser."""
-    entry = _toolchain()["render_image"]
-    assert "v1.63.0" in entry["reference"], (
+    entry = _toolchain().render_image
+    assert "v1.63.0" in entry.reference, (
         "the image tag must match the playwright version in uv.lock"
     )
 
@@ -74,6 +70,6 @@ def test_the_dockerfile_pins_the_same_digest() -> None:
     if not DOCKERFILE.is_file():
         pytest.fail(f"no render Dockerfile at {DOCKERFILE}")
     body = DOCKERFILE.read_text(encoding="utf-8")
-    assert _toolchain()["render_image"]["digest"] in body, (
+    assert _toolchain().render_image.digest in body, (
         "the Dockerfile and toolchain.json name different images"
     )

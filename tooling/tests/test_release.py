@@ -18,62 +18,46 @@ came from develop, because deploy:site checked only for a clean tree.
 
 from __future__ import annotations
 
-import tomllib
-from typing import Any
-
 import pytest
-import yaml
 
+from otsafety_tooling.contracts.files import read_toml, read_yaml
+from otsafety_tooling.contracts.mise_config import MiseConfig
+from otsafety_tooling.contracts.release_config import Pyproject, SemanticReleaseConfig
+from otsafety_tooling.contracts.workflow import Workflow
 from otsafety_tooling.paths import REPO_ROOT
 
 
-def _psr() -> dict[str, Any]:
-    config: dict[str, Any] = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text())
-    section: dict[str, Any] = config.get("tool", {}).get("semantic_release", {})
-    assert section, "no [tool.semantic_release] in pyproject.toml"
-    return section
+def _psr() -> SemanticReleaseConfig:
+    return read_toml(REPO_ROOT / "pyproject.toml", Pyproject).tool.semantic_release
 
 
 def _task(name: str) -> str:
-    tasks = tomllib.loads((REPO_ROOT / "mise.toml").read_text())["tasks"]
+    tasks = read_toml(REPO_ROOT / "mise.toml", MiseConfig).tasks
     assert name in tasks, f"no {name} task"
-    run: str = tasks[name]["run"]
-    return run
+    return "\n".join(tasks[name].scripts)
 
 
-def _workflow(name: str) -> dict[str, Any]:
+def _workflow(name: str) -> Workflow:
     path = REPO_ROOT / ".github" / "workflows" / name
     if not path.is_file():
         pytest.fail(f"no workflow {name}")
-    loaded: dict[str, Any] = yaml.safe_load(path.read_text())
-    return loaded
-
-
-def _triggers(workflow: dict[Any, Any]) -> dict[str, Any]:
-    """A workflow's `on:` block.
-
-    PyYAML follows YAML 1.1, where a bare `on` is the boolean true, so the key
-    loads as True rather than "on". Stated once here instead of worked around
-    at every call.
-    """
-    block: dict[str, Any] = workflow[True] if True in workflow else workflow["on"]
-    return block
+    return read_yaml(path, Workflow)
 
 
 def test_versions_come_from_conventional_commits_as_v_tags() -> None:
     psr = _psr()
-    assert psr["commit_parser"] == "conventional"
-    assert psr["tag_format"] == "v{version}"
+    assert psr.commit_parser == "conventional"
+    assert psr.tag_format == "v{version}"
 
 
 def test_the_first_release_is_one_point_zero() -> None:
     """Stated, not defaulted: a default is what a tool upgrade changes."""
-    assert _psr()["allow_zero_version"] is False
+    assert _psr().allow_zero_version is False
 
 
 def test_only_main_can_release() -> None:
     """The default matches (main|master); no master exists to be matched."""
-    assert _psr()["branches"]["main"]["match"] == "^main$"
+    assert _psr().branches["main"].match == "^main$"
 
 
 def test_a_release_tags_and_publishes_but_commits_nothing() -> None:
@@ -86,15 +70,17 @@ def test_a_release_tags_and_publishes_but_commits_nothing() -> None:
 
 def test_the_release_workflow_runs_on_main_through_the_task() -> None:
     wf = _workflow("release.yml")
-    assert _triggers(wf)["push"]["branches"] == ["main"]
-    steps = wf["jobs"]["release"]["steps"]
-    runs = " ".join(s.get("run", "") for s in steps)
+    push = wf.on["push"]
+    assert push is not None and push.branches == ("main",)
+    steps = wf.jobs["release"].steps
+    runs = " ".join(s.run or "" for s in steps)
     assert "mise run release:version" in runs, "through the task, not around it"
-    checkout = next(s for s in steps if "actions/checkout" in s.get("uses", ""))
-    assert checkout["with"]["fetch-depth"] == 0, "the last tag must be reachable"
-    assert checkout["with"]["persist-credentials"] is False
-    assert wf["permissions"] == {}, "the workflow grants nothing by default"
-    assert wf["jobs"]["release"]["permissions"]["contents"] == "write"
+    checkout = next(s for s in steps if "actions/checkout" in (s.uses or ""))
+    assert checkout.with_["fetch-depth"] == 0, "the last tag must be reachable"
+    assert checkout.with_["persist-credentials"] is False
+    assert wf.permissions == {}, "the workflow grants nothing by default"
+    permissions = wf.jobs["release"].permissions
+    assert permissions is not None and permissions["contents"] == "write"
 
 
 def test_production_deploys_only_a_release_tag_on_main() -> None:
@@ -106,8 +92,9 @@ def test_production_deploys_only_a_release_tag_on_main() -> None:
 
 def test_the_workflow_scan_runs_on_pushes_to_main() -> None:
     """zizmor.yml named master, which does not exist, so it never ran on a push."""
-    wf = _workflow("zizmor.yml")
-    branches = _triggers(wf)["push"]["branches"]
+    push = _workflow("zizmor.yml").on["push"]
+    assert push is not None
+    branches = push.branches
     assert "master" not in branches
     assert "main" in branches
 

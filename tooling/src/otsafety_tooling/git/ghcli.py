@@ -20,9 +20,9 @@ Ported from cscie103-olap-oltp (src/cscie103_olap_oltp/git/ghcli.py).
 
 from __future__ import annotations
 
-import json
 import subprocess
-from typing import Any
+
+from pydantic import BaseModel, ValidationError
 
 # gh's DOCUMENTED CODE FOR "NOT AUTHENTICATED", named once.
 NOT_AUTHENTICATED = 4
@@ -72,10 +72,17 @@ def gh(*args: str) -> str:
     return result.stdout
 
 
-def gh_json(*args: str) -> Any:
-    """Run gh and parse its JSON output, naming the command if it is malformed."""
+def gh_json[M: BaseModel](model: type[M], *args: str) -> M:
+    """Run gh and validate its JSON into a model, naming the command if it does not fit.
+
+    VALIDATED AT THE BOUNDARY IT READS FROM. This returned Any from json.loads, and
+    its caller re-checked the type by hand before validating. Pydantic parses and
+    validates in one step, so untyped gh output never reaches a caller.
+    """
     raw = gh(*args)
     try:
-        return json.loads(raw)
-    except json.JSONDecodeError as error:
-        raise GhError(f"gh {' '.join(args)} returned unparsable JSON: {error}") from error
+        return model.model_validate_json(raw)
+    except ValidationError as error:
+        raise GhError(
+            f"gh {' '.join(args)} returned JSON that does not fit {model.__name__}: {error}"
+        ) from error

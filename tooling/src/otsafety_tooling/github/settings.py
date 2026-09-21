@@ -30,7 +30,7 @@ from __future__ import annotations
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Protocol
 
 from pydantic import ValidationError
 
@@ -40,6 +40,7 @@ from otsafety_tooling.contracts.repository_settings import (
     SETTING_NAMES,
     MergeSettings,
     ObservedSettings,
+    RepositoryResponse,
     SettingFinding,
     SettingsCheckReport,
     Verdict,
@@ -55,29 +56,23 @@ _API_PATH = "repos/{owner}/{repo}"
 class GitHubRepository(Protocol):
     """The two operations settings management needs from GitHub."""
 
-    def read(self) -> dict[str, Any]: ...
+    def read(self) -> RepositoryResponse: ...
 
-    def update(self, changes: dict[str, bool]) -> dict[str, Any]: ...
+    def update(self, changes: dict[str, bool]) -> RepositoryResponse: ...
 
 
 class GhRepository:
     """The production adapter: the current checkout's repository, via `gh api`."""
 
-    def read(self) -> dict[str, Any]:
-        return _object(gh_json("api", _API_PATH))
+    def read(self) -> RepositoryResponse:
+        return gh_json(RepositoryResponse, "api", _API_PATH)
 
-    def update(self, changes: dict[str, bool]) -> dict[str, Any]:
+    def update(self, changes: dict[str, bool]) -> RepositoryResponse:
         fields: list[str] = []
         for name, value in changes.items():
             # -F, not -f: gh sends "true"/"false" as JSON booleans only with -F.
             fields += ["-F", f"{name}={'true' if value else 'false'}"]
-        return _object(gh_json("api", "-X", "PATCH", _API_PATH, *fields))
-
-
-def _object(response: Any) -> dict[str, Any]:
-    if not isinstance(response, dict):
-        raise GhError(f"expected a JSON object from GitHub, got {type(response).__name__}")
-    return response
+        return gh_json(RepositoryResponse, "api", "-X", "PATCH", _API_PATH, *fields)
 
 
 def _say(text: str) -> None:
@@ -152,14 +147,11 @@ def _record(repository: str, findings: tuple[SettingFinding, ...], artifacts: Pa
 def check(repository: GitHubRepository, desired: MergeSettings, artifacts: Path) -> int:
     """Read GitHub, judge its settings, record the result, return 0 only on pass."""
     try:
-        response = repository.read()
-        observed = ObservedSettings.model_validate(response)
+        observed = repository.read()
     except (GhError, OSError, ValidationError) as error:
         return _record(UNKNOWN_REPOSITORY, (_unreachable(error),), artifacts)
 
-    name = response.get("full_name")
-    full_name = name if isinstance(name, str) and name else UNKNOWN_REPOSITORY
-    return _record(full_name, compare(desired, observed), artifacts)
+    return _record(observed.full_name or UNKNOWN_REPOSITORY, compare(desired, observed), artifacts)
 
 
 def configure(repository: GitHubRepository, desired: MergeSettings, artifacts: Path) -> int:

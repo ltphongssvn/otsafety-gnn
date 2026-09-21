@@ -97,6 +97,19 @@ line-length = 100
 [tool.ruff.lint]
 # S (bandit) is selected so every `noqa: S603/S607` in this package is a
 # reviewed decision rather than a rule nobody enabled.
-select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "N", "T20"]
+select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "N", "T20", "TID251"]
 # CLI entry points print by design.
 per-file-ignores = { "tests/**" = ["S101", "S603", "S607"], "src/otsafety_tooling/git/*.py" = ["T201"] }
+
+# SCHEMA-FIRST, ENFORCED BY THE LINTER RATHER THAN BY REVIEW. A raw parse returns
+# untyped data, which is how the site's hand-written types drifted from the
+# contracts they read. Pydantic parses JSON itself: Model.model_validate_json.
+# YAML has no Pydantic parser, so it is read in one sanctioned place that goes
+# straight into model_validate. Every exemption below names its reason.
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"json.loads".msg = "parse with Model.model_validate_json(...) -- schema-first"
+"json.load".msg = "parse with Model.model_validate_json(...) -- schema-first"
+"yaml.safe_load".msg = "read YAML through the sanctioned reader into a Pydantic model"
+"yaml.load".msg = "read YAML through the sanctioned reader into a Pydantic model"
+"tomllib.loads".msg = "read TOML through the sanctioned reader into a Pydantic model"
+"tomllib.load".msg = "read TOML through the sanctioned reader into a Pydantic model"

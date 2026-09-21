@@ -16,14 +16,13 @@ verdict as evidence, which is where a live claim belongs.
 
 from __future__ import annotations
 
-from typing import Any
-
 import pytest
 
 pytest.importorskip("yaml", reason="pyyaml is not installed")
 
-import yaml
 
+from otsafety_tooling.contracts.files import read_yaml
+from otsafety_tooling.contracts.opentargets_config import OpenTargetsConfig
 from otsafety_tooling.paths import REPO_ROOT
 
 CONFIG = REPO_ROOT / "conf" / "config.yaml"
@@ -109,21 +108,18 @@ REQUIRED = {
 }
 
 
-def _config() -> dict[str, Any]:
-    if not CONFIG.is_file():
-        pytest.fail(f"no config at {CONFIG}")
-    loaded: dict[str, Any] = yaml.safe_load(CONFIG.read_text(encoding="utf-8"))
-    return loaded
+def _config() -> OpenTargetsConfig:
+    return read_yaml(CONFIG, OpenTargetsConfig)
 
 
 def test_the_pinned_release_is_the_current_one() -> None:
     """25.03 was pinned while 25.12 and 26.03 had shipped."""
-    assert _config()["data"]["platform_version"] == "26.03"
+    assert _config().data.platform_version == "26.03"
 
 
 def test_every_named_dataset_exists_in_the_release() -> None:
     """A dataset name that is not in the release downloads nothing at all."""
-    relations = _config()["data"]["relations"]
+    relations = _config().data.relations
     for name, spec in relations.items():
         dataset = spec[0]
         assert dataset in RELEASE_2603_DATASETS, (
@@ -131,10 +127,10 @@ def test_every_named_dataset_exists_in_the_release() -> None:
         )
 
 
-def _named_datasets(config: dict[str, Any]) -> dict[str, set[str]]:
+def _named_datasets(config: OpenTargetsConfig) -> dict[str, set[str]]:
     """Every dataset the config names, by the section that names it."""
-    relations = {spec[0] for spec in config["data"]["relations"].values()}
-    labels = set(config["labels"]["curated"]) | {config["labels"]["clinical_precedence"]}
+    relations = {spec[0] for spec in config.data.relations.values()}
+    labels = set(config.labels.curated) | {config.labels.clinical_precedence}
     return {"relations": relations, "labels": labels}
 
 
@@ -165,7 +161,7 @@ SITE_DATA = REPO_ROOT / "apps" / "site" / "src" / "data" / "research.ts"
 
 
 def test_the_site_names_the_release_the_config_pins() -> None:
-    version = _config()["data"]["platform_version"]
+    version = _config().data.platform_version
     assert f'release: "{version}"' in SITE_DATA.read_text(encoding="utf-8"), (
         f"the site does not state release {version}, which conf/config.yaml pins"
     )
