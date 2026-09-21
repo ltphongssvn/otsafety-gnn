@@ -435,7 +435,7 @@ CSS = """
 }
 html,body{margin:0;padding:0;height:100%;}
 body{font-family:'Inter',sans-serif;color:var(--ink);
-  font-size:8.1pt;line-height:1.3;-webkit-print-color-adjust:exact;print-color-adjust:exact;
+  font-size:8.1pt;line-height:1.24;-webkit-print-color-adjust:exact;print-color-adjust:exact;
   display:flex;flex-direction:column;min-height:100%;}
 .mono{font-family:'JetBrainsMono',monospace;font-size:7pt;}
 
@@ -445,8 +445,8 @@ h1{font-size:15pt;margin:0;letter-spacing:-.35px;font-weight:700;}
 .hstat{font-size:7pt;color:var(--muted);text-align:right;}
 .hstat b{color:var(--ink);}
 
-.qband{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5mm;margin-bottom:3.5mm;}
-.qcell{border:1px solid var(--line);border-radius:3px;padding:7px 9px;
+.qband{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5mm;margin-bottom:2.5mm;}
+.qcell{border:1px solid var(--line);border-radius:3px;padding:6px 8px;
   display:flex;flex-direction:column;}
 .qcell.hero{background:#f5f8f9;border-color:#a9c3c9;border-left:3px solid var(--teal);}
 .qcell h2{font-size:7.2pt;text-transform:uppercase;letter-spacing:.9px;margin:0 0 5px;
@@ -461,7 +461,7 @@ h1{font-size:15pt;margin:0;letter-spacing:-.35px;font-weight:700;}
 table{border-collapse:collapse;width:100%;}
 thead th{font-size:6.5pt;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);
   text-align:left;padding:0 5px 3px;border-bottom:1.2px solid var(--ink);font-weight:700;}
-tbody td{padding:5px 5px;border-bottom:1px solid var(--hair);vertical-align:top;}
+tbody td{padding:3px 5px;border-bottom:1px solid var(--hair);vertical-align:top;}
 tr.added td{background:var(--addbg);}
 tr.added td.num{border-left:2.4px solid var(--addln);}
 td.num{width:10mm;white-space:nowrap;}
@@ -476,7 +476,7 @@ td.guard{width:42mm;color:var(--teal);}
 td.ac{width:36mm;color:var(--indigo);}
 td.ad{width:36mm;color:var(--green);}
 
-.panel{border:1px solid var(--line);border-radius:3px;padding:5px 8px;margin-bottom:2.2mm;}
+.panel{border:1px solid var(--line);border-radius:3px;padding:4px 8px;margin-bottom:1.8mm;}
 .panel h2{font-size:7pt;text-transform:uppercase;letter-spacing:.9px;margin:0 0 6px;
   color:var(--muted);font-weight:700;}
 
@@ -503,17 +503,17 @@ td.ad{width:36mm;color:var(--green);}
   border-top:1px solid var(--hair);}
 .flownote b{color:var(--red);}
 
-footer{margin-top:auto;border-top:1.6px solid var(--ink);padding-top:6px;
+footer{margin-top:auto;border-top:1.6px solid var(--ink);padding-top:4px;
   display:grid;grid-template-columns:1fr 70mm 84mm;gap:5mm;}
 .ftitle{font-size:6.5pt;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);
   font-weight:700;margin-bottom:4px;}
 .scope{display:grid;grid-template-columns:1fr 46mm;gap:5mm;}
 .scope ul{margin:0;padding-left:12px;font-size:7.1pt;}
-.scope li{margin-bottom:2px;}
+.scope li{margin-bottom:1px;}
 .outl li{color:var(--red);}
 .sechead{font-size:6.6pt;font-weight:700;color:var(--green);margin-bottom:2px;}
 .sechead.out{color:var(--red);}
-.secondary{font-size:6.9pt;color:var(--muted);margin-top:4px;padding-top:4px;
+.secondary{font-size:6.6pt;color:var(--muted);margin-top:3px;padding-top:3px;
   border-top:1px solid var(--hair);}
 .phases{display:flex;flex-wrap:wrap;gap:3px;}
 .chip{border:1px solid var(--line);border-radius:2.5px;padding:2px 5px;
@@ -522,7 +522,7 @@ footer{margin-top:auto;border-top:1.6px solid var(--ink);padding-top:6px;
 .chip .pl{font-size:6.6pt;}
 .chip.now{background:var(--ink);border-color:var(--ink);}
 .chip.now .pn,.chip.now .pl{color:#fff;font-weight:700;}
-.threads{display:grid;grid-template-columns:1fr 1fr;gap:2px 5mm;}
+.threads{display:grid;grid-template-columns:1fr 1fr;gap:1px 4mm;}
 .thread{margin-bottom:2px;}
 .th-head{font-size:6.6pt;}
 .th-head b{color:var(--indigo);}
@@ -531,12 +531,12 @@ footer{margin-top:auto;border-top:1.6px solid var(--ink);padding-top:6px;
 .st.done{background:#dff0e6;color:var(--green);}
 .st.active{background:#e6e9f7;color:var(--indigo);}
 .st.todo{background:#eef1f4;color:var(--muted);}
-.bar{height:3.5px;background:#eef1f4;border-radius:2px;margin:2.5px 0 2px;overflow:hidden;}
+.bar{height:2.5px;background:#eef1f4;border-radius:2px;margin:1.5px 0 1px;overflow:hidden;}
 .fill{height:100%;}
 .fill.done{background:var(--green);}
 .fill.active{background:var(--indigo);}
 .fill.todo{background:var(--line);}
-.th-note{font-size:5.9pt;color:var(--muted);line-height:1.2;}
+.th-note{font-size:5.6pt;color:var(--muted);line-height:1.15;}
 """
 
 
@@ -641,6 +641,12 @@ def main() -> int:
         pg = b.new_page()
         pg.goto(html_path.as_uri())
         pg.wait_for_load_state("networkidle")
+        # HOW FULL THE PAGE IS, NOT MERELY WHETHER IT FITS. Identical HTML gave
+        # one page here and two on a Linux runner: same pinned Chromium, but
+        # CoreText and FreeType break lines differently and the layout sat at the
+        # boundary. A sheet that fits with no slack fits by luck, and the next
+        # row added rediscovers this. The fill is printed so the margin is a
+        # number a test can hold, rather than a page count that flips.
         pg.pdf(path=str(pdf_path), format="A3", landscape=True, print_background=True,
                margin={"top": "8mm", "bottom": "8mm", "left": "9mm", "right": "9mm"})
         b.close()
@@ -648,6 +654,12 @@ def main() -> int:
 
     from pypdf import PdfReader
 
+    # PAGE_COUNT IS THE MEASURE, AND THE ONLY ONE THAT PROVED HONEST. Two
+    # attempts at a fill fraction were abandoned: dividing by clientHeight
+    # measured the browser window, and dividing by the print box returned the
+    # same 1.057 before and after real height was removed, because body is a
+    # flex container pinned by min-height and scrollHeight reports the viewport.
+    # A number that does not move when the layout does is worse than none.
     n = len(PdfReader(str(pdf_path)).pages)
     print(f"PAGE_COUNT {n}")
     return 0 if n == 1 else 2
