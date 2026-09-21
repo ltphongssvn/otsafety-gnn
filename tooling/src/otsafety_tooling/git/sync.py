@@ -38,7 +38,13 @@ from pathlib import Path
 from pydantic import BaseModel, ConfigDict
 
 from otsafety_tooling.git.env import git
-from otsafety_tooling.git.state import INTEGRATION_BRANCH, Branch, RepositoryState, gather
+from otsafety_tooling.git.state import (
+    INTEGRATION_BRANCH,
+    PROTECTED_BRANCHES,
+    Branch,
+    RepositoryState,
+    gather,
+)
 from otsafety_tooling.paths import REPO_ROOT
 
 REMOTE_INTEGRATION = f"origin/{INTEGRATION_BRANCH}"
@@ -53,9 +59,12 @@ class CleanupPlan(BaseModel):
     blocked: tuple[Branch, ...]
 
 
-def plan_cleanup(state: RepositoryState) -> CleanupPlan:
+def plan_cleanup(state: RepositoryState, *, prune: bool = False) -> CleanupPlan:
     """Split branches into removable and blocked, leaving work in progress alone."""
-    return CleanupPlan(remove=state.deletable, blocked=state.blocked)
+    # Empty, never-pushed branches join only on request: start:here cuts empty ones.
+    return CleanupPlan(
+        remove=state.deletable + (state.prunable if prune else ()), blocked=state.blocked
+    )
 
 
 def is_linked_worktree(root: Path) -> bool:
@@ -77,67 +86,87 @@ def develop_holder(state: RepositoryState) -> Path | None:
     return None
 
 
-def _counts(root: Path) -> tuple[int, int]:
-    """(ahead, behind) of develop against origin/develop."""
-    result = git(
-        "rev-list",
-        "--left-right",
-        "--count",
-        f"{INTEGRATION_BRANCH}...{REMOTE_INTEGRATION}",
-        cwd=root,
-    )
+def holder_of(state: RepositoryState, name: str) -> Path | None:
+    """The checkout that holds a branch, from the facts already gathered."""
+    for worktree in state.worktrees:
+        if worktree.branch == name:
+            return worktree.path
+    return None
+
+
+def _counts(root: Path, name: str, remote: str) -> tuple[int, int]:
+    """(ahead, behind) of a branch against its remote counterpart."""
+    result = git("rev-list", "--left-right", "--count", f"{name}...{remote}", cwd=root)
     if result.returncode != 0:
         print(result.stderr.strip(), file=sys.stderr)
-        raise SystemExit(f"could not compare {INTEGRATION_BRANCH} with {REMOTE_INTEGRATION}")
+        raise SystemExit(f"could not compare {name} with {remote}")
     ahead, behind = result.stdout.split()
     return int(ahead), int(behind)
 
 
-def advance_develop(root: Path) -> None:
-    """Bring develop up to origin/develop, in whatever way its checkout allows."""
-    # --prune IS WHAT MAKES [gone] MEAN ANYTHING, and it must not be scoped to a
-    # refspec: with one on the command line git prunes only what it covers, so
-    # merged remote branches survived and cleanup found nothing to do.
-    pruned = git("fetch", "origin", "--prune", cwd=root)
-    if pruned.returncode != 0:
-        print(pruned.stderr.strip(), file=sys.stderr)
-        raise SystemExit("could not fetch from origin")
+def _has(root: Path, ref: str) -> bool:
+    return git("rev-parse", "--verify", "--quiet", ref, cwd=root).returncode == 0
 
-    ahead, behind = _counts(root)
-    if ahead and behind:
-        raise SystemExit(
-            f"{INTEGRATION_BRANCH} has diverged from {REMOTE_INTEGRATION}: "
-            f"{ahead} ahead, {behind} behind. sync will not resolve that for you."
-        )
-    if not behind:
-        print(f"{INTEGRATION_BRANCH} up to date")
+
+def advance_protected(root: Path, name: str, *, fetch: bool = True) -> None:
+    """Bring a protected branch up to its remote, in whatever way its checkout allows.
+
+    EVERY PROTECTED BRANCH, NOT ONLY develop. Advancing develop alone left main 59
+    commits behind origin/main across two promotions, and the branch report failed
+    on B001 after every release. Git Town syncs every perennial branch; so does this,
+    by one path, so main and develop can never be advanced by different rules.
+    """
+    remote = f"origin/{name}"
+    if fetch:
+        # --prune IS WHAT MAKES [gone] MEAN ANYTHING, and it must not be scoped to a
+        # refspec: with one on the command line git prunes only what it covers, so
+        # merged remote branches survived and cleanup found nothing to do.
+        pruned = git("fetch", "origin", "--prune", cwd=root)
+        if pruned.returncode != 0:
+            print(pruned.stderr.strip(), file=sys.stderr)
+            raise SystemExit("could not fetch from origin")
+    if not _has(root, f"refs/heads/{name}") or not _has(root, f"refs/remotes/{remote}"):
         return
 
-    holder = develop_holder(gather(root))
+    ahead, behind = _counts(root, name, remote)
+    if ahead and behind:
+        raise SystemExit(
+            f"{name} has diverged from {remote}: {ahead} ahead, {behind} behind. "
+            "sync will not resolve that for you."
+        )
+    if not behind:
+        print(f"{name} up to date")
+        return
+
+    holder = holder_of(gather(root), name)
     here = holder is not None and holder.resolve() == root.resolve()
 
     if here:
-        merged = git("merge", "--ff-only", REMOTE_INTEGRATION, cwd=root)
+        merged = git("merge", "--ff-only", remote, cwd=root)
         if merged.returncode != 0:
             print(merged.stderr.strip(), file=sys.stderr)
-            raise SystemExit(f"{INTEGRATION_BRANCH} could not fast-forward here")
-        print(f"{INTEGRATION_BRANCH} advanced {behind} commit(s) in this checkout")
+            raise SystemExit(f"{name} could not fast-forward here")
+        print(f"{name} advanced {behind} commit(s) in this checkout")
         return
 
     if holder is not None:
-        # git REFUSES a refspec fetch into a branch that is checked out, and the
-        # cleanup below reads origin/develop, which the fetch above refreshed.
+        # git REFUSES a refspec fetch into a branch that is checked out anywhere.
         print(
-            f"{INTEGRATION_BRANCH} is {behind} commit(s) behind and is checked out in "
+            f"{name} is {behind} commit(s) behind and is checked out in "
             f"{holder.name}; run sync there to advance it"
         )
         return
 
-    fetched = git("fetch", "origin", f"{INTEGRATION_BRANCH}:{INTEGRATION_BRANCH}", cwd=root)
+    fetched = git("fetch", "origin", f"{name}:{name}", cwd=root)
     if fetched.returncode != 0:
         print(fetched.stderr.strip(), file=sys.stderr)
-        raise SystemExit(f"{INTEGRATION_BRANCH} could not be advanced")
-    print(f"{INTEGRATION_BRANCH} advanced {behind} commit(s)")
+        raise SystemExit(f"{name} could not be advanced")
+    print(f"{name} advanced {behind} commit(s)")
+
+
+def advance_develop(root: Path) -> None:
+    """Bring develop up to origin/develop; one caller of advance_protected."""
+    advance_protected(root, INTEGRATION_BRANCH)
 
 
 def switch_command(branch: str, state: RepositoryState, root: Path = REPO_ROOT) -> str:
@@ -218,14 +247,19 @@ def switch(branch: str) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     args = sys.argv[1:] if argv is None else argv
+    prune = "--prune" in args
+    args = [arg for arg in args if arg != "--prune"]
     if args[:1] == ["switch"]:
         if len(args) != 2:
             raise SystemExit("usage: python -m otsafety_tooling.git.sync switch <branch>")
         return switch(args[1])
     if args:
-        raise SystemExit("usage: python -m otsafety_tooling.git.sync [switch <branch>]")
+        raise SystemExit("usage: python -m otsafety_tooling.git.sync [--prune | switch <branch>]")
 
+    # EVERY PROTECTED BRANCH: develop first, which fetches once, then the rest.
     advance_develop(REPO_ROOT)
+    for protected in sorted(PROTECTED_BRANCHES - {INTEGRATION_BRANCH}):
+        advance_protected(REPO_ROOT, protected, fetch=False)
 
     if not is_linked_worktree(REPO_ROOT):
         leaving = finished_branch_to_leave(gather(REPO_ROOT), REPO_ROOT)
@@ -236,7 +270,7 @@ def main(argv: list[str] | None = None) -> int:
                 raise SystemExit(f"could not leave {leaving.name} for {INTEGRATION_BRANCH}")
             print(f"left finished branch {leaving.name}; now on {INTEGRATION_BRANCH}")
 
-    plan = plan_cleanup(gather(REPO_ROOT))
+    plan = plan_cleanup(gather(REPO_ROOT), prune=prune)
 
     for branch in plan.remove:
         # `-d`, NEVER `-D`: git independently confirms the merge happened.
@@ -251,7 +285,15 @@ def main(argv: list[str] | None = None) -> int:
         for branch in plan.blocked:
             print(f"  {branch.name}: {branch.blocked_because}")
 
-    if not plan.remove and not plan.blocked:
+    # KEPT, AND SAID SO: an empty branch that was never pushed waits for --prune,
+    # because start:here cuts empty branches too. It is listed rather than hidden.
+    waiting = () if prune else gather(REPO_ROOT).prunable
+    if waiting:
+        print("\nempty and never pushed, kept until asked:")
+        for branch in waiting:
+            print(f"  {branch.name}: {branch.blocked_because}")
+
+    if not plan.remove and not plan.blocked and not waiting:
         print("nothing to clean up")
 
     return 0

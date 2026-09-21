@@ -656,14 +656,16 @@ steps:
     done_when:
       - {kind: path, path: 'tooling/src/otsafety_tooling/redaction.py'}
   - id: 'G.11'
-    title: 'VIRTUAL_ENV isolated between worktrees; sync judged by merge-base'
+    title: 'sync advances every protected branch, judges merged against origin/develop, and prunes empty never-pushed branches only on request'
     thread: G
     phase: '8G'
-    source: 'cs1090a-recsys P11 P16; P16 observed here at worktree:add'
+    branch: feature/sync-perennial-branches
+    source: 'cs1090a-recsys P11; the branch report failing B001 with main 59 commits behind; an empty branch sync could not remove'
     serves:
       - {loop: constrain, side: code}
+      - {loop: declare, side: data}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_virtual_env_isolation.py'}
+      - {kind: path, path: 'tooling/tests/test_sync_perennial.py'}
   - id: 'G.12'
     title: 'Policy released and deployed'
     thread: G
@@ -1364,6 +1366,15 @@ steps:
       - {loop: instrument, side: data}
     done_when:
       - {kind: path, path: '.github/workflows/site-watch.yml'}
+  - id: 'G.22'
+    title: 'VIRTUAL_ENV isolated between worktrees'
+    thread: G
+    phase: '8G'
+    source: 'cs1090a-recsys P16; observed here at worktree:add'
+    serves:
+      - {loop: constrain, side: code}
+    done_when:
+      - {kind: path, path: 'tooling/tests/test_virtual_env_isolation.py'}
 decisions:
   - id: 'X.SPIKE'
     title: 'Reference spike, the original thread B'
