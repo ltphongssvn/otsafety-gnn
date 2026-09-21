@@ -3350,3 +3350,13 @@ candidates:
   text: main() accepted --prune while the task never passed it; every test called main() directly
   maps_to:
   - G.11
+- source: SESSION
+  ref: 'plan status: working tree'
+  text: the first probe read the working tree, so an uncommitted file made G.19 look done
+  maps_to:
+  - G.0
+- source: SESSION
+  ref: 'plan status: empty branch'
+  text: the first probe trusted any branch that existed, so an empty one read as work in flight
+  maps_to:
+  - G.0
