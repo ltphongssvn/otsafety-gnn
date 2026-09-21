@@ -2,16 +2,17 @@
 """Experiments record themselves through a port, never through a vendor.
 
     with track("baseline", tracker, root=REPO_ROOT, seeds={"python": 7},
-               dataset="movielens-1m", dataset_digest=DIGEST) as run:
+               dataset="opentargets-26.03", dataset_digest=DIGEST) as run:
         run.param("alpha", 1.0)
-        run.metric("rmse", rmse)
-        run.artifact("model.joblib", path)
+        run.metric("average_precision", ap)
+        run.artifact("model.pt", path)
 
 WHY A PORT AND NOT `import mlflow`. experiment-run/v1 exists because trackers
 log only what they are told; this exists so no experiment can reach past the
-contract. MLflow and Weights & Biases arrive as further adapters, and no
-training code changes when they do -- FanOutTracker makes "file and MLflow and
-W&B" a composition rather than a rewrite.
+contract. MLflow and Weights & Biases are adapters behind it, and
+default_tracker() composes them, so an experiment never chooses its backends --
+choosing was how W&B became a flag somebody had to remember in an earlier
+project, and a forgotten flag records nothing.
 
 THE ENVIRONMENT IS GATHERED, NOT DECLARED. The commit, whether the tree was
 clean, the Python version and the installed package versions come from the
@@ -120,6 +121,41 @@ class FanOutTracker:
     def record(self, run: ExperimentRun) -> None:
         for tracker in self.trackers:
             tracker.record(run)
+
+
+def default_tracker(
+    directory: Path | None = None,
+    backends: tuple[str, ...] = ("mlflow", "wandb"),
+) -> FanOutTracker:
+    """The trackers every experiment records to, composed in one place.
+
+    THE FILE TRACKER IS NOT OPTIONAL. It is the copy that outlives a vendor, an
+    expired account or a deleted project, and it is what the site reads.
+
+    EACH BACKEND IS ADDED WHEN ITS EXTRA IS INSTALLED, and simply absent
+    otherwise -- that is what optional means. It is NOT skipped for any other
+    reason: a tracker that quietly disables itself on a bad key or a missing
+    entity is how tracking stops being trusted, so those failures stay loud.
+    """
+    import importlib.util
+
+    from otsafety_tooling.artifacts import artifacts_root
+    from otsafety_tooling.paths import REPO_ROOT
+
+    records = directory if directory is not None else artifacts_root(REPO_ROOT) / "experiments"
+    trackers: list[Tracker] = [FileTracker(records)]
+
+    if "mlflow" in backends and importlib.util.find_spec("mlflow") is not None:
+        from otsafety_tooling.tracking_mlflow import MlflowTracker
+
+        trackers.append(MlflowTracker())
+
+    if "wandb" in backends and importlib.util.find_spec("wandb") is not None:
+        from otsafety_tooling.tracking_wandb import WandbTracker
+
+        trackers.append(WandbTracker())
+
+    return FanOutTracker(*trackers)
 
 
 class RunBuilder:

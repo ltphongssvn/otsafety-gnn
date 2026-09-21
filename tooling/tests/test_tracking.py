@@ -16,6 +16,7 @@ running process, so an experiment cannot forget them or invent them.
 """
 
 import hashlib
+import importlib.util
 from pathlib import Path
 
 import pytest
@@ -221,3 +222,34 @@ def test_determinism_is_declared_by_the_experiment(tmp_path: Path) -> None:
 
     assert not tracker.runs[0].deterministic
     assert not tracker.runs[0].is_reproducible
+
+
+# --- the composition root -----------------------------------------------------
+# FanOutTracker existed and nothing assembled it, so every experiment chose its
+# own trackers -- and the first one written in a hurry chooses FileTracker alone.
+# That is how W&B became optional in cs1090b: a --log-to-wandb flag somebody had
+# to remember. default_tracker() is the one place that decides, so an experiment
+# cannot quietly record less than the project intends.
+
+
+def test_the_default_tracker_writes_files_and_every_installed_backend() -> None:
+    from otsafety_tooling.tracking import FanOutTracker, FileTracker, default_tracker
+
+    tracker = default_tracker()
+    assert isinstance(tracker, FanOutTracker)
+    kinds = [type(t).__name__ for t in tracker.trackers]
+
+    # The file tracker is not optional: it is the copy that survives a vendor.
+    assert kinds[0] == FileTracker.__name__
+
+    for module, adapter in (("mlflow", "MlflowTracker"), ("wandb", "WandbTracker")):
+        if importlib.util.find_spec(module) is not None:
+            assert adapter in kinds, f"{module} is installed but {adapter} is not composed"
+
+
+def test_a_backend_that_is_not_installed_is_simply_absent() -> None:
+    """Optional means optional: a missing extra must not break recording."""
+    from otsafety_tooling.tracking import default_tracker
+
+    tracker = default_tracker(backends=())
+    assert [type(t).__name__ for t in tracker.trackers] == ["FileTracker"]

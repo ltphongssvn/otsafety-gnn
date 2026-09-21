@@ -21,6 +21,23 @@ min_version = "2026.9.9"
 # .gitignore and the commit task's artifact check remain as further layers.
 PYTHONPYCACHEPREFIX = "{{config_root}}/.cache/pycache"
 
+# WEIGHTS & BIASES MODE IS ENVIRONMENT, NEVER CODE. Offline unless the
+# environment already chose: get_env keeps an explicit WANDB_MODE, so Lightning AI
+# setting online is not overridden here, while the laptop and CI default to
+# offline and need no key. The tracker never reads or sets the mode itself.
+#
+# NO WANDB_DIR HERE. config_root is the worktree in a linked worktree, so runs
+# written there would die with `git worktree remove`; the adapter resolves the
+# evidence root instead, as MLflow's store does.
+WANDB_MODE = "{{ get_env(name='WANDB_MODE', default='offline') }}"
+WANDB_PROJECT = "{{ get_env(name='WANDB_PROJECT', default='otsafety-gnn') }}"
+# THE ENTITY IS NOT DECLARED HERE, AND THAT IS DELIBERATE. Without one an online
+# run lands in whoever ran it personal project rather than a shared one, which is
+# how results scatter across accounts. But exporting WANDB_ENTITY="" is worse
+# than leaving it unset: an empty string is still a value, and it would only fail
+# the first time anyone ran online. This repository owns no account, so the
+# environment that runs online sets it, and wandb:check refuses online without it.
+
 [task_config]
 # EVERY TASK RUNS INSIDE THE NIX DEVSHELL, so uv, bun and gh resolve to the
 # toolchain.json releases rather than whatever PATH holds. FAS OnDemand cannot
@@ -189,6 +206,50 @@ description = "Install the ml extra: MLflow, recording experiments into a SQLite
 # --inexact: additive, like e2e:install. setup stays exact on purpose -- it is
 # the reset to baseline; these tasks add to it.
 run = "uv sync --extra ml --inexact"
+
+[tasks."wandb:check"]
+description = "Report the W&B mode, and refuse an online run that would land nowhere"
+# ONLINE HAS TWO REQUIREMENTS AND FAILS DIFFERENTLY WITHOUT EACH. No API key and
+# wandb.init raises in a headless environment, which is loud and fine. No entity
+# and it succeeds, writing to whoever ran it personal project -- silent, and only
+# noticed when someone goes looking for results that are not there. This refuses
+# the second, before a run rather than after it.
+run = '''
+set -euo pipefail
+echo "WANDB_MODE=${WANDB_MODE:-unset}"
+echo "WANDB_PROJECT=${WANDB_PROJECT:-unset}"
+echo "WANDB_ENTITY=${WANDB_ENTITY:-unset}"
+echo "WANDB_API_KEY=$([ -n "${WANDB_API_KEY:-}" ] && echo present || echo absent)"
+if [ "${WANDB_MODE:-offline}" = "online" ]; then
+  [ -n "${WANDB_ENTITY:-}" ] || {
+    echo "refusing: WANDB_MODE=online with no WANDB_ENTITY; runs would land in a personal project" >&2
+    exit 1
+  }
+  [ -n "${WANDB_API_KEY:-}" ] || {
+    echo "refusing: WANDB_MODE=online with no WANDB_API_KEY" >&2
+    exit 1
+  }
+fi
+'''
+
+[tasks."wandb:sync"]
+description = "Push offline W&B runs to the server; needs a key, idempotent"
+# THE POST-RUN HOOK. Offline runs that are never synced are the failure cs1090b
+# recorded as "50+ offline runs on disk" beside a README claiming operational.
+# wandb sync is idempotent, so running it twice is safe.
+run = '''
+set -euo pipefail
+[ -n "${WANDB_API_KEY:-}" ] || {
+  echo "refusing: wandb sync needs WANDB_API_KEY" >&2
+  exit 1
+}
+uv run wandb sync --sync-all
+'''
+
+[tasks."wandb:install"]
+description = "Install the wandb extra: Weights & Biases, a first-class tracker beside MLflow"
+# --inexact, like every install task: add this extra without evicting the others.
+run = "uv sync --extra wandb --inexact"
 
 [tasks."e2e:install"]
 description = "Install Playwright and the browser the acceptance tests drive"

@@ -28,6 +28,17 @@ ml = [
     "mlflow>=3.10,<4",
 ]
 
+# WEIGHTS & BIASES, A FIRST-CLASS TRACKER FROM DAY ONE. cs1090a-recsys reserved a
+# slot for it and never filled one: "adding W&B later is a composition rather
+# than a rewrite" is exactly how it stayed unimplemented. Here it ships beside
+# MLflow, tested beside MLflow, in the default composition.
+#
+# THE MODE IS ENVIRONMENT, NEVER CODE. WANDB_MODE, WANDB_PROJECT and WANDB_DIR are
+# declared once in mise.toml; the adapter never decides online or offline.
+wandb = [
+    "wandb>=0.22,<1",
+]
+
 # THE BROWSER, INSTALLED ONLY WHERE THE SITE IS TESTED. Playwright ships a
 # driver and downloads browser binaries, which the git tasks never need: a
 # machine that only syncs and opens pull requests installs none of it. The
@@ -50,7 +61,7 @@ e2e = [
 # same statement for the type checker. Strictness is untouched everywhere else,
 # and the adapter imports mlflow inside its methods so nothing else depends on
 # it being present.
-module = ["mlflow.*", "playwright.*", "pytest_playwright.*"]
+module = ["mlflow.*", "wandb.*", "playwright.*", "pytest_playwright.*"]
 ignore_missing_imports = true
 
 [dependency-groups]

@@ -2,7 +2,7 @@
 """MLflow is an adapter behind the port, never something training code imports.
 
 WHY IT IS OPTIONAL. MLflow is a large dependency, and a machine that only runs
-the git tasks -- FAS OnDemand pulling and syncing -- should not install it.
+the git tasks -- a runner that only syncs branches -- should not install it.
 These tests skip when it is absent, so the suite stays green there, and the
 adapter imports it inside its methods so tracking.py loads without it.
 
