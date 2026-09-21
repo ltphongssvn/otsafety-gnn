@@ -16,6 +16,14 @@ guessing a location would put records somewhere nobody looks.
 NO SIDE EFFECTS. The directory is created by whoever writes into it, so asking
 where evidence belongs never changes the filesystem.
 
+OTSAFETY_ARTIFACTS OVERRIDES ALL OF THIS, and it is the one variable both readers
+honour: this module and the site's build. Two things forced it. The site
+resolved .artifacts relative to its own source file, so built from a linked
+worktree it read that worktree's empty folder while every record lived in the
+main checkout. And the site's acceptance tests seeded fixtures into the real
+root, where seven fabricated experiment records landed; the tests now point this
+variable at a disposable directory, and the real root is never touched.
+
 FROM THE SHELL. `mise run -q artifacts:path` prints the root and nothing else,
 so any worktree can write a log with
     "$(mise run -q artifacts:path)/logs/<name>.log"
@@ -23,16 +31,21 @@ so any worktree can write a log with
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 from otsafety_tooling.git.worktree import parse_records
 from otsafety_tooling.paths import REPO_ROOT
 
 ARTIFACTS_DIR = ".artifacts"
+OVERRIDE_VARIABLE = "OTSAFETY_ARTIFACTS"
 
 
 def artifacts_root(root: Path) -> Path:
-    """The main checkout's .artifacts directory, as an absolute path."""
+    """The evidence root: OTSAFETY_ARTIFACTS if set, else the main checkout's."""
+    override = os.environ.get(OVERRIDE_VARIABLE)
+    if override:
+        return Path(override).resolve()
     main = parse_records(root)[0]
     if "bare" in main:
         raise RuntimeError(

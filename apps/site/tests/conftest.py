@@ -9,10 +9,12 @@ test proves nothing about the thing under test.
 
 from __future__ import annotations
 
+import os
 import subprocess
 import time
 from collections.abc import Iterator
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -21,14 +23,13 @@ SITE = REPO_ROOT / "apps" / "site"
 BASE_URL = "http://localhost:4321"
 
 
-def _seed_evidence() -> None:
+def _seed_evidence(artifacts: Path) -> None:
     """Guarantee one failing verdict and one run record exist before the build.
 
-    .artifacts/ IS IGNORED BY GIT, so a fresh checkout has none: CI rendered the
-    empty state and the verdict assertion could not pass. Asserting that records
-    happen to be present tests the machine, not the page. These fixtures are
-    written only when a kind is absent, so a developer's real records are used
-    where they exist and CI still has something to render.
+    WRITTEN INTO THE TEST'S OWN ROOT, ALWAYS. An earlier version wrote into the
+    real .artifacts/ and only when a folder was empty, which was wrong twice: it
+    could plant fixtures among real evidence, and it made the tests depend on the
+    machine -- fixtures on CI, whatever happened to exist on a laptop.
 
     The settings fixture is a FAILING verdict on purpose. The first real check
     found three S001 differences and recorded them before the fix; a page that
@@ -36,7 +37,6 @@ def _seed_evidence() -> None:
     """
     import json
 
-    artifacts = REPO_ROOT / ".artifacts"
     seeds = {
         "repo-settings": {
             "contract": "repository-settings-check/v1",
@@ -70,22 +70,76 @@ def _seed_evidence() -> None:
     }
     for kind, record in seeds.items():
         folder = artifacts / kind
-        if folder.is_dir() and any(folder.glob("*.json")):
-            continue
         folder.mkdir(parents=True, exist_ok=True)
         (folder / "00000000T000000000000Z-fixture.json").write_text(json.dumps(record))
 
 
+def _seed_experiments(artifacts: Path) -> None:
+    """Experiment records covering every state the results page must render.
+
+    SHAPED FROM A REAL RECORD. A probe ran track() through FileTracker and the
+    page is designed against what it wrote: one seed per record, so a rung's five
+    seeds are five files grouped by `experiment`, and every record carries the
+    commit and dataset digest that make comparability checkable.
+
+    INTO THE TEST'S OWN ROOT, UNCONDITIONALLY: the same data on every machine.
+    """
+    import json
+
+    folder = artifacts / "experiments"
+    folder.mkdir(parents=True, exist_ok=True)
+
+    def record(experiment: str, seed: int, ap: float, digest: str) -> dict[str, Any]:
+        return {
+            "contract": "experiment-run/v1",
+            "id": f"{seed:012x}",
+            "experiment": experiment,
+            "started_at": "2026-09-21T00:00:00Z",
+            "ended_at": "2026-09-21T00:00:01Z",
+            "duration_ms": 1000,
+            "status": "completed",
+            "error_type": None,
+            "commit": "0" * 40,
+            "working_tree_clean": True,
+            "dataset": "opentargets-26.03",
+            "dataset_digest": digest,
+            "seeds": {"python": seed},
+            "deterministic": True,
+            "python_version": "3.13.15",
+            "packages": {"x": "1"},
+            "params": {},
+            "metrics": {"average_precision": ap},
+            "artifacts": {},
+            "machine": "8f14e45f-ea8f-4b1a-9c3d-2b6b1a0f7e21",
+        }
+
+    same = "a" * 64
+    rows = [("degree-null", s, 0.30 + 0.01 * s, same) for s in range(1, 6)]
+    rows.append(("relation-aware", 1, 0.44, same))  # one seed only
+    rows.append(("relation-agnostic", 1, 0.40, "c" * 64))  # different data
+    for experiment, seed, ap, digest in rows:
+        path = folder / f"20260921T000000{seed:06d}Z-{experiment}-{seed:012x}.json"
+        path.write_text(json.dumps(record(experiment, seed, ap, digest)))
+
+
 @pytest.fixture(scope="session")
-def site_server() -> Iterator[str]:
-    """Build the site, serve it, and stop the server even when a test fails."""
-    _seed_evidence()
+def site_server(tmp_path_factory: pytest.TempPathFactory) -> Iterator[str]:
+    """Build the site against a disposable evidence root, and serve it.
+
+    THE REAL .artifacts/ IS NEVER READ OR WRITTEN HERE. OTSAFETY_ARTIFACTS points
+    the build at a session temp directory the seeders fill, so the tests are
+    hermetic and cannot plant fixtures among real evidence.
+    """
+    artifacts = tmp_path_factory.mktemp("artifacts")
+    _seed_evidence(artifacts)
+    _seed_experiments(artifacts)
+    env = {**os.environ, "OTSAFETY_ARTIFACTS": str(artifacts)}
     if not (SITE / "package.json").is_file():
         pytest.fail(f"no site at {SITE}: run `mise run site:install` after scaffolding")
 
-    subprocess.run(["bun", "run", "build"], cwd=SITE, check=True)  # noqa: S603, S607
+    subprocess.run(["bun", "run", "build"], cwd=SITE, check=True, env=env)  # noqa: S603, S607
     proc = subprocess.Popen(  # noqa: S603, S607
-        ["bun", "run", "preview", "--port", "4321"], cwd=SITE
+        ["bun", "run", "preview", "--port", "4321"], cwd=SITE, env=env
     )
     try:
         for _ in range(60):

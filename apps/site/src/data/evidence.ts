@@ -15,7 +15,16 @@ import { join } from "node:path";
 // src/data -> src -> apps/site -> apps -> repository root. The empty state
 // rendered instead of records because this was one level short, and an empty
 // directory and a wrong path produce the same page.
-const ARTIFACTS = new URL("../../../../../.artifacts", import.meta.url).pathname;
+// OTSAFETY_ARTIFACTS OVERRIDES THE EVIDENCE ROOT, and the test build sets it.
+// Without it the acceptance tests seeded fixtures into the real .artifacts/ --
+// seven fabricated experiment records landed there, and every later local build
+// of /results would have shown them as measured. It is also what makes the tests
+// hermetic: they had seeded only when a folder was empty, so on CI the page
+// showed fixtures and on a machine with real experiments it showed real data,
+// and the same test asserted against different data on different machines.
+export const ARTIFACTS =
+  process.env.OTSAFETY_ARTIFACTS ??
+  new URL("../../../../../.artifacts", import.meta.url).pathname;
 
 export type RunRecord = {
   contract: string; id: string; task: string; arguments: string[];
