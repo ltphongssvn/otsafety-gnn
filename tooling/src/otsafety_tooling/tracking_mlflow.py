@@ -8,7 +8,7 @@ port, so adding or dropping MLflow changes no training code:
 
 MLFLOW IS IMPORTED INSIDE THE METHOD, not at module scope, so
 otsafety_tooling.tracking loads on a machine that installed only the git tasks --
-FAS OnDemand pulling and syncing has no reason to carry a large ML dependency.
+a GitHub runner syncing branches has no reason to carry a large ML dependency.
 It comes from the `ml` extra: uv sync --extra ml.
 
 A LOCAL SQLITE STORE BY DEFAULT: no server, works offline, works on a cluster,
