@@ -304,10 +304,14 @@ run = "bun run --cwd apps/site build"
 
 [tasks."pdf:render"]
 description = "Render the sheet inside the pinned image: the same bytes on every machine"
-# ONE RENDERING ENVIRONMENT, EVERYWHERE. pdf:build uses whatever Chromium and
-# text-shaping stack the machine has -- CoreText here, FreeType on a runner --
-# and identical HTML rendered one page on this laptop and two on GitHub. Four
-# fixes inside the sheet all missed, because the unpinned thing was the renderer.
+# ONE PINNED IMAGE, BUT NOT ONE RENDER. Pinning the image removed real drift --
+# Chromium and the text-shaping stack were unpinned before this. It did NOT make
+# this laptop reproduce CI: an Apple laptop runs the amd64 image under emulation,
+# and the emulated render floors the page to whole inches (A3's 16.54x11.69in
+# came out 16x11). Bit-for-bit results need a native host of that architecture.
+#
+# SO CI IS THE RENDER OF RECORD. This task is a close preview here; the sheet
+# that publishes is the one a native amd64 runner produces.
 #
 # --platform linux/amd64 is not optional on an Apple laptop: without it Docker
 # runs the arm64 image and the divergence returns wearing a different hat. The

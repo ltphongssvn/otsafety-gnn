@@ -426,7 +426,10 @@ def font_faces() -> str:
 
 
 CSS = """
-@page { size: A3 landscape; margin: 8mm 9mm; }
+/* SIZE IS SET ONCE, BY pg.pdf(). Declaring it here too let the two
+   disagree: the mediabox resolved to US Letter landscape on one machine
+   and A3 on another, which is what paginated the sheet differently. */
+@page { margin: 8mm 9mm; }
 * { box-sizing: border-box; }
 :root{
   --ink:#14171a; --muted:#5b6672; --line:#d6dce2; --hair:#eaeef2;
@@ -504,7 +507,7 @@ td.ad{width:36mm;color:var(--green);}
 .flownote b{color:var(--red);}
 
 footer{margin-top:auto;border-top:1.6px solid var(--ink);padding-top:4px;
-  display:grid;grid-template-columns:1fr 70mm 84mm;gap:5mm;}
+  display:grid;grid-template-columns:1fr 82mm 80mm;gap:5mm;}
 .ftitle{font-size:6.5pt;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);
   font-weight:700;margin-bottom:4px;}
 .scope{display:grid;grid-template-columns:1fr 46mm;gap:5mm;}
@@ -640,29 +643,19 @@ def main() -> int:
         b = p.chromium.launch()
         pg = b.new_page()
         pg.goto(html_path.as_uri())
-        # networkidle IS THE WRONG MARKER HERE, AND WAS THE ACTUAL BUG. The fonts
-        # are data: URIs, so they issue no network request: networkidle fires
-        # before the browser has decoded and applied them. macOS won that race
-        # and Linux lost it, which is why identical HTML gave one page here and
-        # two there, and why the runner's pdf was consistently 12% smaller -- it
-        # embedded fewer glyphs because some text was still laid out in a
-        # fallback face, and fallback metrics change line breaking.
-        #
-        # document.fonts.ready resolves only once every declared face is loaded
-        # and applied, which is what "ready to print" actually means.
+        # document.fonts.ready, NOT networkidle. The fonts are data: URIs and
+        # issue no network request, so networkidle cannot mean they are applied.
+        # This is correct on its own terms. It was NOT the cause of the one-page
+        # versus two-page divergence, though it was committed claiming to be:
+        # that was a phase chip wrapping after its column was narrowed.
         pg.wait_for_load_state("load")
         pg.evaluate("() => document.fonts.ready")
         applied = pg.evaluate("() => document.fonts.status")
         if applied != "loaded":
             raise SystemExit(f"REFUSED: fonts are {applied}, not loaded")
         print(f"FONTS {applied} ({pg.evaluate('() => document.fonts.size')} faces)")
-        # HOW FULL THE PAGE IS, NOT MERELY WHETHER IT FITS. Identical HTML gave
-        # one page here and two on a Linux runner: same pinned Chromium, but
-        # CoreText and FreeType break lines differently and the layout sat at the
-        # boundary. A sheet that fits with no slack fits by luck, and the next
-        # row added rediscovers this. The fill is printed so the margin is a
-        # number a test can hold, rather than a page count that flips.
-        pg.pdf(path=str(pdf_path), format="A3", landscape=True, print_background=True,
+        pg.pdf(path=str(pdf_path), width="420mm", height="297mm",
+               print_background=True, prefer_css_page_size=False,
                margin={"top": "8mm", "bottom": "8mm", "left": "9mm", "right": "9mm"})
         b.close()
     print(f"WROTE_PDF {pdf_path} bytes={pdf_path.stat().st_size}")
