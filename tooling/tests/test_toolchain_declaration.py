@@ -10,11 +10,10 @@ that release's own SHASUMS256.txt; the Linux one is the value that matched the
 downloaded bytes on the cluster, byte for byte.
 """
 
-import tomllib
-
 import pytest
 
-from otsafety_tooling.contracts.files import read_json
+from otsafety_tooling.contracts.files import read_json, read_toml
+from otsafety_tooling.contracts.mise_config import MiseConfig
 from otsafety_tooling.contracts.toolchain import BinaryTool, Toolchain
 from otsafety_tooling.paths import REPO_ROOT
 
@@ -32,8 +31,7 @@ def test_every_tool_the_bootstrap_installs_is_declared() -> None:
 
 def test_mise_is_declared_at_the_version_the_project_requires() -> None:
     """A machine installing a different mise is drift, not convenience."""
-    mise = tomllib.loads((REPO_ROOT / "mise.toml").read_text(encoding="utf-8"))
-    assert _tools()["mise"].version == mise["min_version"]
+    assert _tools()["mise"].version == read_toml(REPO_ROOT / "mise.toml", MiseConfig).min_version
 
 
 @pytest.mark.parametrize("platform", PLATFORMS)

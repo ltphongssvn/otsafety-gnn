@@ -174,3 +174,5 @@ prerelease = false
 "json.load".msg = "parse with Model.model_validate_json(...) -- schema-first"
 "yaml.safe_load".msg = "read YAML through the sanctioned reader into a Pydantic model"
 "yaml.load".msg = "read YAML through the sanctioned reader into a Pydantic model"
+"tomllib.loads".msg = "read TOML through the sanctioned reader into a Pydantic model"
+"tomllib.load".msg = "read TOML through the sanctioned reader into a Pydantic model"

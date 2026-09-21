@@ -143,6 +143,9 @@ uv run ruff format --check tooling scripts apps/site/tests
 # [tool.typos] settings in pyproject.toml. Without this, a spelling
 # error passed every local hook and failed only after the push.
 uv run typos --force-exclude
+# LEFTHOOK VALIDATES ITS OWN CONFIGURATION against the schema it ships, so the
+# framework owns lefthook.yml's shape; the tests read only what they assert.
+uv run lefthook validate
 '''
 
 [tasks.types]

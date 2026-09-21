@@ -31,6 +31,7 @@ class Step(_External):
 class Job(_External):
     name: str | None = None
     if_: str | None = Field(default=None, alias="if")
+    runs_on: str | None = Field(default=None, alias="runs-on")
     permissions: dict[str, str] | None = None
     steps: tuple[Step, ...] = ()
 

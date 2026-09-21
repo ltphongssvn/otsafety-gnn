@@ -9,6 +9,7 @@ never reaches a caller. ruff's banned-api rule forbids both calls everywhere els
 
 from __future__ import annotations
 
+import tomllib
 from pathlib import Path
 
 import yaml
@@ -21,4 +22,9 @@ def read_json[M: BaseModel](path: Path, model: type[M]) -> M:
 
 def read_yaml[M: BaseModel](path: Path, model: type[M]) -> M:
     loaded = yaml.safe_load(path.read_text(encoding="utf-8"))  # noqa: TID251 -- the sanctioned reader
+    return model.model_validate(loaded)
+
+
+def read_toml[M: BaseModel](path: Path, model: type[M]) -> M:
+    loaded = tomllib.loads(path.read_text(encoding="utf-8"))  # noqa: TID251 -- the sanctioned reader
     return model.model_validate(loaded)

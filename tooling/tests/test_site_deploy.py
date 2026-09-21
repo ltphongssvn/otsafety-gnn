@@ -21,7 +21,8 @@ from __future__ import annotations
 
 import pytest
 
-from otsafety_tooling.contracts.files import read_json
+from otsafety_tooling.contracts.files import read_json, read_toml
+from otsafety_tooling.contracts.mise_config import MiseConfig
 from otsafety_tooling.contracts.railway_config import RailwayConfig
 from otsafety_tooling.contracts.toolchain import Toolchain
 from otsafety_tooling.paths import REPO_ROOT
@@ -90,12 +91,9 @@ SERVICE = "979ff174-ffc2-444f-a91d-54175c55d3a2"
 
 
 def _deploy_task() -> str:
-    import tomllib
-
-    tasks = tomllib.loads((REPO_ROOT / "mise.toml").read_text())["tasks"]
+    tasks = read_toml(REPO_ROOT / "mise.toml", MiseConfig).tasks
     assert "deploy:site" in tasks, "no deploy:site task"
-    run: str = tasks["deploy:site"]["run"]
-    return run
+    return "\n".join(tasks["deploy:site"].scripts)
 
 
 def test_the_upload_is_the_stage_and_nothing_is_dropped() -> None:

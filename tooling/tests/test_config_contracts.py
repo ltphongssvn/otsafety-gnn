@@ -12,9 +12,12 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from otsafety_tooling.contracts.files import read_json, read_yaml
+from otsafety_tooling.contracts.files import read_json, read_toml, read_yaml
+from otsafety_tooling.contracts.lefthook_config import LefthookConfig
+from otsafety_tooling.contracts.mise_config import MiseConfig, MiseOverlay
 from otsafety_tooling.contracts.opentargets_config import OpenTargetsConfig
 from otsafety_tooling.contracts.railway_config import RailwayConfig
+from otsafety_tooling.contracts.release_config import Pyproject
 from otsafety_tooling.contracts.toolchain import BinaryTool, Toolchain
 from otsafety_tooling.contracts.workflow import Workflow
 from otsafety_tooling.paths import REPO_ROOT
@@ -51,3 +54,21 @@ def test_a_bare_on_key_is_read_as_triggers_not_as_true() -> None:
     """YAML 1.1 loads `on:` as the boolean true; the model restores it."""
     workflow = Workflow.model_validate({True: {"pull_request": None}, "jobs": {}})
     assert workflow.runs_on("pull_request")
+
+
+def test_the_task_file_validates_and_declares_no_toolchain() -> None:
+    """extra is forbidden, so a [tools] block would fail here."""
+    assert read_toml(REPO_ROOT / "mise.toml", MiseConfig).tasks
+
+
+def test_the_release_configuration_validates() -> None:
+    config = read_toml(REPO_ROOT / "pyproject.toml", Pyproject).tool.semantic_release
+    assert config.branches["main"].match == "^main$"
+
+
+def test_the_hook_configuration_validates() -> None:
+    assert read_yaml(REPO_ROOT / "lefthook.yml", LefthookConfig).pre_commit
+
+
+def test_the_overlay_for_machines_without_nix_validates() -> None:
+    read_toml(REPO_ROOT / "mise.ood.toml", MiseOverlay)

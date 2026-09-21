@@ -18,28 +18,23 @@ came from develop, because deploy:site checked only for a clean tree.
 
 from __future__ import annotations
 
-import tomllib
-from typing import Any
-
 import pytest
 
-from otsafety_tooling.contracts.files import read_yaml
+from otsafety_tooling.contracts.files import read_toml, read_yaml
+from otsafety_tooling.contracts.mise_config import MiseConfig
+from otsafety_tooling.contracts.release_config import Pyproject, SemanticReleaseConfig
 from otsafety_tooling.contracts.workflow import Workflow
 from otsafety_tooling.paths import REPO_ROOT
 
 
-def _psr() -> dict[str, Any]:
-    config: dict[str, Any] = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text())
-    section: dict[str, Any] = config.get("tool", {}).get("semantic_release", {})
-    assert section, "no [tool.semantic_release] in pyproject.toml"
-    return section
+def _psr() -> SemanticReleaseConfig:
+    return read_toml(REPO_ROOT / "pyproject.toml", Pyproject).tool.semantic_release
 
 
 def _task(name: str) -> str:
-    tasks = tomllib.loads((REPO_ROOT / "mise.toml").read_text())["tasks"]
+    tasks = read_toml(REPO_ROOT / "mise.toml", MiseConfig).tasks
     assert name in tasks, f"no {name} task"
-    run: str = tasks[name]["run"]
-    return run
+    return "\n".join(tasks[name].scripts)
 
 
 def _workflow(name: str) -> Workflow:
@@ -51,18 +46,18 @@ def _workflow(name: str) -> Workflow:
 
 def test_versions_come_from_conventional_commits_as_v_tags() -> None:
     psr = _psr()
-    assert psr["commit_parser"] == "conventional"
-    assert psr["tag_format"] == "v{version}"
+    assert psr.commit_parser == "conventional"
+    assert psr.tag_format == "v{version}"
 
 
 def test_the_first_release_is_one_point_zero() -> None:
     """Stated, not defaulted: a default is what a tool upgrade changes."""
-    assert _psr()["allow_zero_version"] is False
+    assert _psr().allow_zero_version is False
 
 
 def test_only_main_can_release() -> None:
     """The default matches (main|master); no master exists to be matched."""
-    assert _psr()["branches"]["main"]["match"] == "^main$"
+    assert _psr().branches["main"].match == "^main$"
 
 
 def test_a_release_tags_and_publishes_but_commits_nothing() -> None:
