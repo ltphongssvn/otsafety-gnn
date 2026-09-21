@@ -85,3 +85,43 @@ def test_railway_is_told_to_use_the_dockerfile() -> None:
     config: dict[str, Any] = json.loads(_read("railway.json"))
     assert config["build"]["builder"] == "DOCKERFILE"
     assert config["deploy"]["healthcheckPath"] == "/"
+
+
+PROJECT = "1e5d094a-e1f5-4b16-943a-9a499fc29576"
+SERVICE = "979ff174-ffc2-444f-a91d-54175c55d3a2"
+
+
+def _deploy_task() -> str:
+    import tomllib
+
+    tasks = tomllib.loads((REPO_ROOT / "mise.toml").read_text())["tasks"]
+    assert "deploy:site" in tasks, "no deploy:site task"
+    run: str = tasks["deploy:site"]["run"]
+    return run
+
+
+def test_the_upload_is_the_stage_and_nothing_is_dropped() -> None:
+    """Both flags fail SILENTLY when absent, which is why they are asserted.
+
+    build/ is ignored by git, so without --no-gitignore the stage uploads empty;
+    without --path-as-root the archive root is the project directory and the
+    Dockerfile is not at its root. Read from `railway up --help` for v5.54.1.
+    """
+    run = _deploy_task()
+    assert "--no-gitignore" in run
+    assert "--path-as-root" in run
+    assert "build/deploy-site" in run
+
+
+def test_the_target_is_explicit_not_this_machines_link() -> None:
+    """railway init links a directory in ~/.railway on ONE machine only."""
+    run = _deploy_task()
+    assert PROJECT in run
+    assert SERVICE in run
+
+
+def test_a_deploy_names_the_commit_and_is_smoke_tested_first() -> None:
+    run = _deploy_task()
+    assert "site:smoke" in run, "an image that has not served a request is not deployed"
+    assert "git status --porcelain" in run, "a dirty tree would deploy code no commit describes"
+    assert "-m " in run, "the deployment carries the commit it came from"

@@ -362,6 +362,35 @@ check /no-such-page 404
 exit "$fail"
 """
 
+[tasks."deploy:site"]
+description = "Deploy the site to Railway: clean tree, smoke-tested image, the commit named"
+# THE TARGET IS EXPLICIT. `railway init` links a directory in ~/.railway on one
+# machine only, so relying on the link would deploy from this laptop and fail on
+# any other. The project and service IDs are not secrets; they need auth to use.
+#
+# TWO FLAGS FAIL SILENTLY WITHOUT THEM, read from `railway up --help` (v5.54.1).
+# build/ is ignored by git, so without --no-gitignore the stage uploads empty.
+# Without --path-as-root the archive root is the project directory, and the
+# Dockerfile is not at the root where Railway looks for it.
+#
+# -m records the commit and branch on the deployment itself, so Railway's own
+# history says which code each deployment came from.
+run = """
+set -euo pipefail
+if [ -n "$(git status --porcelain)" ]; then
+  echo "refusing: the working tree is not clean, so no commit describes what would deploy" >&2
+  exit 1
+fi
+commit="$(git rev-parse --short=12 HEAD)"
+branch="$(git rev-parse --abbrev-ref HEAD)"
+mise run site:smoke
+railway up build/deploy-site --path-as-root --no-gitignore \
+  --project 1e5d094a-e1f5-4b16-943a-9a499fc29576 \
+  --service 979ff174-ffc2-444f-a91d-54175c55d3a2 \
+  --environment production \
+  --ci -m "deploy $commit from $branch"
+"""
+
 [tasks."pdf:render"]
 description = "Render the sheet inside the pinned image: the same bytes on every machine"
 # ONE PINNED IMAGE, BUT NOT ONE RENDER. Pinning the image removed real drift --
