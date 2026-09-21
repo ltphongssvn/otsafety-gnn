@@ -1,0 +1,31 @@
+# deploy/site/Caddyfile
+{
+	# Railway terminates TLS; Caddy requesting its own certificates would fail.
+	auto_https off
+	admin off
+	persist_config off
+	log {
+		format json
+	}
+	servers {
+		# Railway's proxy, so client addresses in the logs are the real ones.
+		trusted_proxies static private_ranges 100.0.0.0/8
+	}
+}
+
+:{$PORT:8080} {
+	log {
+		format json
+	}
+	root * /srv
+	encode zstd gzip
+	file_server
+
+	# NOT the SPA fallback every Railway example uses. This site's pages are
+	# separate files, so `try_files {path} /index.html` would answer a mistyped
+	# URL with the home page and a 200 -- a broken link that looks like it works.
+	handle_errors 404 {
+		rewrite * /404.html
+		file_server
+	}
+}

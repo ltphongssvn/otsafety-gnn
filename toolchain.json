@@ -73,6 +73,25 @@
       "bin/mise"
     ]
   },
+  "railway": {
+    "_comment": "THE DEPLOY TOOL, PINNED LIKE EVERY OTHER EXECUTABLE. Railway ships several releases a day and the newest was hours old, so this is the newest release at least seven days old: compromised releases are usually caught within days, which is why uv has exclude-newer and pnpm minimumReleaseAge. Railway publishes no checksum file, so these are the digests GitHub recorded for each asset at upload. The Linux build is musl, statically linked. The archive holds one file at its root, the first tool here with no top-level directory.",
+    "version": "5.54.1",
+    "artifacts": {
+      "aarch64-darwin": {
+        "url": "https://github.com/railwayapp/cli/releases/download/v5.54.1/railway-v5.54.1-aarch64-apple-darwin.tar.gz",
+        "sha256": "703fb3988326ea9814c0dbe7ffdaaa26ac35075d8bd7bb2e5fc61cb79472611a",
+        "dir": "."
+      },
+      "x86_64-linux": {
+        "url": "https://github.com/railwayapp/cli/releases/download/v5.54.1/railway-v5.54.1-x86_64-unknown-linux-musl.tar.gz",
+        "sha256": "f9311cc8a8b9102e1728306e60c588f0fdb40ab8e42307e6b8fe1ae109be5b9c",
+        "dir": "."
+      }
+    },
+    "binaries": [
+      "railway"
+    ]
+  },
   "render_image": {
     "_comment": "THE BROWSER THAT RENDERS THE DELIVERABLE, pinned like every other executable here. It was the one exception: Chromium came from `playwright install` and the text-shaping stack from whatever the machine had -- fontconfig and FreeType on Linux, CoreText on macOS. Identical HTML then rendered one page on a laptop and two on a runner, and four fixes inside the sheet all missed, because the unpinned thing was the renderer rather than the document. THE amd64 MANIFEST DIGEST, NOT THE INDEX: an index resolves to arm64 here and amd64 on a runner, which is the same divergence in a new hat.",
     "tag": "v1.63.0-noble",
@@ -80,6 +99,15 @@
     "digest": "sha256:96b39581c89131729a7ecb8d532314af54c7f9bcc7a61fe15c7a9e77602acf59",
     "reference": "mcr.microsoft.com/playwright/python:v1.63.0-noble@sha256:96b39581c89131729a7ecb8d532314af54c7f9bcc7a61fe15c7a9e77602acf59",
     "index_digest": "sha256:72bd171a9ffc2b4b59532aaa6210e21014d07093120dc25528870c0b840da1f0",
+    "resolved_on": "2026-09-20"
+  },
+  "site_image": {
+    "_comment": "THE IMAGE SERVING THE PUBLISHED SITE, pinned by its linux/amd64 manifest because Railway runs amd64; an index digest would name a different image on an Apple laptop. Caddy v2.11.4 on Alpine, from Docker's Official Images, which rebuild routinely for base-image security patches.",
+    "tag": "2.11.4-alpine",
+    "platform": "linux/amd64",
+    "digest": "sha256:040e9f7480b80b6d4a7e5013a21159b950a63dcbdb956e38abe2387fb28d9ec0",
+    "reference": "caddy:2.11.4-alpine@sha256:040e9f7480b80b6d4a7e5013a21159b950a63dcbdb956e38abe2387fb28d9ec0",
+    "index_digest": "sha256:de23def33b17fb5d1290b0f6c2add1d70780e52341896c00a4c8a2a2fe9d355e",
     "resolved_on": "2026-09-20"
   }
 }

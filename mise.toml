@@ -316,6 +316,71 @@ export OTSAFETY_ARTIFACTS="$(uv run python -m otsafety_tooling.artifacts)"
 bun run --cwd apps/site build
 '''
 
+[tasks."site:stage"]
+description = "Build the site against the real evidence and assemble exactly what is uploaded"
+# BUILT HERE, NEVER ON RAILWAY. /evidence and /results are computed from
+# .artifacts/, which git ignores; a build on Railway's builder would publish both
+# pages empty. The stage directory is the whole upload: the service files and
+# the built output, nothing else from the repository.
+run = """
+set -euo pipefail
+export OTSAFETY_ARTIFACTS="$(uv run python -m otsafety_tooling.artifacts)"
+bun run --cwd apps/site build
+rm -rf build/deploy-site
+mkdir -p build/deploy-site
+cp deploy/site/Dockerfile deploy/site/Caddyfile deploy/site/railway.json build/deploy-site/
+cp -R apps/site/dist build/deploy-site/dist
+echo "staged build/deploy-site from evidence at $OTSAFETY_ARTIFACTS"
+"""
+
+[tasks."site:smoke"]
+description = "Build the serving image from the stage and assert real status codes, before any deploy"
+# THE FILES BEING RIGHT IS NOT THE IMAGE WORKING. Tests read the Caddyfile; this
+# runs it. The 404 check matters most: the SPA fallback every Railway example
+# uses would return the home page with a 200 for a mistyped address.
+run = """
+set -euo pipefail
+mise run site:stage
+docker build --platform linux/amd64 -t otsafety-site:smoke build/deploy-site
+cid="$(docker run -d --platform linux/amd64 -e PORT=8080 -p 18080:8080 otsafety-site:smoke)"
+trap 'docker rm -f "$cid" >/dev/null' EXIT
+for i in $(seq 1 40); do curl -sf -o /dev/null http://127.0.0.1:18080/ && break; sleep 0.5; done
+uv run python scripts/check_site.py http://127.0.0.1:18080
+"""
+
+[tasks."deploy:site"]
+description = "Deploy the site to Railway: clean tree, smoke-tested image, the commit named"
+# THE TARGET IS EXPLICIT. `railway init` links a directory in ~/.railway on one
+# machine only, so relying on the link would deploy from this laptop and fail on
+# any other. The project and service IDs are not secrets; they need auth to use.
+#
+# TWO FLAGS FAIL SILENTLY WITHOUT THEM, read from `railway up --help` (v5.54.1).
+# build/ is ignored by git, so without --no-gitignore the stage uploads empty.
+# Without --path-as-root the archive root is the project directory, and the
+# Dockerfile is not at the root where Railway looks for it.
+#
+# -m records the commit and branch on the deployment itself, so Railway's own
+# history says which code each deployment came from.
+run = """
+set -euo pipefail
+if [ -n "$(git status --porcelain)" ]; then
+  echo "refusing: the working tree is not clean, so no commit describes what would deploy" >&2
+  exit 1
+fi
+commit="$(git rev-parse --short=12 HEAD)"
+branch="$(git rev-parse --abbrev-ref HEAD)"
+mise run site:smoke
+railway up build/deploy-site --path-as-root --no-gitignore \
+  --project 1e5d094a-e1f5-4b16-943a-9a499fc29576 \
+  --service 979ff174-ffc2-444f-a91d-54175c55d3a2 \
+  --environment production \
+  --ci -m "deploy $commit from $branch"
+"""
+
+[tasks."deploy:verify"]
+description = "Check the live site with the same assertions the image passed before deploying"
+run = "uv run python scripts/check_site.py https://otsafetygnn.thanhphongle.net"
+
 [tasks."pdf:render"]
 description = "Render the sheet inside the pinned image: the same bytes on every machine"
 # ONE PINNED IMAGE, BUT NOT ONE RENDER. Pinning the image removed real drift --
