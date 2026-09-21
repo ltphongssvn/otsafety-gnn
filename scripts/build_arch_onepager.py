@@ -640,7 +640,22 @@ def main() -> int:
         b = p.chromium.launch()
         pg = b.new_page()
         pg.goto(html_path.as_uri())
-        pg.wait_for_load_state("networkidle")
+        # networkidle IS THE WRONG MARKER HERE, AND WAS THE ACTUAL BUG. The fonts
+        # are data: URIs, so they issue no network request: networkidle fires
+        # before the browser has decoded and applied them. macOS won that race
+        # and Linux lost it, which is why identical HTML gave one page here and
+        # two there, and why the runner's pdf was consistently 12% smaller -- it
+        # embedded fewer glyphs because some text was still laid out in a
+        # fallback face, and fallback metrics change line breaking.
+        #
+        # document.fonts.ready resolves only once every declared face is loaded
+        # and applied, which is what "ready to print" actually means.
+        pg.wait_for_load_state("load")
+        pg.evaluate("() => document.fonts.ready")
+        applied = pg.evaluate("() => document.fonts.status")
+        if applied != "loaded":
+            raise SystemExit(f"REFUSED: fonts are {applied}, not loaded")
+        print(f"FONTS {applied} ({pg.evaluate('() => document.fonts.size')} faces)")
         # HOW FULL THE PAGE IS, NOT MERELY WHETHER IT FITS. Identical HTML gave
         # one page here and two on a Linux runner: same pinned Chromium, but
         # CoreText and FreeType break lines differently and the layout sat at the
