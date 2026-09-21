@@ -345,21 +345,7 @@ docker build --platform linux/amd64 -t otsafety-site:smoke build/deploy-site
 cid="$(docker run -d --platform linux/amd64 -e PORT=8080 -p 18080:8080 otsafety-site:smoke)"
 trap 'docker rm -f "$cid" >/dev/null' EXIT
 for i in $(seq 1 40); do curl -sf -o /dev/null http://127.0.0.1:18080/ && break; sleep 0.5; done
-fail=0
-check() {
-  got="$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:18080$1")"
-  if [ "$got" = "$2" ]; then echo "PASS $got $1"; else echo "FAIL $1 expected $2 got $got"; fail=1; fi
-}
-check / 200
-check /results/ 200
-check /evidence/ 200
-# Caddy answers a directory without its slash with 308 to the slash form:
-# correct server behaviour. The site's own links point at /results/ directly.
-loc="$(curl -s -o /dev/null -w '%{redirect_url}' http://127.0.0.1:18080/results)"
-if [ "$loc" = "http://127.0.0.1:18080/results/" ]; then echo "PASS 308 /results -> /results/"
-else echo "FAIL /results redirected to '$loc'"; fail=1; fi
-check /no-such-page 404
-exit "$fail"
+uv run python scripts/check_site.py http://127.0.0.1:18080
 """
 
 [tasks."deploy:site"]
@@ -390,6 +376,10 @@ railway up build/deploy-site --path-as-root --no-gitignore \
   --environment production \
   --ci -m "deploy $commit from $branch"
 """
+
+[tasks."deploy:verify"]
+description = "Check the live site with the same assertions the image passed before deploying"
+run = "uv run python scripts/check_site.py https://otsafetygnn.thanhphongle.net"
 
 [tasks."pdf:render"]
 description = "Render the sheet inside the pinned image: the same bytes on every machine"
