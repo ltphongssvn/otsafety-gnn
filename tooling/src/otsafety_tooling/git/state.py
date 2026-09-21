@@ -30,6 +30,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict
 
+from otsafety_tooling.git.env import git as _plain_git
 from otsafety_tooling.git.env import scrubbed_env
 
 PROTECTED_BRANCHES = frozenset({"develop", "main"})
@@ -61,6 +62,9 @@ class Branch(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     name: str
+    # READ FROM GIT, NOT INFERRED: %(upstream:short), None when never pushed.
+    # upstream_gone alone could not tell a branch never pushed from one still open.
+    upstream: str | None = None
     upstream_gone: bool
     is_merged: bool
     held_by: Path | None
@@ -68,6 +72,25 @@ class Branch(BaseModel):
     @property
     def is_protected(self) -> bool:
         return self.name in PROTECTED_BRANCHES
+
+    @property
+    def was_pushed(self) -> bool:
+        return self.upstream is not None or self.upstream_gone
+
+    @property
+    def is_prunable(self) -> bool:
+        """Empty and never pushed: removable, but only when sync is asked to prune.
+
+        Only on request, because a branch just cut by start:here is empty too. The
+        protected guard is HERE, not only in the caller: a 2026 cleanup tool deleted
+        main because one of its two passes checked and the other did not.
+        """
+        return (
+            not self.is_protected
+            and not self.was_pushed
+            and self.is_merged
+            and self.held_by is None
+        )
 
     @property
     def is_deletable(self) -> bool:
@@ -85,6 +108,10 @@ class Branch(BaseModel):
         """
         if self.is_protected:
             return "protected branch"
+        if not self.was_pushed:
+            if not self.is_merged:
+                return "never pushed, and it has commits of its own"
+            return "never pushed and empty; remove it with: mise run sync -- --prune"
         if not self.upstream_gone:
             return "upstream still exists; it has not been merged and deleted"
         if not self.is_merged:
@@ -108,6 +135,10 @@ class RepositoryState(BaseModel):
     @property
     def deletable(self) -> tuple[Branch, ...]:
         return tuple(branch for branch in self.branches if branch.is_deletable)
+
+    @property
+    def prunable(self) -> tuple[Branch, ...]:
+        return tuple(branch for branch in self.branches if branch.is_prunable)
 
     @property
     def blocked(self) -> tuple[Branch, ...]:
@@ -207,13 +238,23 @@ def gather(root: Path) -> RepositoryState:
     worktrees = _worktrees(root)
     holders = {w.branch: w.path for w in worktrees if w.branch}
 
+    # MERGED IS JUDGED AGAINST THE REMOTE INTEGRATION BRANCH, so a stale local
+    # develop cannot decide it -- the change git's own --prune-merged made. Local
+    # develop is used only in a repository that has no remote one.
+    remote = f"origin/{INTEGRATION_BRANCH}"
+    has_remote = (
+        _plain_git(
+            "rev-parse", "--verify", "--quiet", f"refs/remotes/{remote}", cwd=root
+        ).returncode
+        == 0
+    )
     merged = {
         name
         for name in _git(
             "for-each-ref",
             "--format=%(refname:short)",
             "--merged",
-            INTEGRATION_BRANCH,
+            remote if has_remote else INTEGRATION_BRANCH,
             "refs/heads",
             cwd=root,
         ).split()
@@ -223,17 +264,18 @@ def gather(root: Path) -> RepositoryState:
     branches: list[Branch] = []
     listing = _git(
         "for-each-ref",
-        "--format=%(refname:short)%00%(upstream:track)",
+        "--format=%(refname:short)%00%(upstream:short)%00%(upstream:track)",
         "refs/heads",
         cwd=root,
     )
     for line in listing.splitlines():
         if not line:
             continue
-        name, _, track = line.partition("\0")
+        name, upstream, track = (line.split("\0") + ["", ""])[:3]
         branches.append(
             Branch(
                 name=name,
+                upstream=upstream or None,
                 upstream_gone=track == "[gone]",
                 is_merged=name in merged,
                 held_by=holders.get(name),

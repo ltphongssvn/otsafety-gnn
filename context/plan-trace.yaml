@@ -1452,7 +1452,7 @@ candidates:
   ref: P16
   text: VIRTUAL_ENV leaked into the new worktree
   maps_to:
-  - G.11
+  - G.22
 - source: SESSION
   ref: plan
   text: The plan as data; status observed; rendered view
@@ -3325,3 +3325,28 @@ candidates:
   text: Python deliberately does not come from Nix
   maps_to:
   - X.PYNIX
+- source: SESSION
+  ref: 'sync: B001'
+  text: 'branch report failed: main 59 commits behind origin/main; sync advanced develop alone'
+  maps_to:
+  - G.11
+- source: SESSION
+  ref: 'sync: empty branch'
+  text: an empty never-pushed branch had no upstream to lose, so cleanup could never remove it
+  maps_to:
+  - G.11
+- source: SESSION
+  ref: 'sync: false message'
+  text: a never-pushed branch was told its upstream still exists
+  maps_to:
+  - G.11
+- source: SESSION
+  ref: 'sync: merge base'
+  text: merged was judged against local develop, which can be stale
+  maps_to:
+  - G.11
+- source: SESSION
+  ref: 'sync: task wiring'
+  text: main() accepted --prune while the task never passed it; every test called main() directly
+  maps_to:
+  - G.11

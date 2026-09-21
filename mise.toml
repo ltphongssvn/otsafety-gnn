@@ -722,10 +722,18 @@ arg "<slug>" help="The slug used with worktree:add"
 run = 'uv run python -m otsafety_tooling.git.worktree remove "${usage_slug?}"'
 
 [tasks.sync]
-description = "Advance develop, leave a finished branch, remove branches that are safe to remove"
+description = "Advance every protected branch, leave a finished branch, remove what is safe; empty unpushed branches only with --prune"
+usage = 'flag "--prune" help="Also remove empty branches that were never pushed"'
 # STATE-DRIVEN, NOT A PIPELINE: the cleanup plan is computed before anything is
 # deleted, and every skipped branch is reported with its reason.
-run = "uv run python -m otsafety_tooling.git.sync"
+run = """
+set -euo pipefail
+if [ "${usage_prune-}" = "true" ]; then
+  uv run python -m otsafety_tooling.git.sync --prune
+else
+  uv run python -m otsafety_tooling.git.sync
+fi
+"""
 
 [tasks.pr]
 description = "Open (or reuse) a PR into develop and block until it is merged"
