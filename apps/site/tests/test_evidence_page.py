@@ -43,3 +43,14 @@ def test_the_evidence_page_can_show_a_failing_verdict(page: Page, site_server: s
     renders only passes cannot be trusted when it shows a pass."""
     page.goto(f"{site_server}/evidence")
     expect(page.locator("[data-verdict]").first).to_be_visible()
+
+
+def test_a_failing_verdict_shows_when_and_why(page: Page, site_server: str) -> None:
+    """Production rendered the real failing verdict as "fail" and nothing else:
+    the template read recorded_at, rule and detail, which the contract names
+    generated_at, rule_id and message, and a `?? ""` hid the gap."""
+    page.goto(f"{site_server}/evidence")
+    verdict = page.locator("li", has=page.locator('[data-verdict="fail"]'))
+    expect(verdict).to_contain_text("S001")
+    expect(verdict).to_contain_text("allow_squash_merge is True but the policy requires False")
+    expect(verdict).to_contain_text("2026-01-01")
