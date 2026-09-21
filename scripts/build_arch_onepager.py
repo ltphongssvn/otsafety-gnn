@@ -468,8 +468,8 @@ td.num{width:10mm;white-space:nowrap;}
 .n{display:inline-block;width:14px;height:14px;line-height:14px;text-align:center;
   background:var(--ink);color:#fff;border-radius:50%;font-size:7pt;font-weight:700;}
 .tag{display:block;font-size:5.4pt;color:var(--amber);font-weight:700;
-  letter-spacing:.5px;margin-top:2px;}
-td.lname{width:30mm;font-weight:700;font-size:8.6pt;letter-spacing:-.15px;}
+  letter-spacing:.9px;margin-top:2px;}
+td.lname{width:30mm;font-weight:700;font-size:8.6pt;letter-spacing:.5px;}
 .q{font-weight:400;font-size:7pt;color:var(--muted);margin-top:2px;line-height:1.24;}
 td.fail{width:54mm;color:var(--red);}
 td.guard{width:42mm;color:var(--teal);}

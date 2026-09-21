@@ -25,7 +25,15 @@
     let
       systems = [ "aarch64-darwin" "x86_64-linux" ];
       toolchain = builtins.fromJSON (builtins.readFile ./toolchain.json);
-      toolNames = builtins.filter (name: name != "_comment") (builtins.attrNames toolchain);
+      # FILTERED ON WHAT AN ENTRY IS, NOT ON WHAT IT IS CALLED. Every entry
+      # carrying `artifacts` is a downloadable archive this flake builds. Adding
+      # render_image -- a container pinned by digest, not an archive -- broke the
+      # devShell for every task, because the old filter excluded one name and
+      # assumed everything else was a binary. A blacklist would have to grow with
+      # each new kind of pin; this does not.
+      toolNames = builtins.filter
+        (name: builtins.isAttrs toolchain.${name} && toolchain.${name} ? artifacts)
+        (builtins.attrNames toolchain);
       forAllSystems = f:
         nixpkgs.lib.genAttrs systems
           (system: f system nixpkgs.legacyPackages.${system});
