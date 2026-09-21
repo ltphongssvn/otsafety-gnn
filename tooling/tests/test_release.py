@@ -110,3 +110,19 @@ def test_the_workflow_scan_runs_on_pushes_to_main() -> None:
     branches = _triggers(wf)["push"]["branches"]
     assert "master" not in branches
     assert "main" in branches
+
+
+def test_the_release_tool_never_shares_the_projects_lock() -> None:
+    """Added to the project, it rolled wandb back from 0.30.0 to 0.26.1.
+
+    python-semantic-release constrains click to 8.1; uv resolved that silently by
+    downgrading wandb, and a W&B test then failed on Linux, on develop. uv keeps
+    one universal lock across every group and extra, so only a separate project
+    with its own lockfile keeps the tool out.
+    """
+    project_lock = (REPO_ROOT / "uv.lock").read_text()
+    assert 'name = "python-semantic-release"' not in project_lock
+    tool_lock = (REPO_ROOT / "tools" / "release" / "uv.lock").read_text()
+    assert 'name = "python-semantic-release"' in tool_lock
+    for task in ("release:preview", "release:version"):
+        assert "uv run --project tools/release semantic-release" in _task(task)

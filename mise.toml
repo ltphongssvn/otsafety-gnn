@@ -356,13 +356,13 @@ run = "uv run python -m otsafety_tooling.git.pr promote"
 
 [tasks."release:preview"]
 description = "Print the version the next release would cut, changing nothing"
-run = "uv run semantic-release --noop version --print"
+run = "uv run --project tools/release semantic-release --noop version --print"
 
 [tasks."release:version"]
 description = "Cut the next release from main: tag and GitHub Release, nothing committed"
 # Run by .github/workflows/release.yml on every push to main. --no-commit and
 # --no-changelog keep main untouched: the GitHub Release is the changelog.
-run = "uv run semantic-release version --no-commit --no-changelog --tag --push --vcs-release"
+run = "uv run --project tools/release semantic-release version --no-commit --no-changelog --tag --push --vcs-release"
 
 [tasks."deploy:site"]
 description = "Deploy the site to Railway: clean tree, smoke-tested image, the commit named"
