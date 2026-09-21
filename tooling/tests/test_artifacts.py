@@ -87,3 +87,24 @@ def test_main_prints_only_the_shared_root(capsys: pytest.CaptureFixture[str]) ->
     """One line, nothing else, so `$(mise run -q artifacts:path)` is the path."""
     assert artifacts.main() == 0
     assert capsys.readouterr().out == f"{artifacts_root(REPO_ROOT)}\n"
+
+
+def test_the_override_wins_so_tests_never_touch_real_evidence(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The site's tests once seeded seven fixture records into the real root."""
+    from otsafety_tooling.artifacts import OVERRIDE_VARIABLE, artifacts_root
+    from otsafety_tooling.paths import REPO_ROOT
+
+    monkeypatch.setenv(OVERRIDE_VARIABLE, str(tmp_path))
+    assert artifacts_root(REPO_ROOT) == tmp_path.resolve()
+
+
+def test_without_the_override_the_main_checkout_is_used(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from otsafety_tooling.artifacts import ARTIFACTS_DIR, OVERRIDE_VARIABLE, artifacts_root
+    from otsafety_tooling.paths import REPO_ROOT
+
+    monkeypatch.delenv(OVERRIDE_VARIABLE, raising=False)
+    assert artifacts_root(REPO_ROOT).name == ARTIFACTS_DIR

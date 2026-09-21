@@ -7,34 +7,38 @@
 export type Rung = {
   n: string; name: string; asks: string;
   models: string; answers: string; ifNotBeaten: string;
+  // THE JOIN KEY. A record carries `experiment` and no rung number, so each
+  // rung names the experiment whose records it reads; the results page groups
+  // by this. Read off a real record written through track() and FileTracker.
+  experiment: string;
 };
 
 export const RUNGS: Rung[] = [
-  { n: "0", name: "Base rate", asks: "What does guessing the prior achieve?",
+  { n: "0", experiment: "prevalence", name: "Base rate", asks: "What does guessing the prior achieve?",
     models: "A prevalence constant, equivalent to sklearn DummyClassifier(strategy=\"prior\")",
     answers: "—",
     ifNotBeaten: "Anchors average precision. Anything not beating it is noise." },
-  { n: "1", name: "Degree-only null", asks: "Does simple popularity explain performance?",
+  { n: "1", experiment: "degree-null", name: "Degree-only null", asks: "Does simple popularity explain performance?",
     models: "sklearn LogisticRegression on log1p(per-relation degree). No biology, no relations, no message passing.",
     answers: "Q1",
     ifNotBeaten: "The graph encodes study attention, not safety biology. The project returns a negative result, and that is a real finding." },
-  { n: "2", name: "Non-graph model", asks: "Do target features alone explain performance?",
+  { n: "2", experiment: "tabular", name: "Non-graph model", asks: "Do target features alone explain performance?",
     models: "sklearn HistGradientBoostingClassifier and a tabular MLP on target annotations only: GTEx expression breadth, gnomAD pLI and LOEUF, protein family, subcellular localisation. Zero graph structure.",
     answers: "Q2",
     ifNotBeaten: "The graph adds nothing. Ship the cheaper tabular model and close the project." },
-  { n: "2b", name: "Graph-topology GBM", asks: "Do hand-computed graph statistics suffice?",
+  { n: "2b", experiment: "topology-gbm", name: "Graph-topology GBM", asks: "Do hand-computed graph statistics suffice?",
     models: "sklearn HistGradientBoostingClassifier on personalised PageRank to known-risky targets, betweenness, k-core, clustering, degree. Graph-derived, but no learned representation.",
     answers: "Q2",
     ifNotBeaten: "A published comparator of this family reached ROC-AUC around 0.71 on target-level safety attrition. That is the bar a GNN must clear." },
-  { n: "3", name: "Shallow KGE", asks: "Does embedding entities suffice, without message passing?",
+  { n: "3", experiment: "shallow-kge", name: "Shallow KGE", asks: "Does embedding entities suffice, without message passing?",
     models: "PyKEEN ComplEx and PyKEEN RotatE: relation-typed scoring functions with no neighbourhood aggregation.",
     answers: "Q3",
     ifNotBeaten: "Relation-typed embedding is what helps; aggregation is not." },
-  { n: "4", name: "Relation-agnostic GNN", asks: "Does connectivity alone help?",
+  { n: "4", experiment: "relation-agnostic", name: "Relation-agnostic GNN", asks: "Does connectivity alone help?",
     models: "PyG GraphSAGE (SAGEConv) and PyG GAT (GATConv) over a collapsed single adjacency, with edge types deliberately discarded.",
     answers: "Q3",
     ifNotBeaten: "The control that isolates relation types. Without it, no claim about relationships can be made at all." },
-  { n: "5", name: "Relation-aware GNN", asks: "Do relation TYPES add information?",
+  { n: "5", experiment: "relation-aware", name: "Relation-aware GNN", asks: "Do relation TYPES add information?",
     models: "PyG R-GCN (RGCNConv), CompGCN and PyG HGT (HGTConv), with a degree-offset head and a gradient-reversal adversary.",
     answers: "Q3",
     ifNotBeaten: "The difference between this rung and rung 4 IS the research answer. If it is near zero, connectivity matters and relation types do not." },
