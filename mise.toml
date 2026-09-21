@@ -316,6 +316,52 @@ export OTSAFETY_ARTIFACTS="$(uv run python -m otsafety_tooling.artifacts)"
 bun run --cwd apps/site build
 '''
 
+[tasks."site:stage"]
+description = "Build the site against the real evidence and assemble exactly what is uploaded"
+# BUILT HERE, NEVER ON RAILWAY. /evidence and /results are computed from
+# .artifacts/, which git ignores; a build on Railway's builder would publish both
+# pages empty. The stage directory is the whole upload: the service files and
+# the built output, nothing else from the repository.
+run = """
+set -euo pipefail
+export OTSAFETY_ARTIFACTS="$(uv run python -m otsafety_tooling.artifacts)"
+bun run --cwd apps/site build
+rm -rf build/deploy-site
+mkdir -p build/deploy-site
+cp deploy/site/Dockerfile deploy/site/Caddyfile deploy/site/railway.json build/deploy-site/
+cp -R apps/site/dist build/deploy-site/dist
+echo "staged build/deploy-site from evidence at $OTSAFETY_ARTIFACTS"
+"""
+
+[tasks."site:smoke"]
+description = "Build the serving image from the stage and assert real status codes, before any deploy"
+# THE FILES BEING RIGHT IS NOT THE IMAGE WORKING. Tests read the Caddyfile; this
+# runs it. The 404 check matters most: the SPA fallback every Railway example
+# uses would return the home page with a 200 for a mistyped address.
+run = """
+set -euo pipefail
+mise run site:stage
+docker build --platform linux/amd64 -t otsafety-site:smoke build/deploy-site
+cid="$(docker run -d --platform linux/amd64 -e PORT=8080 -p 18080:8080 otsafety-site:smoke)"
+trap 'docker rm -f "$cid" >/dev/null' EXIT
+for i in $(seq 1 40); do curl -sf -o /dev/null http://127.0.0.1:18080/ && break; sleep 0.5; done
+fail=0
+check() {
+  got="$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:18080$1")"
+  if [ "$got" = "$2" ]; then echo "PASS $got $1"; else echo "FAIL $1 expected $2 got $got"; fail=1; fi
+}
+check / 200
+check /results/ 200
+check /evidence/ 200
+# Caddy answers a directory without its slash with 308 to the slash form:
+# correct server behaviour. The site's own links point at /results/ directly.
+loc="$(curl -s -o /dev/null -w '%{redirect_url}' http://127.0.0.1:18080/results)"
+if [ "$loc" = "http://127.0.0.1:18080/results/" ]; then echo "PASS 308 /results -> /results/"
+else echo "FAIL /results redirected to '$loc'"; fail=1; fi
+check /no-such-page 404
+exit "$fail"
+"""
+
 [tasks."pdf:render"]
 description = "Render the sheet inside the pinned image: the same bytes on every machine"
 # ONE PINNED IMAGE, BUT NOT ONE RENDER. Pinning the image removed real drift --
