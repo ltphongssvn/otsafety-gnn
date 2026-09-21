@@ -60,5 +60,18 @@ jobs:
       - name: Strict types, for both platforms
         run: mise run types
 
+      # THE TRACKERS ARE NOT OPTIONAL ON A RUNNER, only their extras are. Without
+      # these, all 22 MLflow and W&B tests skip here -- which is how MLflow sat
+      # claimed and unverified for an entire session while every run reported
+      # green. W&B stays offline: mise.toml defaults WANDB_MODE to offline, so no
+      # secret and no network are needed, and nothing can leak from a public repo.
+      - name: Install the experiment trackers
+        run: |
+          mise run ml:install
+          mise run wandb:install
+
+      - name: Confirm W&B is offline here, so no run needs a key
+        run: mise run wandb:check
+
       - name: Tooling tests
         run: mise run test
