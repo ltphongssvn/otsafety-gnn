@@ -12,11 +12,43 @@ regenerate. Docs-as-Code and Diagram-as-Code.
 
 from __future__ import annotations
 
+import base64
+import hashlib
 import html
 import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+
+# FONTS ARE VENDORED AND PINNED, FOR THE SAME REASON EXECUTABLES ARE. The same
+# HTML produced a 334KB pdf here and a 101KB one on a Linux runner: every face
+# embedded was a macOS system font -- HelveticaNeue, Menlo, Arial, LucidaGrande --
+# which a runner does not have, so Chromium substituted and embedded different
+# glyphs. Every assertion still passed, because the text was there and it was one
+# page: the artifact people download was not the artifact CI published. Both
+# faces below are SIL Open Font Licence, so a public repository may carry them.
+FONT_DIR = REPO_ROOT / "assets" / "fonts"
+# STATIC FACES, NOT A VARIABLE FONT. The first attempt vendored InterVariable and
+# Chromium embedded a system fallback instead, silently: the pdf was byte-identical
+# whether the source was declared plain or with tech(variations), so the variable
+# axis was the cause rather than the CSS. Chromium embeds a variable font into a
+# pdf only if it can instantiate a static instance, and JetBrainsMono, static,
+# embedded first time through the same code path. Each weight is its own file.
+# (family, weight, style) -> (filename, sha256)
+FONTS = {
+    ("Inter", "400", "normal"): (
+        "Inter-Regular.woff2",
+        "e06f6b1bc553aaea4e4668023ed0ab0a147129c3107f511bc7d03d361b0ae085"),
+    ("Inter", "700", "normal"): (
+        "Inter-Bold.woff2",
+        "fa888127b6da015b65569f0351f3b5c391ad928904951f1c20e9f8462a8d95ea"),
+    ("Inter", "400", "italic"): (
+        "Inter-Italic.woff2",
+        "2d078cb3bc8f934740d53b39dd23b0678f2f97477e49ec785dd9d8acd8b96bfc"),
+    ("JetBrainsMono", "400", "normal"): (
+        "JetBrainsMono-Regular.woff2",
+        "a9cb1cd82332b23a47e3a1239d25d13c86d16c4220695e34b243effa999f45f2"),
+}
 OUT = REPO_ROOT / "build" / "onepager"
 OUT.mkdir(parents=True, exist_ok=True)
 
@@ -55,7 +87,7 @@ CENTRAL_GOAL = (
 
 ML_OBJECTIVE = (
     "Let the KG be a heterogeneous graph <b>G = (V, E, R)</b> with typed nodes and typed "
-    "edges. Let <b>T &sube; V</b> be protein targets and <b>S &sube; V</b> be safety "
+    "edges. Let <b>T</b> be the protein targets and <b>S</b> the safety "
     "endpoints (organ classes / adverse-event terms).<br><br>"
     "<b>Task:</b> learn <b>f : T &times; S &rarr; [0,1]</b>, the probability that "
     "modulating target <i>t</i> is associated with endpoint <i>s</i>.<br><br>"
@@ -301,7 +333,7 @@ def flow_svg() -> str:
     IND, GRN, RED, LINE = "#2f3f8f", "#1d6b45", "#a5312b", "#c9d2da"
 
     o = [f'<svg viewBox="0 0 {W} {H}" width="100%" '
-         f'xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial,sans-serif">',
+         f'xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">',
          '<defs>'
          '<marker id="ar" markerWidth="7" markerHeight="7" refX="5.4" refY="2.6" '
          f'orient="auto"><path d="M0,0 L5.4,2.6 L0,5.2 z" fill="{INK}"/></marker>'
@@ -333,11 +365,11 @@ def flow_svg() -> str:
                      f'<text x="{BX+BW-9-bw_/2}" y="{y+10.8}" font-size="5.9" '
                      f'font-weight="700" fill="#fff" text-anchor="middle">{gate}</text>')
         o.append(f'<text x="{BX+10}" y="{y+20.5}" font-size="6.4" fill="{MUT}" '
-                 f'font-family="Menlo,Consolas,monospace">{S["s"]}</text>')
+                 f'font-family="JetBrainsMono,monospace">{S["s"]}</text>')
         o.append(f'<text x="{BX+10}" y="{y+26.5}" font-size="6.1" fill="{IND}" '
-                 f'font-weight="700">\u25b8 {S["c"]}</text>')
+                 f'font-weight="700">\u2023 {S["c"]}</text>')
         o.append(f'<text x="{BX+190}" y="{y+26.5}" font-size="6.1" fill="{GRN}" '
-                 f'font-weight="700">\u25b8 {S["d"]}</text>')
+                 f'font-weight="700">\u2023 {S["d"]}</text>')
 
         if i < len(STAGES) - 1:
             cx = BX + BW / 2
@@ -363,6 +395,30 @@ def scope_items(items: list[str]) -> str:
     return "".join(f"<li>{i}</li>" for i in items)
 
 
+def font_faces() -> str:
+    """The vendored fonts, inlined, each verified against its recorded digest.
+
+    A font that changed upstream fails here rather than silently altering the
+    sheet -- the guarantee toolchain.json gives every executable.
+    """
+    blocks = []
+    for (family, weight, style), (filename, digest) in FONTS.items():
+        path = FONT_DIR / filename
+        if not path.is_file():
+            raise SystemExit(f"REFUSED: missing vendored font {path}")
+        payload = path.read_bytes()
+        actual = hashlib.sha256(payload).hexdigest()
+        if actual != digest:
+            raise SystemExit(f"REFUSED: {filename} is {actual}, not {digest}")
+        encoded = base64.b64encode(payload).decode("ascii")
+        blocks.append(
+            f"@font-face{{font-family:'{family}';font-weight:{weight};"
+            f"font-style:{style};font-display:block;"
+            f"src:url(data:font/woff2;base64,{encoded}) format('woff2');}}"
+        )
+    return "\n".join(blocks)
+
+
 CSS = """
 @page { size: A3 landscape; margin: 8mm 9mm; }
 * { box-sizing: border-box; }
@@ -372,10 +428,10 @@ CSS = """
   --addbg:#fff9ef; --addln:#e8c88a;
 }
 html,body{margin:0;padding:0;height:100%;}
-body{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;color:var(--ink);
+body{font-family:'Inter',sans-serif;color:var(--ink);
   font-size:8.1pt;line-height:1.3;-webkit-print-color-adjust:exact;print-color-adjust:exact;
   display:flex;flex-direction:column;min-height:100%;}
-.mono{font-family:"SF Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace;font-size:7pt;}
+.mono{font-family:'JetBrainsMono',monospace;font-size:7pt;}
 
 header{border-bottom:2.2px solid var(--ink);padding-bottom:4px;margin-bottom:5px;
   display:flex;align-items:baseline;justify-content:space-between;gap:12px;}
@@ -481,7 +537,7 @@ def build_html() -> str:
     return f"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <title>Project Architecture — Target-Safety GNN</title>
-<style>{CSS}</style></head><body>
+<style>{font_faces()}{CSS}</style></head><body>
 
 <header>
   <h1>Project Architecture &mdash; Target-Safety GNN on a Biomedical Knowledge Graph</h1>
