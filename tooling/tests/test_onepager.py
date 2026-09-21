@@ -120,24 +120,43 @@ REQUIRED_CONTENT = [
 
 
 def _pdf_text() -> str:
+    """The sheet's text, with whitespace removed.
+
+    WHY WHITESPACE IS DISCARDED. The pdf stores each string as a single Tj with
+    no kerning offsets at all, in an Identity-H subset that carries its ToUnicode
+    map -- the characters and their order are exact. pypdf reconstructs word
+    boundaries from glyph advance widths, and against a subsetted font it guesses
+    wrong: "St at us", "T HE RESEARCH QUEST ION", "relat ionships". Asserting on
+    its spacing tests the extractor's heuristic rather than the document, and it
+    diverges between renderers, which is how it first appeared.
+
+    Two probes were run and both came back negative before this was understood:
+    disabling kerning changed nothing, and neutralising every letter-spacing rule
+    changed nothing, because the offsets they would have produced were never
+    there. The content stream said so.
+    """
     if not PDF.is_file():
-        pytest.skip(f"no sheet at {PDF}; run `mise run pdf:build`")
+        pytest.skip(f"no sheet at {PDF}; run `mise run pdf:render`")
     pypdf = pytest.importorskip("pypdf", reason="the e2e extra is not installed")
-    # extract_text is untyped, and strict mypy will not return Any as str.
-    text: str = pypdf.PdfReader(str(PDF)).pages[0].extract_text()
-    return text
+    extracted: str = pypdf.PdfReader(str(PDF)).pages[0].extract_text()
+    return "".join(extracted.split())
+
+
+def _squeeze(value: str) -> str:
+    """A probe, compared the same way the extracted text is."""
+    return "".join(value.split())
 
 
 def test_the_rendered_sheet_carries_every_section() -> None:
     text = _pdf_text().upper()
     for section in REQUIRED_SECTIONS:
-        assert section in text, f"the sheet does not render the section {section!r}"
+        assert _squeeze(section) in text, f"the sheet does not render {section!r}"
 
 
 def test_the_rendered_sheet_carries_the_content_a_reader_needs() -> None:
     text = _pdf_text()
     for item in REQUIRED_CONTENT:
-        assert item in text, f"the sheet does not render {item!r}"
+        assert _squeeze(item) in text, f"the sheet does not render {item!r}"
 
 
 def test_the_rendered_sheet_is_one_page() -> None:
@@ -181,15 +200,72 @@ REMOVED_NOTE = "The operative word in the brief is"
 def test_the_rendered_sheet_carries_the_data_block() -> None:
     text = _pdf_text()
     for term in DATA_TERMS:
-        assert term in text, f"the DATA block does not render {term!r}"
+        assert _squeeze(term) in text, f"the DATA block does not render {term!r}"
 
 
 def test_the_rendered_sheet_carries_the_stack_block() -> None:
     text = _pdf_text()
     for term in STACK_TERMS:
-        assert term in text, f"the STACK block does not render {term!r}"
+        assert _squeeze(term) in text, f"the STACK block does not render {term!r}"
 
 
 def test_the_research_question_note_is_gone() -> None:
     """Replaced, not appended: the space it held is where DATA now sits."""
-    assert REMOVED_NOTE not in _pdf_text()
+    assert _squeeze(REMOVED_NOTE) not in _pdf_text()
+
+
+# --- the sheet must be the same document on every machine ---------------------
+# The same HTML produced a 334KB pdf on macOS and a 101KB one on a Linux runner.
+# Every embedded face was a macOS system font -- HelveticaNeue, Menlo, Arial,
+# LucidaGrande -- which Linux does not have, so Chromium substituted and embedded
+# different glyphs. Every assertion still passed: the text was present and it was
+# one page. A deliverable people download was not the deliverable CI published,
+# and no gate could see it.
+#
+# THE FIX IS toolchain.json's: stop depending on what a machine happens to
+# provide. The fonts are vendored, pinned by digest and embedded in the page.
+
+VENDORED_FONTS = ("Inter", "JetBrainsMono")
+
+# Faces that mean a machine's own fonts were used instead of the vendored ones.
+SYSTEM_FONTS = (
+    "HelveticaNeue",
+    "Helvetica",
+    "Menlo",
+    "LucidaGrande",
+    "Arial",
+    "DejaVu",
+    "Liberation",
+    "Nimbus",
+)
+
+
+def _embedded_fonts() -> list[str]:
+    if not PDF.is_file():
+        pytest.skip(f"no sheet at {PDF}; run `mise run pdf:build`")
+    pypdf = pytest.importorskip("pypdf", reason="the e2e extra is not installed")
+    page = pypdf.PdfReader(str(PDF)).pages[0]
+    names = []
+    for ref in page["/Resources"].get("/Font", {}).values():
+        base = ref.get_object().get("/BaseFont")
+        if base:
+            # Subset fonts are prefixed ABCDEF+; the face is what follows.
+            names.append(str(base).lstrip("/").split("+")[-1])
+    return names
+
+
+def test_the_sheet_embeds_only_vendored_fonts() -> None:
+    """A system font here means this pdf differs from the one CI publishes."""
+    for face in _embedded_fonts():
+        assert not face.startswith(SYSTEM_FONTS), (
+            f"{face} is a system font: this sheet depends on the machine that built it"
+        )
+
+
+def test_the_sheet_embeds_the_fonts_it_declares() -> None:
+    faces = _embedded_fonts()
+    assert faces, "no fonts embedded at all"
+    for vendored in VENDORED_FONTS:
+        assert any(vendored in face for face in faces), (
+            f"{vendored} is declared but not embedded; found {sorted(set(faces))}"
+        )

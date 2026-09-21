@@ -72,5 +72,14 @@
     "binaries": [
       "bin/mise"
     ]
+  },
+  "render_image": {
+    "_comment": "THE BROWSER THAT RENDERS THE DELIVERABLE, pinned like every other executable here. It was the one exception: Chromium came from `playwright install` and the text-shaping stack from whatever the machine had -- fontconfig and FreeType on Linux, CoreText on macOS. Identical HTML then rendered one page on a laptop and two on a runner, and four fixes inside the sheet all missed, because the unpinned thing was the renderer rather than the document. THE amd64 MANIFEST DIGEST, NOT THE INDEX: an index resolves to arm64 here and amd64 on a runner, which is the same divergence in a new hat.",
+    "tag": "v1.63.0-noble",
+    "platform": "linux/amd64",
+    "digest": "sha256:96b39581c89131729a7ecb8d532314af54c7f9bcc7a61fe15c7a9e77602acf59",
+    "reference": "mcr.microsoft.com/playwright/python:v1.63.0-noble@sha256:96b39581c89131729a7ecb8d532314af54c7f9bcc7a61fe15c7a9e77602acf59",
+    "index_digest": "sha256:72bd171a9ffc2b4b59532aaa6210e21014d07093120dc25528870c0b840da1f0",
+    "resolved_on": "2026-09-20"
   }
 }

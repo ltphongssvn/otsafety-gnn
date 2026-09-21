@@ -63,13 +63,26 @@ jobs:
       # rendered pdf, so they need Chromium and pypdf, which the tooling workflow
       # does not install: they have been skipping there since they were written,
       # and a gate that never runs is not a gate. This job already has both.
-      - name: Build the one-page architecture sheet
-        run: mise run pdf:build
+      # pdf:render, NOT pdf:build. The runner has Docker, so it renders inside the
+      # digest-pinned image exactly as the laptop does. Using pdf:build here
+      # would keep the runner on its own Chromium and text-shaping stack, which
+      # is the divergence the pin exists to remove -- the pin would be
+      # decorative, asserted by tests and used by nobody.
+      - name: Render the one-page architecture sheet in the pinned image
+        run: mise run pdf:render
 
       - name: Assert the rendered sheet carries every section
         run: mise run test -- tooling/tests/test_onepager.py
 
+      # if: always() BECAUSE A FAILING RENDER IS THE ONE WORTH INSPECTING. The
+      # render refuses a two-page sheet and exits, so this step never ran on any
+      # failure and the runner's own pdf was never available to look at. Four
+      # theories were argued from a laptop about a file nobody had opened, and
+      # 2026 guidance on browser-rendered pdfs is blunt: page-by-page text
+      # extraction or a pixel diff is the only reliable signal, and self-reported
+      # "looks the same" is not.
       - name: Keep the sheet as a downloadable artifact
+        if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: project-architecture

@@ -120,8 +120,9 @@ fi
 '''
 
 # --- Individual gates ---------------------------------------------------------
-# EACH IS ITS OWN TASK so it works standalone. The aggregating `check` task and
-# its gate runner arrive next; until then the hooks call these directly.
+# EACH IS ITS OWN TASK so it works standalone during iteration. `check`
+# aggregates them and does not replace them, so there is no second copy of the
+# list to drift.
 # EVERY TASK RUNS PYTHON THROUGH uv, NEVER A BARE python3.
 
 [tasks.fmt]
@@ -301,8 +302,38 @@ run = "bun run --cwd apps/site dev"
 description = "Build the site to apps/site/dist"
 run = "bun run --cwd apps/site build"
 
+[tasks."pdf:render"]
+description = "Render the sheet inside the pinned image: the same bytes on every machine"
+# ONE PINNED IMAGE, BUT NOT ONE RENDER. Pinning the image removed real drift --
+# Chromium and the text-shaping stack were unpinned before this. It did NOT make
+# this laptop reproduce CI: an Apple laptop runs the amd64 image under emulation,
+# and the emulated render floors the page to whole inches (A3's 16.54x11.69in
+# came out 16x11). Bit-for-bit results need a native host of that architecture.
+#
+# SO CI IS THE RENDER OF RECORD. This task is a close preview here; the sheet
+# that publishes is the one a native amd64 runner produces.
+#
+# --platform linux/amd64 is not optional on an Apple laptop: without it Docker
+# runs the arm64 image and the divergence returns wearing a different hat. The
+# digest names the single-platform manifest for the same reason.
+#
+# pdf:build remains, as a preview. This is what publishes.
+run = '''
+set -euo pipefail
+# BUILT, NOT BYPASSED. The first version ran the base image directly, so the
+# Dockerfile's pip layer never applied and the render failed on a missing
+# playwright -- a test asserted the two named the same digest, which is not the
+# same as the task using the file.
+docker build --platform linux/amd64 \
+  -f docker/render.Dockerfile -t otsafety-render:pinned docker/
+docker run --rm --platform linux/amd64 \
+  -v "{{config_root}}:/repo" -w /repo \
+  otsafety-render:pinned \
+  python scripts/build_arch_onepager.py
+'''
+
 [tasks."pdf:build"]
-description = "Build the one-page architecture sheet as HTML and PDF"
+description = "Preview the sheet with this machine's own browser (see pdf:render)"
 # THE SHEET DECLARES ITS OWN TABLES. An earlier generator read them from
 # apps/site/src/data/architecture.ts for a single source of truth, and the round
 # trip through a plain-string parser silently dropped the inline emphasis, the
@@ -479,6 +510,24 @@ usage = '''
 arg "<branch>" help="An existing local branch, e.g. develop"
 '''
 run = 'uv run python -m otsafety_tooling.git.sync switch "${usage_branch?}"'
+
+[tasks.check]
+description = "Every gate, run to completion, with all failures reported in one pass"
+# NOT `depends`. mise runs dependencies in PARALLEL and reports failure as soon
+# as one fails, so a slower gate may never report at all -- and a gate whose
+# result is never printed is indistinguishable from one that passed. That is how
+# MLflow's seven tests sat green-because-skipped for an entire session here.
+#
+# Ported from cscie103-data-engineering, which observed it directly: "test failed
+# at 1.4s and types never reported at all".
+#
+#   mise run check            laptop: everything, including Nix and Docker
+#   mise run check -- --ci    runner: browser and container, no Nix
+#   mise run check -- --fast  hooks: lint, types, test only
+usage = '''
+arg "[mode]" help="--fast, --ci, or omitted for everything this machine can run"
+'''
+run = "uv run python scripts/check_all.py ${usage_mode-}"
 
 [tasks.commit]
 description = "Commit exactly the named paths with a conventional message, through the hooks"

@@ -12,11 +12,43 @@ regenerate. Docs-as-Code and Diagram-as-Code.
 
 from __future__ import annotations
 
+import base64
+import hashlib
 import html
 import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+
+# FONTS ARE VENDORED AND PINNED, FOR THE SAME REASON EXECUTABLES ARE. The same
+# HTML produced a 334KB pdf here and a 101KB one on a Linux runner: every face
+# embedded was a macOS system font -- HelveticaNeue, Menlo, Arial, LucidaGrande --
+# which a runner does not have, so Chromium substituted and embedded different
+# glyphs. Every assertion still passed, because the text was there and it was one
+# page: the artifact people download was not the artifact CI published. Both
+# faces below are SIL Open Font Licence, so a public repository may carry them.
+FONT_DIR = REPO_ROOT / "assets" / "fonts"
+# STATIC FACES, NOT A VARIABLE FONT. The first attempt vendored InterVariable and
+# Chromium embedded a system fallback instead, silently: the pdf was byte-identical
+# whether the source was declared plain or with tech(variations), so the variable
+# axis was the cause rather than the CSS. Chromium embeds a variable font into a
+# pdf only if it can instantiate a static instance, and JetBrainsMono, static,
+# embedded first time through the same code path. Each weight is its own file.
+# (family, weight, style) -> (filename, sha256)
+FONTS = {
+    ("Inter", "400", "normal"): (
+        "Inter-Regular.woff2",
+        "e06f6b1bc553aaea4e4668023ed0ab0a147129c3107f511bc7d03d361b0ae085"),
+    ("Inter", "700", "normal"): (
+        "Inter-Bold.woff2",
+        "fa888127b6da015b65569f0351f3b5c391ad928904951f1c20e9f8462a8d95ea"),
+    ("Inter", "400", "italic"): (
+        "Inter-Italic.woff2",
+        "2d078cb3bc8f934740d53b39dd23b0678f2f97477e49ec785dd9d8acd8b96bfc"),
+    ("JetBrainsMono", "400", "normal"): (
+        "JetBrainsMono-Regular.woff2",
+        "a9cb1cd82332b23a47e3a1239d25d13c86d16c4220695e34b243effa999f45f2"),
+}
 OUT = REPO_ROOT / "build" / "onepager"
 OUT.mkdir(parents=True, exist_ok=True)
 
@@ -55,7 +87,7 @@ CENTRAL_GOAL = (
 
 ML_OBJECTIVE = (
     "Let the KG be a heterogeneous graph <b>G = (V, E, R)</b> with typed nodes and typed "
-    "edges. Let <b>T &sube; V</b> be protein targets and <b>S &sube; V</b> be safety "
+    "edges. Let <b>T</b> be the protein targets and <b>S</b> the safety "
     "endpoints (organ classes / adverse-event terms).<br><br>"
     "<b>Task:</b> learn <b>f : T &times; S &rarr; [0,1]</b>, the probability that "
     "modulating target <i>t</i> is associated with endpoint <i>s</i>.<br><br>"
@@ -192,13 +224,19 @@ PHASES = [
     ("11", "Research execution", "todo"),
 ]
 
+# Workstream B was the sandbox spike. It is gone, not paused: every line is
+# re-derived red-first in this repository, so there is nothing left to port.
 THREADS = [
     ("A", "Research definition", 100, "done",
      "Question, ML objective, Q1/Q2/Q3, granularity, label source"),
-    ("B", "Reference spike", 100, "quarantined",
-     "28 files, 25 tests green — NOT TDD-derived, reference only"),
-    ("C", "Engineering platform", 0, "active",
-     "Repo, GitFlow, worktree, stack, contracts, policy, CI, evidence"),
+    ("B", "Engineering platform", 100, "done",
+     "Toolchain pinned, 41 tasks, evidence, policy, CI on macOS and Linux"),
+    ("C", "Deliverables", 70, "active",
+     "Site: architecture, method, data, stack, evidence. Sheet: fonts vendored"),
+    ("D", "Experiment tracking", 100, "done",
+     "MLflow + W&B behind one port, in the default composition, 22 tests on CI"),
+    ("E", "The GNN package", 0, "todo",
+     "Contracts, ingest, splits, leakage, degree null, attribution, the ladder"),
 ]
 
 # Execution spine. Each stage names the As-Code artifact that DEFINES it and the
@@ -301,7 +339,7 @@ def flow_svg() -> str:
     IND, GRN, RED, LINE = "#2f3f8f", "#1d6b45", "#a5312b", "#c9d2da"
 
     o = [f'<svg viewBox="0 0 {W} {H}" width="100%" '
-         f'xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial,sans-serif">',
+         f'xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">',
          '<defs>'
          '<marker id="ar" markerWidth="7" markerHeight="7" refX="5.4" refY="2.6" '
          f'orient="auto"><path d="M0,0 L5.4,2.6 L0,5.2 z" fill="{INK}"/></marker>'
@@ -333,11 +371,11 @@ def flow_svg() -> str:
                      f'<text x="{BX+BW-9-bw_/2}" y="{y+10.8}" font-size="5.9" '
                      f'font-weight="700" fill="#fff" text-anchor="middle">{gate}</text>')
         o.append(f'<text x="{BX+10}" y="{y+20.5}" font-size="6.4" fill="{MUT}" '
-                 f'font-family="Menlo,Consolas,monospace">{S["s"]}</text>')
+                 f'font-family="JetBrainsMono,monospace">{S["s"]}</text>')
         o.append(f'<text x="{BX+10}" y="{y+26.5}" font-size="6.1" fill="{IND}" '
-                 f'font-weight="700">\u25b8 {S["c"]}</text>')
+                 f'font-weight="700">\u2023 {S["c"]}</text>')
         o.append(f'<text x="{BX+190}" y="{y+26.5}" font-size="6.1" fill="{GRN}" '
-                 f'font-weight="700">\u25b8 {S["d"]}</text>')
+                 f'font-weight="700">\u2023 {S["d"]}</text>')
 
         if i < len(STAGES) - 1:
             cx = BX + BW / 2
@@ -363,8 +401,35 @@ def scope_items(items: list[str]) -> str:
     return "".join(f"<li>{i}</li>" for i in items)
 
 
+def font_faces() -> str:
+    """The vendored fonts, inlined, each verified against its recorded digest.
+
+    A font that changed upstream fails here rather than silently altering the
+    sheet -- the guarantee toolchain.json gives every executable.
+    """
+    blocks = []
+    for (family, weight, style), (filename, digest) in FONTS.items():
+        path = FONT_DIR / filename
+        if not path.is_file():
+            raise SystemExit(f"REFUSED: missing vendored font {path}")
+        payload = path.read_bytes()
+        actual = hashlib.sha256(payload).hexdigest()
+        if actual != digest:
+            raise SystemExit(f"REFUSED: {filename} is {actual}, not {digest}")
+        encoded = base64.b64encode(payload).decode("ascii")
+        blocks.append(
+            f"@font-face{{font-family:'{family}';font-weight:{weight};"
+            f"font-style:{style};font-display:block;"
+            f"src:url(data:font/woff2;base64,{encoded}) format('woff2');}}"
+        )
+    return "\n".join(blocks)
+
+
 CSS = """
-@page { size: A3 landscape; margin: 8mm 9mm; }
+/* SIZE IS SET ONCE, BY pg.pdf(). Declaring it here too let the two
+   disagree: the mediabox resolved to US Letter landscape on one machine
+   and A3 on another, which is what paginated the sheet differently. */
+@page { margin: 8mm 9mm; }
 * { box-sizing: border-box; }
 :root{
   --ink:#14171a; --muted:#5b6672; --line:#d6dce2; --hair:#eaeef2;
@@ -372,10 +437,10 @@ CSS = """
   --addbg:#fff9ef; --addln:#e8c88a;
 }
 html,body{margin:0;padding:0;height:100%;}
-body{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;color:var(--ink);
-  font-size:8.1pt;line-height:1.3;-webkit-print-color-adjust:exact;print-color-adjust:exact;
+body{font-family:'Inter',sans-serif;color:var(--ink);
+  font-size:8.1pt;line-height:1.24;-webkit-print-color-adjust:exact;print-color-adjust:exact;
   display:flex;flex-direction:column;min-height:100%;}
-.mono{font-family:"SF Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace;font-size:7pt;}
+.mono{font-family:'JetBrainsMono',monospace;font-size:7pt;}
 
 header{border-bottom:2.2px solid var(--ink);padding-bottom:4px;margin-bottom:5px;
   display:flex;align-items:baseline;justify-content:space-between;gap:12px;}
@@ -383,8 +448,8 @@ h1{font-size:15pt;margin:0;letter-spacing:-.35px;font-weight:700;}
 .hstat{font-size:7pt;color:var(--muted);text-align:right;}
 .hstat b{color:var(--ink);}
 
-.qband{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5mm;margin-bottom:3.5mm;}
-.qcell{border:1px solid var(--line);border-radius:3px;padding:7px 9px;
+.qband{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5mm;margin-bottom:2.5mm;}
+.qcell{border:1px solid var(--line);border-radius:3px;padding:6px 8px;
   display:flex;flex-direction:column;}
 .qcell.hero{background:#f5f8f9;border-color:#a9c3c9;border-left:3px solid var(--teal);}
 .qcell h2{font-size:7.2pt;text-transform:uppercase;letter-spacing:.9px;margin:0 0 5px;
@@ -399,22 +464,22 @@ h1{font-size:15pt;margin:0;letter-spacing:-.35px;font-weight:700;}
 table{border-collapse:collapse;width:100%;}
 thead th{font-size:6.5pt;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);
   text-align:left;padding:0 5px 3px;border-bottom:1.2px solid var(--ink);font-weight:700;}
-tbody td{padding:5px 5px;border-bottom:1px solid var(--hair);vertical-align:top;}
+tbody td{padding:3px 5px;border-bottom:1px solid var(--hair);vertical-align:top;}
 tr.added td{background:var(--addbg);}
 tr.added td.num{border-left:2.4px solid var(--addln);}
 td.num{width:10mm;white-space:nowrap;}
 .n{display:inline-block;width:14px;height:14px;line-height:14px;text-align:center;
   background:var(--ink);color:#fff;border-radius:50%;font-size:7pt;font-weight:700;}
 .tag{display:block;font-size:5.4pt;color:var(--amber);font-weight:700;
-  letter-spacing:.5px;margin-top:2px;}
-td.lname{width:30mm;font-weight:700;font-size:8.6pt;letter-spacing:-.15px;}
+  letter-spacing:.9px;margin-top:2px;}
+td.lname{width:30mm;font-weight:700;font-size:8.6pt;letter-spacing:.5px;}
 .q{font-weight:400;font-size:7pt;color:var(--muted);margin-top:2px;line-height:1.24;}
 td.fail{width:54mm;color:var(--red);}
 td.guard{width:42mm;color:var(--teal);}
 td.ac{width:36mm;color:var(--indigo);}
 td.ad{width:36mm;color:var(--green);}
 
-.panel{border:1px solid var(--line);border-radius:3px;padding:5px 8px;margin-bottom:2.2mm;}
+.panel{border:1px solid var(--line);border-radius:3px;padding:4px 8px;margin-bottom:1.8mm;}
 .panel h2{font-size:7pt;text-transform:uppercase;letter-spacing:.9px;margin:0 0 6px;
   color:var(--muted);font-weight:700;}
 
@@ -441,17 +506,17 @@ td.ad{width:36mm;color:var(--green);}
   border-top:1px solid var(--hair);}
 .flownote b{color:var(--red);}
 
-footer{margin-top:auto;border-top:1.6px solid var(--ink);padding-top:6px;
-  display:grid;grid-template-columns:1fr 78mm 74mm;gap:6mm;}
+footer{margin-top:auto;border-top:1.6px solid var(--ink);padding-top:4px;
+  display:grid;grid-template-columns:1fr 82mm 80mm;gap:5mm;}
 .ftitle{font-size:6.5pt;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);
   font-weight:700;margin-bottom:4px;}
 .scope{display:grid;grid-template-columns:1fr 46mm;gap:5mm;}
 .scope ul{margin:0;padding-left:12px;font-size:7.1pt;}
-.scope li{margin-bottom:2px;}
+.scope li{margin-bottom:1px;}
 .outl li{color:var(--red);}
 .sechead{font-size:6.6pt;font-weight:700;color:var(--green);margin-bottom:2px;}
 .sechead.out{color:var(--red);}
-.secondary{font-size:6.9pt;color:var(--muted);margin-top:4px;padding-top:4px;
+.secondary{font-size:6.6pt;color:var(--muted);margin-top:3px;padding-top:3px;
   border-top:1px solid var(--hair);}
 .phases{display:flex;flex-wrap:wrap;gap:3px;}
 .chip{border:1px solid var(--line);border-radius:2.5px;padding:2px 5px;
@@ -460,20 +525,21 @@ footer{margin-top:auto;border-top:1.6px solid var(--ink);padding-top:6px;
 .chip .pl{font-size:6.6pt;}
 .chip.now{background:var(--ink);border-color:var(--ink);}
 .chip.now .pn,.chip.now .pl{color:#fff;font-weight:700;}
-.thread{margin-bottom:4px;}
-.th-head{font-size:7.1pt;}
+.threads{display:grid;grid-template-columns:1fr 1fr;gap:1px 4mm;}
+.thread{margin-bottom:2px;}
+.th-head{font-size:6.6pt;}
 .th-head b{color:var(--indigo);}
 .st{font-size:5.7pt;text-transform:uppercase;letter-spacing:.5px;padding:1px 4px;
   border-radius:2px;margin-left:4px;font-weight:700;}
 .st.done{background:#dff0e6;color:var(--green);}
-.st.quarantined{background:#fdeede;color:var(--amber);}
 .st.active{background:#e6e9f7;color:var(--indigo);}
-.bar{height:3.5px;background:#eef1f4;border-radius:2px;margin:2.5px 0 2px;overflow:hidden;}
+.st.todo{background:#eef1f4;color:var(--muted);}
+.bar{height:2.5px;background:#eef1f4;border-radius:2px;margin:1.5px 0 1px;overflow:hidden;}
 .fill{height:100%;}
 .fill.done{background:var(--green);}
-.fill.quarantined{background:var(--amber);}
 .fill.active{background:var(--indigo);}
-.th-note{font-size:6.3pt;color:var(--muted);}
+.fill.todo{background:var(--line);}
+.th-note{font-size:5.6pt;color:var(--muted);line-height:1.15;}
 """
 
 
@@ -481,11 +547,11 @@ def build_html() -> str:
     return f"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <title>Project Architecture — Target-Safety GNN</title>
-<style>{CSS}</style></head><body>
+<style>{font_faces()}{CSS}</style></head><body>
 
 <header>
   <h1>Project Architecture &mdash; Target-Safety GNN on a Biomedical Knowledge Graph</h1>
-  <div class="hstat"><b>Status</b> Phase 0 / Step 0.1 &middot; nothing written to disk yet</div>
+  <div class="hstat"><b>Status</b> Phase 8 &middot; 383 tests, 11 pull requests &middot; both trackers verified on Linux</div>
 </header>
 
 <div class="qband">
@@ -558,7 +624,7 @@ def build_html() -> str:
   </div>
   <div>
     <div class="ftitle">Workstreams</div>
-    {thread_rows()}
+    <div class="threads">{thread_rows()}</div>
   </div>
 </footer>
 
@@ -577,14 +643,31 @@ def main() -> int:
         b = p.chromium.launch()
         pg = b.new_page()
         pg.goto(html_path.as_uri())
-        pg.wait_for_load_state("networkidle")
-        pg.pdf(path=str(pdf_path), format="A3", landscape=True, print_background=True,
+        # document.fonts.ready, NOT networkidle. The fonts are data: URIs and
+        # issue no network request, so networkidle cannot mean they are applied.
+        # This is correct on its own terms. It was NOT the cause of the one-page
+        # versus two-page divergence, though it was committed claiming to be:
+        # that was a phase chip wrapping after its column was narrowed.
+        pg.wait_for_load_state("load")
+        pg.evaluate("() => document.fonts.ready")
+        applied = pg.evaluate("() => document.fonts.status")
+        if applied != "loaded":
+            raise SystemExit(f"REFUSED: fonts are {applied}, not loaded")
+        print(f"FONTS {applied} ({pg.evaluate('() => document.fonts.size')} faces)")
+        pg.pdf(path=str(pdf_path), width="420mm", height="297mm",
+               print_background=True, prefer_css_page_size=False,
                margin={"top": "8mm", "bottom": "8mm", "left": "9mm", "right": "9mm"})
         b.close()
     print(f"WROTE_PDF {pdf_path} bytes={pdf_path.stat().st_size}")
 
     from pypdf import PdfReader
 
+    # PAGE_COUNT IS THE MEASURE, AND THE ONLY ONE THAT PROVED HONEST. Two
+    # attempts at a fill fraction were abandoned: dividing by clientHeight
+    # measured the browser window, and dividing by the print box returned the
+    # same 1.057 before and after real height was removed, because body is a
+    # flex container pinned by min-height and scrollHeight reports the viewport.
+    # A number that does not move when the layout does is worse than none.
     n = len(PdfReader(str(pdf_path)).pages)
     print(f"PAGE_COUNT {n}")
     return 0 if n == 1 else 2
