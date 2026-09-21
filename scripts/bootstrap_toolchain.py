@@ -7,7 +7,7 @@ this runs, so it imports only the standard library and is not part of the
 otsafety_tooling package. `scripts/bootstrap.sh` calls it with the system python3.
 
 WHAT IT REPLACES. The FAS OnDemand session that proved this project runs there
-installed gh and mise by hand, from commands typed into a chat. That is exactly
+installed gh and mise by hand, one typed command at a time. That is exactly
 the knowledge this file exists to hold: the same steps, declared once, checked
 by tests, and repeatable on Lightning AI or a teammate's machine.
 
