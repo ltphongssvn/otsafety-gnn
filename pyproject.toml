@@ -7,7 +7,6 @@ dev = [
     "prek>=0.4.14,<1.0.0",
     "typer>=0.27.1,<1.0.0",
     "zizmor>=1.29.0",
-    "python-semantic-release==10.6.2",
 ]
 
 github-actions = [

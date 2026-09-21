@@ -42,6 +42,7 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Literal, Self
 
+import yaml
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -294,11 +295,52 @@ def describe_transitions(before: tuple[Check, ...], after: tuple[Check, ...]) ->
     return tuple(lines)
 
 
-def wait_for_checks_to_register(deadline: float, pr_number: int | None) -> bool:
-    """A pull request has no checks for a few seconds after the push."""
+def required_checks(root: Path) -> frozenset[str]:
+    """The checks every pull request must report, read from the workflows.
+
+    WHY THIS EXISTS. PR #15 merged with one check registered -- GitGuardian, an
+    external app that reports in about a second -- before any workflow had. The
+    wait below ended at the first check, and verification approved the set it
+    saw. Sibling repositories carry the same gap and were protected only by a
+    server ruleset naming the required check; this repository has none.
+
+    DERIVED, NOT LISTED: a hardcoded list drifts when a job is renamed. Every job
+    in a workflow that runs on pull_request is required, under the name GitHub
+    gives its check -- the job's `name`, else its key. A job with its own `if:`
+    may legitimately not run, so it is verified if present rather than required.
+    PyYAML reads a bare `on` key as the boolean true, per YAML 1.1.
+    """
+    required: set[str] = set()
+    for path in sorted((root / ".github" / "workflows").glob("*.y*ml")):
+        workflow = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        triggers = workflow.get(True, workflow.get("on"))
+        names = [triggers] if isinstance(triggers, str) else list(triggers or [])
+        if "pull_request" not in names:
+            continue
+        for key, job in (workflow.get("jobs") or {}).items():
+            if "if" not in job:
+                required.add(str(job.get("name", key)))
+    return frozenset(required)
+
+
+def missing_required(checks: tuple[Check, ...], required: frozenset[str]) -> tuple[str, ...]:
+    """Required checks with no report. A matrix job reports as "name (a, b)"."""
+    names = [check.name for check in checks]
+    return tuple(
+        sorted(n for n in required if not any(c == n or c.startswith(f"{n} (") for c in names))
+    )
+
+
+def wait_for_checks_to_register(
+    deadline: float, pr_number: int | None, required: frozenset[str] = frozenset()
+) -> bool:
+    """Wait until every required check has registered, not merely the first.
+
+    Returning at the first check is how GitGuardian alone was taken for CI.
+    """
     while time.monotonic() < deadline:
         checks = pr_state(pr_number).checks
-        if checks:
+        if checks and not missing_required(checks, required):
             print("checks registered: " + ", ".join(check.name for check in checks))
             return True
         time.sleep(POLL_INTERVAL)
@@ -330,10 +372,18 @@ def wait_for_checks(deadline: float, pr_number: int | None) -> PullRequest:
         observed = latest
 
 
-def verify_checks(checks: tuple[Check, ...]) -> None:
-    """Refuse unless every check concluded acceptably. FAIL CLOSED on none."""
+def verify_checks(checks: tuple[Check, ...], required: frozenset[str] = frozenset()) -> None:
+    """Refuse unless every required check reported and every check passed.
+
+    FAIL CLOSED on none, and on any required check missing: one green check is
+    not a green pull request.
+    """
     if not checks:
         raise SystemExit("merge refused: no checks reported at all")
+
+    missing = missing_required(checks, required)
+    if missing:
+        raise SystemExit(f"merge refused: required checks missing: {', '.join(missing)}")
 
     unfinished = [c.name for c in checks if c.conclusion is None]
     if unfinished:
@@ -388,8 +438,14 @@ def merge_when_green(
     pr_number: int | None = None, base: str = INTEGRATION_BRANCH
 ) -> MergeResult | None:
     """Observe, verify, act, observe the result."""
-    if not wait_for_checks_to_register(time.monotonic() + CHECKS_APPEAR_TIMEOUT, pr_number):
-        raise SystemExit(f"no checks registered within {CHECKS_APPEAR_TIMEOUT}s")
+    required = required_checks(REPO_ROOT)
+    deadline = time.monotonic() + CHECKS_APPEAR_TIMEOUT
+    if not wait_for_checks_to_register(deadline, pr_number, required):
+        missing = missing_required(pr_state(pr_number).checks, required)
+        raise SystemExit(
+            f"required checks did not register within {CHECKS_APPEAR_TIMEOUT}s: "
+            f"{', '.join(missing) or '(none registered)'}"
+        )
 
     observed = wait_for_checks(time.monotonic() + CHECKS_COMPLETE_TIMEOUT, pr_number)
     if observed.is_terminal:
@@ -397,7 +453,7 @@ def merge_when_green(
         return None
 
     verify_target(observed, base)
-    verify_checks(observed.checks)
+    verify_checks(observed.checks, required)
 
     result = execute_merge(observed.number)
     if not result.merged:

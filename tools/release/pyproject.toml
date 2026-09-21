@@ -1,0 +1,17 @@
+# tools/release/pyproject.toml
+# THE RELEASE TOOL, IN ITS OWN LOCKED ENVIRONMENT.
+#
+# Added to the project, python-semantic-release 10.6.2 constrains click to 8.1,
+# and uv resolved that by rolling wandb back from 0.30.0 to 0.26.1 -- printing
+# only its additions. A Weights & Biases test then failed on Linux, on develop.
+# uv keeps one universal lock across every group and extra, so no group could
+# have prevented it. A tool whose dependencies conflict with the project gets its
+# own project and lockfile, and runs with: uv run --project tools/release.
+[project]
+name = "otsafety-release"
+version = "0"
+requires-python = "==3.13.*"
+dependencies = ["python-semantic-release==10.6.2"]
+
+[tool.uv]
+package = false
