@@ -58,6 +58,10 @@ jobs:
       - name: Type-check the site
         run: mise run site:types
 
+      # THE TYPESCRIPT POLICY: schema-first, no assertions, no any, no inline disables.
+      - name: Lint the site
+        run: mise run site:lint
+
       - name: Install Playwright and its browser
         run: mise run e2e:install
 

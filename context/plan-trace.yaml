@@ -3552,3 +3552,30 @@ candidates:
   text: the claim that no task reads it came from a truncated grep; the types task's third command runs mypy under it
   maps_to:
   - G.30
+- source: SESSION
+  ref: 'correction: exported content types'
+  text: a rule banning every exported object type forced schemas onto the site's own content, which the third trigger forbids;
+    removed
+  maps_to:
+  - G.4
+- source: SESSION
+  ref: 'finding: the boundary invariant'
+  text: raw JSON.parse and process.env allowed only as the direct argument of a generated schema's parse, so raw data is never
+    held unvalidated
+  maps_to:
+  - G.4
+- source: SESSION
+  ref: 'finding: an alias, not an exemption'
+  text: foreign key names such as ruleId and devDependencies map onto Python names through Field aliases rather than suppressions
+  maps_to:
+  - G.26
+- source: SESSION
+  ref: 'gap: ESLint exemptions outside the register'
+  text: the register mirrors Ruff's per-file ignores but not ESLint's file-scoped exemption for the generator
+  maps_to:
+  - G.5
+- source: SESSION
+  ref: 'finding: deprecated API in generated Zod'
+  text: json-schema-to-zod emits z.string().datetime(), deprecated in Zod 4
+  maps_to:
+  - G.32

@@ -66,6 +66,10 @@ pre-commit:
     - name: lint
       run: mise run lint
 
+    # THE TYPESCRIPT POLICY, the floor to site:lint's gate in check and CI.
+    - name: site-lint
+      run: mise run site:lint
+
 pre-push:
   # Piped as well: nothing after a failing check is worth waiting for.
   piped: true
