@@ -26,9 +26,20 @@ class _Strict(BaseModel):
 
 
 class Artifact(_Strict):
+    # AN ARCHIVE, OR A BARE BINARY. Regal ships bare binaries, which nothing here
+    # could express: every entry was assumed to unpack into a declared folder.
+    kind: Literal["archive", "binary"] = "archive"
     url: str = Field(pattern=r"^https://")
     sha256: str = Field(pattern=SHA256)
-    dir: str = Field(min_length=1)
+    dir: str | None = Field(default=None, min_length=1)
+
+    @model_validator(mode="after")
+    def _folder_matches_kind(self) -> Self:
+        if self.kind == "archive" and self.dir is None:
+            raise ValueError("an archive must name the folder it unpacks into")
+        if self.kind == "binary" and self.dir is not None:
+            raise ValueError("a bare binary has no folder")
+        return self
 
 
 class BinaryTool(_Strict):
@@ -36,6 +47,12 @@ class BinaryTool(_Strict):
     version: str = Field(min_length=1)
     artifacts: dict[Platform, Artifact]
     binaries: tuple[str, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _one_file_per_binary(self) -> Self:
+        if any(a.kind == "binary" for a in self.artifacts.values()) and len(self.binaries) != 1:
+            raise ValueError("a bare binary installs exactly one file")
+        return self
 
     @model_validator(mode="after")
     def _every_platform(self) -> Self:
@@ -62,6 +79,8 @@ class Toolchain(_Strict):
     gh: BinaryTool
     mise: BinaryTool
     railway: BinaryTool
+    conftest: BinaryTool
+    regal: BinaryTool
     render_image: ContainerImage
     site_image: ContainerImage
 

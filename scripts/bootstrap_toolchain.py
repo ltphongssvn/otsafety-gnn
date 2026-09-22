@@ -162,6 +162,12 @@ def install(plan: Plan, entry: dict[str, Any], key: str, destination: Path) -> l
         archive = workspace / Path(plan.url).name
         urllib.request.urlretrieve(plan.url, archive)
         verify(archive, plan.sha256)
+        if artifact.get("kind") == "binary":
+            # A BARE BINARY: verified by its digest, then placed as it is.
+            target = destination / entry["binaries"][0]
+            shutil.copy2(archive, target)
+            target.chmod(0o755)
+            return [target]
         _extract(archive, workspace)
 
         root = workspace / artifact["dir"] if artifact.get("dir") else workspace

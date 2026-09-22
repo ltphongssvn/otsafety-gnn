@@ -109,5 +109,43 @@
     "reference": "caddy:2.11.4-alpine@sha256:040e9f7480b80b6d4a7e5013a21159b950a63dcbdb956e38abe2387fb28d9ec0",
     "index_digest": "sha256:de23def33b17fb5d1290b0f6c2add1d70780e52341896c00a4c8a2a2fe9d355e",
     "resolved_on": "2026-09-20"
+  },
+  "conftest": {
+    "_comment": "Rego policy over this repository's configuration: proves every ban is present (G.5).",
+    "version": "0.70.0",
+    "artifacts": {
+      "aarch64-darwin": {
+        "url": "https://github.com/open-policy-agent/conftest/releases/download/v0.70.0/conftest_0.70.0_Darwin_arm64.tar.gz",
+        "sha256": "e24e6784547f3b9c720b4b49ee5d9111559b25b399640eca531560ca4ea17682",
+        "dir": "."
+      },
+      "x86_64-linux": {
+        "url": "https://github.com/open-policy-agent/conftest/releases/download/v0.70.0/conftest_0.70.0_Linux_x86_64.tar.gz",
+        "sha256": "e738506fd808f7dc9794ce8e325f89b14932891a4841fe45f1f24c4a9bb3ed96",
+        "dir": "."
+      }
+    },
+    "binaries": [
+      "conftest"
+    ]
+  },
+  "regal": {
+    "_comment": "The Rego linter, over the policy itself.",
+    "version": "0.42.0",
+    "artifacts": {
+      "aarch64-darwin": {
+        "kind": "binary",
+        "url": "https://github.com/open-policy-agent/regal/releases/download/v0.42.0/regal_Darwin_arm64",
+        "sha256": "c3ee16c956b8cd5b3aeb53414afbd2a11b0dff1aa1e726fc91e33e7adef31845"
+      },
+      "x86_64-linux": {
+        "kind": "binary",
+        "url": "https://github.com/open-policy-agent/regal/releases/download/v0.42.0/regal_Linux_x86_64",
+        "sha256": "2ebd3c93e4b325b735dbc4851a033e4d7830e88a79c47c8d087ea75c061cec67"
+      }
+    },
+    "binaries": [
+      "regal"
+    ]
   }
 }
