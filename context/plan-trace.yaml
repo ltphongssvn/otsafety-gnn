@@ -3517,7 +3517,8 @@ candidates:
   - G.26
 - source: SESSION
   ref: 'finding: two mypy configurations'
-  text: the root mypy configuration is read by no task; scripts/ and apps/site/tests/ are never type-checked
+  text: two mypy configurations, both in use; the root's governs scripts/ and apps/site/tests/, and G.25's no-Any rule reached
+    only tooling's
   maps_to:
   - G.30
 - source: SESSION
@@ -3530,3 +3531,24 @@ candidates:
   text: W&B ships py.typed; a Protocol written for an untyped library conflicted with its real types
   maps_to:
   - G.25
+- source: SESSION
+  ref: 'finding: the site''s types never checked'
+  text: 'no TypeScript is installed: Astro strips types, so every z.infer type is declared and never verified'
+  maps_to:
+  - G.31
+- source: SESSION
+  ref: 'finding: type-aware lint needs TypeScript'
+  text: strictTypeChecked and no-unsafe-type-assertion cannot run without TypeScript installed
+  maps_to:
+  - G.4
+  - G.31
+- source: SESSION
+  ref: 'registry: TypeScript 7'
+  text: TypeScript 7.0.2 is out; typescript-eslint and @astrojs/check both exclude it
+  maps_to:
+  - X.TS7
+- source: SESSION
+  ref: 'correction: the root mypy configuration is read'
+  text: the claim that no task reads it came from a truncated grep; the types task's third command runs mypy under it
+  maps_to:
+  - G.30
