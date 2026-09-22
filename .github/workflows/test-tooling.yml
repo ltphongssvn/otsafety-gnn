@@ -38,6 +38,9 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          # FULL HISTORY, for the Plan-Step ceiling: it checks every commit since
+          # the cutoff, which a one-commit checkout does not contain.
+          fetch-depth: 0
 
       # uv, bun, gh and mise come from toolchain.json, each verified against its
       # declared digest; the script installs nothing on a mismatch.

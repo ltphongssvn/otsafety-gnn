@@ -32,3 +32,4 @@ class LefthookConfig(_External):
     assert_lefthook_installed: bool = False
     pre_commit: LefthookHook | None = Field(default=None, alias="pre-commit")
     pre_push: LefthookHook | None = Field(default=None, alias="pre-push")
+    commit_msg: LefthookHook | None = Field(default=None, alias="commit-msg")

@@ -70,3 +70,10 @@ pre-push:
 
     - name: test
       run: mise run test
+
+commit-msg:
+  jobs:
+    # EVERY COMMIT NAMES ITS PLAN STEPS. One rule, in otsafety_tooling.policy.trailers;
+    # the test suite runs it over every commit since the cutoff.
+    - name: plan-step
+      run: mise run policy:trailers -- {1}
