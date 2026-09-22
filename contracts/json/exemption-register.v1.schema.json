@@ -1,0 +1,88 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "contract": {
+      "const": "exemption-register/v1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "scoped": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "glob": {
+            "minLength": 1,
+            "title": "Glob",
+            "type": "string"
+          },
+          "rules": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Rules",
+            "type": "array"
+          },
+          "reason": {
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "glob",
+          "rules",
+          "reason"
+        ],
+        "title": "ScopedExemption",
+        "type": "object"
+      },
+      "title": "Scoped",
+      "type": "array"
+    },
+    "inline": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "minLength": 1,
+            "title": "Path",
+            "type": "string"
+          },
+          "rule": {
+            "minLength": 1,
+            "title": "Rule",
+            "type": "string"
+          },
+          "count": {
+            "minimum": 1,
+            "title": "Count",
+            "type": "integer"
+          },
+          "reason": {
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "rule",
+          "count",
+          "reason"
+        ],
+        "title": "InlineExemption",
+        "type": "object"
+      },
+      "title": "Inline",
+      "type": "array"
+    }
+  },
+  "required": [
+    "contract",
+    "scoped",
+    "inline"
+  ],
+  "title": "ExemptionRegister",
+  "type": "object"
+}

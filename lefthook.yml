@@ -53,6 +53,11 @@ pre-commit:
     - name: no-markdown
       run: mise run policy:no-markdown
 
+    # EVERY EXEMPTION DECLARED. One rule, in otsafety_tooling.policy.exemptions;
+    # the test suite runs it too. Reasons live in context/exemptions.yaml.
+    - name: exemptions
+      run: mise run policy:exemptions
+
     - name: format
       run: mise run fmt
       # Re-stage what the formatter rewrote, so a commit cannot omit its own fix.

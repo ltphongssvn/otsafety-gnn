@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Protocol
 
 from otsafety_tooling.artifacts import artifacts_root
 from otsafety_tooling.contracts.experiment_run import ExperimentRun
@@ -49,6 +50,18 @@ def tracking_uri(store: Path) -> str:
     """The MLflow tracking URI for a SQLite file, created if absent."""
     store.parent.mkdir(parents=True, exist_ok=True)
     return f"sqlite:///{store}"
+
+
+class _ArtifactLogger(Protocol):
+    """The one MLflow client method this adapter calls, typed where MLflow ships no py.typed.
+
+    It was annotated object, which has no methods, and a type: ignore covered the gap:
+    the call went unchecked. Structural typing checks it; MlflowClient satisfies it.
+    """
+
+    def log_artifact(
+        self, run_id: str, local_path: str, artifact_path: str | None = None
+    ) -> None: ...
 
 
 class MlflowTracker:
@@ -112,11 +125,11 @@ class MlflowTracker:
             tags["error_type"] = run.error_type
         return tags
 
-    def _attach_record(self, client: object, run_id: str, run: ExperimentRun) -> None:
+    def _attach_record(self, client: _ArtifactLogger, run_id: str, run: ExperimentRun) -> None:
         """Attach the experiment-run/v1 document itself."""
         import tempfile
 
         with tempfile.TemporaryDirectory() as work:
             document = Path(work) / RECORD_FILENAME
             document.write_text(run.model_dump_json(indent=2) + "\n", encoding="utf-8")
-            client.log_artifact(run_id, str(document))  # type: ignore[attr-defined]
+            client.log_artifact(run_id, str(document))
