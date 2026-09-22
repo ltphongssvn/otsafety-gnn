@@ -36,7 +36,10 @@ scoped:
   - S101
   - S603
   - S607
-  reason: S101 is pytest's assert; S603/S607 run pinned tools by fixed argument list with no shell
+  - ANN401
+  reason: S101 is pytest's assert; S603/S607 run pinned tools by fixed argument list with no shell; ANN401
+    test spies and payload builders record whatever an untyped library is handed, and typing them would restate
+    that library's untyped surface in the test
 - glob: tooling/src/otsafety_tooling/git/*.py
   rules:
   - T201

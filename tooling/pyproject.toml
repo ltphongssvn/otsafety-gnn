@@ -92,6 +92,25 @@ testpaths = ["tests"]
 
 [tool.mypy]
 strict = true
+# NO Any ANYWHERE, not only in signatures: ruff's ANN401 sees bare Any in a
+# signature; this sees it in generics, aliases and variables too.
+disallow_any_explicit = true
+# PYDANTIC'S PLUGIN, so mypy checks model constructors: field names and types.
+plugins = ["pydantic.mypy"]
+
+# WITHOUT THESE the plugin synthesises __init__(self, field: Any, **kwargs: Any)
+# for every model, and disallow_any_explicit reports each class -- 157 times here.
+# Typed and closed, the constructor carries each field's own type.
+[[tool.mypy.overrides]]
+# TESTS ONLY, and only this setting: spies record whatever an untyped library is
+# handed, which is the test's purpose. The same relaxation, with the same reason,
+# is the ANN401 per-file ignore in context/exemptions.yaml. src/ stays fully strict.
+module = ["tests.*"]
+disallow_any_explicit = false
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
 
 # RUFF IS CONFIGURED ONCE, in the repository root's pyproject.toml. Ruff uses the
 # closest configuration file outright and ignores its parents, so a ruff section

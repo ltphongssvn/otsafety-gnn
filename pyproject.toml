@@ -92,7 +92,8 @@ exclude = ["scripts/build_arch_onepager.py"]
 
 [tool.ruff.lint]
 # RUF100 FAILS A SUPPRESSION THAT SUPPRESSES NOTHING, so none can linger as noise.
-select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "N", "T20", "BLE", "TID251", "RUF100"]
+# ANN401: no bare Any in a signature. mypy's disallow_any_explicit covers the rest.
+select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "N", "T20", "BLE", "TID251", "RUF100", "ANN401"]
 
 [tool.ruff.lint.per-file-ignores]
 # Each entry's reason is in context/exemptions.yaml, whose scoped entries must
@@ -100,7 +101,7 @@ select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "N", "T20", "BLE", "TID251",
 "apps/site/tests/**" = ["S101", "S603", "S607", "S310", "BLE001", "E402"]
 "scripts/**" = ["T201", "S603", "S310", "S202"]
 "scripts/build_arch_onepager.py" = ["C408", "E501", "N806"]
-"tooling/tests/**" = ["S101", "S603", "S607"]
+"tooling/tests/**" = ["S101", "S603", "S607", "ANN401"]
 "tooling/src/otsafety_tooling/git/*.py" = ["T201"]
 
 [tool.typos.files]

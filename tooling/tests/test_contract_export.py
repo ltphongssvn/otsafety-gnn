@@ -19,6 +19,7 @@ import importlib
 import json
 import pkgutil
 import typing
+from typing import Any
 
 from pydantic import BaseModel
 
@@ -56,13 +57,14 @@ def test_the_status_record_is_exported_and_committed() -> None:
 
 
 def test_a_record_requires_every_field() -> None:
-    required = set(schemas.json_schema("plan-status/v1").get("required", []))
+    schema: dict[str, Any] = schemas.json_schema("plan-status/v1")
+    required = set(schema.get("required", []))
     assert {"contract", "ref", "steps", "threads"} <= required
 
 
 def test_an_authored_file_keeps_what_a_person_leaves_out() -> None:
     """A root step omits depends_on; the site must still accept the plan."""
-    plan = schemas.json_schema("project-plan/v1")
+    plan: dict[str, Any] = schemas.json_schema("project-plan/v1")
     step = plan["properties"]["steps"]["items"]
     assert "depends_on" not in step.get("required", [])
     assert "branch" not in step.get("required", [])

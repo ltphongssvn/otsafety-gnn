@@ -8,8 +8,6 @@ reason. What is read is validated: pr.required_checks() and the release tests.
 
 from __future__ import annotations
 
-from typing import Any
-
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
@@ -44,7 +42,7 @@ class Workflow(_External):
 
     @model_validator(mode="before")
     @classmethod
-    def _yaml_one_one(cls, data: Any) -> Any:
+    def _yaml_one_one(cls, data: object) -> object:
         """PyYAML follows YAML 1.1, where a bare `on` key loads as the boolean
         true. A trigger may also be a bare name or a list of names."""
         if not isinstance(data, dict):

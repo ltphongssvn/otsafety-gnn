@@ -27,9 +27,8 @@ import json
 import pkgutil
 import typing
 from pathlib import Path
-from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, JsonValue
 
 import otsafety_tooling.contracts as _package
 from otsafety_tooling.paths import REPO_ROOT
@@ -77,12 +76,19 @@ def schema_path(contract: str) -> Path:
     return SCHEMA_DIR / f"{name}.{version}.schema.json"
 
 
-def _prepare(schema: dict[str, Any], *, authored: bool) -> dict[str, Any]:
+def _object(value: JsonValue, what: str) -> dict[str, JsonValue]:
+    """Narrow a JSON value that must be an object, or say which one was not."""
+    if not isinstance(value, dict):
+        raise TypeError(f"{what} is not a JSON object")
+    return value
+
+
+def _prepare(schema: dict[str, JsonValue], *, authored: bool) -> dict[str, JsonValue]:
     """Inline every $ref and drop discriminators; for a record, require all and default nothing."""
-    definitions: dict[str, Any] = schema.get("$defs", {})
+    definitions = _object(schema.get("$defs", {}), "$defs")
     dropped = {"$defs", "discriminator"} | (set() if authored else {"default"})
 
-    def walk(node: Any, seen: frozenset[str]) -> Any:
+    def walk(node: JsonValue, seen: frozenset[str]) -> JsonValue:
         if isinstance(node, list):
             return [walk(item, seen) for item in node]
         if not isinstance(node, dict):
@@ -91,10 +97,10 @@ def _prepare(schema: dict[str, Any], *, authored: bool) -> dict[str, Any]:
             name = str(node["$ref"]).removeprefix("#/$defs/")
             if name in seen:
                 raise ValueError(f"recursive reference to {name} cannot be inlined")
-            merged = dict(definitions[name])
+            merged = dict(_object(definitions[name], name))
             merged.update({k: v for k, v in node.items() if k != "$ref"})
             return walk(merged, seen | {name})
-        out: dict[str, Any] = {}
+        out: dict[str, JsonValue] = {}
         # 2020-12 TUPLES AND DISCRIMINATED UNIONS, rewritten into forms the generator
         # reads. prefixItems became z.any() elements; a discriminated oneOf became
         # z.any().superRefine(), which validates but types as any. The array form of
@@ -113,18 +119,18 @@ def _prepare(schema: dict[str, Any], *, authored: bool) -> dict[str, Any]:
                 continue
             if key == "properties":
                 # A mapping of names to schemas: a property named "default" is kept.
-                out[key] = {name: walk(sub, seen) for name, sub in value.items()}
+                out[key] = {name: walk(sub, seen) for name, sub in _object(value, key).items()}
             else:
                 out[key] = walk(value, seen)
         if not authored and out.get("type") == "object" and "properties" in out:
-            out["required"] = list(out["properties"])
+            required: list[JsonValue] = [*_object(out["properties"], "properties")]
+            out["required"] = required
         return out
 
-    result: dict[str, Any] = walk(schema, frozenset())
-    return result
+    return _object(walk(schema, frozenset()), "the schema")
 
 
-def json_schema(contract: str) -> dict[str, Any]:
+def json_schema(contract: str) -> dict[str, JsonValue]:
     model = EXPORTED[contract]
     return _prepare(model.model_json_schema(mode="validation"), authored=is_authored(contract))
 
