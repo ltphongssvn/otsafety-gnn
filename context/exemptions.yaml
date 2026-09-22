@@ -169,3 +169,15 @@ inline:
   rule: T201
   count: 1
   reason: 'prints the command''s output: this is a command-line entry point'
+- path: tooling/src/otsafety_tooling/toolchain_verify.py
+  rule: S603
+  count: 1
+  reason: runs the tool it has just located in a pinned directory, by absolute path, with its declared probe
+eslint:
+- path: apps/site/scripts/generate-contracts.ts
+  rules:
+  - no-restricted-syntax
+  - '@typescript-eslint/no-unsafe-assignment'
+  - '@typescript-eslint/no-unsafe-argument'
+  reason: the generator reads the JSON Schema documents this repository exported itself, and hands them to
+    json-schema-to-zod, typed for exactly that input

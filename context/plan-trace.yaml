@@ -3610,3 +3610,44 @@ candidates:
   text: ESLint reports a disabled rule with its options intact; enforcement is decided by severity alone
   maps_to:
   - G.5
+- source: SESSION
+  ref: 'finding: provenance by configuration'
+  text: tasks run the pinned tools because task_config.shell enters the dev shell; nothing proves it in any mode
+  maps_to:
+  - G.33
+- source: SESSION
+  ref: 'finding: zizmor at latest'
+  text: zizmor-action is pinned by SHA but its version input defaults to latest
+  maps_to:
+  - G.33
+- source: SESSION
+  ref: 'reflection: hypotheses as findings'
+  text: a missing tool in a plain shell was reported as a dev-shell defect before the flake was read; the dev shell was complete
+  maps_to:
+  - G.33
+- source: SESSION
+  ref: 'observed: T201 and a conditional stream'
+  text: ruff's T201 does not fire on print with a conditional file= argument; RUF100 correctly removed a suppression that
+    suppressed nothing
+  maps_to:
+  - G.26
+- source: SESSION
+  ref: 'observed: the scan read tracked files only'
+  text: the exemption scan disagreed with the working tree in both directions until it read untracked, unignored files too
+  maps_to:
+  - G.26
+- source: SESSION
+  ref: 'refuted: a wrapped suppression'
+  text: an inferred mechanism -- a long line wrapped away from its suppression -- was refuted by a probe
+  maps_to:
+  - G.33
+- source: SESSION
+  ref: 'inferred: mise self-update'
+  text: mise's warning recommends self-update, which would replace the pinned mise; not yet verified
+  maps_to:
+  - G.33
+- source: SESSION
+  ref: 'observed: the bootstrap skipped on PATH'
+  text: 'CI logged ''gh: skip (2.101.0 already installed)'': the bootstrap asked whatever gh was on PATH, the runner''s own'
+  maps_to:
+  - G.33

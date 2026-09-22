@@ -16,6 +16,8 @@ must equal them exactly.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 from pydantic import ValidationError
 
@@ -80,3 +82,13 @@ def test_the_floor_runs_the_same_rule() -> None:
     hook = read_yaml(REPO_ROOT / "lefthook.yml", LefthookConfig).pre_commit
     assert hook is not None
     assert any(job.run == "mise run policy:exemptions" for job in hook.jobs)
+
+
+def test_an_untracked_file_is_scanned(tmp_path: Path) -> None:
+    """A new, unstaged file's suppression is seen, not invisible until staging."""
+    from otsafety_tooling.git.env import git
+
+    assert git("init", "-q", cwd=tmp_path).returncode == 0
+    # Assembled from fragments, so this file does not itself read as carrying one.
+    (tmp_path / "new.py").write_text("print(1)  # " + "noqa: T201\n", encoding="utf-8")
+    assert inline_suppressions(tmp_path)[("new.py", "T201")] == 1

@@ -598,13 +598,13 @@ steps:
     title: 'OPA and Regal pinned; Rego proves both bans exist'
     thread: G
     phase: '8G'
-    depends_on: ['G.4', 'G.24', 'G.25', 'G.26', 'G.27', 'G.28']
+    depends_on: ['G.4', 'G.24', 'G.25', 'G.26', 'G.27', 'G.28', 'G.33']
     source: 'cs1090a-recsys E5 E6'
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
     done_when:
-      - {kind: path, path: 'policies/repo/repo.rego'}
+      - {kind: task, name: 'policy'}
   - id: 'G.6'
     title: 'Remediation as code: every finding carries its fix'
     thread: G
@@ -1483,6 +1483,16 @@ steps:
       - {loop: constrain, side: code}
     done_when:
       - {kind: path, path: 'tooling/tests/test_generated_zod_is_current.py'}
+  - id: 'G.33'
+    title: 'Binary provenance proved, not assumed: every task resolves each tool to its pinned location and version, checked as a task in every mode'
+    thread: G
+    phase: '8G'
+    source: 'provenance held by one line of task configuration and nothing proved it; zizmor ran at latest behind a pinned action'
+    serves:
+      - {loop: constrain, side: code}
+      - {loop: instrument, side: data}
+    done_when:
+      - {kind: task, name: 'toolchain:verify'}
 decisions:
   - id: 'X.SPIKE'
     title: 'Reference spike, the original thread B'

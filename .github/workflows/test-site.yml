@@ -50,6 +50,10 @@ jobs:
       - name: Trust this checkout's task configuration
         run: mise trust
 
+      # PROVENANCE, NOT ONLY PINS: every tool this job runs is the pinned binary.
+      - name: Prove the toolchain
+        run: mise run toolchain:verify
+
       - name: Install the site's dependencies from bun.lock
         run: mise run site:install
 
@@ -61,6 +65,11 @@ jobs:
       # THE TYPESCRIPT POLICY: schema-first, no assertions, no any, no inline disables.
       - name: Lint the site
         run: mise run site:lint
+
+      # THE PROOF: every ban, floor and ceiling present in the configuration that
+      # enforces it, and every exemption declared -- Conftest, then Regal on the policy.
+      - name: Prove the policy present
+        run: mise run policy
 
       - name: Install Playwright and its browser
         run: mise run e2e:install

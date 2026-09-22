@@ -48,6 +48,10 @@ pre-commit:
     - name: branch
       run: mise run start:check
 
+    # EVERY TOOL PROVED BEFORE ANY JOB USES ONE: each resolves to its pinned binary.
+    - name: toolchain
+      run: mise run toolchain:verify
+
     # NO MARKDOWN, BEFORE ANY WORK IS SPENT ON THE COMMIT. One rule, in
     # otsafety_tooling.policy.markdown; the test suite runs it over tracked files.
     - name: no-markdown

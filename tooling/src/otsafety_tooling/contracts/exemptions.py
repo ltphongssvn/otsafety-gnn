@@ -32,11 +32,22 @@ class InlineExemption(_Strict):
     reason: str = Field(min_length=1)
 
 
+class EslintExemption(_Strict):
+    """Protected ESLint rules a file does not enforce. ESLint allows no inline disables,
+    so a file-scoped block in eslint.config.mjs is the only exemption; the Rego policy
+    checks each against ESLint's effective configuration, in both directions."""
+
+    path: str = Field(min_length=1)
+    rules: tuple[str, ...] = Field(min_length=1)
+    reason: str = Field(min_length=1)
+
+
 class ExemptionRegister(_Strict):
     AUTHORED: ClassVar[bool] = True
     contract: Literal["exemption-register/v1"]
     scoped: tuple[ScopedExemption, ...]
     inline: tuple[InlineExemption, ...]
+    eslint: tuple[EslintExemption, ...] = ()
 
     @model_validator(mode="after")
     def _each_key_once(self) -> Self:

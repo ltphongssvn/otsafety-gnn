@@ -50,6 +50,10 @@ shell = "nix develop --command bash -c"
 
 # --- Nix ----------------------------------------------------------------------
 
+[tasks."toolchain:verify"]
+description = "Prove every task resolves the pinned binary of each tool, at its pinned version"
+run = "uv run python -m otsafety_tooling.toolchain_verify"
+
 [tasks."nix:shell"]
 description = "Enter the Nix devShell interactively"
 run = "nix develop"
@@ -736,6 +740,18 @@ run = "uv run python -m otsafety_tooling.planning"
 description = "Refuse a commit message that does not name its plan steps in a Plan-Step trailer"
 usage = 'arg "<file>" help="The commit message file git passes to commit-msg"'
 run = 'uv run python -m otsafety_tooling.policy.trailers "${usage_file?}"'
+
+[tasks.policy]
+description = "Prove every ban, floor and ceiling present: Conftest over the configuration, Regal over the policy"
+# The input list is checked by the policy itself: a file missing here is denied.
+run = """
+set -euo pipefail
+mise run -q policy:inputs
+root="$(mise run -q artifacts:path)"
+conftest verify --policy policy
+conftest test --combine --namespace policy --policy policy pyproject.toml tooling/pyproject.toml lefthook.yml .github/workflows/test-site.yml .github/workflows/test-tooling.yml .github/workflows/zizmor.yml context/exemptions.yaml "$root/policy/eslint-effective.json"
+regal lint policy
+"""
 
 [tasks."policy:inputs"]
 description = "Write ESLint's effective configuration, per linted file, for the Rego policy"

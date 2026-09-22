@@ -42,11 +42,21 @@ class Artifact(_Strict):
         return self
 
 
+class Probe(_Strict):
+    """How a tool reports its version: the arguments, and a pattern for the first
+    line of output with {version} where the pinned version goes. Read by the flake's
+    build-time check and by toolchain:verify at run time, so they cannot diverge."""
+
+    args: tuple[str, ...] = Field(min_length=1)
+    pattern: str = Field(pattern=r"\{version\}")
+
+
 class BinaryTool(_Strict):
     comment: str = Field(default="", alias="_comment")
     version: str = Field(min_length=1)
     artifacts: dict[Platform, Artifact]
     binaries: tuple[str, ...] = Field(min_length=1)
+    probe: Probe
 
     @model_validator(mode="after")
     def _one_file_per_binary(self) -> Self:

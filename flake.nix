@@ -94,37 +94,22 @@
       # it reports equals toolchain.json -- a wrong artifact fails here.
       checks = forAllSystems (system: pkgs:
         let tools = packagesFor system pkgs; in {
+          # GENERATED FROM EACH TOOL'S PROBE in toolchain.json, the same data
+          # toolchain:verify reads at run time, so the two checks cannot diverge.
           toolchain-versions = pkgs.runCommand "toolchain-versions" { } ''
-            uv_reported="$(${tools.uv}/bin/uv --version)"
-            bun_reported="$(${tools.bun}/bin/bun --version)"
-            gh_reported="$(${tools.gh}/bin/gh --version | head -1)"
-            echo "uv:  $uv_reported"
-            echo "bun: $bun_reported"
-            echo "gh:  $gh_reported"
-            case "$uv_reported" in
-              "uv ${toolchain.uv.version} "*) ;;
-              *) echo "uv version mismatch" >&2; exit 1 ;;
-            esac
-            [ "$bun_reported" = "${toolchain.bun.version}" ] \
-              || { echo "bun version mismatch" >&2; exit 1; }
-            case "$gh_reported" in
-              "gh version ${toolchain.gh.version} "*) ;;
-              *) echo "gh version mismatch" >&2; exit 1 ;;
-            esac
-            railway_reported="$(${tools.railway}/bin/railway --version)"
-            echo "railway: $railway_reported"
-            [ "$railway_reported" = "railway ${toolchain.railway.version}" ] \
-              || { echo "railway version mismatch" >&2; exit 1; }
-            conftest_reported="$(${tools.conftest}/bin/conftest --version | head -1)"
-            echo "conftest: $conftest_reported"
-            [ "$conftest_reported" = "Conftest: ${toolchain.conftest.version}" ] \
-              || { echo "conftest version mismatch" >&2; exit 1; }
-            regal_reported="$(${tools.regal}/bin/regal version | head -1)"
-            echo "regal: $regal_reported"
-            case "$regal_reported" in
-              "Version:"*" ${toolchain.regal.version}") ;;
-              *) echo "regal version mismatch" >&2; exit 1 ;;
-            esac
+            export HOME="$TMPDIR"
+            ${pkgs.lib.concatMapStrings (name:
+              let
+                tool = toolchain.${name};
+                bin = builtins.baseNameOf (builtins.head tool.binaries);
+                escaped = builtins.replaceStrings [ "." ] [ "\\." ] tool.version;
+                pattern = builtins.replaceStrings [ "{version}" ] [ escaped ] tool.probe.pattern;
+              in ''
+                reported="$(${tools.${name}}/bin/${bin} ${pkgs.lib.escapeShellArgs tool.probe.args} 2>/dev/null | head -1)"
+                echo "${name}: $reported"
+                printf '%s\n' "$reported" | grep -Eq ${pkgs.lib.escapeShellArg pattern} \
+                  || { echo "${name} does not report ${tool.version}" >&2; exit 1; }
+              '') toolNames}
             echo ok > $out
           '';
         });

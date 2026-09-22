@@ -40,12 +40,15 @@ ANYWHERE, LOCAL = "anywhere", "local"
 
 # (name, command, where, fast)
 GATES: list[tuple[str, list[str], str, bool]] = [
+    # FIRST: every later gate runs on tools proved to be the pinned binaries.
+    ("toolchain:verify", ["mise", "run", "toolchain:verify"], ANYWHERE, True),
     ("lint", ["mise", "run", "lint"], ANYWHERE, True),
     ("types", ["mise", "run", "types"], ANYWHERE, True),
     ("test", ["mise", "run", "test"], ANYWHERE, True),
     # Needs bun, Chromium and a built site: minutes, not seconds.
     ("site:types", ["mise", "run", "site:types"], ANYWHERE, False),
     ("site:lint", ["mise", "run", "site:lint"], ANYWHERE, False),
+    ("policy", ["mise", "run", "policy"], ANYWHERE, False),
     ("test:e2e", ["mise", "run", "test:e2e"], ANYWHERE, False),
     # Needs Docker, and pulls a pinned image on a cold machine.
     ("pdf:render", ["mise", "run", "pdf:render"], ANYWHERE, False),
