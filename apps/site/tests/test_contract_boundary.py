@@ -38,7 +38,8 @@ def test_the_drifted_shape_fails_the_build(tmp_path: Path) -> None:
     (folder / "drifted.json").write_text(json.dumps(DRIFTED_SETTINGS))
 
     built = subprocess.run(
-        ["bun", "x", "astro", "build", "--outDir", str(tmp_path / "dist")],
+        # --no-install: a missing astro must fail here, never be fetched from the registry.
+        ["bun", "x", "--no-install", "astro", "build", "--outDir", str(tmp_path / "dist")],
         cwd=SITE,
         env={**scrubbed_env(), "OTSAFETY_ARTIFACTS": str(tmp_path / "artifacts")},
         capture_output=True,

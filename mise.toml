@@ -98,6 +98,10 @@ fi
 
 uv sync --locked --all-packages --all-groups
 
+# THE SITE TOO: a checkout without it fails site:types, site:lint, policy and
+# test:e2e with 'command not found', and a package runner would fetch the tool.
+mise run site:install
+
 locked="$(uv run lefthook version)"
 uv run lefthook install
 
