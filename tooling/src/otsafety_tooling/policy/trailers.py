@@ -19,14 +19,18 @@ from __future__ import annotations
 import re
 import sys
 import tempfile
+from collections.abc import Callable
 from pathlib import Path
 
 from otsafety_tooling.contracts.files import parse_yaml
 from otsafety_tooling.contracts.plan import ProjectPlan
 from otsafety_tooling.git.env import git
 from otsafety_tooling.paths import REPO_ROOT
+from otsafety_tooling.planning.status import staged_facts, unmet
 
 KEY = "Plan-Step"
+# CLOSES, WHERE KEY ONLY REFERENCES: a claim of completion, proved by the step's evidence.
+DONE = "Plan-Done"
 # The first commit to carry the trailer; earlier history is exempt, not rewritten.
 CUTOFF = "6aee540e376745f1980761f81063d541c946aafa"
 SCISSORS = re.compile(r"^# -+ >8 -+$", re.M)
@@ -51,19 +55,42 @@ def _trailers(message: str) -> list[tuple[str, str]]:
     return [(key.strip(), value.strip()) for key, _, value in pairs]
 
 
-def problems(message: str, ids: frozenset[str], *, is_merge: bool = False) -> list[str]:
+def claimed_done(message: str) -> list[str]:
+    """The steps a message claims to complete."""
+    return [value for key, value in _trailers(_as_stored(message)) if key.lower() == DONE.lower()]
+
+
+def problems(
+    message: str,
+    ids: frozenset[str],
+    *,
+    is_merge: bool = False,
+    holds: Callable[[str], str | None] | None = None,
+) -> list[str]:
+    """Plan-Step references a step; Plan-Done claims it complete, and must be proved."""
     if is_merge:
         return []
-    named = [value for key, value in _trailers(_as_stored(message)) if key.lower() == KEY.lower()]
-    if not named:
+    pairs = _trailers(_as_stored(message))
+    named = [value for key, value in pairs if key.lower() == KEY.lower()]
+    done = [value for key, value in pairs if key.lower() == DONE.lower()]
+    if not named and not done:
         return [
-            f"no {KEY} trailer: end the message with the plan steps it serves, e.g. '{KEY}: G.29'"
+            f"no {KEY} or {DONE} trailer: end the message with the plan steps it serves, "
+            f"e.g. '{KEY}: G.29'"
         ]
-    return [
+    out = [
         f"{KEY}: {value} is not a step or decision in the plan"
         for value in named
         if value not in ids
     ]
+    out += [f"{DONE}: {value} is not a step in the plan" for value in done if value not in ids]
+    if holds is not None:
+        for value in done:
+            if value in ids and (reason := holds(value)):
+                out.append(
+                    f"{DONE}: {value} claims a step whose evidence does not hold -- {reason}"
+                )
+    return out
 
 
 def plan_steps(root: Path, ref: str) -> frozenset[str]:
@@ -96,9 +123,15 @@ def main(argv: list[str]) -> int:
         raise SystemExit("usage: python -m otsafety_tooling.policy.trailers <commit-message-file>")
     message = Path(argv[0]).read_text(encoding="utf-8")
     merge_head = git("rev-parse", "--git-path", "MERGE_HEAD", cwd=REPO_ROOT).stdout.strip()
-    found = problems(
-        message, plan_steps(REPO_ROOT, ":"), is_merge=(REPO_ROOT / merge_head).exists()
-    )
+    staged = git("show", ":context/plan.yaml", cwd=REPO_ROOT)
+    plan = parse_yaml(staged.stdout, ProjectPlan) if staged.returncode == 0 else None
+    facts = staged_facts(REPO_ROOT)
+
+    def holds(step: str) -> str | None:
+        return None if plan is None else ("; ".join(unmet(plan, facts, step)) or None)
+
+    ids = plan_steps(REPO_ROOT, ":")
+    found = problems(message, ids, is_merge=(REPO_ROOT / merge_head).exists(), holds=holds)
     if found:
         print("refusing: " + "; ".join(found), file=sys.stderr)  # noqa: T201
         return 1

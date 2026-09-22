@@ -1414,7 +1414,7 @@ steps:
     serves:
       - {loop: constrain, side: code}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_no_any_in_signatures.py'}
+      - {kind: path, path: 'tooling/tests/test_no_any.py'}
   - id: 'G.26'
     title: 'Every inline exemption declared in a contract-validated register with its reason; an undeclared noqa fails the gate'
     thread: G
@@ -1511,6 +1511,17 @@ steps:
       - {loop: constrain, side: code}
     done_when:
       - {kind: pr, number: 37}
+  - id: 'G.36'
+    title: 'A step claimed done is proved done: Plan-Done trailers checked against the evidence when claimed, and in CI ever after'
+    thread: G
+    phase: '8G'
+    depends_on: ['G.29', 'G.0']
+    source: 'G.25 merged yet read as unfinished: its evidence named a file never written under that name, and nothing checked the claim'
+    serves:
+      - {loop: constrain, side: code}
+      - {loop: promise, side: data}
+    done_when:
+      - {kind: path, path: 'tooling/tests/test_plan_done.py'}
 decisions:
   - id: 'X.SPIKE'
     title: 'Reference spike, the original thread B'

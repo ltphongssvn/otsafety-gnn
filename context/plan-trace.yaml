@@ -3680,3 +3680,10 @@ candidates:
   - G.35
   - G.30
   - G.32
+- source: SESSION
+  ref: 'observed: G.25 evidence mismatch'
+  text: 'plan:status reported G.25 unfinished: its evidence named a test never written under that name, and no claim of completion
+    existed to check'
+  maps_to:
+  - G.25
+  - G.36
