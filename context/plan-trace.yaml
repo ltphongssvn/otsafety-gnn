@@ -3360,3 +3360,93 @@ candidates:
   text: the first probe trusted any branch that existed, so an empty one read as work in flight
   maps_to:
   - G.0
+- source: SHEET
+  ref: 'sheet v status: status line'
+  text: 'Phase 8, 383 tests, 11 pull requests: typed and stale against 45 of 135 done and 23 merged'
+  maps_to:
+  - '8.6'
+  - G.23
+- source: SHEET
+  ref: 'sheet v status: phase band'
+  text: phases 8F and 8G missing from the delivery band; the current position typed
+  maps_to:
+  - '8.6'
+  - '8.12'
+- source: SHEET
+  ref: 'sheet v status: workstreams'
+  text: threads F and G missing; A, B and D typed DONE against 2/8, 20/28 and 2/3
+  maps_to:
+  - '8.6'
+  - '8.12'
+- source: SHEET
+  ref: 'sheet v status: typed counts'
+  text: 41 tasks and 22 tests on CI, recorded nowhere
+  maps_to:
+  - '8.6'
+  - '8.13'
+- source: SHEET
+  ref: 'sheet v status: stack line'
+  text: tool versions typed, where toolchain.json holds them
+  maps_to:
+  - '7.9'
+  - '8.6'
+- source: SHEET
+  ref: 'sheet v status: ladder'
+  text: the sheet's sweep has no prevalence rung; the plan's ladder does
+  maps_to:
+  - '8.5'
+- source: SHEET
+  ref: 'sheet v status: provenance'
+  text: no ref, commit or time says which state the status reflects
+  maps_to:
+  - G.23
+- source: SESSION
+  ref: '2026 practice: rendered equals source'
+  text: every rendered value resolved from a record at build time and re-read by a gate
+  maps_to:
+  - '8.13'
+  - G.23
+- source: SESSION
+  ref: 'directive: enforce before coding'
+  text: the rule was restated twice and still violated; enforce it as policy before any more code
+  maps_to:
+  - G.4
+  - G.5
+  - G.24
+  - G.25
+  - G.26
+  - G.27
+- source: SESSION
+  ref: 'sizing: environment'
+  text: '6 raw environment reads: 2 configuration, 4 building a child process''s environment'
+  maps_to:
+  - G.24
+  - G.26
+- source: SESSION
+  ref: 'sizing: Any'
+  text: 38 Any in signatures across tooling and scripts
+  maps_to:
+  - G.25
+- source: SESSION
+  ref: 'sizing: noqa'
+  text: 43 inline noqa across 7 rules, none declared anywhere with a reason
+  maps_to:
+  - G.26
+- source: SESSION
+  ref: 'sizing: TypeScript'
+  text: no real casts, no any, no hand-written Zod; two JSON.parse, one sanctioned and one reading our own schema
+  maps_to:
+  - G.4
+  - G.26
+- source: SESSION
+  ref: 'sizing: loose generated shapes'
+  text: two z.any() from 2020-12 prefixItems tuples
+  maps_to:
+  - G.27
+  - G.8
+- source: SESSION
+  ref: 'graph: 8.12 behind Phase 9'
+  text: 8.12 depended on 7.10, which depends on 9.16, so the single-source sheet waited on the GNN package
+  maps_to:
+  - '8.12'
+  - '7.10'

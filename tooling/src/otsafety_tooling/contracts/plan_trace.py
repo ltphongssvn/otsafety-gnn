@@ -14,7 +14,7 @@ at, which means the plan holds something no source asked for.
 
 from __future__ import annotations
 
-from typing import Literal, Self
+from typing import ClassVar, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -50,6 +50,8 @@ class Candidate(_Strict):
 
 
 class PlanTrace(_Strict):
+    # AUTHORED BY A PERSON, who leaves defaults out: exported as Pydantic accepts it.
+    AUTHORED: ClassVar[bool] = True
     contract: Literal["plan-trace/v1"]
     sources: tuple[TraceSource, ...] = Field(min_length=1)
     candidates: tuple[Candidate, ...] = Field(min_length=1)

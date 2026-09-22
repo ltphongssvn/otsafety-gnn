@@ -1,0 +1,114 @@
+{
+  "additionalProperties": false,
+  "description": "One pruning run: the plan or its execution, recorded as data.",
+  "properties": {
+    "contract": {
+      "const": "branch-prune/v1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "repository": {
+      "minLength": 1,
+      "title": "Repository",
+      "type": "string"
+    },
+    "source_report": {
+      "anyOf": [
+        {
+          "pattern": "^\\d{8}T\\d{12}Z\\.json$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Source Report"
+    },
+    "applied": {
+      "title": "Applied",
+      "type": "boolean"
+    },
+    "decisions": {
+      "items": {
+        "additionalProperties": false,
+        "description": "What was decided about one remote branch, why, and what happened.",
+        "properties": {
+          "branch": {
+            "pattern": "^origin/.+",
+            "title": "Branch",
+            "type": "string"
+          },
+          "decision": {
+            "enum": [
+              "delete",
+              "keep"
+            ],
+            "title": "Decision",
+            "type": "string"
+          },
+          "reason_code": {
+            "enum": [
+              "DELETE_MERGED",
+              "KEEP_PROTECTED",
+              "KEEP_ALREADY_GONE",
+              "KEEP_NOT_MERGED"
+            ],
+            "title": "Reason Code",
+            "type": "string"
+          },
+          "message": {
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
+          },
+          "outcome": {
+            "enum": [
+              "planned",
+              "deleted",
+              "failed",
+              "not_applicable"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          }
+        },
+        "required": [
+          "branch",
+          "decision",
+          "reason_code",
+          "message",
+          "outcome"
+        ],
+        "title": "PruneDecision",
+        "type": "object"
+      },
+      "title": "Decisions",
+      "type": "array"
+    },
+    "verdict": {
+      "enum": [
+        "pass",
+        "fail",
+        "unknown"
+      ],
+      "title": "Verdict",
+      "type": "string"
+    }
+  },
+  "required": [
+    "contract",
+    "generated_at",
+    "repository",
+    "source_report",
+    "applied",
+    "decisions",
+    "verdict"
+  ],
+  "title": "PruneRecord",
+  "type": "object"
+}

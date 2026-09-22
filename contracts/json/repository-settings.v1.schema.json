@@ -1,0 +1,57 @@
+{
+  "additionalProperties": false,
+  "description": "contracts/repository-settings.json, as committed.",
+  "properties": {
+    "$comment": {
+      "default": "",
+      "title": "$Comment",
+      "type": "string"
+    },
+    "contract": {
+      "const": "repository-settings/v1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "settings": {
+      "additionalProperties": false,
+      "description": "The merge policy: merge commits only, and merged branches deleted.",
+      "properties": {
+        "allow_merge_commit": {
+          "title": "Allow Merge Commit",
+          "type": "boolean"
+        },
+        "allow_squash_merge": {
+          "title": "Allow Squash Merge",
+          "type": "boolean"
+        },
+        "allow_rebase_merge": {
+          "title": "Allow Rebase Merge",
+          "type": "boolean"
+        },
+        "allow_auto_merge": {
+          "title": "Allow Auto Merge",
+          "type": "boolean"
+        },
+        "delete_branch_on_merge": {
+          "title": "Delete Branch On Merge",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "allow_merge_commit",
+        "allow_squash_merge",
+        "allow_rebase_merge",
+        "allow_auto_merge",
+        "delete_branch_on_merge"
+      ],
+      "title": "MergeSettings",
+      "type": "object"
+    }
+  },
+  "required": [
+    "contract",
+    "settings"
+  ],
+  "title": "SettingsFile",
+  "type": "object"
+}

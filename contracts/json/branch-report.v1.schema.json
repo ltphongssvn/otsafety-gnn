@@ -1,0 +1,213 @@
+{
+  "additionalProperties": false,
+  "description": "The recorded state of every branch, and the verdict on it.",
+  "properties": {
+    "contract": {
+      "const": "branch-report/v1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "repository": {
+      "minLength": 1,
+      "title": "Repository",
+      "type": "string"
+    },
+    "head": {
+      "pattern": "^[0-9a-f]{40}$",
+      "title": "Head",
+      "type": "string"
+    },
+    "git_version": {
+      "pattern": "^\\d+\\.\\d+(\\.\\d+)?",
+      "title": "Git Version",
+      "type": "string"
+    },
+    "facts": {
+      "items": {
+        "additionalProperties": false,
+        "description": "What git reports about one branch. A fact, not a judgement.",
+        "properties": {
+          "name": {
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "local",
+              "remote"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "commit": {
+            "pattern": "^[0-9a-f]{40}$",
+            "title": "Commit",
+            "type": "string"
+          },
+          "upstream": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Upstream"
+          },
+          "vs_upstream": {
+            "anyOf": [
+              {
+                "additionalProperties": false,
+                "description": "Commits on each side of a comparison, as git counts them.",
+                "properties": {
+                  "ahead": {
+                    "minimum": 0,
+                    "title": "Ahead",
+                    "type": "integer"
+                  },
+                  "behind": {
+                    "minimum": 0,
+                    "title": "Behind",
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "ahead",
+                  "behind"
+                ],
+                "title": "Divergence",
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "vs_develop": {
+            "anyOf": [
+              {
+                "additionalProperties": false,
+                "description": "Commits on each side of a comparison, as git counts them.",
+                "properties": {
+                  "ahead": {
+                    "minimum": 0,
+                    "title": "Ahead",
+                    "type": "integer"
+                  },
+                  "behind": {
+                    "minimum": 0,
+                    "title": "Behind",
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "ahead",
+                  "behind"
+                ],
+                "title": "Divergence",
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "merged_into_develop": {
+            "title": "Merged Into Develop",
+            "type": "boolean"
+          },
+          "checked_out": {
+            "title": "Checked Out",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "kind",
+          "commit",
+          "upstream",
+          "vs_upstream",
+          "vs_develop",
+          "merged_into_develop",
+          "checked_out"
+        ],
+        "title": "BranchFact",
+        "type": "object"
+      },
+      "title": "Facts",
+      "type": "array"
+    },
+    "findings": {
+      "items": {
+        "additionalProperties": false,
+        "description": "A GitFlow rule the facts break, in machine-readable form.",
+        "properties": {
+          "rule_id": {
+            "enum": [
+              "B001",
+              "B002",
+              "B003",
+              "B004",
+              "B005"
+            ],
+            "title": "Rule Id",
+            "type": "string"
+          },
+          "reason_code": {
+            "pattern": "^[A-Z][A-Z0-9_]*$",
+            "title": "Reason Code",
+            "type": "string"
+          },
+          "message": {
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
+          },
+          "branch": {
+            "minLength": 1,
+            "title": "Branch",
+            "type": "string"
+          }
+        },
+        "required": [
+          "rule_id",
+          "reason_code",
+          "message",
+          "branch"
+        ],
+        "title": "Finding",
+        "type": "object"
+      },
+      "title": "Findings",
+      "type": "array"
+    },
+    "verdict": {
+      "enum": [
+        "pass",
+        "fail",
+        "unknown"
+      ],
+      "title": "Verdict",
+      "type": "string"
+    }
+  },
+  "required": [
+    "contract",
+    "generated_at",
+    "repository",
+    "head",
+    "git_version",
+    "facts",
+    "findings",
+    "verdict"
+  ],
+  "title": "BranchReport",
+  "type": "object"
+}

@@ -26,14 +26,6 @@ from otsafety_tooling.contracts import schemas
 from otsafety_tooling.paths import REPO_ROOT
 
 
-def test_every_contract_the_site_reads_is_exported() -> None:
-    assert set(schemas.EXPORTED) == {
-        "run-record/v1",
-        "repository-settings-check/v1",
-        "experiment-run/v1",
-    }
-
-
 @pytest.mark.parametrize("contract", sorted(schemas.EXPORTED))
 def test_the_committed_schema_matches_the_model(contract: str) -> None:
     """Regenerate with `mise run contracts:generate` when a model changes."""
@@ -74,7 +66,7 @@ def test_references_are_inlined(contract: str) -> None:
     assert "$ref" not in text and "$defs" not in text
 
 
-@pytest.mark.parametrize("contract", sorted(schemas.EXPORTED))
+@pytest.mark.parametrize("contract", [c for c in schemas.EXPORTED if not schemas.is_authored(c)])
 def test_the_reader_requires_every_field_and_fills_in_none(contract: str) -> None:
     """A default in the reader's schema becomes .default() in Zod, which fills a
     missing field instead of rejecting the record -- the `?? ""` mask again."""

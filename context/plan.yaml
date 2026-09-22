@@ -371,7 +371,7 @@ steps:
     title: 'Sheet status, phases, workstreams and stack line derived: from this plan and toolchain.json'
     thread: C
     phase: '8'
-    depends_on: ['G.0', 'G.20']
+    depends_on: ['G.0', 'G.20', 'G.23']
     branch: feature/sheet-derived-status
     serves:
       - {loop: promise, side: code}
@@ -585,7 +585,7 @@ steps:
     done_when:
       - {kind: path, path: 'tooling/src/otsafety_tooling/contracts/files.py'}
   - id: 'G.4'
-    title: 'TypeScript policy: casts and stray JSON.parse banned'
+    title: 'TypeScript policy: every assertion but as const, any and ts-comments banned; JSON.parse only at the boundary; no hand-written Zod or object types; no inline disables; run in hooks and CI'
     thread: G
     phase: '8G'
     depends_on: ['G.3']
@@ -598,7 +598,7 @@ steps:
     title: 'OPA and Regal pinned; Rego proves both bans exist'
     thread: G
     phase: '8G'
-    depends_on: ['G.4']
+    depends_on: ['G.4', 'G.24', 'G.25', 'G.26', 'G.27']
     source: 'cs1090a-recsys E5 E6'
     serves:
       - {loop: constrain, side: code}
@@ -629,12 +629,13 @@ steps:
     title: "Every contract's schema exported and drift-gated"
     thread: G
     phase: '8G'
-    depends_on: ['G.2']
+    depends_on: ['G.2', 'G.27']
     source: 'cs1090a-recsys E3'
     serves:
       - {loop: promise, side: code}
     done_when:
       - {kind: path, path: 'contracts/json/branch-report.v1.schema.json'}
+      - {kind: path, path: 'contracts/json/plan-status.v1.schema.json'}
   - id: 'G.9'
     title: 'Hash-chained run ledger, verified by a gate'
     thread: G
@@ -1305,7 +1306,7 @@ steps:
     title: 'The plan on the site: threads, phases, steps and decisions from context/plan.yaml, with status from observed evidence, never typed'
     thread: C
     phase: '7'
-    depends_on: ['G.0', 'G.20']
+    depends_on: ['G.0', 'G.20', 'G.23']
     source: 'one source for the plan, the one-pager and the site; 2026 practice: one YAML source, HTML and PDF from one template'
     serves:
       - {loop: promise, side: data}
@@ -1315,7 +1316,7 @@ steps:
     title: 'The one-pager printed from a site route: one template and one stylesheet, the separate Python generator retired'
     thread: C
     phase: '8'
-    depends_on: ['8.5', '8.6', '7.10', 'G.20', '7.8', '7.9']
+    depends_on: ['8.5', '8.6', 'G.20', '7.8', '7.9']
     source: 'one source for the plan, the one-pager and the site; 2026 practice: one YAML source, HTML and PDF from one template'
     serves:
       - {loop: produce, side: code}
@@ -1375,6 +1376,64 @@ steps:
       - {loop: constrain, side: code}
     done_when:
       - {kind: path, path: 'tooling/tests/test_virtual_env_isolation.py'}
+  - id: 'G.23'
+    title: 'Status observed at the commit being built, and stamped with its ref, commit and time on every rendered copy'
+    thread: G
+    phase: '8G'
+    depends_on: ['G.0']
+    source: '2026 practice: no number typed; every rendered value resolved at build time from a record and re-checked by a gate'
+    serves:
+      - {loop: promise, side: data}
+    done_when:
+      - {kind: path, path: 'tooling/tests/test_status_stamped.py'}
+  - id: '8.13'
+    title: 'Rendered equals source: a gate re-reads the plan-status record and fails the build if the site or the sheet shows any value that differs'
+    thread: C
+    phase: '8'
+    depends_on: ['8.12', '7.11', 'G.23']
+    source: '2026 practice: no number typed; every rendered value resolved at build time from a record and re-checked by a gate'
+    serves:
+      - {loop: constrain, side: code}
+      - {loop: constrain, side: data}
+    done_when:
+      - {kind: path, path: 'tooling/tests/test_rendered_equals_source.py'}
+  - id: 'G.24'
+    title: 'Environment variables read only through one settings model; raw os.environ and os.getenv banned outside it'
+    thread: G
+    phase: '8G'
+    source: 'schema-first as policy, before any more code; 2026 practice: ban the escape hatches outright, close inline bypass, enforce in hooks and CI'
+    serves:
+      - {loop: constrain, side: code}
+    done_when:
+      - {kind: path, path: 'tooling/tests/test_settings_model.py'}
+  - id: 'G.25'
+    title: 'No Any in a signature: ruff ANN401 across tooling and scripts, tests exempt by configuration'
+    thread: G
+    phase: '8G'
+    source: 'schema-first as policy, before any more code; 2026 practice: ban the escape hatches outright, close inline bypass, enforce in hooks and CI'
+    serves:
+      - {loop: constrain, side: code}
+    done_when:
+      - {kind: path, path: 'tooling/tests/test_no_any_in_signatures.py'}
+  - id: 'G.26'
+    title: 'Every inline exemption declared in a contract-validated register with its reason; an undeclared noqa fails the gate'
+    thread: G
+    phase: '8G'
+    source: 'schema-first as policy, before any more code; 2026 practice: ban the escape hatches outright, close inline bypass, enforce in hooks and CI'
+    serves:
+      - {loop: constrain, side: code}
+      - {loop: constrain, side: data}
+    done_when:
+      - {kind: path, path: 'context/exemptions.yaml'}
+  - id: 'G.27'
+    title: 'Generated Zod holds no z.any() or z.unknown(): a shape the generator cannot express fails the gate'
+    thread: G
+    phase: '8G'
+    source: 'schema-first as policy, before any more code; 2026 practice: ban the escape hatches outright, close inline bypass, enforce in hooks and CI'
+    serves:
+      - {loop: constrain, side: code}
+    done_when:
+      - {kind: path, path: 'tooling/tests/test_generated_zod_is_strict.py'}
 decisions:
   - id: 'X.SPIKE'
     title: 'Reference spike, the original thread B'

@@ -35,7 +35,7 @@ valid Python name, so the model stores it through an alias.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Final, Literal, Self, get_args
+from typing import ClassVar, Final, Literal, Self, get_args
 
 from pydantic import AwareDatetime, BaseModel, Field, StrictBool, model_validator
 
@@ -78,6 +78,8 @@ class SettingsFile(BaseModel, frozen=True, extra="forbid"):
     """contracts/repository-settings.json, as committed."""
 
     comment: str = Field(default="", alias="$comment")
+    # AUTHORED BY A PERSON, who leaves defaults out: exported as Pydantic accepts it.
+    AUTHORED: ClassVar[bool] = True
     contract: Literal["repository-settings/v1"]
     settings: MergeSettings
 

@@ -1,0 +1,102 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "contract": {
+      "const": "plan-trace/v1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "sources": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "pattern": "^[A-Z][A-Z0-9-]*$",
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "locator": {
+            "minLength": 1,
+            "title": "Locator",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "locator"
+        ],
+        "title": "TraceSource",
+        "type": "object"
+      },
+      "minItems": 1,
+      "title": "Sources",
+      "type": "array"
+    },
+    "candidates": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "minLength": 1,
+            "title": "Source",
+            "type": "string"
+          },
+          "ref": {
+            "minLength": 1,
+            "title": "Ref",
+            "type": "string"
+          },
+          "text": {
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          },
+          "maps_to": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Maps To",
+            "type": "array"
+          },
+          "not_a_plan_item": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Not A Plan Item"
+          }
+        },
+        "required": [
+          "source",
+          "ref",
+          "text"
+        ],
+        "title": "Candidate",
+        "type": "object"
+      },
+      "minItems": 1,
+      "title": "Candidates",
+      "type": "array"
+    }
+  },
+  "required": [
+    "contract",
+    "sources",
+    "candidates"
+  ],
+  "title": "PlanTrace",
+  "type": "object"
+}

@@ -1,46 +1,70 @@
 # tooling/src/otsafety_tooling/contracts/schemas.py
-"""The JSON Schema of every contract the site reads, exported from its model.
+"""The JSON Schema of every contract, discovered from the models and exported.
 
-THE PYDANTIC MODEL IS THE SINGLE SOURCE. The site used to hand-write TypeScript
-types beside these contracts, and they drifted: four of five repository-settings
-fields had the wrong names, and production rendered the real failing verdict with
-no date and three empty findings. Now each model exports its JSON Schema, the
-site generates Zod from the committed file, and a test fails when either side
-diverges from the model.
+THE PYDANTIC MODEL IS THE SINGLE SOURCE, AND SO IS THE LIST OF CONTRACTS. This
+exported three contracts named in a hand-written dict, the duplication the
+schema-first policy removes everywhere else, so the plan, its trace and
+plan-status/v1 never reached the site. A contract is any model whose `contract`
+field is a literal; EXPORTED is derived from exactly that, and two models
+claiming one id is refused.
 
-THE SCHEMA DESCRIBES WHAT PRODUCERS WRITE, NOT WHAT PYDANTIC WOULD ACCEPT. A
-producer serialises every field, so the reader requires every property and fills
-in nothing: a default would become Zod's .default(), which supplies a missing
-field instead of rejecting the record -- the `?? ""` in the template that hid
-the drift, moved into the validator. References are inlined because
-json-schema-to-zod does not follow $ref into $defs: the nested finding shape,
-exactly the one that rendered blank, came out as z.any(). extra="forbid" on every
-model becomes additionalProperties: false, so an unknown field fails the build.
+TWO KINDS, TWO RULES. A record is written by code that serialises every field,
+so its reader requires every field and fills in nothing: a default would become
+Zod's .default(), supplying a missing field instead of rejecting the record. An
+authored file is written by a person who leaves defaults out, so a model marked
+AUTHORED is exported as Pydantic accepts it. Both have references inlined, since
+json-schema-to-zod does not follow $ref, and discriminator mappings dropped,
+since after inlining they would point at definitions that no longer exist.
 
-Cross-field rules -- a failure needs an error_type, S001 needs an observation --
-live in model validators and cannot be expressed in JSON Schema. The producer
-enforces them when it writes; the site checks shape and vocabulary when it reads.
+Cross-field rules live in model validators and cannot be expressed in JSON
+Schema. The producer enforces them when it writes; the site checks shape.
 """
 
 from __future__ import annotations
 
+import importlib
 import json
+import pkgutil
+import typing
 from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel
 
-from otsafety_tooling.contracts.experiment_run import ExperimentRun
-from otsafety_tooling.contracts.repository_settings import SettingsCheckReport
-from otsafety_tooling.contracts.run_record import RunRecord
+import otsafety_tooling.contracts as _package
 from otsafety_tooling.paths import REPO_ROOT
 
-EXPORTED: dict[str, type[BaseModel]] = {
-    "run-record/v1": RunRecord,
-    "repository-settings-check/v1": SettingsCheckReport,
-    "experiment-run/v1": ExperimentRun,
-}
 SCHEMA_DIR = Path("contracts") / "json"
+
+
+def _discover() -> dict[str, type[BaseModel]]:
+    found: dict[str, type[BaseModel]] = {}
+    for info in pkgutil.iter_modules(_package.__path__):
+        if info.name == "schemas":
+            continue
+        module = importlib.import_module(f"{_package.__name__}.{info.name}")
+        for obj in vars(module).values():
+            if not (
+                isinstance(obj, type)
+                and issubclass(obj, BaseModel)
+                and "contract" in obj.model_fields
+            ):
+                continue
+            annotation = obj.model_fields["contract"].annotation
+            if typing.get_origin(annotation) is not typing.Literal:
+                continue
+            for contract in typing.get_args(annotation):
+                if found.get(contract, obj) is not obj:
+                    raise RuntimeError(f"two models declare {contract}")
+                found[contract] = obj
+    return dict(sorted(found.items()))
+
+
+EXPORTED: dict[str, type[BaseModel]] = _discover()
+
+
+def is_authored(contract: str) -> bool:
+    return bool(getattr(EXPORTED[contract], "AUTHORED", False))
 
 
 def schema_path(contract: str) -> Path:
@@ -49,9 +73,10 @@ def schema_path(contract: str) -> Path:
     return SCHEMA_DIR / f"{name}.{version}.schema.json"
 
 
-def _for_reader(schema: dict[str, Any]) -> dict[str, Any]:
-    """Inline every $ref, require every property, and drop every default."""
+def _prepare(schema: dict[str, Any], *, authored: bool) -> dict[str, Any]:
+    """Inline every $ref and drop discriminators; for a record, require all and default nothing."""
     definitions: dict[str, Any] = schema.get("$defs", {})
+    dropped = {"$defs", "discriminator"} | (set() if authored else {"default"})
 
     def walk(node: Any, seen: frozenset[str]) -> Any:
         if isinstance(node, list):
@@ -66,15 +91,28 @@ def _for_reader(schema: dict[str, Any]) -> dict[str, Any]:
             merged.update({k: v for k, v in node.items() if k != "$ref"})
             return walk(merged, seen | {name})
         out: dict[str, Any] = {}
+        # 2020-12 TUPLES AND DISCRIMINATED UNIONS, rewritten into forms the generator
+        # reads. prefixItems became z.any() elements; a discriminated oneOf became
+        # z.any().superRefine(), which validates but types as any. The array form of
+        # items becomes z.tuple, and anyOf a typed z.union: exact here, because
+        # Pydantic emits oneOf only with a discriminator, whose literal field makes
+        # the options mutually exclusive.
+        if "prefixItems" in node:
+            node = {
+                **{k: v for k, v in node.items() if k != "prefixItems"},
+                "items": node["prefixItems"],
+            }
+        if "oneOf" in node and "discriminator" in node:
+            node = {**{k: v for k, v in node.items() if k != "oneOf"}, "anyOf": node["oneOf"]}
         for key, value in node.items():
-            if key in ("$defs", "default"):
+            if key in dropped:
                 continue
             if key == "properties":
                 # A mapping of names to schemas: a property named "default" is kept.
                 out[key] = {name: walk(sub, seen) for name, sub in value.items()}
             else:
                 out[key] = walk(value, seen)
-        if out.get("type") == "object" and "properties" in out:
+        if not authored and out.get("type") == "object" and "properties" in out:
             out["required"] = list(out["properties"])
         return out
 
@@ -83,12 +121,13 @@ def _for_reader(schema: dict[str, Any]) -> dict[str, Any]:
 
 
 def json_schema(contract: str) -> dict[str, Any]:
-    return _for_reader(EXPORTED[contract].model_json_schema(mode="validation"))
+    model = EXPORTED[contract]
+    return _prepare(model.model_json_schema(mode="validation"), authored=is_authored(contract))
 
 
 def main() -> int:
     """Write every schema; the committed files are what the site generates from."""
-    for contract in sorted(EXPORTED):
+    for contract in EXPORTED:
         path = REPO_ROOT / schema_path(contract)
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(json_schema(contract), indent=2) + "\n", encoding="utf-8")
