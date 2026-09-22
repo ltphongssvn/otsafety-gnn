@@ -1,0 +1,29 @@
+{
+  "description": "ESLint's calculateConfigForFile result: only what the policy needs.",
+  "properties": {
+    "linterOptions": {
+      "properties": {
+        "noInlineConfig": {
+          "default": false,
+          "title": "Noinlineconfig",
+          "type": "boolean"
+        }
+      },
+      "title": "_Linter",
+      "type": "object"
+    },
+    "rules": {
+      "additionalProperties": {
+        "x-json-value": true
+      },
+      "title": "Rules",
+      "type": "object"
+    }
+  },
+  "required": [
+    "linterOptions",
+    "rules"
+  ],
+  "title": "CalculatedConfig",
+  "type": "object"
+}

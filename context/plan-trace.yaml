@@ -3590,3 +3590,23 @@ candidates:
   maps_to:
   - G.5
   - F.13
+- source: SESSION
+  ref: 'finding: JsonValue lost in inlining'
+  text: Pydantic names a JsonValue field's definition; inlining erased the name and generated z.any()
+  maps_to:
+  - G.27
+- source: SESSION
+  ref: 'finding: unchecked index access'
+  text: noUncheckedIndexedAccess was off; enabling it surfaced 19 latent undefined reads, 16 on the results page
+  maps_to:
+  - G.31
+- source: SESSION
+  ref: 'finding: default_factory not exported'
+  text: a default_factory never reaches the JSON Schema, so generated Zod made those fields optional
+  maps_to:
+  - G.8
+- source: SESSION
+  ref: 'finding: an off rule keeps its options'
+  text: ESLint reports a disabled rule with its options intact; enforcement is decided by severity alone
+  maps_to:
+  - G.5

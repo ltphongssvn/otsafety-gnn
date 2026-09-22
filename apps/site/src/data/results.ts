@@ -18,14 +18,16 @@ export const REQUIRED_SEEDS = 5;
 
 
 // Two-sided 95% critical values of Student's t, by degrees of freedom.
-const T975: { [df: number]: number } = {
-  1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571, 6: 2.447, 7: 2.365,
-  8: 2.306, 9: 2.262, 10: 2.228, 15: 2.131, 20: 2.086, 30: 2.042,
-};
+// Ordered pairs, so the lookup needs no index that might miss: the last entry at
+// or below df is the exact value, else the nearest lower; 1.96 below the first.
+const T975: readonly (readonly [number, number])[] = [
+  [1, 12.706], [2, 4.303], [3, 3.182], [4, 2.776], [5, 2.571], [6, 2.447], [7, 2.365],
+  [8, 2.306], [9, 2.262], [10, 2.228], [15, 2.131], [20, 2.086], [30, 2.042],
+];
 function tCritical(df: number): number {
-  if (T975[df]) return T975[df];
-  const known = Object.keys(T975).map(Number).filter((k) => k <= df);
-  return known.length ? T975[Math.max(...known)] : 1.96;
+  let critical = 1.96;
+  for (const [known, value] of T975) if (known <= df) critical = value;
+  return critical;
 }
 
 export type Summary = {
@@ -57,9 +59,8 @@ export function summarise(experiments: string[]): {
   // would compare results the protocol says are not comparable.
   const counts = new Map<string, number>();
   for (const r of records) counts.set(r.dataset_digest, (counts.get(r.dataset_digest) ?? 0) + 1);
-  const reference = counts.size
-    ? [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0]
-    : null;
+  const top = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
+  const reference = top === undefined ? null : top[0];
 
   const summaries: { [experiment: string]: Summary } = {};
   for (const experiment of experiments) {

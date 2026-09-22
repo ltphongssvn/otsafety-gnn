@@ -19,10 +19,16 @@ mkdirSync(target, { recursive: true });
 for (const file of readdirSync(source).filter((f) => f.endsWith(".schema.json")).sort()) {
   const stem = file.replace(".schema.json", "");
   const name =
-    stem.split(/[.-]/).map((p, i) => (i === 0 ? p : p[0].toUpperCase() + p.slice(1))).join("") +
+    stem.split(/[.-]/).map((p, i) => (i === 0 ? p : p.charAt(0).toUpperCase() + p.slice(1))).join("") +
     "Schema";
   const schema = JSON.parse(readFileSync(join(source, file), "utf-8"));
-  const code = jsonSchemaToZod(schema, { name, module: "esm" });
+  // A JSON value, which the export marks x-json-value: Zod 4's z.json(), where
+  // json-schema-to-zod would otherwise write z.any().
+  const code = jsonSchemaToZod(schema, {
+    name,
+    module: "esm",
+    parserOverride: (node) => ("x-json-value" in node ? "z.json()" : undefined),
+  });
   const header =
     `// GENERATED from contracts/json/${file} by scripts/generate-contracts.ts.\n` +
     `// Do not edit: change the Pydantic model and run mise run contracts:generate.\n`;

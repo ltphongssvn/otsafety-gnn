@@ -1,0 +1,67 @@
+{
+  "additionalProperties": false,
+  "description": "What ESLint actually applies to each linted file, written for the policy.",
+  "properties": {
+    "contract": {
+      "const": "eslint-effective/v1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "files": {
+      "additionalProperties": {
+        "additionalProperties": false,
+        "properties": {
+          "no_inline_config": {
+            "title": "No Inline Config",
+            "type": "boolean"
+          },
+          "rules": {
+            "additionalProperties": {
+              "additionalProperties": false,
+              "properties": {
+                "severity": {
+                  "enum": [
+                    "off",
+                    "warn",
+                    "error"
+                  ],
+                  "title": "Severity",
+                  "type": "string"
+                },
+                "options": {
+                  "items": {
+                    "x-json-value": true
+                  },
+                  "title": "Options",
+                  "type": "array"
+                }
+              },
+              "required": [
+                "severity",
+                "options"
+              ],
+              "title": "RuleSetting",
+              "type": "object"
+            },
+            "title": "Rules",
+            "type": "object"
+          }
+        },
+        "required": [
+          "no_inline_config",
+          "rules"
+        ],
+        "title": "FileConfig",
+        "type": "object"
+      },
+      "title": "Files",
+      "type": "object"
+    }
+  },
+  "required": [
+    "contract",
+    "files"
+  ],
+  "title": "EffectiveConfig",
+  "type": "object"
+}

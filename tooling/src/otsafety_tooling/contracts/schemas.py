@@ -95,6 +95,11 @@ def _prepare(schema: dict[str, JsonValue], *, authored: bool) -> dict[str, JsonV
             return node
         if "$ref" in node:
             name = str(node["$ref"]).removeprefix("#/$defs/")
+            # A JSON VALUE KEEPS ITS MEANING. Pydantic names it JsonValue, whose body is
+            # {}; inlined, it would read as "no constraint" and generate z.any(). The
+            # marker becomes Zod 4's own z.json() in the generator.
+            if name == "JsonValue":
+                return {"x-json-value": True}
             if name in seen:
                 raise ValueError(f"recursive reference to {name} cannot be inlined")
             merged = dict(_object(definitions[name], name))

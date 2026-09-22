@@ -737,6 +737,15 @@ description = "Refuse a commit message that does not name its plan steps in a Pl
 usage = 'arg "<file>" help="The commit message file git passes to commit-msg"'
 run = 'uv run python -m otsafety_tooling.policy.trailers "${usage_file?}"'
 
+[tasks."policy:inputs"]
+description = "Write ESLint's effective configuration, per linted file, for the Rego policy"
+run = """
+set -euo pipefail
+root="$(mise run -q artifacts:path)"
+mkdir -p "$root/policy"
+bun --bun run --cwd apps/site scripts/eslint-effective.ts "$root/policy/eslint-effective.json"
+"""
+
 [tasks."policy:exemptions"]
 description = "Refuse any exemption from a rule that context/exemptions.yaml does not declare, and any entry gone stale"
 run = "uv run python -m otsafety_tooling.policy.exemptions"
