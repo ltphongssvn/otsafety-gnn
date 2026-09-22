@@ -37,7 +37,7 @@ class _NoRedirect(urllib.request.HTTPRedirectHandler):
 def status(url: str) -> tuple[int, str]:
     opener = urllib.request.build_opener(_NoRedirect)
     try:
-        with opener.open(url, timeout=15) as response:  # noqa: S310
+        with opener.open(url, timeout=15) as response:
             return response.status, response.read().decode("utf-8", "replace")
     except urllib.error.HTTPError as error:
         return error.code, error.headers.get("Location", "") or ""

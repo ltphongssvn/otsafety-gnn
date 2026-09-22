@@ -3485,3 +3485,23 @@ candidates:
   maps_to:
   - G.24
   - G.2
+- source: SESSION
+  ref: 'finding: two ruff policies'
+  text: two ruff configurations kept one policy by hand; Ruff does not merge them, the closest wins
+  maps_to:
+  - G.26
+- source: SESSION
+  ref: 'finding: inferred target'
+  text: the virtual workspace root has no requires-python, so Ruff fell back to 3.9 and re-sorted tomllib
+  maps_to:
+  - G.26
+- source: SESSION
+  ref: 'finding: inferred first-party'
+  text: Ruff does not read uv workspace members, so from the root otsafety_tooling read as third-party
+  maps_to:
+  - G.26
+- source: SESSION
+  ref: 'finding: exemptions made twice'
+  text: 13 inline suppressions duplicated per-file ignores and suppressed nothing
+  maps_to:
+  - G.26

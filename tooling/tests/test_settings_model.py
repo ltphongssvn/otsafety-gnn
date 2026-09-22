@@ -84,7 +84,7 @@ def test_the_api_key_never_prints(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_ruff_refuses_a_raw_environment_read() -> None:
     """The ban tested by what it does, not by a string in its configuration."""
     probe = 'import os\n\nvalue = os.environ.get("X")\n'
-    run = subprocess.run(  # noqa: S603
+    run = subprocess.run(
         [
             "uv",
             "run",
@@ -95,7 +95,7 @@ def test_ruff_refuses_a_raw_environment_read() -> None:
             "--stdin-filename",
             "tooling/src/otsafety_tooling/probe.py",
             "-",
-        ],  # noqa: S607
+        ],
         input=probe,
         capture_output=True,
         text=True,

@@ -15,6 +15,7 @@ from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
+
 from otsafety_tooling.git.env import scrubbed_env
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -151,10 +152,8 @@ def site_server(tmp_path_factory: pytest.TempPathFactory) -> Iterator[str]:
     if not (SITE / "package.json").is_file():
         pytest.fail(f"no site at {SITE}: run `mise run site:install` after scaffolding")
 
-    subprocess.run(["bun", "run", "build"], cwd=SITE, check=True, env=env)  # noqa: S603, S607
-    proc = subprocess.Popen(  # noqa: S603, S607
-        ["bun", "run", "preview", "--port", "4321"], cwd=SITE, env=env
-    )
+    subprocess.run(["bun", "run", "build"], cwd=SITE, check=True, env=env)
+    proc = subprocess.Popen(["bun", "run", "preview", "--port", "4321"], cwd=SITE, env=env)
     try:
         for _ in range(60):
             if proc.poll() is not None:
@@ -162,9 +161,9 @@ def site_server(tmp_path_factory: pytest.TempPathFactory) -> Iterator[str]:
             try:
                 import urllib.request
 
-                urllib.request.urlopen(BASE_URL, timeout=1)  # noqa: S310
+                urllib.request.urlopen(BASE_URL, timeout=1)
                 break
-            except Exception:  # noqa: BLE001
+            except Exception:
                 time.sleep(0.5)
         else:
             pytest.fail(f"the preview server never answered on {BASE_URL}")

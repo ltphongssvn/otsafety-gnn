@@ -17,7 +17,7 @@ import pytest
 
 pytest.importorskip("playwright", reason="the e2e extra is not installed")
 
-from playwright.sync_api import Page, expect  # noqa: E402
+from playwright.sync_api import Page, expect
 
 LAYERS = [
     "REALITY",
