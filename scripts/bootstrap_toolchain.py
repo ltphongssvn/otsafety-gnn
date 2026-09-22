@@ -69,20 +69,22 @@ def platform_key(system: str, machine: str) -> str:
     return key
 
 
-def parse_version(output: str) -> str | None:
-    """The version inside a tool's --version output, or None."""
-    found = VERSION.search(output)
-    return found.group(1) if found else None
+def installed_version(destination: Path, entry: dict[str, Any]) -> str | None:
+    """The pinned version, if the binary AT THE DESTINATION reports it through its probe.
 
-
-def installed_version(binary: str) -> str | None:
-    """What the tool on PATH reports, or None when it is absent or broken."""
-    executable = shutil.which(binary)
-    if executable is None:
+    NEVER WHAT IS ON PATH. A runner shipped gh 2.101.0 in /usr/bin, so the bootstrap
+    logged "gh: skip (2.101.0 already installed)", never placed the verified artifact,
+    and toolchain:verify found the runner's binary. A binary from an unverified source
+    that reports the right version is not the pinned binary. The probe is the one
+    toolchain.json declares, which the flake and toolchain:verify also read.
+    """
+    executable = destination / Path(entry["binaries"][0]).name
+    if not executable.is_file():
         return None
+    probe = entry["probe"]
     try:
         result = subprocess.run(
-            [executable, "--version"],
+            [str(executable), *probe["args"]],
             capture_output=True,
             text=True,
             check=False,
@@ -90,7 +92,9 @@ def installed_version(binary: str) -> str | None:
         )
     except OSError:
         return None
-    return parse_version(result.stdout) if result.returncode == 0 else None
+    first = (result.stdout.splitlines() or [""])[0]
+    pattern = probe["pattern"].replace("{version}", re.escape(entry["version"]))
+    return entry["version"] if re.match(pattern, first) else None
 
 
 def plan_tool(name: str, entry: dict[str, Any], key: str, installed: str | None) -> Plan:
@@ -197,7 +201,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"destination: {destination}")
 
     names = [n for n, e in toolchain.items() if isinstance(e, dict) and "artifacts" in e]
-    installed = {name: installed_version(name) for name in names}
+    installed = {name: installed_version(destination, toolchain[name]) for name in names}
     plans = plan_all(toolchain, key, installed)
 
     for plan in plans:

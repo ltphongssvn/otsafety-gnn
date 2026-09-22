@@ -3646,3 +3646,8 @@ candidates:
   text: mise's warning recommends self-update, which would replace the pinned mise; not yet verified
   maps_to:
   - G.33
+- source: SESSION
+  ref: 'observed: the bootstrap skipped on PATH'
+  text: 'CI logged ''gh: skip (2.101.0 already installed)'': the bootstrap asked whatever gh was on PATH, the runner''s own'
+  maps_to:
+  - G.33

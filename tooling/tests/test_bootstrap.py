@@ -105,12 +105,37 @@ def test_a_mismatched_digest_refuses_and_says_both(tmp_path: Path) -> None:
     assert "c" * 64 in message
 
 
-def test_the_version_a_tool_reports_is_read_from_its_output() -> None:
-    """gh prints `gh version 2.101.0 (2026-09-15)`; uv prints `uv 0.12.7 (...)`."""
-    assert bootstrap.parse_version("gh version 2.101.0 (2026-09-15)") == "2.101.0"
-    assert bootstrap.parse_version("uv 0.12.7 (x86_64-unknown-linux-gnu)") == "0.12.7"
-    assert bootstrap.parse_version("2026.9.9 linux-x64 (2026-09-15)") == "2026.9.9"
+GH = {
+    "version": "2.101.0",
+    "binaries": ["bin/gh"],
+    "probe": {"args": ["--version"], "pattern": "^gh version {version} "},
+}
 
 
-def test_output_without_a_version_reads_as_unknown() -> None:
-    assert bootstrap.parse_version("command not found") is None
+def _fake(directory: Path, output: str, code: int = 0) -> None:
+    directory.mkdir(parents=True, exist_ok=True)
+    (directory / "gh").write_text(f"#!/bin/sh\necho '{output}'\nexit {code}\n", encoding="utf-8")
+    (directory / "gh").chmod(0o755)
+
+
+def test_an_ambient_binary_at_the_pinned_version_never_counts(tmp_path: Path) -> None:
+    """The CI failure: a runner's own gh reported 2.101.0, and the pinned one was skipped."""
+    _fake(tmp_path / "usr-bin", "gh version 2.101.0 (2026-09-15)")
+    assert bootstrap.installed_version(tmp_path / "destination", GH) is None
+
+
+def test_the_binary_at_the_destination_counts_when_it_reports_the_pinned_version(
+    tmp_path: Path,
+) -> None:
+    _fake(tmp_path, "gh version 2.101.0 (2026-09-15)")
+    assert bootstrap.installed_version(tmp_path, GH) == "2.101.0"
+
+
+def test_the_binary_at_the_destination_is_replaced_at_another_version(tmp_path: Path) -> None:
+    _fake(tmp_path, "gh version 2.100.0 (2026-08-01)")
+    assert bootstrap.installed_version(tmp_path, GH) is None
+
+
+def test_a_broken_binary_at_the_destination_is_replaced(tmp_path: Path) -> None:
+    _fake(tmp_path, "command not found", code=127)
+    assert bootstrap.installed_version(tmp_path, GH) is None
