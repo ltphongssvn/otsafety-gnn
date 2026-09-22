@@ -3687,3 +3687,9 @@ candidates:
   maps_to:
   - G.25
   - G.36
+- source: SESSION
+  ref: 'observed: a fresh checkout fetched a tool'
+  text: setup did not install the site, and a test's bun x fetched astro@latest rather than failing
+  maps_to:
+  - G.38
+  - G.39
