@@ -1,0 +1,76 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "contract": {
+      "const": "plan-status/v1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "ref": {
+      "title": "Ref",
+      "type": "string"
+    },
+    "steps": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "done",
+              "in_progress",
+              "ready",
+              "blocked"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "blocked_by": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Blocked By",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "state",
+          "blocked_by"
+        ],
+        "title": "StepStatus",
+        "type": "object"
+      },
+      "title": "Steps",
+      "type": "array"
+    },
+    "threads": {
+      "additionalProperties": {
+        "maxItems": 2,
+        "minItems": 2,
+        "type": "array",
+        "items": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "integer"
+          }
+        ]
+      },
+      "title": "Threads",
+      "type": "object"
+    }
+  },
+  "required": [
+    "contract",
+    "ref",
+    "steps",
+    "threads"
+  ],
+  "title": "PlanStatus",
+  "type": "object"
+}

@@ -16,7 +16,7 @@ reason, so nothing is ever silently left open.
 
 from __future__ import annotations
 
-from typing import Annotated, Literal, Self
+from typing import Annotated, ClassVar, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt, model_validator
 
@@ -116,6 +116,8 @@ class Decision(_Strict):
 
 
 class ProjectPlan(_Strict):
+    # AUTHORED BY A PERSON, who leaves defaults out: exported as Pydantic accepts it.
+    AUTHORED: ClassVar[bool] = True
     contract: Literal["project-plan/v1"]
     threads: tuple[Thread, ...] = Field(min_length=1)
     phases: tuple[Phase, ...] = Field(min_length=1)

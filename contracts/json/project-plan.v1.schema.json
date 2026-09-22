@@ -1,0 +1,362 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "contract": {
+      "const": "project-plan/v1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "threads": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "pattern": "^[A-Z]$",
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "Thread",
+        "type": "object"
+      },
+      "minItems": 1,
+      "title": "Threads",
+      "type": "array"
+    },
+    "phases": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "pattern": "^[0-9]+[A-Z]?$",
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "Phase",
+        "type": "object"
+      },
+      "minItems": 1,
+      "title": "Phases",
+      "type": "array"
+    },
+    "loops": {
+      "items": {
+        "additionalProperties": false,
+        "description": "One of the five loops: an as-code side that declares, an as-data side that records.\n\nA loop with only one side is the classic failure -- policy with no verdicts,\ncontracts with no evidence -- so both sides are required.",
+        "properties": {
+          "id": {
+            "enum": [
+              "declare",
+              "constrain",
+              "produce",
+              "promise",
+              "instrument"
+            ],
+            "title": "Id",
+            "type": "string"
+          },
+          "code": {
+            "minLength": 1,
+            "title": "Code",
+            "type": "string"
+          },
+          "data": {
+            "minLength": 1,
+            "title": "Data",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "data"
+        ],
+        "title": "Loop",
+        "type": "object"
+      },
+      "minItems": 1,
+      "title": "Loops",
+      "type": "array"
+    },
+    "steps": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "pattern": "^[0-9A-Z]+\\.[0-9A-Z]+$",
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "thread": {
+            "title": "Thread",
+            "type": "string"
+          },
+          "phase": {
+            "title": "Phase",
+            "type": "string"
+          },
+          "depends_on": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Depends On",
+            "type": "array"
+          },
+          "branch": {
+            "anyOf": [
+              {
+                "pattern": "^(feature|release|hotfix)/[a-z0-9-]+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Branch"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source"
+          },
+          "serves": {
+            "items": {
+              "additionalProperties": false,
+              "description": "Which loop a step advances, and on which side.",
+              "properties": {
+                "loop": {
+                  "title": "Loop",
+                  "type": "string"
+                },
+                "side": {
+                  "enum": [
+                    "code",
+                    "data"
+                  ],
+                  "title": "Side",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "loop",
+                "side"
+              ],
+              "title": "Serves",
+              "type": "object"
+            },
+            "minItems": 1,
+            "title": "Serves",
+            "type": "array"
+          },
+          "done_when": {
+            "items": {
+              "anyOf": [
+                {
+                  "additionalProperties": false,
+                  "description": "Done when this pull request is merged.",
+                  "properties": {
+                    "kind": {
+                      "const": "pr",
+                      "title": "Kind",
+                      "type": "string"
+                    },
+                    "number": {
+                      "exclusiveMinimum": 0,
+                      "title": "Number",
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "number"
+                  ],
+                  "title": "PrEvidence",
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "description": "Done when this release tag exists.",
+                  "properties": {
+                    "kind": {
+                      "const": "release",
+                      "title": "Kind",
+                      "type": "string"
+                    },
+                    "tag": {
+                      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$",
+                      "title": "Tag",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "tag"
+                  ],
+                  "title": "ReleaseEvidence",
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "description": "Done when this file exists on the integration branch.",
+                  "properties": {
+                    "kind": {
+                      "const": "path",
+                      "title": "Kind",
+                      "type": "string"
+                    },
+                    "path": {
+                      "minLength": 1,
+                      "title": "Path",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "path"
+                  ],
+                  "title": "PathEvidence",
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "description": "Done when mise.toml declares this task.",
+                  "properties": {
+                    "kind": {
+                      "const": "task",
+                      "title": "Kind",
+                      "type": "string"
+                    },
+                    "name": {
+                      "minLength": 1,
+                      "title": "Name",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "name"
+                  ],
+                  "title": "TaskEvidence",
+                  "type": "object"
+                }
+              ]
+            },
+            "minItems": 1,
+            "title": "Done When",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "thread",
+          "phase",
+          "serves",
+          "done_when"
+        ],
+        "title": "Step",
+        "type": "object"
+      },
+      "minItems": 1,
+      "title": "Steps",
+      "type": "array"
+    },
+    "decisions": {
+      "default": [],
+      "items": {
+        "additionalProperties": false,
+        "description": "Something this plan deliberately does not do, or defers, and why.",
+        "properties": {
+          "id": {
+            "pattern": "^[0-9A-Z]+\\.[0-9A-Z]+$",
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "declined",
+              "deferred",
+              "superseded"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "reason": {
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "state",
+          "reason"
+        ],
+        "title": "Decision",
+        "type": "object"
+      },
+      "title": "Decisions",
+      "type": "array"
+    }
+  },
+  "required": [
+    "contract",
+    "threads",
+    "phases",
+    "loops",
+    "steps"
+  ],
+  "title": "ProjectPlan",
+  "type": "object"
+}
