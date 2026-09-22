@@ -51,6 +51,9 @@
           isLinux = pkgs.stdenv.hostPlatform.isLinux;
           # A BARE BINARY is installed as downloaded; an archive unpacks into its dir.
           isBinary = (artifact.kind or "archive") == "binary";
+          pinNotice = ''
+            message = "${name} is pinned by toolchain.json in this repository; change its version there."
+          '';
         in
         pkgs.stdenvNoCC.mkDerivation ({
           pname = name;
@@ -62,6 +65,10 @@
           dontConfigure = true;
           dontBuild = true;
           dontStrip = true;
+          # A PIN NOTICE, where the tool reads one: mise's self-update then refuses.
+          postInstall = pkgs.lib.optionalString (tool ? self_update_notice) ''
+            install -Dm644 ${pkgs.writeText "${name}-pin-notice" pinNotice} $out/${tool.self_update_notice}
+          '';
           installPhase = if isBinary then ''
             runHook preInstall
             install -Dm755 $src $out/bin/${builtins.head tool.binaries}
@@ -110,6 +117,9 @@
                 printf '%s\n' "$reported" | grep -Eq ${pkgs.lib.escapeShellArg pattern} \
                   || { echo "${name} does not report ${tool.version}" >&2; exit 1; }
               '') toolNames}
+            # PROVED, NOT ASSUMED: mise's self-update must refuse beside its pin notice.
+            refusal="$(${tools.mise}/bin/mise self-update --yes 2>&1 || true)"
+            case "$refusal" in *"cannot update"*) ;; *) echo "mise self-update is not disabled: $refusal" >&2; exit 1 ;; esac
             echo ok > $out
           '';
         });

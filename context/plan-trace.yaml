@@ -3651,3 +3651,14 @@ candidates:
   text: 'CI logged ''gh: skip (2.101.0 already installed)'': the bootstrap asked whatever gh was on PATH, the runner''s own'
   maps_to:
   - G.33
+- source: SESSION
+  ref: 'observed: mise self-update and auto_update'
+  text: a standalone mise self-updates unless a pin notice sits beside its prefix; auto_update requires self-update to be
+    available
+  maps_to:
+  - G.33
+- source: SESSION
+  ref: 'refuted: auto_update in a project file'
+  text: mise ignores auto_update in non-global config for security reasons
+  maps_to:
+  - G.33

@@ -139,3 +139,29 @@ def test_the_binary_at_the_destination_is_replaced_at_another_version(tmp_path: 
 def test_a_broken_binary_at_the_destination_is_replaced(tmp_path: Path) -> None:
     _fake(tmp_path, "command not found", code=127)
     assert bootstrap.installed_version(tmp_path, GH) is None
+
+
+def test_the_bootstrap_writes_mises_pin_notice_beside_its_prefix(tmp_path: Path) -> None:
+    """Without it, a standalone mise in ~/.local/bin self-updates over the pinned version."""
+    import hashlib
+
+    payload = tmp_path / "published"
+    payload.write_bytes(b"#!/bin/sh\necho 2026.9.9\n")
+    entry = {
+        "version": "2026.9.9",
+        "binaries": ["mise"],
+        "self_update_notice": "lib/mise/mise-self-update-instructions.toml",
+        "artifacts": {
+            "x86_64-linux": {
+                "url": payload.as_uri(),
+                "sha256": hashlib.sha256(payload.read_bytes()).hexdigest(),
+                "kind": "binary",
+            }
+        },
+    }
+    plan = bootstrap.plan_tool("mise", entry, "x86_64-linux", None)
+    bootstrap.install(plan, entry, "x86_64-linux", tmp_path / "local" / "bin")
+    written = (
+        tmp_path / "local" / "lib" / "mise" / "mise-self-update-instructions.toml"
+    ).read_text()
+    assert written.startswith("message = ") and "toolchain.json" in written

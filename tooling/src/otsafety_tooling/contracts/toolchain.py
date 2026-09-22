@@ -57,6 +57,10 @@ class BinaryTool(_Strict):
     artifacts: dict[Platform, Artifact]
     binaries: tuple[str, ...] = Field(min_length=1)
     probe: Probe
+    # WHERE THE INSTALLER WRITES A PIN NOTICE, relative to the install prefix. mise reads
+    # it beside its own binary: self-update then refuses and names toolchain.json, where a
+    # standalone copy -- the bootstrap's -- would otherwise replace itself.
+    self_update_notice: str | None = None
 
     @model_validator(mode="after")
     def _one_file_per_binary(self) -> Self:

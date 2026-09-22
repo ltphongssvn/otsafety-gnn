@@ -95,7 +95,8 @@
         "--version"
       ],
       "pattern": "^{version} "
-    }
+    },
+    "self_update_notice": "lib/mise/mise-self-update-instructions.toml"
   },
   "railway": {
     "_comment": "THE DEPLOY TOOL, PINNED LIKE EVERY OTHER EXECUTABLE. Railway ships several releases a day and the newest was hours old, so this is the newest release at least seven days old: compromised releases are usually caught within days, which is why uv has exclude-newer and pnpm minimumReleaseAge. Railway publishes no checksum file, so these are the digests GitHub recorded for each asset at upload. The Linux build is musl, statically linked. The archive holds one file at its root, the first tool here with no top-level directory.",
