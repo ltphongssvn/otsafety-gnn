@@ -33,7 +33,7 @@ from otsafety_tooling.contracts.plan_status import PlanStatus, StepStatus
 from otsafety_tooling.git.env import git
 from otsafety_tooling.git.ghcli import gh_json
 
-__all__ = ["Facts", "PlanStatus", "StepStatus", "derive", "gather_facts"]
+__all__ = ["Facts", "PlanStatus", "StepStatus", "derive", "gather_facts", "staged_facts", "unmet"]
 
 
 class Facts(BaseModel):
@@ -148,4 +148,45 @@ def gather_facts(
         merged_prs=merged_prs(),
         tags=frozenset(_lines(root, "tag", "--list")),
         branches_with_work=with_work,
+    )
+
+
+def _describe(evidence: Evidence) -> str:
+    if isinstance(evidence, PathEvidence):
+        return f"path {evidence.path} is not in the tree"
+    if isinstance(evidence, TaskEvidence):
+        return f"task {evidence.name} is not in mise.toml"
+    if isinstance(evidence, PrEvidence):
+        return f"pull request #{evidence.number} is not merged"
+    return f"release {evidence.tag} is not tagged"
+
+
+def unmet(plan: ProjectPlan, facts: Facts, step_id: str) -> list[str]:
+    """What a step's evidence still lacks, in words; empty when every piece holds."""
+    step = next((s for s in plan.steps if s.id == step_id), None)
+    if step is None:
+        return [f"{step_id} is a decision or unknown; it has no evidence to close"]
+    return [_describe(e) for e in step.done_when if not _holds(e, facts)]
+
+
+def staged_facts(root: Path) -> Facts:
+    """The evidence in the index: what the commit being made will contain.
+
+    gather_facts reads a ref, and a commit being made is not one yet. A merged pull
+    request or a tag cannot exist in it, so a step proved only by those cannot be
+    closed by a commit; it closes when the pull request merges.
+    """
+    shown = git("show", ":mise.toml", cwd=root)
+    tasks = (
+        frozenset(parse_toml(shown.stdout, MiseConfig).tasks)
+        if shown.returncode == 0
+        else frozenset()
+    )
+    return Facts(
+        ref="the index",
+        paths=frozenset(_lines(root, "ls-files")),
+        tasks=tasks,
+        merged_prs=frozenset(),
+        tags=frozenset(),
+        branches_with_work=frozenset(),
     )
