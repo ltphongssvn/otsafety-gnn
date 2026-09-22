@@ -68,7 +68,7 @@ def main() -> int:
     results: list[tuple[str, bool, str]] = []
 
     for name, command, _, _ in selected:
-        completed = subprocess.run(command, capture_output=True, text=True, check=False)  # noqa: S603
+        completed = subprocess.run(command, capture_output=True, text=True, check=False)
         passed = completed.returncode == 0
         output = (completed.stdout + completed.stderr).strip()
         results.append((name, passed, output))

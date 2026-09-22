@@ -37,8 +37,8 @@ def test_the_drifted_shape_fails_the_build(tmp_path: Path) -> None:
     folder.mkdir(parents=True)
     (folder / "drifted.json").write_text(json.dumps(DRIFTED_SETTINGS))
 
-    built = subprocess.run(  # noqa: S603
-        ["bun", "x", "astro", "build", "--outDir", str(tmp_path / "dist")],  # noqa: S607
+    built = subprocess.run(
+        ["bun", "x", "astro", "build", "--outDir", str(tmp_path / "dist")],
         cwd=SITE,
         env={**scrubbed_env(), "OTSAFETY_ARTIFACTS": str(tmp_path / "artifacts")},
         capture_output=True,
@@ -53,8 +53,8 @@ def test_the_drifted_shape_fails_the_build(tmp_path: Path) -> None:
 
 def test_the_committed_zod_is_what_the_schemas_generate(tmp_path: Path) -> None:
     """A hand-edited .gen.ts would pass every other test; this is its gate."""
-    generated = subprocess.run(  # noqa: S603
-        ["bun", "run", "scripts/generate-contracts.ts", str(tmp_path)],  # noqa: S607
+    generated = subprocess.run(
+        ["bun", "run", "scripts/generate-contracts.ts", str(tmp_path)],
         cwd=SITE,
         capture_output=True,
         text=True,

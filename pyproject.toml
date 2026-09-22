@@ -70,6 +70,16 @@ disable_error_code = ["index"]
 
 [tool.ruff]
 line-length = 100
+# DECLARED, NOT INFERRED. Ruff infers its target from requires-python beside its
+# configuration, and this virtual workspace root has none, so it fell back to 3.9
+# and moved tomllib out of the standard library. test_python_version.py fails
+# if this ever disagrees with .python-version or tooling's requires-python.
+target-version = "py313"
+# FIRST-PARTY SOURCES, DECLARED. Ruff defaults to its configuration's directory and
+# a src/ beneath it, and it does not read uv workspace members, so from here it took
+# otsafety_tooling for third-party. This is the union of the two old defaults, and
+# test_python_version.py fails if a workspace member is ever missing from it.
+src = [".", "tooling", "tooling/src"]
 
 [tool.ruff.format]
 # THE FORMATTER IS NOT CONFIGURABLE PER FILE, only excludable. This generator is
@@ -81,7 +91,8 @@ line-length = 100
 exclude = ["scripts/build_arch_onepager.py"]
 
 [tool.ruff.lint]
-select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "N", "T20", "BLE", "TID251"]
+# RUF100 FAILS A SUPPRESSION THAT SUPPRESSES NOTHING, so none can linger as noise.
+select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "N", "T20", "BLE", "TID251", "RUF100"]
 
 [tool.ruff.lint.per-file-ignores]
 # S101 assert is what pytest is built on. S603/S607 launch the site's own build
@@ -114,6 +125,12 @@ select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "N", "T20", "BLE", "TID251"]
 #   N806  BX, BW, GAP, TOP, INK, RED are SVG geometry and colour constants,
 #         uppercase because that is what they are.
 "scripts/build_arch_onepager.py" = ["C408", "E501", "N806"]
+# THE TOOLING PACKAGE, once configured in tooling/pyproject.toml. Ruff does not
+# merge configuration files: the closest one wins outright, so two copies of this
+# policy were kept by hand, with identical banned-api tables. There is now one.
+# S101/S603/S607 as for the site's tests; the git entry points print by design.
+"tooling/tests/**" = ["S101", "S603", "S607"]
+"tooling/src/otsafety_tooling/git/*.py" = ["T201"]
 
 [tool.typos.files]
 extend-exclude = [
