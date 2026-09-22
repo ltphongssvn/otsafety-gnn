@@ -169,3 +169,7 @@ inline:
   rule: T201
   count: 1
   reason: 'prints the command''s output: this is a command-line entry point'
+- path: tooling/src/otsafety_tooling/contracts/site_package.py
+  rule: N815
+  count: 1
+  reason: devDependencies is package.json's own key, which a model of that file cannot rename

@@ -53,6 +53,11 @@ jobs:
       - name: Install the site's dependencies from bun.lock
         run: mise run site:install
 
+      # THE SITE'S TYPES, CHECKED. Astro strips them in a build, so this is the only
+      # place they are verified: astro check over every .ts and .astro file.
+      - name: Type-check the site
+        run: mise run site:types
+
       - name: Install Playwright and its browser
         run: mise run e2e:install
 

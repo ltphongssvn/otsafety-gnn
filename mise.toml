@@ -278,6 +278,10 @@ description = "Resolve the site's dependencies into bun.lock, upgrading nothing 
 # lockfile deliberately; site:install then requires it.
 run = "bun install --cwd apps/site --save-text-lockfile"
 
+[tasks."site:types"]
+description = "Type-check the site's TypeScript and Astro files with the site's own check script"
+run = "bun run --cwd apps/site check"
+
 [tasks."site:install"]
 description = "Install the site's JavaScript dependencies from bun.lock"
 # REFUSES A MISSING LOCKFILE, which bun does not do on its own. Run site:lock
