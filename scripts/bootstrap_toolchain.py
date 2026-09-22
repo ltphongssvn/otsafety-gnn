@@ -156,6 +156,23 @@ def _extract(archive: Path, into: Path) -> None:
         bundle.extractall(into, filter="data")
 
 
+def write_pin_notice(tool: str, entry: dict[str, Any], destination: Path) -> list[Path]:
+    """A pin notice beside the install prefix, where the tool reads one.
+
+    mise reads it relative to its own binary; its self-update then refuses and names
+    toolchain.json. Written for every artifact kind: a bare binary once returned early
+    and would have skipped it.
+    """
+    notice = entry.get("self_update_notice")
+    if not notice:
+        return []
+    written = destination.parent / notice
+    written.parent.mkdir(parents=True, exist_ok=True)
+    message = f"{tool} is pinned by toolchain.json in this repository; change its version there."
+    written.write_text(f'message = "{message}"\n')
+    return [written]
+
+
 def install(plan: Plan, entry: dict[str, Any], key: str, destination: Path) -> list[Path]:
     """Download, verify, extract, and place every declared binary."""
     artifact = entry["artifacts"][key]
@@ -171,7 +188,7 @@ def install(plan: Plan, entry: dict[str, Any], key: str, destination: Path) -> l
             target = destination / entry["binaries"][0]
             shutil.copy2(archive, target)
             target.chmod(0o755)
-            return [target]
+            return [target, *write_pin_notice(plan.tool, entry, destination)]
         _extract(archive, workspace)
 
         root = workspace / artifact["dir"] if artifact.get("dir") else workspace
@@ -183,6 +200,7 @@ def install(plan: Plan, entry: dict[str, Any], key: str, destination: Path) -> l
             shutil.copy2(source, target)
             target.chmod(0o755)
             installed.append(target)
+        installed.extend(write_pin_notice(plan.tool, entry, destination))
     return installed
 
 
