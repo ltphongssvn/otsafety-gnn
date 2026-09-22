@@ -25,6 +25,9 @@ const f = (v: number | null) => (v === null ? "" : v.toFixed(3));
 
   {RUNGS.map((rung) => {
     const s = summaries[rung.experiment];
+    // summarise() returns one entry per experiment it is given; if that ever
+    // breaks, the build fails here by name rather than reading undefined.
+    if (s === undefined) throw new Error(`no summary for ${rung.experiment}`);
     return (
       <section class="rung" data-rung={rung.experiment}>
         <h2><span class="n">{rung.n}</span> {rung.name}</h2>
