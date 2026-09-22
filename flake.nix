@@ -49,25 +49,30 @@
           tool = toolchain.${name};
           artifact = tool.artifacts.${system};
           isLinux = pkgs.stdenv.hostPlatform.isLinux;
+          # A BARE BINARY is installed as downloaded; an archive unpacks into its dir.
+          isBinary = (artifact.kind or "archive") == "binary";
         in
-        pkgs.stdenvNoCC.mkDerivation {
+        pkgs.stdenvNoCC.mkDerivation ({
           pname = name;
           inherit (tool) version;
           src = pkgs.fetchurl { inherit (artifact) url sha256; };
-          sourceRoot = artifact.dir;
           nativeBuildInputs = [ pkgs.unzip ]
             ++ pkgs.lib.optionals isLinux [ pkgs.autoPatchelfHook ];
           buildInputs = pkgs.lib.optionals isLinux [ pkgs.stdenv.cc.cc.lib ];
           dontConfigure = true;
           dontBuild = true;
           dontStrip = true;
-          installPhase = ''
+          installPhase = if isBinary then ''
+            runHook preInstall
+            install -Dm755 $src $out/bin/${builtins.head tool.binaries}
+            runHook postInstall
+          '' else ''
             runHook preInstall
             ${pkgs.lib.concatMapStrings
               (b: "install -Dm755 ${b} $out/bin/${builtins.baseNameOf b}\n") tool.binaries}
             runHook postInstall
           '';
-        };
+        } // (if isBinary then { dontUnpack = true; } else { sourceRoot = artifact.dir; }));
 
       packagesFor = system: pkgs:
         nixpkgs.lib.genAttrs toolNames (upstreamBinary system pkgs);
@@ -110,6 +115,16 @@
             echo "railway: $railway_reported"
             [ "$railway_reported" = "railway ${toolchain.railway.version}" ] \
               || { echo "railway version mismatch" >&2; exit 1; }
+            conftest_reported="$(${tools.conftest}/bin/conftest --version | head -1)"
+            echo "conftest: $conftest_reported"
+            [ "$conftest_reported" = "Conftest: ${toolchain.conftest.version}" ] \
+              || { echo "conftest version mismatch" >&2; exit 1; }
+            regal_reported="$(${tools.regal}/bin/regal version | head -1)"
+            echo "regal: $regal_reported"
+            case "$regal_reported" in
+              "Version:"*" ${toolchain.regal.version}") ;;
+              *) echo "regal version mismatch" >&2; exit 1 ;;
+            esac
             echo ok > $out
           '';
         });

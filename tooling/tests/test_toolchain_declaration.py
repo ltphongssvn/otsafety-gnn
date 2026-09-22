@@ -46,7 +46,9 @@ def test_every_artifact_carries_a_sha256_and_a_directory() -> None:
             digest = artifact.sha256
             assert len(digest) == 64, f"{name}/{platform} has no full digest"
             assert artifact.url.startswith("https://"), f"{name}/{platform} url"
-            assert artifact.dir, f"{name}/{platform} has no dir"
+            assert (artifact.dir is not None) == (artifact.kind == "archive"), (
+                f"{name}/{platform} has no dir" + ", or names one it should not"
+            )
 
 
 def test_mise_carries_the_digest_verified_on_the_cluster() -> None:

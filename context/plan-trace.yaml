@@ -3579,3 +3579,14 @@ candidates:
   text: json-schema-to-zod emits z.string().datetime(), deprecated in Zod 4
   maps_to:
   - G.32
+- source: SESSION
+  ref: 'finding: bare binaries'
+  text: Regal ships bare binaries; toolchain.json, the flake and the bootstrap all assumed an archive with a folder
+  maps_to:
+  - G.5
+- source: SESSION
+  ref: 'cooldown: conftest 0.70.1'
+  text: conftest 0.70.1 was three days old; the pin is 0.70.0, ten days old
+  maps_to:
+  - G.5
+  - F.13
