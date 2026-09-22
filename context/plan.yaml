@@ -1454,6 +1454,16 @@ steps:
       - {loop: promise, side: data}
     done_when:
       - {kind: path, path: 'tooling/tests/test_commit_trailers.py'}
+  - id: 'G.30'
+    title: 'One mypy configuration, and type-checking extended to scripts/ and apps/site/tests/, which no task checks'
+    thread: G
+    phase: '8G'
+    depends_on: ['G.25']
+    source: 'two mypy configurations: the root one, with reasoned overrides for scripts and the site tests, is read by no task'
+    serves:
+      - {loop: constrain, side: code}
+    done_when:
+      - {kind: path, path: 'tooling/tests/test_type_coverage.py'}
 decisions:
   - id: 'X.SPIKE'
     title: 'Reference spike, the original thread B'

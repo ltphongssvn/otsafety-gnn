@@ -3515,3 +3515,18 @@ candidates:
   text: per-file ignores exempted whole directories with reasons no machine checked
   maps_to:
   - G.26
+- source: SESSION
+  ref: 'finding: two mypy configurations'
+  text: the root mypy configuration is read by no task; scripts/ and apps/site/tests/ are never type-checked
+  maps_to:
+  - G.30
+- source: SESSION
+  ref: 'finding: every model an explicit Any'
+  text: without Pydantic's plugin set to type its constructor, disallow_any_explicit reported every model class, 157 times
+  maps_to:
+  - G.25
+- source: SESSION
+  ref: 'finding: W&B is typed'
+  text: W&B ships py.typed; a Protocol written for an untyped library conflicted with its real types
+  maps_to:
+  - G.25

@@ -41,7 +41,8 @@ def test_the_committed_schema_matches_the_model(contract: str) -> None:
 
 def test_a_fixed_vocabulary_becomes_an_enum_the_site_can_check() -> None:
     """verdict and outcome were bare strings on the TypeScript side."""
-    verdict = schemas.json_schema("repository-settings-check/v1")["properties"]["verdict"]
+    schema: dict[str, Any] = schemas.json_schema("repository-settings-check/v1")
+    verdict = schema["properties"]["verdict"]
     assert verdict["enum"] == ["pass", "fail", "unknown"]
 
 
@@ -78,6 +79,7 @@ def test_the_reader_requires_every_field_and_fills_in_none(contract: str) -> Non
 
 
 def test_a_finding_is_a_checked_object_not_anything() -> None:
-    items = schemas.json_schema("repository-settings-check/v1")["properties"]["findings"]["items"]
+    schema: dict[str, Any] = schemas.json_schema("repository-settings-check/v1")
+    items = schema["properties"]["findings"]["items"]
     assert items["type"] == "object"
     assert {"rule_id", "reason_code", "message"} <= set(items["properties"])

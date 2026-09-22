@@ -42,7 +42,7 @@ says which code and which data produced it.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING
 
 from otsafety_tooling.artifacts import artifacts_root
 from otsafety_tooling.contracts.experiment_run import ExperimentRun
@@ -56,6 +56,12 @@ ARTIFACT_TYPE = "experiment-run"
 
 # Keys the adapter itself writes into the config. A parameter with one of these
 # names would silently overwrite a reproducibility fact, so it is refused.
+
+if TYPE_CHECKING:
+    # W&B ships py.typed: its own types check every call here. Imported at run
+    # time only inside the methods, since it stays an optional dependency.
+    import wandb
+
 RESERVED = frozenset(
     {
         "contract",
@@ -122,12 +128,12 @@ class WandbTracker:
         try:
             wb.summary.update(dict(run.metrics))
             document = self._attach_record(Path(wb.dir), run)
-            wb.log_artifact(self._artifact(wandb, run, document))
+            wb.log_artifact(self._artifact(run, document))
         finally:
             wb.finish(exit_code=0 if run.status == "completed" else 1)
 
     @staticmethod
-    def _facts(run: ExperimentRun) -> dict[str, Any]:
+    def _facts(run: ExperimentRun) -> dict[str, object]:
         """The reproducibility facts, so W&B can answer what produced a number."""
         return {
             "contract": run.contract,
@@ -158,8 +164,10 @@ class WandbTracker:
         return document
 
     @staticmethod
-    def _artifact(wandb: Any, run: ExperimentRun, document: Path) -> Any:
+    def _artifact(run: ExperimentRun, document: Path) -> wandb.Artifact:
         """The record as a versioned artifact, addressable as name:version."""
+        import wandb
+
         artifact = wandb.Artifact(
             name=f"{run.experiment}-{run.id}",
             type=ARTIFACT_TYPE,

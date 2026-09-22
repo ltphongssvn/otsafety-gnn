@@ -37,7 +37,7 @@ import uuid
 from collections.abc import Sequence
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import IO, Any
+from typing import IO
 
 from otsafety_tooling.contracts.run_record import RunRecord
 
@@ -55,7 +55,7 @@ MACHINE_ID_PATH = Path.home() / ".config" / "otsafety-gnn" / "machine-id"
 DEFAULT_WINDOW = (80, 24)
 
 
-def should_use_tty(stdout: Any, stderr: Any) -> bool:
+def should_use_tty(stdout: object, stderr: object) -> bool:
     """Whether the child should run on a pseudo-terminal.
 
     BOTH STREAMS MUST BE TERMINALS. With output redirected or piped, the child
