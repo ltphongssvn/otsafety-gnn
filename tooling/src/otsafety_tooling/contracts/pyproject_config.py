@@ -15,9 +15,16 @@ class _Rest(BaseModel):
     model_config = ConfigDict(frozen=True, extra="ignore")
 
 
+class RuffLint(_Rest):
+    per_file_ignores: dict[str, tuple[str, ...]] = Field(
+        default_factory=dict, alias="per-file-ignores"
+    )
+
+
 class RuffConfig(_Rest):
     target_version: str | None = Field(default=None, alias="target-version")
     src: tuple[str, ...] = ()
+    lint: RuffLint | None = None
 
 
 class _Workspace(_Rest):

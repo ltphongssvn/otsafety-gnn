@@ -728,6 +728,10 @@ description = "Refuse a commit message that does not name its plan steps in a Pl
 usage = 'arg "<file>" help="The commit message file git passes to commit-msg"'
 run = 'uv run python -m otsafety_tooling.policy.trailers "${usage_file?}"'
 
+[tasks."policy:exemptions"]
+description = "Refuse any exemption from a rule that context/exemptions.yaml does not declare, and any entry gone stale"
+run = "uv run python -m otsafety_tooling.policy.exemptions"
+
 [tasks."policy:no-markdown"]
 description = "Refuse staged Markdown: Git is the record of this repository's documentation"
 run = "uv run python -m otsafety_tooling.policy.markdown"

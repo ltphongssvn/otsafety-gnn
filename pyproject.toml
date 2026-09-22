@@ -95,40 +95,11 @@ exclude = ["scripts/build_arch_onepager.py"]
 select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "N", "T20", "BLE", "TID251", "RUF100"]
 
 [tool.ruff.lint.per-file-ignores]
-# S101 assert is what pytest is built on. S603/S607 launch the site's own build
-# and preview through bun, by a fixed argument list with no shell. S310 opens
-# a hard-coded localhost URL to wait for that server. BLE001 catches whatever
-# the not-yet-listening socket raises while polling. E402 imports playwright
-# after importorskip, so the module still collects where the extra is absent.
+# Each entry's reason is in context/exemptions.yaml, whose scoped entries must
+# equal this table exactly; policy:exemptions and test_exemptions.py check it.
 "apps/site/tests/**" = ["S101", "S603", "S607", "S310", "BLE001", "E402"]
-# scripts/ WAS LINTED BY RUFF'S DEFAULTS UNTIL THIS FILE EXISTED, so selecting S
-# and T20 above surfaced eight findings in a file that had not changed. Each is
-# a reviewed decision, not a suppression of a real risk:
-#   T201  a bootstrap CLI prints what it installed; that is its purpose, and the
-#         tooling package carries the same exemption for its own entry points.
-#   S603  subprocess.run([executable, "--version"]) is a fixed argument list with
-#         no shell, verifying the binary it has just installed.
-#   S310  urlretrieve reads a URL from toolchain.json, and the NEXT line is
-#         verify(archive, plan.sha256). The digest is the control.
-#   S202  extractall runs inside a TemporaryDirectory on an archive whose sha256
-#         was verified first.
 "scripts/**" = ["T201", "S603", "S310", "S202"]
-# THE ONE-PAGER GENERATOR IS PRESERVED VERBATIM. It was rewritten once "to fit
-# the house style", and the rewrite silently dropped five of the sheet's nine
-# sections: the As Code and As Data columns, the SVG execution spine, the
-# workstream band and every inline emphasis. The sheet rendered and looked
-# complete. These are style rules only and none of them describes a defect:
-#   C408  dict(...) rather than a literal, which keeps each layer one readable
-#         call per row instead of a wall of braces.
-#   E501  the failure and guard strings are prose, and reflowing them to fit a
-#         column limit is exactly the editing that lost content before.
-#   N806  BX, BW, GAP, TOP, INK, RED are SVG geometry and colour constants,
-#         uppercase because that is what they are.
 "scripts/build_arch_onepager.py" = ["C408", "E501", "N806"]
-# THE TOOLING PACKAGE, once configured in tooling/pyproject.toml. Ruff does not
-# merge configuration files: the closest one wins outright, so two copies of this
-# policy were kept by hand, with identical banned-api tables. There is now one.
-# S101/S603/S607 as for the site's tests; the git entry points print by design.
 "tooling/tests/**" = ["S101", "S603", "S607"]
 "tooling/src/otsafety_tooling/git/*.py" = ["T201"]
 

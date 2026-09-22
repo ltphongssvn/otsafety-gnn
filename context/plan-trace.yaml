@@ -3505,3 +3505,13 @@ candidates:
   text: 13 inline suppressions duplicated per-file ignores and suppressed nothing
   maps_to:
   - G.26
+- source: SESSION
+  ref: 'finding: an ignore hiding our own type'
+  text: 'a type: ignore covered a client annotated object, so the MLflow call went unchecked'
+  maps_to:
+  - G.26
+- source: SESSION
+  ref: 'finding: reasons only in comments'
+  text: per-file ignores exempted whole directories with reasons no machine checked
+  maps_to:
+  - G.26
