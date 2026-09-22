@@ -739,6 +739,10 @@ fi
 description = "Observe the plan on origin/develop: status derived from evidence, recorded as data, never typed"
 run = "uv run python -m otsafety_tooling.planning"
 
+[tasks."policy:no-markdown"]
+description = "Refuse staged Markdown: Git is the record of this repository's documentation"
+run = "uv run python -m otsafety_tooling.policy.markdown"
+
 [tasks.pr]
 description = "Open (or reuse) a PR into develop and block until it is merged"
 # Verifies every check before merging with a merge commit, then confirms the

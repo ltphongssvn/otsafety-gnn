@@ -3450,3 +3450,27 @@ candidates:
   maps_to:
   - '8.12'
   - '7.10'
+- source: SESSION
+  ref: 'directive: no Markdown'
+  text: 'no Markdown on disk: Git is the record of repository documentation'
+  maps_to:
+  - G.28
+  - X.README
+  - X.SECMD
+- source: SESSION
+  ref: 'directive: policy, permanently'
+  text: enforce the Markdown ban by policy so it cannot creep back
+  maps_to:
+  - G.28
+  - G.5
+- source: SESSION
+  ref: '2026 practice: commit as the unit of knowledge'
+  text: decisions bound to the change that enacted them, queryable through trailers
+  maps_to:
+  - G.29
+- source: SESSION
+  ref: 'finding: a message citing a missing document'
+  text: PR 24's message cited a context document that was never written
+  maps_to:
+  - G.28
+  - G.29
