@@ -146,7 +146,7 @@ def main() -> int:
         path = REPO_ROOT / schema_path(contract)
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(json_schema(contract), indent=2) + "\n", encoding="utf-8")
-        print(f"wrote {path.relative_to(REPO_ROOT)}")  # noqa: T201 -- this is the command's output
+        print(f"wrote {path.relative_to(REPO_ROOT)}")  # noqa: T201
     return 0
 
 

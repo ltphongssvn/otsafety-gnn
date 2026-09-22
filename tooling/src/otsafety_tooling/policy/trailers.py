@@ -100,7 +100,7 @@ def main(argv: list[str]) -> int:
         message, plan_steps(REPO_ROOT, ":"), is_merge=(REPO_ROOT / merge_head).exists()
     )
     if found:
-        print("refusing: " + "; ".join(found), file=sys.stderr)  # noqa: T201 -- this is the command's output
+        print("refusing: " + "; ".join(found), file=sys.stderr)  # noqa: T201
         return 1
     return 0
 

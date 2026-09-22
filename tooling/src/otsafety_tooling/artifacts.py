@@ -57,7 +57,7 @@ def artifacts_root(root: Path) -> Path:
 
 def main() -> int:
     """Print the shared evidence root, as the only line of output."""
-    print(artifacts_root(REPO_ROOT), flush=True)  # noqa: T201 -- this is the command's output
+    print(artifacts_root(REPO_ROOT), flush=True)  # noqa: T201
     return 0
 
 

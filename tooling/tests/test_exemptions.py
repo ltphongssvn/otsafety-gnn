@@ -92,3 +92,16 @@ def test_an_untracked_file_is_scanned(tmp_path: Path) -> None:
     # Assembled from fragments, so this file does not itself read as carrying one.
     (tmp_path / "new.py").write_text("print(1)  # " + "noqa: T201\n", encoding="utf-8")
     assert inline_suppressions(tmp_path)[("new.py", "T201")] == 1
+
+
+def test_a_suppression_carries_its_code_only(tmp_path: Path) -> None:
+    """A trailing description is a second copy of the register's reason, free to drift."""
+    from otsafety_tooling.git.env import git
+    from otsafety_tooling.policy.exemptions import described
+
+    assert git("init", "-q", cwd=tmp_path).returncode == 0
+    marker = "# " + "noqa: T201"
+    (tmp_path / "described.py").write_text(
+        f"print(1)  {marker} -- a reason, here\n", encoding="utf-8"
+    )
+    assert any("described.py:1" in p and "code only" in p for p in described(tmp_path))

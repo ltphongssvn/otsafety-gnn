@@ -46,7 +46,7 @@ def staged(root: Path) -> list[str]:
 def main() -> int:
     found = forbidden(staged(REPO_ROOT))
     if found:
-        print(  # noqa: T201 -- this is the command's output
+        print(  # noqa: T201
             "refusing: Markdown is not kept in this repository. Record it in the commit "
             "message, or in the code and configuration it explains:\n  " + "\n  ".join(found),
             file=sys.stderr,

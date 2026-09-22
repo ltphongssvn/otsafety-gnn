@@ -3662,3 +3662,8 @@ candidates:
   text: mise ignores auto_update in non-global config for security reasons
   maps_to:
   - G.33
+- source: SESSION
+  ref: 'observed: described suppressions'
+  text: 23 suppressions carried a description duplicating the register; 10 still promised a register that already existed
+  maps_to:
+  - G.26
