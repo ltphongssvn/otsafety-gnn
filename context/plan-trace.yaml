@@ -3667,3 +3667,16 @@ candidates:
   text: 23 suppressions carried a description duplicating the register; 10 still promised a register that already existed
   maps_to:
   - G.26
+- source: SESSION
+  ref: 'directive: plan updated as issues surface'
+  text: every issue discovered, and every task it changes, goes into the plan as found, and the status is re-observed
+  maps_to:
+  - G.0
+- source: SESSION
+  ref: 'directive: zero technical debt'
+  text: known issues fixed to zero before the paused task resumes; nothing deferred
+  maps_to:
+  - G.34
+  - G.35
+  - G.30
+  - G.32

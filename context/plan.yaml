@@ -1295,7 +1295,7 @@ steps:
     title: 'Every context and conf YAML file exported through the contracts pipeline and loaded by the site as content collections with the generated Zod'
     thread: G
     phase: '8G'
-    depends_on: ['G.2', 'G.8']
+    depends_on: ['G.2', 'G.8', 'G.32', 'G.30']
     source: 'one source for the plan, the one-pager and the site; 2026 practice: one YAML source, HTML and PDF from one template'
     serves:
       - {loop: promise, side: code}
@@ -1493,6 +1493,24 @@ steps:
       - {loop: instrument, side: data}
     done_when:
       - {kind: task, name: 'toolchain:verify'}
+  - id: 'G.34'
+    title: 'mise cannot update itself past its pin: a notice beside every install makes self-update and auto-update refuse'
+    thread: G
+    phase: '8G'
+    source: 'a standalone mise self-updates normally; auto_update requires self-update to be available'
+    serves:
+      - {loop: constrain, side: code}
+    done_when:
+      - {kind: pr, number: 36}
+  - id: 'G.35'
+    title: 'A suppression carries its code alone; its reason lives only in the register, and the floor refuses a description'
+    thread: G
+    phase: '8G'
+    source: "23 suppressions duplicated the register's reason; 10 still promised a register that already existed"
+    serves:
+      - {loop: constrain, side: code}
+    done_when:
+      - {kind: pr, number: 37}
 decisions:
   - id: 'X.SPIKE'
     title: 'Reference spike, the original thread B'
