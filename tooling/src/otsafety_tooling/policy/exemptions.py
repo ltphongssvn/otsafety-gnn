@@ -67,8 +67,38 @@ def per_file_ignores(root: Path) -> dict[str, tuple[str, ...]]:
     return {} if ruff is None or ruff.lint is None else dict(ruff.lint.per_file_ignores)
 
 
+_DESCRIBED = re.compile(
+    # ATOMIC, so the codes cannot give characters back: S603 is never read as S60 then "3".
+    # [ \t], not \s, so a match never reaches past the end of its own line.
+    "#"
+    + r"[ \t]*(?>noqa:[ \t]*[A-Z]+[0-9]+(?:[ \t]*,[ \t]*[A-Z]+[0-9]+)*|type:[ \t]*"
+    + "ignore"
+    + r"(?:\[[a-z-, ]+\])?)[ \t]*\S"
+)
+
+
+def described(root: Path) -> list[str]:
+    """Every suppression followed by text: a second copy of the register's reason.
+
+    Ten such comments promised a register that did not exist yet, and still read that
+    way long after it did. The reason lives in context/exemptions.yaml, and only there.
+    """
+    found: list[str] = []
+    for path in candidates(root):
+        if not path.endswith(".py") or not (root / path).is_file():
+            continue
+        text = (root / path).read_text(encoding="utf-8", errors="replace")
+        for number, line in enumerate(text.splitlines(), 1):
+            if _DESCRIBED.search(line):
+                found.append(
+                    f"{path}:{number}: a suppression carries its code only; "
+                    "its reason is in the register"
+                )
+    return found
+
+
 def problems(root: Path, register: ExemptionRegister) -> list[str]:
-    out: list[str] = []
+    out: list[str] = described(root)
     found = inline_suppressions(root)
     declared = {(i.path, i.rule): i.count for i in register.inline}
     for key, n in sorted(found.items()):
@@ -97,7 +127,7 @@ def main() -> int:
         message = f"refusing: every exemption needs its entry in {REGISTER}:\n  " + "\n  ".join(
             found
         )
-        print(message, file=sys.stderr)  # noqa: T201 -- this is the command's output
+        print(message, file=sys.stderr)  # noqa: T201
         return 1
     return 0
 

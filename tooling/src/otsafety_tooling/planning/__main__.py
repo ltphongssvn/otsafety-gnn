@@ -29,8 +29,8 @@ def main() -> int:
     folder.mkdir(parents=True, exist_ok=True)
     record = folder / f"{datetime.now(UTC).strftime('%Y%m%dT%H%M%S%fZ')}.json"
     record.write_text(status.model_dump_json(), encoding="utf-8")
-    print(render(plan, status))  # noqa: T201 -- this is the command's output
-    print(f"\nrecorded: {record}")  # noqa: T201 -- this is the command's output
+    print(render(plan, status))  # noqa: T201
+    print(f"\nrecorded: {record}")  # noqa: T201
     return 0
 
 

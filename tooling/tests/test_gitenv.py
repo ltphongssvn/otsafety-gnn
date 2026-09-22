@@ -39,7 +39,7 @@ def test_scrubbed_env_keeps_unrelated_variables(monkeypatch: pytest.MonkeyPatch)
     monkeypatch.setenv("GIT_DIR", "/somewhere/else/.git")
     environment = scrubbed_env()
     assert "PATH" in environment
-    assert environment["PATH"] == os.environ["PATH"]  # noqa: TID251 -- tests the scrubber against the real environment; registered by G.26
+    assert environment["PATH"] == os.environ["PATH"]  # noqa: TID251
 
 
 def test_raw_subprocess_is_hijacked_by_git_dir(
@@ -113,7 +113,7 @@ def test_a_poisoned_git_dir_cannot_retarget_a_fixture_repository(
     hijacked = subprocess.run(
         ["git", "rev-parse", "--absolute-git-dir"],
         cwd=scratch,
-        env=dict(os.environ),  # noqa: TID251 -- tests the scrubber against the real environment; registered by G.26
+        env=dict(os.environ),  # noqa: TID251
         capture_output=True,
         text=True,
         check=True,
@@ -135,6 +135,6 @@ def test_a_poisoned_git_dir_cannot_retarget_a_fixture_repository(
 
 def test_the_conftest_guard_removes_routing_variables() -> None:
     """THE ENFORCEMENT, ASSERTED RATHER THAN ASSUMED."""
-    assert "GIT_DIR" not in os.environ  # noqa: TID251 -- tests the scrubber against the real environment; registered by G.26
-    assert "GIT_WORK_TREE" not in os.environ  # noqa: TID251 -- tests the scrubber against the real environment; registered by G.26
-    assert "GIT_INDEX_FILE" not in os.environ  # noqa: TID251 -- tests the scrubber against the real environment; registered by G.26
+    assert "GIT_DIR" not in os.environ  # noqa: TID251
+    assert "GIT_WORK_TREE" not in os.environ  # noqa: TID251
+    assert "GIT_INDEX_FILE" not in os.environ  # noqa: TID251

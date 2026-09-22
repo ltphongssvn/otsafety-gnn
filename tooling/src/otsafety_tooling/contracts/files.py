@@ -21,12 +21,12 @@ def read_json[M: BaseModel](path: Path, model: type[M]) -> M:
 
 
 def read_yaml[M: BaseModel](path: Path, model: type[M]) -> M:
-    loaded = yaml.safe_load(path.read_text(encoding="utf-8"))  # noqa: TID251 -- the sanctioned reader
+    loaded = yaml.safe_load(path.read_text(encoding="utf-8"))  # noqa: TID251
     return model.model_validate(loaded)
 
 
 def read_toml[M: BaseModel](path: Path, model: type[M]) -> M:
-    loaded = tomllib.loads(path.read_text(encoding="utf-8"))  # noqa: TID251 -- the sanctioned reader
+    loaded = tomllib.loads(path.read_text(encoding="utf-8"))  # noqa: TID251
     return model.model_validate(loaded)
 
 
@@ -34,8 +34,8 @@ def read_toml[M: BaseModel](path: Path, model: type[M]) -> M:
 # the tasks on the integration branch, where the working tree may differ. The same
 # sanctioned calls, so the policy's single place to parse stays single.
 def parse_yaml[M: BaseModel](text: str, model: type[M]) -> M:
-    return model.model_validate(yaml.safe_load(text))  # noqa: TID251 -- the sanctioned reader
+    return model.model_validate(yaml.safe_load(text))  # noqa: TID251
 
 
 def parse_toml[M: BaseModel](text: str, model: type[M]) -> M:
-    return model.model_validate(tomllib.loads(text))  # noqa: TID251 -- the sanctioned reader
+    return model.model_validate(tomllib.loads(text))  # noqa: TID251

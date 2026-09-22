@@ -65,7 +65,7 @@ def main(argv: list[str]) -> int:
     try:
         current = settings()
     except ValidationError as error:
-        print(f"refusing: {error}", file=sys.stderr)  # noqa: T201 -- this is the command's output
+        print(f"refusing: {error}", file=sys.stderr)  # noqa: T201
         return 1
     key = "present" if current.wandb_api_key is not None else "absent"
     for line in (
@@ -74,7 +74,7 @@ def main(argv: list[str]) -> int:
         f"WANDB_ENTITY={current.wandb_entity or 'unset'}",
         f"WANDB_API_KEY={key}",
     ):
-        print(line)  # noqa: T201 -- this is the command's output
+        print(line)  # noqa: T201
     return 0
 
 
