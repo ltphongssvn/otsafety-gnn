@@ -598,7 +598,7 @@ steps:
     title: 'OPA and Regal pinned; Rego proves both bans exist'
     thread: G
     phase: '8G'
-    depends_on: ['G.4', 'G.24', 'G.25', 'G.26', 'G.27']
+    depends_on: ['G.4', 'G.24', 'G.25', 'G.26', 'G.27', 'G.28']
     source: 'cs1090a-recsys E5 E6'
     serves:
       - {loop: constrain, side: code}
@@ -1158,7 +1158,7 @@ steps:
     done_when:
       - {kind: path, path: 'deploy/lightning/job.yaml'}
   - id: '6.8'
-    title: 'README: what the project is and how to run it'
+    title: "The repository's description and homepage set through the repository-settings contract, pointing at the site"
     thread: B
     phase: '6'
     depends_on: ['6.3']
@@ -1166,7 +1166,7 @@ steps:
     serves:
       - {loop: promise, side: code}
     done_when:
-      - {kind: path, path: 'README.md'}
+      - {kind: path, path: 'tooling/tests/test_repository_about.py'}
   - id: '6.9'
     title: 'A licence, selected by research into what fits a public research repository, committed'
     thread: B
@@ -1198,7 +1198,7 @@ steps:
     done_when:
       - {kind: task, name: 'secrets:scan'}
   - id: 'G.16'
-    title: 'SECURITY.md: the three layers and how to report'
+    title: 'Private vulnerability reporting enabled through the repository-settings contract'
     thread: G
     phase: '8G'
     depends_on: ['G.15']
@@ -1206,7 +1206,7 @@ steps:
     serves:
       - {loop: promise, side: code}
     done_when:
-      - {kind: path, path: 'SECURITY.md'}
+      - {kind: path, path: 'tooling/tests/test_vulnerability_reporting.py'}
   - id: '10.6'
     title: 'Weights and Biases online on Lightning: entity declared there, offline runs synced'
     thread: D
@@ -1434,6 +1434,26 @@ steps:
       - {loop: constrain, side: code}
     done_when:
       - {kind: path, path: 'tooling/tests/test_generated_zod_is_strict.py'}
+  - id: 'G.28'
+    title: 'No Markdown in the repository: a pre-commit floor over staged files, a gate over tracked files run in hooks and CI, one rule behind both'
+    thread: G
+    phase: '8G'
+    source: 'Git is the record of repository documentation; a Markdown file beside the code drifts from what it describes'
+    serves:
+      - {loop: constrain, side: code}
+      - {loop: constrain, side: data}
+    done_when:
+      - {kind: path, path: 'tooling/tests/test_no_markdown.py'}
+  - id: 'G.29'
+    title: 'Every commit names its plan steps in a Plan-Step trailer, validated against the plan'
+    thread: G
+    phase: '8G'
+    source: 'Git is the record of repository documentation; a Markdown file beside the code drifts from what it describes'
+    serves:
+      - {loop: promise, side: code}
+      - {loop: promise, side: data}
+    done_when:
+      - {kind: path, path: 'tooling/tests/test_commit_trailers.py'}
 decisions:
   - id: 'X.SPIKE'
     title: 'Reference spike, the original thread B'
@@ -1586,3 +1606,13 @@ decisions:
     state: declined
     reason: 'uv provides the interpreter, identical on all three environments, so Nix never builds Python; toolchain.json pins uv, and uv enforces the version'
     source: 'commit e560610'
+  - id: X.README
+    title: 'A README.md'
+    state: superseded
+    reason: "the live site, derived from data, is the project's front door; the repository's description and homepage are settings, step 6.8"
+    source: 'Git is the record of repository documentation; a Markdown file beside the code drifts from what it describes'
+  - id: X.SECMD
+    title: 'A SECURITY.md'
+    state: superseded
+    reason: 'private vulnerability reporting is a repository setting, step G.16; a policy document beside the code would drift'
+    source: 'Git is the record of repository documentation; a Markdown file beside the code drifts from what it describes'
