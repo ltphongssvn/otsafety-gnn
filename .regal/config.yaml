@@ -1,0 +1,4 @@
+# .regal/config.yaml
+# The policy is Rego v1, the default of the OPA engine Conftest embeds.
+project:
+  rego-version: 1

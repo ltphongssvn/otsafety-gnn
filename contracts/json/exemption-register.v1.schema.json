@@ -76,6 +76,42 @@
       },
       "title": "Inline",
       "type": "array"
+    },
+    "eslint": {
+      "default": [],
+      "items": {
+        "additionalProperties": false,
+        "description": "Protected ESLint rules a file does not enforce. ESLint allows no inline disables,\nso a file-scoped block in eslint.config.mjs is the only exemption; the Rego policy\nchecks each against ESLint's effective configuration, in both directions.",
+        "properties": {
+          "path": {
+            "minLength": 1,
+            "title": "Path",
+            "type": "string"
+          },
+          "rules": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Rules",
+            "type": "array"
+          },
+          "reason": {
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "rules",
+          "reason"
+        ],
+        "title": "EslintExemption",
+        "type": "object"
+      },
+      "title": "Eslint",
+      "type": "array"
     }
   },
   "required": [

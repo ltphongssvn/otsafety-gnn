@@ -17,7 +17,13 @@
     "binaries": [
       "uv",
       "uvx"
-    ]
+    ],
+    "probe": {
+      "args": [
+        "--version"
+      ],
+      "pattern": "^uv {version} "
+    }
   },
   "bun": {
     "version": "1.4.2",
@@ -35,7 +41,13 @@
     },
     "binaries": [
       "bun"
-    ]
+    ],
+    "probe": {
+      "args": [
+        "--version"
+      ],
+      "pattern": "^{version}$"
+    }
   },
   "gh": {
     "version": "2.101.0",
@@ -53,7 +65,13 @@
     },
     "binaries": [
       "bin/gh"
-    ]
+    ],
+    "probe": {
+      "args": [
+        "--version"
+      ],
+      "pattern": "^gh version {version} "
+    }
   },
   "mise": {
     "version": "2026.9.9",
@@ -71,7 +89,13 @@
     },
     "binaries": [
       "bin/mise"
-    ]
+    ],
+    "probe": {
+      "args": [
+        "--version"
+      ],
+      "pattern": "^{version} "
+    }
   },
   "railway": {
     "_comment": "THE DEPLOY TOOL, PINNED LIKE EVERY OTHER EXECUTABLE. Railway ships several releases a day and the newest was hours old, so this is the newest release at least seven days old: compromised releases are usually caught within days, which is why uv has exclude-newer and pnpm minimumReleaseAge. Railway publishes no checksum file, so these are the digests GitHub recorded for each asset at upload. The Linux build is musl, statically linked. The archive holds one file at its root, the first tool here with no top-level directory.",
@@ -90,7 +114,13 @@
     },
     "binaries": [
       "railway"
-    ]
+    ],
+    "probe": {
+      "args": [
+        "--version"
+      ],
+      "pattern": "^railway {version}$"
+    }
   },
   "render_image": {
     "_comment": "THE BROWSER THAT RENDERS THE DELIVERABLE, pinned like every other executable here. It was the one exception: Chromium came from `playwright install` and the text-shaping stack from whatever the machine had -- fontconfig and FreeType on Linux, CoreText on macOS. Identical HTML then rendered one page on a laptop and two on a runner, and four fixes inside the sheet all missed, because the unpinned thing was the renderer rather than the document. THE amd64 MANIFEST DIGEST, NOT THE INDEX: an index resolves to arm64 here and amd64 on a runner, which is the same divergence in a new hat.",
@@ -127,7 +157,13 @@
     },
     "binaries": [
       "conftest"
-    ]
+    ],
+    "probe": {
+      "args": [
+        "--version"
+      ],
+      "pattern": "^Conftest: {version}$"
+    }
   },
   "regal": {
     "_comment": "The Rego linter, over the policy itself.",
@@ -146,6 +182,12 @@
     },
     "binaries": [
       "regal"
-    ]
+    ],
+    "probe": {
+      "args": [
+        "version"
+      ],
+      "pattern": "^Version: +{version}$"
+    }
   }
 }

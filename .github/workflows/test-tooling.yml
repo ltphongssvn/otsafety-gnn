@@ -57,6 +57,10 @@ jobs:
       - name: Trust this checkout's task configuration
         run: mise trust
 
+      # PROVENANCE, NOT ONLY PINS: every tool this job runs is the pinned binary.
+      - name: Prove the toolchain
+        run: mise run toolchain:verify
+
       - name: Lint, and check formatting and spelling
         run: mise run lint
 

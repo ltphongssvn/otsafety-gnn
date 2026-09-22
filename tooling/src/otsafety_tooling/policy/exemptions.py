@@ -19,8 +19,8 @@ from pathlib import Path
 from otsafety_tooling.contracts.exemptions import ExemptionRegister
 from otsafety_tooling.contracts.files import read_toml, read_yaml
 from otsafety_tooling.contracts.pyproject_config import WorkspacePyproject
+from otsafety_tooling.git.env import git
 from otsafety_tooling.paths import REPO_ROOT
-from otsafety_tooling.policy.markdown import tracked
 
 REGISTER = Path("context") / "exemptions.yaml"
 SCANNED = (".py", ".ts", ".tsx", ".astro", ".mjs")
@@ -30,9 +30,23 @@ _ESLINT = re.compile("eslint" + "-disable" + r"(?:-next-line|-line)?\b")
 _TS = re.compile("@" + "ts-" + r"(ignore|expect-error|nocheck)")
 
 
+def candidates(root: Path) -> list[str]:
+    """Every file a developer has: tracked, plus untracked files git does not ignore.
+
+    Tracked files alone made the scan disagree with the working tree in both
+    directions: a new file's suppression was invisible until staged, and a new
+    file's register entries read as stale. In CI and at commit every relevant
+    file is tracked, so there the two sets are the same.
+    """
+    listed = git("ls-files", "-z", "--cached", "--others", "--exclude-standard", cwd=root)
+    if listed.returncode != 0:
+        raise SystemExit(f"git ls-files failed: {listed.stderr.strip()}")
+    return sorted({path for path in listed.stdout.split("\0") if path})
+
+
 def inline_suppressions(root: Path) -> Counter[tuple[str, str]]:
     found: Counter[tuple[str, str]] = Counter()
-    for path in tracked(root):
+    for path in candidates(root):
         if not path.endswith(SCANNED) or not (root / path).is_file():
             continue
         for line in (root / path).read_text(encoding="utf-8", errors="replace").splitlines():
