@@ -31,9 +31,9 @@ so any worktree can write a log with
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
+from otsafety_tooling.contracts.settings import settings
 from otsafety_tooling.git.worktree import parse_records
 from otsafety_tooling.paths import REPO_ROOT
 
@@ -43,9 +43,9 @@ OVERRIDE_VARIABLE = "OTSAFETY_ARTIFACTS"
 
 def artifacts_root(root: Path) -> Path:
     """The evidence root: OTSAFETY_ARTIFACTS if set, else the main checkout's."""
-    override = os.environ.get(OVERRIDE_VARIABLE)
-    if override:
-        return Path(override).resolve()
+    override = settings().artifacts
+    if override is not None:
+        return override.resolve()
     main = parse_records(root)[0]
     if "bare" in main:
         raise RuntimeError(

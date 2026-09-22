@@ -9,13 +9,13 @@ test proves nothing about the thing under test.
 
 from __future__ import annotations
 
-import os
 import subprocess
 import time
 from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
+from otsafety_tooling.git.env import scrubbed_env
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SITE = REPO_ROOT / "apps" / "site"
@@ -147,7 +147,7 @@ def site_server(tmp_path_factory: pytest.TempPathFactory) -> Iterator[str]:
     artifacts = tmp_path_factory.mktemp("artifacts")
     _seed_evidence(artifacts)
     _seed_experiments(artifacts)
-    env = {**os.environ, "OTSAFETY_ARTIFACTS": str(artifacts)}
+    env = {**scrubbed_env(), "OTSAFETY_ARTIFACTS": str(artifacts)}
     if not (SITE / "package.json").is_file():
         pytest.fail(f"no site at {SITE}: run `mise run site:install` after scaffolding")
 

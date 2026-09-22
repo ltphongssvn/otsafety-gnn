@@ -3474,3 +3474,14 @@ candidates:
   maps_to:
   - G.28
   - G.29
+- source: SESSION
+  ref: 'finding: validation in bash'
+  text: wandb:check enforced online-needs-an-entity-and-a-key in a shell script no model or test could see
+  maps_to:
+  - G.24
+- source: SESSION
+  ref: 'finding: one variable, two languages'
+  text: OTSAFETY_ARTIFACTS read raw by Python and by the site, with no shared definition
+  maps_to:
+  - G.24
+  - G.2

@@ -41,12 +41,12 @@ says which code and which data produced it.
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 from typing import Any
 
 from otsafety_tooling.artifacts import artifacts_root
 from otsafety_tooling.contracts.experiment_run import ExperimentRun
+from otsafety_tooling.contracts.settings import settings
 from otsafety_tooling.paths import REPO_ROOT
 
 RECORD_FILENAME = "experiment-run.json"
@@ -88,7 +88,7 @@ def default_directory() -> Path | None:
     MLflow's store resolves the same way. Mode is different: that stays wholly
     with the environment, and nothing here reads or sets it.
     """
-    if os.environ.get("WANDB_DIR"):
+    if settings().wandb_dir is not None:
         return None
     return artifacts_root(REPO_ROOT)
 

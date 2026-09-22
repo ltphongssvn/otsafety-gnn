@@ -27,7 +27,7 @@ from otsafety_tooling.git.env import scrubbed_env
 
 def _routing_names() -> set[str]:
     """Whatever scrubbed_env() removes, derived by comparison."""
-    return set(os.environ) - set(scrubbed_env())
+    return set(os.environ) - set(scrubbed_env())  # noqa: TID251 -- tests the scrubber against the real environment; registered by G.26
 
 
 @pytest.fixture(autouse=True)

@@ -12,6 +12,7 @@
 // real failing verdict with no date and blank findings. Every record is parsed
 // with Zod generated from the Pydantic contract, so a mismatch stops the build
 // with the file's path, and the types below are derived, never written.
+import { projectSettingsV1Schema } from "../contracts/project-settings.v1.gen";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
@@ -28,8 +29,12 @@ import { runRecordV1Schema } from "../contracts/run-record.v1.gen";
 // hermetic: they had seeded only when a folder was empty, so on CI the page
 // showed fixtures and on a machine with real experiments it showed real data,
 // and the same test asserted against different data on different machines.
+// THE ENVIRONMENT IS A TRUST BOUNDARY, parsed through Zod generated from the one
+// settings model; OTSAFETY_ARTIFACTS is defined once, in Pydantic.
+const environment = projectSettingsV1Schema.parse(process.env);
+
 export const ARTIFACTS =
-  process.env.OTSAFETY_ARTIFACTS ??
+  environment.OTSAFETY_ARTIFACTS ??
   new URL("../../../../../.artifacts", import.meta.url).pathname;
 
 export type RunRecord = z.infer<typeof runRecordV1Schema>;

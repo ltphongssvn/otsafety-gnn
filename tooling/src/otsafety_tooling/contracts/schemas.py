@@ -44,16 +44,20 @@ def _discover() -> dict[str, type[BaseModel]]:
             continue
         module = importlib.import_module(f"{_package.__name__}.{info.name}")
         for obj in vars(module).values():
-            if not (
-                isinstance(obj, type)
-                and issubclass(obj, BaseModel)
-                and "contract" in obj.model_fields
-            ):
+            if not (isinstance(obj, type) and issubclass(obj, BaseModel)):
                 continue
-            annotation = obj.model_fields["contract"].annotation
-            if typing.get_origin(annotation) is not typing.Literal:
-                continue
-            for contract in typing.get_args(annotation):
+            # A contract declares its id as a literal `contract` field or, where nothing
+            # serialises one -- the environment -- as a CONTRACT_ID class variable.
+            declared = getattr(obj, "CONTRACT_ID", None)
+            annotation = (
+                obj.model_fields["contract"].annotation if "contract" in obj.model_fields else None
+            )
+            ids = ((declared,) if isinstance(declared, str) else ()) + (
+                typing.get_args(annotation)
+                if typing.get_origin(annotation) is typing.Literal
+                else ()
+            )
+            for contract in ids:
                 if found.get(contract, obj) is not obj:
                     raise RuntimeError(f"two models declare {contract}")
                 found[contract] = obj
