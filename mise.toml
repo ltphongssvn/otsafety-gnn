@@ -218,23 +218,7 @@ description = "Report the W&B mode, and refuse an online run that would land now
 # and it succeeds, writing to whoever ran it personal project -- silent, and only
 # noticed when someone goes looking for results that are not there. This refuses
 # the second, before a run rather than after it.
-run = '''
-set -euo pipefail
-echo "WANDB_MODE=${WANDB_MODE:-unset}"
-echo "WANDB_PROJECT=${WANDB_PROJECT:-unset}"
-echo "WANDB_ENTITY=${WANDB_ENTITY:-unset}"
-echo "WANDB_API_KEY=$([ -n "${WANDB_API_KEY:-}" ] && echo present || echo absent)"
-if [ "${WANDB_MODE:-offline}" = "online" ]; then
-  [ -n "${WANDB_ENTITY:-}" ] || {
-    echo "refusing: WANDB_MODE=online with no WANDB_ENTITY; runs would land in a personal project" >&2
-    exit 1
-  }
-  [ -n "${WANDB_API_KEY:-}" ] || {
-    echo "refusing: WANDB_MODE=online with no WANDB_API_KEY" >&2
-    exit 1
-  }
-fi
-'''
+run = "uv run python -m otsafety_tooling.contracts.settings check"
 
 [tasks."wandb:sync"]
 description = "Push offline W&B runs to the server; needs a key, idempotent"

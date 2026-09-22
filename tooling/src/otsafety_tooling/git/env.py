@@ -55,7 +55,7 @@ def scrubbed_env() -> dict[str, str]:
     GIT_ name is removed rather than a guessed subset: over-removing makes git
     resolve from cwd, which is what the caller asked for.
     """
-    environment = dict(os.environ)
+    environment = dict(os.environ)  # noqa: TID251 -- builds a child process's environment; registered by G.26
     names = _local_env_var_names()
 
     if names is None:
@@ -75,11 +75,11 @@ def routing_overrides_present() -> dict[str, str]:
     """
     names = _local_env_var_names()
     if names is None:
-        names = [key for key in os.environ if key.startswith("GIT_")]
+        names = [key for key in os.environ if key.startswith("GIT_")]  # noqa: TID251 -- builds a child process's environment; registered by G.26
     return {
-        name: os.environ[name]
+        name: os.environ[name]  # noqa: TID251 -- builds a child process's environment; registered by G.26
         for name in names
-        if name in os.environ and name not in NON_ROUTING_VARS
+        if name in os.environ and name not in NON_ROUTING_VARS  # noqa: TID251 -- builds a child process's environment; registered by G.26
     }
 
 

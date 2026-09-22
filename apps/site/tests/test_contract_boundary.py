@@ -16,9 +16,10 @@ refuses it, naming the file.
 from __future__ import annotations
 
 import json
-import os
 import subprocess
 from pathlib import Path
+
+from otsafety_tooling.git.env import scrubbed_env
 
 SITE = Path(__file__).resolve().parents[1]
 
@@ -39,7 +40,7 @@ def test_the_drifted_shape_fails_the_build(tmp_path: Path) -> None:
     built = subprocess.run(  # noqa: S603
         ["bun", "x", "astro", "build", "--outDir", str(tmp_path / "dist")],  # noqa: S607
         cwd=SITE,
-        env={**os.environ, "OTSAFETY_ARTIFACTS": str(tmp_path / "artifacts")},
+        env={**scrubbed_env(), "OTSAFETY_ARTIFACTS": str(tmp_path / "artifacts")},
         capture_output=True,
         text=True,
         check=False,

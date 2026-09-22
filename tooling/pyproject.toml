@@ -14,6 +14,8 @@ dependencies = [
     # that never runs on a runner, and the config it guards names datasets that
     # silently downloaded nothing for three releases.
     "pyyaml>=6,<7",
+    # The environment is read through one settings model, contracts/settings.py.
+    "pydantic-settings>=2.15,<3",
 ]
 
 [project.optional-dependencies]
@@ -107,6 +109,8 @@ per-file-ignores = { "tests/**" = ["S101", "S603", "S607"], "src/otsafety_toolin
 # YAML has no Pydantic parser, so it is read in one sanctioned place that goes
 # straight into model_validate. Every exemption below names its reason.
 [tool.ruff.lint.flake8-tidy-imports.banned-api]
+"os.environ".msg = "read configuration through contracts/settings.py, the one settings model -- schema-first"
+"os.getenv".msg = "read configuration through contracts/settings.py, the one settings model -- schema-first"
 "json.loads".msg = "parse with Model.model_validate_json(...) -- schema-first"
 "json.load".msg = "parse with Model.model_validate_json(...) -- schema-first"
 "yaml.safe_load".msg = "read YAML through the sanctioned reader into a Pydantic model"

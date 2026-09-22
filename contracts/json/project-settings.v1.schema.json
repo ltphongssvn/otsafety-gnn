@@ -1,0 +1,81 @@
+{
+  "properties": {
+    "OTSAFETY_ARTIFACTS": {
+      "anyOf": [
+        {
+          "format": "path",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Evidence root override.",
+      "title": "Otsafety Artifacts"
+    },
+    "WANDB_MODE": {
+      "default": "offline",
+      "enum": [
+        "online",
+        "offline",
+        "disabled"
+      ],
+      "title": "Wandb Mode",
+      "type": "string"
+    },
+    "WANDB_PROJECT": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Wandb Project"
+    },
+    "WANDB_ENTITY": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Wandb Entity"
+    },
+    "WANDB_API_KEY": {
+      "anyOf": [
+        {
+          "format": "password",
+          "type": "string",
+          "writeOnly": true
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Wandb Api Key"
+    },
+    "WANDB_DIR": {
+      "anyOf": [
+        {
+          "format": "path",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Wandb Dir"
+    }
+  },
+  "title": "ProjectSettings",
+  "type": "object"
+}

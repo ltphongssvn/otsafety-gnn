@@ -32,11 +32,14 @@ def _declared() -> set[str]:
     for info in pkgutil.iter_modules(contracts_pkg.__path__):
         module = importlib.import_module(f"{contracts_pkg.__name__}.{info.name}")
         for obj in vars(module).values():
-            if (
-                isinstance(obj, type)
-                and issubclass(obj, BaseModel)
-                and "contract" in obj.model_fields
-            ):
+            if not (isinstance(obj, type) and issubclass(obj, BaseModel)):
+                continue
+            # An independent oracle for discovery: a literal contract field, or a
+            # CONTRACT_ID class variable where nothing serialises one.
+            declared = getattr(obj, "CONTRACT_ID", None)
+            if isinstance(declared, str):
+                found.add(declared)
+            if "contract" in obj.model_fields:
                 annotation = obj.model_fields["contract"].annotation
                 if typing.get_origin(annotation) is typing.Literal:
                     found.update(typing.get_args(annotation))

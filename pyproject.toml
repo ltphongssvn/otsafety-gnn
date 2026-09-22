@@ -170,6 +170,8 @@ prerelease = false
 # YAML has no Pydantic parser, so it is read in one sanctioned place that goes
 # straight into model_validate. Every exemption below names its reason.
 [tool.ruff.lint.flake8-tidy-imports.banned-api]
+"os.environ".msg = "read configuration through contracts/settings.py, the one settings model -- schema-first"
+"os.getenv".msg = "read configuration through contracts/settings.py, the one settings model -- schema-first"
 "json.loads".msg = "parse with Model.model_validate_json(...) -- schema-first"
 "json.load".msg = "parse with Model.model_validate_json(...) -- schema-first"
 "yaml.safe_load".msg = "read YAML through the sanctioned reader into a Pydantic model"
