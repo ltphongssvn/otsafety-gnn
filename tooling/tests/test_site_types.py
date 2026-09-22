@@ -30,13 +30,13 @@ def test_the_task_runs_the_sites_own_check_script() -> None:
 
 def test_the_types_describe_the_runtime_that_runs_the_code() -> None:
     assert (
-        SITE.devDependencies["@types/bun"]
+        SITE.dev_dependencies["@types/bun"]
         == read_json(REPO_ROOT / "toolchain.json", Toolchain).bun.version
     )
 
 
 def test_typescript_and_its_checker_are_pinned_exactly() -> None:
     for name in ("typescript", "@astrojs/check", "@types/bun"):
-        assert re.fullmatch(r"\d+\.\d+\.\d+", SITE.devDependencies[name]), (
+        assert re.fullmatch(r"\d+\.\d+\.\d+", SITE.dev_dependencies[name]), (
             f"{name} is a range, not a pin"
         )

@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class SitePackage(BaseModel):
@@ -11,4 +11,5 @@ class SitePackage(BaseModel):
 
     scripts: dict[str, str] = {}
     dependencies: dict[str, str] = {}
-    devDependencies: dict[str, str] = {}  # noqa: N815 -- package.json's own key
+    # package.json's own key, mapped onto a Python name rather than suppressed.
+    dev_dependencies: dict[str, str] = Field(default_factory=dict, alias="devDependencies")

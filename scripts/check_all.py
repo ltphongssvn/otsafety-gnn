@@ -45,6 +45,7 @@ GATES: list[tuple[str, list[str], str, bool]] = [
     ("test", ["mise", "run", "test"], ANYWHERE, True),
     # Needs bun, Chromium and a built site: minutes, not seconds.
     ("site:types", ["mise", "run", "site:types"], ANYWHERE, False),
+    ("site:lint", ["mise", "run", "site:lint"], ANYWHERE, False),
     ("test:e2e", ["mise", "run", "test:e2e"], ANYWHERE, False),
     # Needs Docker, and pulls a pinned image on a cold machine.
     ("pdf:render", ["mise", "run", "pdf:render"], ANYWHERE, False),

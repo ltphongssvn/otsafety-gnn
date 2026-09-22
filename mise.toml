@@ -278,6 +278,11 @@ description = "Resolve the site's dependencies into bun.lock, upgrading nothing 
 # lockfile deliberately; site:install then requires it.
 run = "bun install --cwd apps/site --save-text-lockfile"
 
+[tasks."site:lint"]
+description = "ESLint over the site: the schema-first policy for TypeScript, with no inline disables"
+# --bun: ESLint's executable asks for node, and bun is this project's runtime.
+run = "bun --bun run --cwd apps/site lint"
+
 [tasks."site:types"]
 description = "Type-check the site's TypeScript and Astro files with the site's own check script"
 run = "bun run --cwd apps/site check"
