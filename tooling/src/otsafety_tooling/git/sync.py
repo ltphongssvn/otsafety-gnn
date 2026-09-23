@@ -37,6 +37,8 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict
 
+from otsafety_tooling.cli import CommandRefused, note, refusal
+from otsafety_tooling.cli import result as emit_result
 from otsafety_tooling.git.env import git
 from otsafety_tooling.git.state import (
     INTEGRATION_BRANCH,
@@ -57,6 +59,21 @@ class CleanupPlan(BaseModel):
 
     remove: tuple[Branch, ...]
     blocked: tuple[Branch, ...]
+
+
+class _Payload(BaseModel):
+    """A command's payload: named fields, checked where they are written."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+
+class Synced(_Payload):
+    """What sync did: advanced, left, removed, and kept with the reason."""
+
+    left: str | None
+    removed: list[str]
+    kept: list[dict[str, str]]
+    pruned: bool
 
 
 def plan_cleanup(state: RepositoryState, *, prune: bool = False) -> CleanupPlan:
@@ -98,8 +115,8 @@ def _counts(root: Path, name: str, remote: str) -> tuple[int, int]:
     """(ahead, behind) of a branch against its remote counterpart."""
     result = git("rev-list", "--left-right", "--count", f"{name}...{remote}", cwd=root)
     if result.returncode != 0:
-        print(result.stderr.strip(), file=sys.stderr)
-        raise SystemExit(f"could not compare {name} with {remote}")
+        note(result.stderr.strip())
+        raise CommandRefused("compare_failed", f"could not compare {name} with {remote}")
     ahead, behind = result.stdout.split()
     return int(ahead), int(behind)
 
@@ -123,19 +140,20 @@ def advance_protected(root: Path, name: str, *, fetch: bool = True) -> None:
         # merged remote branches survived and cleanup found nothing to do.
         pruned = git("fetch", "origin", "--prune", cwd=root)
         if pruned.returncode != 0:
-            print(pruned.stderr.strip(), file=sys.stderr)
-            raise SystemExit("could not fetch from origin")
+            note(pruned.stderr.strip())
+            raise CommandRefused("fetch_failed", "could not fetch from origin")
     if not _has(root, f"refs/heads/{name}") or not _has(root, f"refs/remotes/{remote}"):
         return
 
     ahead, behind = _counts(root, name, remote)
     if ahead and behind:
-        raise SystemExit(
+        raise CommandRefused(
+            "protected_diverged",
             f"{name} has diverged from {remote}: {ahead} ahead, {behind} behind. "
-            "sync will not resolve that for you."
+            "sync will not resolve that for you.",
         )
     if not behind:
-        print(f"{name} up to date")
+        note(f"{name} up to date")
         return
 
     holder = holder_of(gather(root), name)
@@ -144,14 +162,14 @@ def advance_protected(root: Path, name: str, *, fetch: bool = True) -> None:
     if here:
         merged = git("merge", "--ff-only", remote, cwd=root)
         if merged.returncode != 0:
-            print(merged.stderr.strip(), file=sys.stderr)
-            raise SystemExit(f"{name} could not fast-forward here")
-        print(f"{name} advanced {behind} commit(s) in this checkout")
+            note(merged.stderr.strip())
+            raise CommandRefused("fast_forward_failed", f"{name} could not fast-forward here")
+        note(f"{name} advanced {behind} commit(s) in this checkout")
         return
 
     if holder is not None:
         # git REFUSES a refspec fetch into a branch that is checked out anywhere.
-        print(
+        note(
             f"{name} is {behind} commit(s) behind and is checked out in "
             f"{holder.name}; run sync there to advance it"
         )
@@ -159,9 +177,9 @@ def advance_protected(root: Path, name: str, *, fetch: bool = True) -> None:
 
     fetched = git("fetch", "origin", f"{name}:{name}", cwd=root)
     if fetched.returncode != 0:
-        print(fetched.stderr.strip(), file=sys.stderr)
-        raise SystemExit(f"{name} could not be advanced")
-    print(f"{name} advanced {behind} commit(s)")
+        note(fetched.stderr.strip())
+        raise CommandRefused("advance_failed", f"{name} could not be advanced")
+    note(f"{name} advanced {behind} commit(s)")
 
 
 def advance_develop(root: Path) -> None:
@@ -187,25 +205,29 @@ def switch_command(branch: str, state: RepositoryState, root: Path = REPO_ROOT) 
     The other checkout is named by its folder, never by its path.
     """
     if not branch:
-        raise SystemExit("name the branch to switch to")
+        raise CommandRefused("no_branch_named", "name the branch to switch to")
 
     known = {existing.name: existing for existing in state.branches}
     wanted = known.get(branch)
     if wanted is None:
-        raise SystemExit(f"no local branch named {branch!r}; known: {', '.join(sorted(known))}")
+        raise CommandRefused(
+            "unknown_branch", f"no local branch named {branch!r}; known: {', '.join(sorted(known))}"
+        )
     if wanted.held_by is not None:
-        raise SystemExit(
+        raise CommandRefused(
+            "branch_held",
             f"{branch} is checked out in the worktree {wanted.held_by.name}; "
-            "git allows one checkout per branch"
+            "git allows one checkout per branch",
         )
 
     here = root.resolve()
     for worktree in state.worktrees:
         if worktree.path.resolve() == here and worktree.is_dirty:
-            raise SystemExit(
+            raise CommandRefused(
+                "tree_dirty",
                 f"refusing: this checkout has uncommitted changes, and git would carry "
                 f"them onto {branch}. Commit them first, or start a branch for them with "
-                "start:here."
+                "start:here.",
             )
     return f"git switch {branch}"
 
@@ -241,62 +263,97 @@ def finished_branch_to_leave(state: RepositoryState, root: Path) -> Branch | Non
 
 def switch(branch: str) -> int:
     """Print the command that moves the caller's shell to an existing branch."""
-    print(switch_command(branch, gather(REPO_ROOT)))
+    command = switch_command(branch, gather(REPO_ROOT))
+    # THE COMMAND IS THE PAYLOAD: a shell evals stdout, so it stays the only thing there.
+    sys.stdout.write(command + "\n")
     return 0
 
 
 def main(argv: list[str] | None = None) -> int:
+    """A refusal is an outcome: exit 2 with a machine code, never a crash."""
+    try:
+        return _dispatch(argv)
+    except CommandRefused as error:
+        return refusal("sync", error)
+
+
+def _dispatch(argv: list[str] | None = None) -> int:
     args = sys.argv[1:] if argv is None else argv
     prune = "--prune" in args
     args = [arg for arg in args if arg != "--prune"]
     if args[:1] == ["switch"]:
         if len(args) != 2:
-            raise SystemExit("usage: python -m otsafety_tooling.git.sync switch <branch>")
+            raise CommandRefused(
+                "usage", "usage: python -m otsafety_tooling.git.sync switch <branch>"
+            )
         return switch(args[1])
     if args:
-        raise SystemExit("usage: python -m otsafety_tooling.git.sync [--prune | switch <branch>]")
+        raise CommandRefused(
+            "usage", "usage: python -m otsafety_tooling.git.sync [--prune | switch <branch>]"
+        )
 
     # EVERY PROTECTED BRANCH: develop first, which fetches once, then the rest.
     advance_develop(REPO_ROOT)
     for protected in sorted(PROTECTED_BRANCHES - {INTEGRATION_BRANCH}):
         advance_protected(REPO_ROOT, protected, fetch=False)
 
+    left: str | None = None
     if not is_linked_worktree(REPO_ROOT):
         leaving = finished_branch_to_leave(gather(REPO_ROOT), REPO_ROOT)
         if leaving is not None:
             switched = git("switch", INTEGRATION_BRANCH, cwd=REPO_ROOT)
             if switched.returncode != 0:
-                print(switched.stderr.strip(), file=sys.stderr)
-                raise SystemExit(f"could not leave {leaving.name} for {INTEGRATION_BRANCH}")
-            print(f"left finished branch {leaving.name}; now on {INTEGRATION_BRANCH}")
+                note(switched.stderr.strip())
+                raise CommandRefused(
+                    "leave_failed", f"could not leave {leaving.name} for {INTEGRATION_BRANCH}"
+                )
+            left = leaving.name
+            note(f"left finished branch {leaving.name}; now on {INTEGRATION_BRANCH}")
 
     plan = plan_cleanup(gather(REPO_ROOT), prune=prune)
 
+    removed: list[str] = []
     for branch in plan.remove:
         # `-d`, NEVER `-D`: git independently confirms the merge happened.
         result = git("branch", "-d", branch.name, cwd=REPO_ROOT)
         if result.returncode == 0:
-            print(f"removed {branch.name}")
+            removed.append(branch.name)
+            note(f"removed {branch.name}")
         else:
-            print(f"could not remove {branch.name}: {result.stderr.strip()}", file=sys.stderr)
+            note(f"could not remove {branch.name}: {result.stderr.strip()}")
 
     if plan.blocked:
-        print("\nnot removed:")
+        note("not removed:")
         for branch in plan.blocked:
-            print(f"  {branch.name}: {branch.blocked_because}")
+            note(f"  {branch.name}: {branch.blocked_because}")
 
     # KEPT, AND SAID SO: an empty branch that was never pushed waits for --prune,
     # because start:here cuts empty branches too. It is listed rather than hidden.
     waiting = () if prune else gather(REPO_ROOT).prunable
     if waiting:
-        print("\nempty and never pushed, kept until asked:")
+        note("empty and never pushed, kept until asked:")
         for branch in waiting:
-            print(f"  {branch.name}: {branch.blocked_because}")
+            note(f"  {branch.name}: {branch.blocked_because}")
 
-    if not plan.remove and not plan.blocked and not waiting:
-        print("nothing to clean up")
+    kept = [
+        {"branch": branch.name, "reason": branch.blocked_because or ""}
+        for branch in (*plan.blocked, *waiting)
+    ]
+    if not removed and not kept:
+        note("nothing to clean up")
 
-    return 0
+    return emit_result(
+        "sync",
+        "success",
+        "synced",
+        f"{len(removed)} removed, {len(kept)} kept",
+        Synced(
+            left=left,
+            removed=removed,
+            kept=kept,
+            pruned=prune,
+        ),
+    )
 
 
 if __name__ == "__main__":
