@@ -121,10 +121,6 @@ inline:
   rule: T201
   count: 1
   reason: 'prints the command''s output: this is a command-line entry point'
-- path: tooling/src/otsafety_tooling/policy/trailers.py
-  rule: T201
-  count: 1
-  reason: 'prints the command''s output: this is a command-line entry point'
 - path: tooling/src/otsafety_tooling/runs.py
   rule: S603
   count: 1
