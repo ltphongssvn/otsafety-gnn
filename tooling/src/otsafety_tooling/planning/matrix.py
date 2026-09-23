@@ -9,7 +9,9 @@ observes, so the policy decides over typed data rather than over a script's opin
 
 from __future__ import annotations
 
+import ast
 import sys
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Literal
 
@@ -59,6 +61,64 @@ def _evidence(step: object) -> tuple[str, ...]:
     return tuple(out)
 
 
+def claims(path: Path) -> set[str]:
+    """The requirement ids a file CLAIMS, read from its pytest markers.
+
+    A CLAIM, NOT A MENTION. Scanning a file for an id cannot tell the two apart:
+    G.25's id appeared in a file that told its story and not in the test that
+    proves it. A claim is pytest.mark.requirement("G.25"), and nothing else.
+    """
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+    except (OSError, SyntaxError, UnicodeDecodeError):
+        return set()
+    found: set[str] = set()
+    for node in ast.walk(tree):
+        if not (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)):
+            continue
+        inner = node.func.value
+        if node.func.attr != "requirement" or not (
+            isinstance(inner, ast.Attribute) and inner.attr == "mark"
+        ):
+            continue
+        found |= {
+            a.value for a in node.args if isinstance(a, ast.Constant) and isinstance(a.value, str)
+        }
+    return found
+
+
+def unconfirmed(
+    identifier: str, evidence: Sequence[str], root: Path = REPO_ROOT
+) -> tuple[str, ...]:
+    """The evidence entries that do not confirm this id, by the kind each one is.
+
+    2026 practice for a traceability gate: refuse to verify a link unless the
+    evidence itself can be confirmed. A Python file is confirmed by CLAIMING the
+    id through the registered marker -- a mention in prose is not a claim. Any
+    other file is confirmed by inspection: it must contain the id. A task, a pull
+    request and a release are confirmed by plan:status, not here.
+    """
+    out: list[str] = []
+    for item in evidence:
+        kind, _, value = item.partition(":")
+        if kind != "path":
+            continue
+        path = root / value
+        if not path.is_file():
+            out.append(item)
+            continue
+        if value.endswith(".py"):
+            if identifier not in claims(path):
+                out.append(item)
+            continue
+        try:
+            if identifier not in path.read_text(encoding="utf-8"):
+                out.append(item)
+        except (OSError, UnicodeDecodeError):
+            out.append(item)
+    return tuple(out)
+
+
 def build(root: Path = REPO_ROOT, ref: str = "HEAD") -> RequirementMatrix:
     """Observe every requirement's identity; the rules live in policy/requirements.rego."""
     plan = read_yaml(root / "context" / "plan.yaml", ProjectPlan)
@@ -74,15 +134,10 @@ def build(root: Path = REPO_ROOT, ref: str = "HEAD") -> RequirementMatrix:
     named: dict[str, list[str]] = {}
     for relative in candidates(root):
         path = root / relative
-        if not path.is_file() or path.suffix not in {".py", ".rego", ".ts"}:
+        if not path.is_file() or path.suffix != ".py":
             continue
-        try:
-            text = path.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError):
-            continue
-        for identifier in known:
-            if identifier in text:
-                named.setdefault(identifier, []).append(relative)
+        for identifier in sorted(claims(path) & known):
+            named.setdefault(identifier, []).append(relative)
     # NOT `referenced`: that name is the imported reader of a message's trailers.
     references: dict[str, list[str]] = {}
     claimed: dict[str, list[str]] = {}
@@ -101,6 +156,7 @@ def build(root: Path = REPO_ROOT, ref: str = "HEAD") -> RequirementMatrix:
             evidence=_evidence(item),
             justified_by=tuple(justified.get(item.id, ())),
             named_in=tuple(sorted(named.get(item.id, ()))),
+            unconfirmed=unconfirmed(item.id, _evidence(item), root),
             referenced_by=tuple(references.get(item.id, ())),
             claimed_by=tuple(claimed.get(item.id, ())),
         )

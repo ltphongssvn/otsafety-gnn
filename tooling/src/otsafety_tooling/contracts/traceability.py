@@ -50,6 +50,10 @@ class Requirement(_Strict):
     named_in: tuple[str, ...]
     referenced_by: tuple[str, ...]
     claimed_by: tuple[str, ...]
+    # EVIDENCE THE BUILDER COULD NOT CONFIRM. A link is not verified until the
+    # evidence itself is: a test file by claiming the id, any other file by
+    # containing it -- inspection, as a requirement verified without a test is.
+    unconfirmed: tuple[str, ...] = ()
 
 
 class RequirementMatrix(_Strict):

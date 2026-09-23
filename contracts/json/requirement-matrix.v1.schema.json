@@ -75,6 +75,13 @@
             },
             "title": "Claimed By",
             "type": "array"
+          },
+          "unconfirmed": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Unconfirmed",
+            "type": "array"
           }
         },
         "required": [
@@ -87,7 +94,8 @@
           "justified_by",
           "named_in",
           "referenced_by",
-          "claimed_by"
+          "claimed_by",
+          "unconfirmed"
         ],
         "title": "Requirement",
         "type": "object"

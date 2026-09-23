@@ -21,6 +21,7 @@ INPUTS = [
     ".github/workflows/test-tooling.yml",
     ".github/workflows/zizmor.yml",
     "context/exemptions.yaml",
+    "context/plan-ids.yaml",
 ]
 
 
@@ -49,6 +50,21 @@ def _world(tmp_path: Path) -> Path:
         check=True,
         capture_output=True,
     )
+    # THE MATRIX IS GENERATED TOO, like the ESLint configuration: without it the
+    # identity rules would have nothing to read, and inputs.rego denies that.
+    subprocess.run(
+        [
+            "uv",
+            "run",
+            "python",
+            "-m",
+            "otsafety_tooling.planning.matrix",
+            str(out.parent / "requirement-matrix.json"),
+        ],
+        cwd=REPO,
+        check=True,
+        capture_output=True,
+    )
     return tmp_path
 
 
@@ -64,6 +80,7 @@ def _prove(world: Path) -> subprocess.CompletedProcess[str]:
             str(REPO / "policy"),
             *INPUTS,
             "policy/eslint-effective.json",
+            "policy/requirement-matrix.json",
         ],
         cwd=world,
         capture_output=True,

@@ -753,7 +753,7 @@ set -euo pipefail
 mise run -q policy:inputs
 root="$(mise run -q artifacts:path)"
 conftest verify --policy policy
-conftest test --combine --namespace policy --policy policy pyproject.toml tooling/pyproject.toml lefthook.yml .github/workflows/test-site.yml .github/workflows/test-tooling.yml .github/workflows/zizmor.yml context/exemptions.yaml "$root/policy/eslint-effective.json"
+conftest test --combine --namespace policy --policy policy pyproject.toml tooling/pyproject.toml lefthook.yml .github/workflows/test-site.yml .github/workflows/test-tooling.yml .github/workflows/zizmor.yml context/exemptions.yaml context/plan-ids.yaml "$root/policy/eslint-effective.json" "$root/policy/requirement-matrix.json"
 regal lint policy
 """
 
@@ -764,6 +764,9 @@ set -euo pipefail
 root="$(mise run -q artifacts:path)"
 mkdir -p "$root/policy"
 bun --bun run --cwd apps/site scripts/eslint-effective.ts "$root/policy/eslint-effective.json"
+# THE REQUIREMENT MATRIX: one row per id, with what justifies it, what claims it,
+# and which commits reference or close it -- the input the identity rules read.
+uv run python -m otsafety_tooling.planning.matrix "$root/policy/requirement-matrix.json" >/dev/null
 """
 
 [tasks."policy:exemptions"]

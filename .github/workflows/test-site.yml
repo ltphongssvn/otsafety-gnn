@@ -38,6 +38,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          # FULL HISTORY, CHEAPLY. The policy's requirement matrix reads the commits
+          # since the trailer cutoff; a shallow clone has a fabricated history where
+          # those commits have no parents, and every read inherits that lie. tree:0
+          # keeps the whole commit graph and fetches trees and blobs on demand,
+          # which costs nothing here because only commit messages are read.
+          fetch-depth: 0
+          filter: tree:0
           persist-credentials: false
 
       - name: Install the declared toolchain

@@ -16,6 +16,9 @@ from pydantic import BaseModel, ValidationError
 from otsafety_tooling.cli import result
 from otsafety_tooling.contracts.outcome import CommandOutcome
 
+# THIS FILE PROVES G.42: the claim the requirement matrix joins on.
+pytestmark = pytest.mark.requirement("G.42")
+
 
 class _Payload(BaseModel):
     """What a command carries: named fields, checked where they are written."""
