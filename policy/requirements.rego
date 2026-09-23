@@ -1,4 +1,6 @@
 # An id is one object: the step, what justifies it, what proves it, who claims it.
+# G.41: this file is that step's evidence, and carries its id so the inspection
+# rule below can confirm the link rather than assume it.
 package policy
 
 matrix := d.contents if {
@@ -21,16 +23,6 @@ retired contains entry.id if {
 steps contains row if {
 	some row in matrix.requirements
 	row.kind == "step"
-}
-
-# THE ID IS THE JOIN KEY IN THE CODE, not only in the plan: the file that proves a
-# step must CLAIM it, through the registered requirement marker. A mention is not
-# a claim -- one id appeared in a file that told its story and not in the test that
-# proves it -- so the proof and the constraint cannot drift apart unnoticed.
-proves(row) if {
-	some path in row.named_in
-	some evidence in row.evidence
-	endswith(evidence, path)
 }
 
 deny contains msg if {
@@ -62,9 +54,12 @@ deny contains msg if {
 	msg := sprintf("%s: retired in the ledger, yet still in the plan; an id is never reused", [row.id])
 }
 
+# A LINK IS NOT VERIFIED UNTIL THE EVIDENCE ITSELF IS CONFIRMED. The builder
+# confirms each entry by its kind -- a test file claims the id through its marker,
+# any other file contains it, by inspection -- and reports what it could not.
 deny contains msg if {
 	some row in steps
 	count(row.claimed_by) > 0
-	not proves(row)
-	msg := sprintf("%s: claimed done, but no file of its evidence names it", [row.id])
+	count(row.unconfirmed) > 0
+	msg := sprintf("%s: claimed done, but its evidence is unconfirmed: %v", [row.id, row.unconfirmed])
 }

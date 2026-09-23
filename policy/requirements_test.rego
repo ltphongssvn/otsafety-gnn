@@ -15,7 +15,7 @@ row(overrides) := object.union(
 	{
 		"id": "G.1", "title": "x", "thread": "G", "phase": "8G", "kind": "step",
 		"evidence": ["path:tooling/tests/test_g1.py"], "justified_by": ["a finding"],
-		"named_in": ["tooling/tests/test_g1.py"], "referenced_by": [], "claimed_by": [],
+		"named_in": ["tooling/tests/test_g1.py"], "referenced_by": [], "claimed_by": [], "unconfirmed": [],
 	},
 	overrides,
 )
@@ -49,11 +49,11 @@ test_a_retired_id_back_in_the_plan_is_denied if {
 	contains(msg, "never reused")
 }
 
-test_a_claim_whose_evidence_does_not_name_it_is_denied if {
-	claimed := row({"claimed_by": ["abc123456"], "named_in": ["tooling/tests/test_other.py"]})
+test_a_claim_with_unconfirmed_evidence_is_denied if {
+	claimed := row({"claimed_by": ["abc123456"], "unconfirmed": ["path:tooling/tests/test_g1.py"]})
 	denied := policy.deny with input as world([claimed], [], [{"id": "G.1"}])
 	some msg in denied
-	contains(msg, "no file of its evidence names it")
+	contains(msg, "evidence is unconfirmed")
 }
 
 # NOT count(deny) == 0: deny is the whole package, and a world of two inputs also

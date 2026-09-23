@@ -94,3 +94,32 @@ def test_the_marker_is_registered_so_a_typo_is_not_silent() -> None:
     assert any(m.startswith("requirement(") for m in pytest_config.ini_options.markers)
     # --strict-markers is what makes an unregistered claim an error, not a new marker.
     assert "--strict-markers" in pytest_config.ini_options.addopts
+
+
+def test_evidence_is_confirmed_according_to_its_kind(tmp_path: Path) -> None:
+    """A LINK IS NOT VERIFIED UNTIL THE EVIDENCE ITSELF IS CONFIRMED (2026 practice).
+
+    A test file is confirmed by CLAIMING the id, through the registered marker. A
+    file that cannot carry a marker -- a Rego policy, a configuration -- is
+    confirmed by inspection: it must contain the id. Anything else is unconfirmed,
+    and a step claimed done with unconfirmed evidence is denied.
+    """
+    from otsafety_tooling.planning.matrix import unconfirmed
+
+    proof = tmp_path / "test_thing.py"
+    claim = 'import pytest\n\npytestmark = pytest.mark.requirement("G.9")\n'
+    proof.write_text(claim, encoding="utf-8")
+    rego = tmp_path / "thing.rego"
+    rego.write_text("# G.9: the rule this file carries.\npackage policy\n", encoding="utf-8")
+    silent = tmp_path / "quiet.rego"
+    silent.write_text("package policy\n", encoding="utf-8")
+
+    assert unconfirmed("G.9", ("path:test_thing.py",), tmp_path) == ()
+    assert unconfirmed("G.9", ("path:thing.rego",), tmp_path) == ()
+    assert unconfirmed("G.9", ("path:quiet.rego",), tmp_path) == ("path:quiet.rego",)
+    # A test file that does not claim the id is unconfirmed, even if it mentions it.
+    mentions = tmp_path / "test_mentions.py"
+    mentions.write_text('"""A story about G.9."""\n', encoding="utf-8")
+    assert unconfirmed("G.9", ("path:test_mentions.py",), tmp_path) == ("path:test_mentions.py",)
+    # A task, a pull request or a release is confirmed by plan:status, not here.
+    assert unconfirmed("G.9", ("task:policy", "pr:41"), tmp_path) == ()

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import ast
 import sys
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Literal
 
@@ -86,6 +87,38 @@ def claims(path: Path) -> set[str]:
     return found
 
 
+def unconfirmed(
+    identifier: str, evidence: Sequence[str], root: Path = REPO_ROOT
+) -> tuple[str, ...]:
+    """The evidence entries that do not confirm this id, by the kind each one is.
+
+    2026 practice for a traceability gate: refuse to verify a link unless the
+    evidence itself can be confirmed. A Python file is confirmed by CLAIMING the
+    id through the registered marker -- a mention in prose is not a claim. Any
+    other file is confirmed by inspection: it must contain the id. A task, a pull
+    request and a release are confirmed by plan:status, not here.
+    """
+    out: list[str] = []
+    for item in evidence:
+        kind, _, value = item.partition(":")
+        if kind != "path":
+            continue
+        path = root / value
+        if not path.is_file():
+            out.append(item)
+            continue
+        if value.endswith(".py"):
+            if identifier not in claims(path):
+                out.append(item)
+            continue
+        try:
+            if identifier not in path.read_text(encoding="utf-8"):
+                out.append(item)
+        except (OSError, UnicodeDecodeError):
+            out.append(item)
+    return tuple(out)
+
+
 def build(root: Path = REPO_ROOT, ref: str = "HEAD") -> RequirementMatrix:
     """Observe every requirement's identity; the rules live in policy/requirements.rego."""
     plan = read_yaml(root / "context" / "plan.yaml", ProjectPlan)
@@ -123,6 +156,7 @@ def build(root: Path = REPO_ROOT, ref: str = "HEAD") -> RequirementMatrix:
             evidence=_evidence(item),
             justified_by=tuple(justified.get(item.id, ())),
             named_in=tuple(sorted(named.get(item.id, ()))),
+            unconfirmed=unconfirmed(item.id, _evidence(item), root),
             referenced_by=tuple(references.get(item.id, ())),
             claimed_by=tuple(claimed.get(item.id, ())),
         )
