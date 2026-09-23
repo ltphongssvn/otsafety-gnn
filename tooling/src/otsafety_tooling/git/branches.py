@@ -37,7 +37,11 @@ from collections.abc import Iterable
 from datetime import UTC, datetime
 from pathlib import Path
 
+from pydantic import BaseModel, ConfigDict
+
 from otsafety_tooling.artifacts import artifacts_root
+from otsafety_tooling.cli import note
+from otsafety_tooling.cli import result as emit_result
 from otsafety_tooling.contracts.branch_report import (
     BranchFact,
     BranchReport,
@@ -45,6 +49,7 @@ from otsafety_tooling.contracts.branch_report import (
     Finding,
     Verdict,
 )
+from otsafety_tooling.contracts.outcome import Verdict as OutcomeVerdict
 from otsafety_tooling.git.env import git
 from otsafety_tooling.paths import REPO_ROOT
 
@@ -83,6 +88,24 @@ _REMOTE_FORMAT = _SEPARATOR.join(
 
 class GatherError(RuntimeError):
     """The facts could not be read, so no verdict can be given."""
+
+
+class _Payload(BaseModel):
+    """A command's payload: named fields, checked where they are written.
+
+    **kwargs cannot be checked -- a misspelt field would ship -- so each command
+    declares what it carries, and a list stays a list because the model says so.
+    """
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+
+class BranchOutcome(_Payload):
+    verdict: str
+    branches: int
+    findings: list[str]
+    report: str
+    problem: str | None
 
 
 def default_artifacts() -> Path:
@@ -307,13 +330,34 @@ def run_report(root: Path, artifacts: Path, *, fetch: bool = True) -> int:
     )
     path = write_report(report, artifacts)
 
-    print(f"branch report: {verdict} ({len(facts)} branches)", flush=True)
+    note(f"branch report: {verdict} ({len(facts)} branches)")
     if problem:
-        print(f"  could not read the branches: {problem}", flush=True)
+        note(f"  could not read the branches: {problem}")
     for finding in findings:
-        print(f"  {finding.rule_id} {finding.reason_code}: {finding.message}", flush=True)
-    print(f"  recorded: {path}", flush=True)
-    return 0 if verdict == "pass" else 1
+        note(f"  {finding.rule_id} {finding.reason_code}: {finding.message}")
+    note(f"  recorded: {path}")
+
+    # THE VERDICT DECIDES THE OUTCOME: a fail is a refusal -- the repository state
+    # is wrong -- while unknown is a failure, because the facts could not be read.
+    outcomes: dict[Verdict, tuple[OutcomeVerdict, str]] = {
+        "pass": ("success", "branches_clean"),
+        "fail": ("refused", "branches_failed"),
+        "unknown": ("failed", "branches_unknown"),
+    }
+    outcome, code = outcomes[verdict]
+    return emit_result(
+        "branch:report",
+        outcome,
+        code,
+        f"branch report: {verdict} ({len(facts)} branches, {len(findings)} findings)",
+        BranchOutcome(
+            verdict=verdict,
+            branches=len(facts),
+            findings=[f.rule_id for f in findings],
+            report=str(path),
+            problem=problem or None,
+        ),
+    )
 
 
 def main() -> int:

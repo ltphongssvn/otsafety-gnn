@@ -1,0 +1,52 @@
+{
+  "additionalProperties": false,
+  "description": "One command's result: the only thing it writes to stdout.",
+  "properties": {
+    "contract": {
+      "const": "command-outcome/v1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "command": {
+      "minLength": 1,
+      "title": "Command",
+      "type": "string"
+    },
+    "outcome": {
+      "enum": [
+        "success",
+        "refused",
+        "failed"
+      ],
+      "title": "Outcome",
+      "type": "string"
+    },
+    "code": {
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "title": "Code",
+      "type": "string"
+    },
+    "message": {
+      "minLength": 1,
+      "title": "Message",
+      "type": "string"
+    },
+    "data": {
+      "additionalProperties": {
+        "x-json-value": true
+      },
+      "title": "Data",
+      "type": "object"
+    }
+  },
+  "required": [
+    "contract",
+    "command",
+    "outcome",
+    "code",
+    "message",
+    "data"
+  ],
+  "title": "CommandOutcome",
+  "type": "object"
+}

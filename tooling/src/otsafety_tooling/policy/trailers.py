@@ -22,11 +22,21 @@ import tempfile
 from collections.abc import Callable
 from pathlib import Path
 
+from pydantic import BaseModel, ConfigDict
+
+from otsafety_tooling.cli import result
 from otsafety_tooling.contracts.files import parse_yaml
 from otsafety_tooling.contracts.plan import ProjectPlan
 from otsafety_tooling.git.env import git
 from otsafety_tooling.paths import REPO_ROOT
 from otsafety_tooling.planning.status import staged_facts, unmet
+
+
+class _Payload(BaseModel):
+    """A command's payload: named fields, checked where they are written."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
 
 KEY = "Plan-Step"
 # CLOSES, WHERE KEY ONLY REFERENCES: a claim of completion, proved by the step's evidence.
@@ -34,6 +44,15 @@ DONE = "Plan-Done"
 # The first commit to carry the trailer; earlier history is exempt, not rewritten.
 CUTOFF = "6aee540e376745f1980761f81063d541c946aafa"
 SCISSORS = re.compile(r"^# -+ >8 -+$", re.M)
+
+
+class TrailerProblems(_Payload):
+    problems: list[str]
+
+
+class TrailersAccepted(_Payload):
+    referenced: list[str]
+    claimed_done: list[str]
 
 
 def _as_stored(message: str) -> str:
@@ -53,6 +72,11 @@ def _trailers(message: str) -> list[tuple[str, str]]:
         raise SystemExit(f"git interpret-trailers failed: {result.stderr.strip()}")
     pairs = [line.partition(":") for line in result.stdout.splitlines() if ":" in line]
     return [(key.strip(), value.strip()) for key, _, value in pairs]
+
+
+def referenced(message: str) -> list[str]:
+    """The steps a message says it serves."""
+    return [value for key, value in _trailers(_as_stored(message)) if key.lower() == KEY.lower()]
 
 
 def claimed_done(message: str) -> list[str]:
@@ -133,9 +157,20 @@ def main(argv: list[str]) -> int:
     ids = plan_steps(REPO_ROOT, ":")
     found = problems(message, ids, is_merge=(REPO_ROOT / merge_head).exists(), holds=holds)
     if found:
-        print("refusing: " + "; ".join(found), file=sys.stderr)  # noqa: T201
-        return 1
-    return 0
+        return result(
+            "policy:trailers",
+            "refused",
+            "trailer_missing_or_unproved",
+            "; ".join(found),
+            TrailerProblems(problems=found),
+        )
+    return result(
+        "policy:trailers",
+        "success",
+        "trailers_accepted",
+        "every trailer names a step in the plan, and every claim of completion holds",
+        TrailersAccepted(referenced=referenced(message), claimed_done=claimed_done(message)),
+    )
 
 
 if __name__ == "__main__":

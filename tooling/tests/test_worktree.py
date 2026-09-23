@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 
+from otsafety_tooling.contracts.outcome import EXIT_CODES
 from otsafety_tooling.git.env import git
 from otsafety_tooling.git.worktree import (
     cmd_add,
@@ -169,7 +170,9 @@ def test_remove_keeps_an_unmerged_branch(tmp_path: Path) -> None:
     _git(
         "commit", "-q", "--allow-empty", "-m", "not merged", cwd=tmp_path / "work" / "repo-unmerged"
     )
-    assert cmd_remove("unmerged", repo) == 1
+    # A REFUSAL, NOT A CRASH: the repository state was wrong, so the outcome is
+    # refused -- exit 2 with a machine code -- where it used to be a bare 1.
+    assert cmd_remove("unmerged", repo) == EXIT_CODES["refused"]
     assert "feature/unmerged" in _git("branch", "--list", cwd=repo)
 
 
