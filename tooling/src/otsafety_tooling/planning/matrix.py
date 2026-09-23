@@ -9,6 +9,7 @@ observes, so the policy decides over typed data rather than over a script's opin
 
 from __future__ import annotations
 
+import ast
 import sys
 from pathlib import Path
 from typing import Literal
@@ -59,6 +60,32 @@ def _evidence(step: object) -> tuple[str, ...]:
     return tuple(out)
 
 
+def claims(path: Path) -> set[str]:
+    """The requirement ids a file CLAIMS, read from its pytest markers.
+
+    A CLAIM, NOT A MENTION. Scanning a file for an id cannot tell the two apart:
+    G.25's id appeared in a file that told its story and not in the test that
+    proves it. A claim is pytest.mark.requirement("G.25"), and nothing else.
+    """
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+    except (OSError, SyntaxError, UnicodeDecodeError):
+        return set()
+    found: set[str] = set()
+    for node in ast.walk(tree):
+        if not (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)):
+            continue
+        inner = node.func.value
+        if node.func.attr != "requirement" or not (
+            isinstance(inner, ast.Attribute) and inner.attr == "mark"
+        ):
+            continue
+        found |= {
+            a.value for a in node.args if isinstance(a, ast.Constant) and isinstance(a.value, str)
+        }
+    return found
+
+
 def build(root: Path = REPO_ROOT, ref: str = "HEAD") -> RequirementMatrix:
     """Observe every requirement's identity; the rules live in policy/requirements.rego."""
     plan = read_yaml(root / "context" / "plan.yaml", ProjectPlan)
@@ -74,15 +101,10 @@ def build(root: Path = REPO_ROOT, ref: str = "HEAD") -> RequirementMatrix:
     named: dict[str, list[str]] = {}
     for relative in candidates(root):
         path = root / relative
-        if not path.is_file() or path.suffix not in {".py", ".rego", ".ts"}:
+        if not path.is_file() or path.suffix != ".py":
             continue
-        try:
-            text = path.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError):
-            continue
-        for identifier in known:
-            if identifier in text:
-                named.setdefault(identifier, []).append(relative)
+        for identifier in sorted(claims(path) & known):
+            named.setdefault(identifier, []).append(relative)
     # NOT `referenced`: that name is the imported reader of a message's trailers.
     references: dict[str, list[str]] = {}
     claimed: dict[str, list[str]] = {}

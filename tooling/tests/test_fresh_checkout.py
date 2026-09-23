@@ -16,10 +16,15 @@ from __future__ import annotations
 
 import re
 
+import pytest
+
 from otsafety_tooling.contracts.files import read_toml
 from otsafety_tooling.contracts.mise_config import MiseConfig
 from otsafety_tooling.paths import REPO_ROOT
 from otsafety_tooling.policy.exemptions import candidates
+
+# THIS FILE PROVES G.38, G.39: the claim the requirement matrix joins on.
+pytestmark = pytest.mark.requirement("G.38", "G.39")
 
 RUNNER = re.compile(r"\b(bun" + "x|np" + "x|bun[ \t]+" + "x)\b")
 

@@ -20,6 +20,9 @@ from otsafety_tooling.contracts.plan import PathEvidence, Serves, Step
 from otsafety_tooling.paths import REPO_ROOT
 from otsafety_tooling.planning.edit import add_step, canonical, header_of, load, save
 
+# THIS FILE PROVES G.44: the claim the requirement matrix joins on.
+pytestmark = pytest.mark.requirement("G.44")
+
 PLAN = REPO_ROOT / "context" / "plan.yaml"
 
 

@@ -35,9 +35,26 @@ class _Uv(_Rest):
     workspace: _Workspace | None = None
 
 
+class PytestConfig(_Rest):
+    """[tool.pytest.ini_options]: the markers a test may claim, as data.
+
+    A marker is how a file CLAIMS a requirement -- 2026 traceability practice --
+    and --strict-markers makes an unregistered one an error rather than a silent
+    new marker, so a typo cannot quietly claim nothing.
+    """
+
+    markers: tuple[str, ...] = ()
+    addopts: tuple[str, ...] = ()
+
+
+class _Pytest(_Rest):
+    ini_options: PytestConfig | None = None
+
+
 class _Tools(_Rest):
     ruff: RuffConfig | None = None
     uv: _Uv | None = None
+    pytest: _Pytest | None = None
 
 
 class _Project(_Rest):
