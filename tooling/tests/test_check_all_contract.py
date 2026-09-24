@@ -20,7 +20,7 @@ from typing import Protocol
 import pytest
 from pydantic import JsonValue
 
-from otsafety_tooling.contracts.outcome import CommandOutcome
+from otsafety_tooling.contracts.outcome import EXIT_CODES, CommandOutcome
 from otsafety_tooling.paths import REPO_ROOT
 
 pytestmark = pytest.mark.requirement("G.42")
@@ -115,3 +115,47 @@ def test_a_gates_own_envelope_is_carried(
     envelope = _envelope(capsys.readouterr().out)
     first = _gates(envelope)[0]
     assert first["outcome"] == {"code": "tools_pinned", "outcome": "success"}
+
+
+def test_every_gate_is_bounded_in_time() -> None:
+    """A GATE THAT CAN HANG IS NOT A GATE. subprocess.run had no timeout and
+    capture_output=True, so when bun auto-installed from the registry the whole
+    check sat for forty-one minutes printing nothing and returning no prompt. The
+    bunfig stops that particular fetch; this stops the next one, whatever it is.
+    """
+    import ast
+
+    source = (REPO_ROOT / "scripts" / "check_all.py").read_text(encoding="utf-8")
+    for node in ast.walk(ast.parse(source)):
+        if not isinstance(node, ast.Call):
+            continue
+        func = node.func
+        name = func.attr if isinstance(func, ast.Attribute) else getattr(func, "id", "")
+        if name != "run":
+            continue
+        assert any(keyword.arg == "timeout" for keyword in node.keywords), (
+            f"check_all.py:{node.lineno}: a gate with no timeout can hang the whole check"
+        )
+
+
+def test_a_gate_that_exceeds_its_bound_is_reported_not_raised(
+    capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A timeout that escapes as an exception loses every other gate's verdict,
+    which is the failure this aggregate was written to prevent."""
+    module = _module()
+
+    def hangs(command: list[str], **_: object) -> subprocess.CompletedProcess[str]:
+        if command[-1] == "lint":
+            raise subprocess.TimeoutExpired(command, module.BOUND, output="partial")
+        return subprocess.CompletedProcess(args=command, returncode=0, stdout="", stderr="")
+
+    monkeypatch.setattr(module.subprocess, "run", hangs)
+    code = module.main(["--fast"])
+    envelope = _envelope(capsys.readouterr().out)
+
+    assert code == EXIT_CODES["refused"]
+    assert envelope.code == "gates_failed"
+    reported = {gate["name"]: gate["passed"] for gate in _gates(envelope)}
+    assert reported["lint"] is False, "the gate that hung is the one reported failing"
+    assert reported["types"] is True, "the others keep their verdicts"

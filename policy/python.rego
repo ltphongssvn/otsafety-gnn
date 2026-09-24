@@ -18,7 +18,10 @@ mypy_invocations := [line |
 	contains(line, " mypy ")
 ]
 
-required_rules := {"TID251", "ANN401", "RUF100", "S", "T20", "BLE"}
+required_rules := {
+	"TID251", "ANN401", "RUF100", "S", "T20", "BLE",
+	"ANN001", "ANN002", "ANN003", "ANN201", "ANN202", "ANN204",
+}
 
 banned := {
 	"json.load", "json.loads", "yaml.load", "yaml.safe_load",
@@ -72,4 +75,16 @@ deny contains msg if {
 	some line in mypy_invocations
 	not contains(line, "--config-file")
 	msg := sprintf("mise.toml: this mypy invocation reads whatever is closest: %s", [trim_space(line)])
+}
+
+# THE HABIT, NOT THE INSTANCE. The exemption that hid sixty-one sites was a
+# module-wide override with no count and no expiry: it permitted whatever anyone
+# wrote next, and nobody had to look. A new one is refused here.
+deny contains msg if {
+	some override in mypy.overrides
+	override.disallow_any_explicit == false
+	msg := sprintf(
+		"pyproject.toml: %v is exempt from the ban on explicit Any; an exemption with no count permits whatever comes next",
+		[override.module],
+	)
 }

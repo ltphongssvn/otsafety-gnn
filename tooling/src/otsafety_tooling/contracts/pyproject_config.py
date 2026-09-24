@@ -16,6 +16,7 @@ class _Rest(BaseModel):
 
 
 class RuffLint(_Rest):
+    select: tuple[str, ...] = ()
     per_file_ignores: dict[str, tuple[str, ...]] = Field(
         default_factory=dict, alias="per-file-ignores"
     )

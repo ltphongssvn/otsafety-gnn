@@ -3812,3 +3812,19 @@ candidates:
   text: tooling/pyproject.toml exempted tests.* from the ban on explicit Any, so nobody had examined what it permitted
   maps_to:
   - G.45
+- source: SESSION
+  ref: 'observed: an exemption with no count hid sixty-one sites'
+  text: the tests were exempt module-wide from the ban on explicit Any, so nobody had to look at what it permitted
+  maps_to:
+  - G.46
+- source: SESSION
+  ref: 'observed: Callable[..., X] is Any by another name'
+  text: two seams elided their parameters, which mypy's ban on explicit Any does not see
+  maps_to:
+  - G.46
+- source: SESSION
+  ref: 'observed: a gate hung for forty-one minutes'
+  text: bun auto-installed eslint from the registry in a worktree with no node_modules, and check_all had no timeout, so the
+    whole check sat silent
+  maps_to:
+  - G.47

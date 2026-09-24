@@ -60,3 +60,19 @@ test_the_root_must_ban_explicit_any if {
 	denied := policy.deny with input as mypy_world(loose, {}, "uv run mypy --config-file pyproject.toml src")
 	"pyproject.toml: mypy must set disallow_any_explicit" in denied
 }
+
+test_an_override_reopening_the_ban_is_denied if {
+	loose := object.union(strict_root, {"mypy": object.union(
+		strict_root.mypy,
+		{"overrides": [{"module": ["tests.*"], "disallow_any_explicit": false}]},
+	)})
+	denied := policy.deny with input as mypy_world(loose, {}, "uv run mypy --config-file pyproject.toml src")
+	some msg in denied
+	contains(msg, "permits whatever comes next")
+}
+
+test_the_annotation_family_is_required if {
+	thin := object.union(strict_root, {"ruff": {"lint": {"select": ["ANN401"]}}})
+	denied := policy.deny with input as mypy_world(thin, {}, "uv run mypy --config-file pyproject.toml src")
+	"pyproject.toml: ruff must select ANN001" in denied
+}

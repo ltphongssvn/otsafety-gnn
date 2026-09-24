@@ -52,6 +52,10 @@ ENVELOPE = re.compile(
 ANYWHERE, LOCAL = "anywhere", "local"
 
 # (name, command, where, fast)
+# TEN MINUTES IS GENEROUS FOR THE SLOWEST GATE HERE -- nix flake check builds every
+# pinned tool -- and far short of the forty-one minutes a registry fetch took.
+BOUND = 600
+
 GATES: list[tuple[str, list[str], str, bool]] = [
     # FIRST: every later gate runs on tools proved to be the pinned binaries.
     ("toolchain:verify", ["mise", "run", "toolchain:verify"], ANYWHERE, True),
@@ -119,9 +123,21 @@ def main(argv_in: list[str] | None = None) -> int:
     gates: list[Mapping[str, object]] = []
 
     for name, command, _, _ in selected:
-        completed = subprocess.run(command, capture_output=True, text=True, check=False)
-        passed = completed.returncode == 0
-        output = (completed.stdout + completed.stderr).strip()
+        try:
+            completed = subprocess.run(
+                command, capture_output=True, text=True, check=False, timeout=BOUND
+            )
+            passed = completed.returncode == 0
+            output = (completed.stdout + completed.stderr).strip()
+        except subprocess.TimeoutExpired as expired:
+            passed = False
+            stdout = expired.stdout or b""
+            partial = stdout.decode() if isinstance(stdout, bytes) else stdout
+            output = (
+                f"{name} exceeded {BOUND}s and was stopped. A gate that hangs holds the whole "
+                f"check and prints nothing while it does.\n{partial.strip()}"
+            )
+            completed = subprocess.CompletedProcess(command, 124, partial, "")
         results.append((name, passed, output))
         # THE GATE'S OWN VERDICT, CARRIED: it already produced one, so the
         # aggregate keeps it rather than discarding it into a text blob.
