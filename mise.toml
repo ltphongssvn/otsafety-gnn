@@ -289,14 +289,26 @@ description = "Resolve the site's dependencies into bun.lock, upgrading nothing 
 # lockfile deliberately; site:install then requires it.
 run = "bun install --cwd apps/site --save-text-lockfile"
 
+[tasks."site:sync"]
+description = "Generate Astro's types, which astro:content and the environment need"
+# THE ONE PLACE THAT GENERATES THEM, so no caller repeats the command and none
+# depends on another task having run first.
+run = "bun --bun run --cwd apps/site astro sync"
+
 [tasks."site:lint"]
 description = "ESLint over the site: the schema-first policy for TypeScript, with no inline disables"
 # --bun: ESLint's executable asks for node, and bun is this project's runtime.
-run = "bun --bun run --cwd apps/site lint"
+run = """
+mise run -q site:sync
+bun --bun run --cwd apps/site lint
+"""
 
 [tasks."site:types"]
 description = "Type-check the site's TypeScript and Astro files with the site's own check script"
-run = "bun run --cwd apps/site check"
+run = """
+mise run -q site:sync
+bun run --cwd apps/site check
+"""
 
 [tasks."site:install"]
 description = "Install the site's JavaScript dependencies from bun.lock"

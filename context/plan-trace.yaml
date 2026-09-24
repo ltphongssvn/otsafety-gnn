@@ -3840,3 +3840,9 @@ candidates:
     --no-sync completed it at once
   maps_to:
   - G.50
+- source: SESSION
+  ref: 'observed: the site linted only where it had already been built'
+  text: a fresh worktree rejected content.config.ts with twenty-one unsafe-call errors because .astro/types.d.ts had never
+    been generated there
+  maps_to:
+  - G.51
