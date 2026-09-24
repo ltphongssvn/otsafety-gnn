@@ -20,6 +20,9 @@ import pytest
 from otsafety_tooling.contracts.zod import UnsupportedSchemaError, expression
 from otsafety_tooling.paths import REPO_ROOT
 
+# THIS FILE PROVES G.32: the claim the requirement matrix joins on.
+pytestmark = pytest.mark.requirement("G.32")
+
 GENERATED = sorted((REPO_ROOT / "apps" / "site" / "src" / "contracts").glob("*.gen.ts"))
 # Zod 3 forms that Zod 4 deprecates or replaces; none may appear in generated code.
 DEPRECATED = re.compile(
