@@ -101,6 +101,10 @@ inline:
   rule: S607
   count: 4
   reason: a bare executable name resolved on the PATH that mise and the Nix shell provide; no shell
+- path: tooling/src/otsafety_tooling/policy/inputs.py
+  rule: S603
+  count: 1
+  reason: runs the command each generated input declares in the manifest, committed data this repository owns
 - path: tooling/src/otsafety_tooling/runs.py
   rule: S603
   count: 1
