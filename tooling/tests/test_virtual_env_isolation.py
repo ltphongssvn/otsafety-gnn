@@ -23,6 +23,9 @@ from otsafety_tooling.git.env import scrubbed_env
 from otsafety_tooling.git.worktree import run_setup
 from otsafety_tooling.paths import REPO_ROOT
 
+# THIS FILE PROVES G.22: the claim the requirement matrix joins on.
+pytestmark = pytest.mark.requirement("G.22")
+
 ELSEWHERE = "/elsewhere/checkout/.venv"
 CALLS = {"run", "Popen", "call", "check_call", "check_output"}
 
