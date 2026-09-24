@@ -16,6 +16,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from pathlib import Path
+from typing import Final
 
 from pydantic import BaseModel, ConfigDict, RootModel
 
@@ -161,12 +162,33 @@ def _describe(evidence: Evidence) -> str:
     return f"release {evidence.tag} is not tagged"
 
 
+# WHAT A FACT SET CANNOT SEE, rather than what it failed to find. staged_facts
+# observes the index: a merged pull request and a tag cannot exist there, so an
+# empty set for those kinds means unobserved, never absent.
+BLIND_AT_THE_INDEX: Final = frozenset({"pr", "tag"})
+
+
+def blind_to(facts: Facts) -> frozenset[str]:
+    """The evidence kinds this observation could not have seen."""
+    if facts.ref == "the index":
+        return BLIND_AT_THE_INDEX
+    return frozenset()
+
+
 def unmet(plan: ProjectPlan, facts: Facts, step_id: str) -> list[str]:
-    """What a step's evidence still lacks, in words; empty when every piece holds."""
+    """What a step's evidence still lacks, in words; empty when every piece holds.
+
+    EVIDENCE OF A KIND THIS OBSERVATION COULD NOT SEE IS NOT JUDGED. Reporting it
+    unmet is the reassuring-looking answer and the wrong one: it blocked a step
+    whose pull request had merged sixty pull requests earlier.
+    """
     step = next((s for s in plan.steps if s.id == step_id), None)
     if step is None:
         return [f"{step_id} is a decision or unknown; it has no evidence to close"]
-    return [_describe(e) for e in step.done_when if not _holds(e, facts)]
+    unseeable = blind_to(facts)
+    return [
+        _describe(e) for e in step.done_when if e.kind not in unseeable and not _holds(e, facts)
+    ]
 
 
 def staged_facts(root: Path) -> Facts:
