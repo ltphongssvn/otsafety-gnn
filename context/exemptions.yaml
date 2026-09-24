@@ -53,14 +53,6 @@ inline:
   rule: TID251
   count: 4
   reason: 'the sanctioned reader: the one place raw parsing happens, straight into model_validate'
-- path: tooling/src/otsafety_tooling/contracts/schemas.py
-  rule: T201
-  count: 1
-  reason: 'prints the command''s output: this is a command-line entry point'
-- path: tooling/src/otsafety_tooling/contracts/settings.py
-  rule: T201
-  count: 2
-  reason: 'prints the command''s output: this is a command-line entry point'
 - path: tooling/src/otsafety_tooling/git/commit.py
   rule: S603
   count: 1

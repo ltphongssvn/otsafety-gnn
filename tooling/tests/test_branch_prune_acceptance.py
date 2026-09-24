@@ -19,6 +19,7 @@ from pathlib import Path
 
 from otsafety_tooling.contracts.branch_prune import PruneRecord
 from otsafety_tooling.contracts.branch_report import BranchReport, Finding
+from otsafety_tooling.contracts.outcome import EXIT_CODES
 from otsafety_tooling.git.branches import run_report, write_report
 from otsafety_tooling.git.env import git
 from otsafety_tooling.git.prune import run_prune
@@ -73,7 +74,8 @@ def _summary(record: PruneRecord) -> list[tuple[str, str, str]]:
 def test_without_a_branch_report_nothing_is_decided(tmp_path: Path) -> None:
     _, _, repo = _world(tmp_path)
     records = tmp_path / "records"
-    assert run_prune(repo, tmp_path / "reports", records, apply=True) == 1
+    # UNKNOWN IS A FAILURE, NOT A REFUSAL: with no report, nothing was judged.
+    assert run_prune(repo, tmp_path / "reports", records, apply=True) == EXIT_CODES["failed"]
     record = _record(records)
     assert (record.verdict, record.source_report, record.decisions) == ("unknown", None, ())
 

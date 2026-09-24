@@ -19,8 +19,10 @@ import sys
 from pathlib import Path
 from typing import ClassVar, Literal, Self
 
-from pydantic import Field, SecretStr, ValidationError, model_validator
+from pydantic import BaseModel, ConfigDict, Field, SecretStr, ValidationError, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from otsafety_tooling.cli import CommandRefused, note, result
 
 
 class ProjectSettings(BaseSettings):
@@ -59,23 +61,46 @@ def settings() -> ProjectSettings:
     return ProjectSettings()
 
 
+class SettingsChecked(BaseModel):
+    """The tracker settings, with the key reported as present or absent, never shown."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    wandb_mode: str
+    wandb_project: str | None
+    wandb_entity: str | None
+    wandb_api_key: str
+
+
 def main(argv: list[str]) -> int:
     if argv != ["check"]:
-        raise SystemExit("usage: python -m otsafety_tooling.contracts.settings check")
+        raise CommandRefused("usage", "usage: python -m otsafety_tooling.contracts.settings check")
     try:
         current = settings()
     except ValidationError as error:
-        print(f"refusing: {error}", file=sys.stderr)  # noqa: T201
-        return 1
+        note(f"refusing: {error}")
+        return result("wandb:check", "refused", "settings_invalid", str(error))
     key = "present" if current.wandb_api_key is not None else "absent"
+    checked = SettingsChecked(
+        wandb_mode=current.wandb_mode,
+        wandb_project=current.wandb_project,
+        wandb_entity=current.wandb_entity,
+        wandb_api_key=key,
+    )
     for line in (
         f"WANDB_MODE={current.wandb_mode}",
         f"WANDB_PROJECT={current.wandb_project or 'unset'}",
         f"WANDB_ENTITY={current.wandb_entity or 'unset'}",
         f"WANDB_API_KEY={key}",
     ):
-        print(line)  # noqa: T201
-    return 0
+        note(line)
+    return result(
+        "wandb:check",
+        "success",
+        "settings_read",
+        f"mode {current.wandb_mode}, key {key}",
+        checked,
+    )
 
 
 if __name__ == "__main__":
