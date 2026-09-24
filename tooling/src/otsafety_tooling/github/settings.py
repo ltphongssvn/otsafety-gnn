@@ -28,20 +28,24 @@ was requested.
 from __future__ import annotations
 
 import sys
+from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Protocol
 
-from pydantic import BaseModel, ConfigDict, ValidationError
+from pydantic import BaseModel, ConfigDict, JsonValue, ValidationError
 
 from otsafety_tooling.artifacts import artifacts_root
 from otsafety_tooling.cli import note, result
 from otsafety_tooling.contracts.outcome import Verdict as Outcome
 from otsafety_tooling.contracts.repository_settings import (
+    PROTECTION_CODES,
     REASON_CODES,
     SETTING_NAMES,
+    BranchProtection,
     MergeSettings,
     ObservedSettings,
+    ProtectionFinding,
     RepositoryResponse,
     SettingFinding,
     SettingsCheckReport,
@@ -109,6 +113,133 @@ def compare(desired: MergeSettings, observed: ObservedSettings) -> tuple[Setting
                     observed=actual,
                 )
             )
+    return tuple(findings)
+
+
+# THE THREE RULES THIS REPOSITORY BANS, in GitHub's own vocabulary: a force push
+# replaces published commits, a deletion discards them, and a direct push bypasses
+# the review that would have caught either.
+RULE_FOR = {
+    "allow_force_pushes": "non_fast_forward",
+    "allow_deletions": "deletion",
+    "require_pull_request": "pull_request",
+}
+
+
+def ruleset_payload(rule: BranchProtection) -> dict[str, JsonValue]:
+    """One declared protection as the ruleset GitHub's API documents.
+
+    NOBODY BYPASSES IT: bypass_actors is empty, so the rule holds for every actor
+    including an administrator. A rule with an exception is a rule that reports
+    protection it does not provide.
+    """
+    rules: list[JsonValue] = []
+    if not rule.allow_deletions:
+        rules.append({"type": "deletion"})
+    if not rule.allow_force_pushes:
+        rules.append({"type": "non_fast_forward"})
+    if rule.require_pull_request:
+        rules.append({"type": "pull_request"})
+    return {
+        "name": f"Protect {rule.branch}",
+        "target": "branch",
+        "enforcement": "active",
+        "bypass_actors": [],
+        "conditions": {"ref_name": {"include": [f"refs/heads/{rule.branch}"], "exclude": []}},
+        "rules": rules,
+    }
+
+
+def protection_observed(answered: Sequence[JsonValue]) -> tuple[BranchProtection, ...]:
+    """What the remote actually refuses, expressed as the contract declares it.
+
+    A DISABLED OR EVALUATING RULESET REFUSES NOTHING, so it is not read as
+    protection: reporting one as protective would call a repository safe while a
+    force push still succeeds.
+    """
+    held: list[BranchProtection] = []
+    for answer in answered:
+        # GITHUB'S ANSWER IS JSON, narrowed rather than declared as Any: a shape
+        # that is not what the API documents contributes no protection.
+        if not isinstance(answer, Mapping):
+            continue
+        if answer.get("enforcement") != "active" or answer.get("target") != "branch":
+            continue
+        rules = answer.get("rules")
+        kinds = {
+            entry.get("type")
+            for entry in (rules if isinstance(rules, Sequence) else ())
+            if isinstance(entry, Mapping)
+        }
+        conditions = answer.get("conditions")
+        ref_name = conditions.get("ref_name") if isinstance(conditions, Mapping) else None
+        included = ref_name.get("include") if isinstance(ref_name, Mapping) else None
+        for ref in included if isinstance(included, Sequence) else ():
+            held.append(
+                BranchProtection(
+                    branch=str(ref).removeprefix("refs/heads/"),
+                    allow_force_pushes="non_fast_forward" not in kinds,
+                    allow_deletions="deletion" not in kinds,
+                    require_pull_request="pull_request" in kinds,
+                )
+            )
+    return tuple(held)
+
+
+def protection_findings(
+    declared: Sequence[BranchProtection], observed: Sequence[BranchProtection] | None
+) -> tuple[ProtectionFinding, ...]:
+    """Every declared protection the remote does not hold, or would not show.
+
+    UNKNOWN, NEVER PASS: GitHub returns rulesets only to an administrative reader,
+    and an empty answer is indistinguishable from none declared. A caller that read
+    nothing gets P002 for every branch rather than a clean verdict.
+    """
+    if observed is None:
+        return tuple(
+            ProtectionFinding(
+                rule_id="P002",
+                reason_code=PROTECTION_CODES["P002"],
+                message=(
+                    f"the ruleset protecting {rule.branch} was not returned; "
+                    "administrative read is needed to see it"
+                ),
+                branch=rule.branch,
+            )
+            for rule in declared
+        ) or (
+            ProtectionFinding(
+                rule_id="P002",
+                reason_code=PROTECTION_CODES["P002"],
+                message="no ruleset was returned; administrative read is needed to see them",
+                branch="*",
+            ),
+        )
+    held = {rule.branch: rule for rule in observed}
+    findings: list[ProtectionFinding] = []
+    for rule in declared:
+        actual = held.get(rule.branch)
+        if actual is None:
+            findings.append(
+                ProtectionFinding(
+                    rule_id="P001",
+                    reason_code=PROTECTION_CODES["P001"],
+                    message=f"{rule.branch} has no ruleset; a force push is not refused",
+                    branch=rule.branch,
+                )
+            )
+            continue
+        for field in ("allow_force_pushes", "allow_deletions", "require_pull_request"):
+            want, got = getattr(rule, field), getattr(actual, field)
+            if want != got:
+                findings.append(
+                    ProtectionFinding(
+                        rule_id="P001",
+                        reason_code=PROTECTION_CODES["P001"],
+                        message=f"{rule.branch}: {field} is {got} but the policy requires {want}",
+                        branch=rule.branch,
+                    )
+                )
     return tuple(findings)
 
 

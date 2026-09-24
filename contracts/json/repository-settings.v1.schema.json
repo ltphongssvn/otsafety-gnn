@@ -46,6 +46,48 @@
       ],
       "title": "MergeSettings",
       "type": "object"
+    },
+    "protection": {
+      "anyOf": [
+        {
+          "items": {
+            "additionalProperties": false,
+            "description": "What the remote must refuse on one branch, whatever a clone's hooks say.\n\nA SIBLING OF THE MERGE POLICY, NOT PART OF IT: a ruleset is a different\nendpoint with a different shape, and one model covering both would let a\ncheck report a verdict on settings it never read.",
+            "properties": {
+              "branch": {
+                "title": "Branch",
+                "type": "string"
+              },
+              "allow_force_pushes": {
+                "default": false,
+                "title": "Allow Force Pushes",
+                "type": "boolean"
+              },
+              "allow_deletions": {
+                "default": false,
+                "title": "Allow Deletions",
+                "type": "boolean"
+              },
+              "require_pull_request": {
+                "default": true,
+                "title": "Require Pull Request",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "branch"
+            ],
+            "title": "BranchProtection",
+            "type": "object"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Protection"
     }
   },
   "required": [
