@@ -1,7 +1,7 @@
 {
   "contract": "sheet-facts/v1",
   "steps": 166,
-  "steps_done": 79,
+  "steps_done": 80,
   "ids": 201,
   "requirements": 200,
   "unconfirmed": 99,
@@ -75,7 +75,7 @@
     {
       "id": "8G",
       "title": "Contracts, policy and evidence",
-      "done": 42,
+      "done": 43,
       "total": 53,
       "state": "todo"
     },
@@ -153,9 +153,9 @@
     {
       "id": "G",
       "title": "Contracts, policy and evidence",
-      "done": 42,
+      "done": 43,
       "total": 53,
-      "percent": 79,
+      "percent": 81,
       "state": "active"
     }
   ]
