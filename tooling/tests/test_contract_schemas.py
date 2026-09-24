@@ -42,25 +42,8 @@ def test_the_committed_schema_matches_the_model(contract: str) -> None:
 def test_a_fixed_vocabulary_becomes_an_enum_the_site_can_check() -> None:
     """verdict and outcome were bare strings on the TypeScript side."""
     schema = schemas.json_schema("repository-settings-check/v1")
-    verdict = _at(schema, "properties", "verdict")
+    verdict = schemas.at(schema, "properties", "verdict")
     assert verdict["enum"] == ["pass", "fail", "unknown"]
-
-
-def _at(node: JsonValue, *path: str) -> dict[str, JsonValue]:
-    """Walk into a schema document to the mapping at PATH, refusing anything else.
-
-    A SCHEMA IS A UNION BY CONSTRUCTION. The tests read three levels in, and an
-    annotation of dict[str, Any] made those reads look safe while checking none of
-    them. Every path here addresses an object -- properties, a named property, its
-    items -- so the walk returns a mapping and names the path that failed.
-    """
-    for key in path:
-        if not isinstance(node, dict):
-            raise AssertionError(f"{'.'.join(path)}: {key} does not address a mapping")
-        node = node[key]
-    if not isinstance(node, dict):
-        raise AssertionError(f"{'.'.join(path)} is not a mapping")
-    return node
 
 
 def _objects(node: object) -> list[dict[str, JsonValue]]:
@@ -100,7 +83,7 @@ def test_the_reader_requires_every_field_and_fills_in_none(contract: str) -> Non
 
 def test_a_finding_is_a_checked_object_not_anything() -> None:
     schema = schemas.json_schema("repository-settings-check/v1")
-    items = _at(schema, "properties", "findings", "items")
+    items = schemas.at(schema, "properties", "findings", "items")
     assert items["type"] == "object"
     properties = items["properties"]
     assert isinstance(properties, dict)

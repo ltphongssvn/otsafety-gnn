@@ -19,7 +19,6 @@ import importlib
 import json
 import pkgutil
 import typing
-from typing import Any
 
 from pydantic import BaseModel
 
@@ -57,17 +56,20 @@ def test_the_status_record_is_exported_and_committed() -> None:
 
 
 def test_a_record_requires_every_field() -> None:
-    schema: dict[str, Any] = schemas.json_schema("plan-status/v1")
-    required = set(schema.get("required", []))
-    assert {"contract", "ref", "steps", "threads"} <= required
+    schema = schemas.json_schema("plan-status/v1")
+    declared = schema.get("required", [])
+    assert isinstance(declared, list)
+    assert {"contract", "ref", "steps", "threads"} <= set(declared)
 
 
 def test_an_authored_file_keeps_what_a_person_leaves_out() -> None:
     """A root step omits depends_on; the site must still accept the plan."""
-    plan: dict[str, Any] = schemas.json_schema("project-plan/v1")
-    step = plan["properties"]["steps"]["items"]
-    assert "depends_on" not in step.get("required", [])
-    assert "branch" not in step.get("required", [])
+    plan = schemas.json_schema("project-plan/v1")
+    step = schemas.at(plan, "properties", "steps", "items")
+    required = step.get("required", [])
+    assert isinstance(required, list)
+    assert "depends_on" not in required
+    assert "branch" not in required
 
 
 def test_no_discriminator_points_at_a_removed_definition() -> None:
