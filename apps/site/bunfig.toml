@@ -13,5 +13,4 @@
 # registry outright, so a gate can fail in a second rather than hang.
 [install]
 auto = "disable"
-offline = true
 frozenLockfile = true

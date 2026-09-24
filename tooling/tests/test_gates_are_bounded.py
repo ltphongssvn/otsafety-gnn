@@ -27,10 +27,23 @@ pytestmark = pytest.mark.requirement("G.47")
 
 
 def test_the_site_cannot_reach_the_registry_from_a_gate() -> None:
+    """A GATE THAT CAN FETCH CAN HANG. Bun's documentation states the mechanism: with
+    no node_modules it abandons Node-style resolution and AUTO-INSTALLS every
+    imported package on the fly, falling back to `latest` from the registry. That is
+    what held check_all for forty-one minutes with an HTTP client thread open,
+    printing nothing. auto = "disable" is the documented off switch, and with
+    node_modules moved aside the script now exits in under a second.
+
+    offline WAS TOO BROAD, AND CI SAID SO. It applies to `bun install` as well, so
+    the workflow's own install step refused every package on a runner with an empty
+    cache. Installing must reach the registry; resolving an import while a gate runs
+    must not. 2026 hardening practice agrees: frozenLockfile in bunfig, a frozen
+    lockfile on the CI install, and no offline.
+    """
     settings = read_toml(REPO_ROOT / "apps" / "site" / "bunfig.toml", BunfigFile).install
-    assert settings.auto == "disable", "auto-install turns a missing dependency into a fetch"
-    assert settings.offline is True, "the registry is not reachable while a gate runs"
+    assert settings.auto == "disable", "auto-install turns a missing import into a fetch"
     assert settings.frozen_lockfile is True, "a stale lockfile fails rather than resolving anew"
+    assert settings.offline is False, "offline would break the install step that fills the cache"
 
 
 def test_every_gate_carries_a_timeout() -> None:

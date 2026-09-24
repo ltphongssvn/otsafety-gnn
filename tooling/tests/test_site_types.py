@@ -98,18 +98,20 @@ def test_the_site_declares_its_own_jsx_element_type() -> None:
 
 
 def test_the_site_never_reaches_the_registry_at_check_time() -> None:
-    """A GATE THAT CAN HANG IS NOT A GATE. eslint-effective.ts imports eslint, and
-    in a worktree where setup has not run there is no node_modules -- so bun
-    resolved that import by AUTO-INSTALLING from the registry and sat there for
-    forty-one minutes with an HTTP client thread open, holding check_all and
-    returning no prompt. A network fetch has no time bound.
+    """A GATE THAT CAN FETCH CAN HANG. Bun's documentation states the mechanism: with
+    no node_modules it abandons Node-style resolution and AUTO-INSTALLS every
+    imported package on the fly, falling back to `latest` from the registry. That is
+    what held check_all for forty-one minutes with an HTTP client thread open,
+    printing nothing. auto = "disable" is the documented off switch, and with
+    node_modules moved aside the script now exits in under a second.
 
-    Bun's own documentation gives the lever: offline means a dependency that is
-    not cached is an error, and disabling auto-install makes an unresolvable
-    import fail at once. It now says `Cannot find package 'eslint'` in under a
-    second, which is what a missing install should look like.
+    offline WAS TOO BROAD, AND CI SAID SO. It applies to `bun install` as well, so
+    the workflow's own install step refused every package on a runner with an empty
+    cache. Installing must reach the registry; resolving an import while a gate runs
+    must not. 2026 hardening practice agrees: frozenLockfile in bunfig, a frozen
+    lockfile on the CI install, and no offline.
     """
     settings = read_toml(REPO_ROOT / "apps" / "site" / "bunfig.toml", BunfigFile).install
-    assert settings.auto == "disable", "auto-install turns a missing dependency into a fetch"
-    assert settings.offline is True, "the registry is not reachable from a gate"
+    assert settings.auto == "disable", "auto-install turns a missing import into a fetch"
     assert settings.frozen_lockfile is True, "a stale lockfile fails rather than resolving anew"
+    assert settings.offline is False, "offline would break the install step that fills the cache"
