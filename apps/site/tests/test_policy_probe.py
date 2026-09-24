@@ -12,19 +12,11 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from otsafety_tooling.contracts.eslint_config import EffectiveConfig
 from otsafety_tooling.contracts.files import read_json
+from otsafety_tooling.contracts.policy_inputs import PolicyInput, PolicyInputs
 
 REPO = Path(__file__).resolve().parents[3]
-INPUTS = [
-    "pyproject.toml",
-    "tooling/pyproject.toml",
-    "lefthook.yml",
-    ".github/workflows/test-site.yml",
-    ".github/workflows/test-tooling.yml",
-    ".github/workflows/zizmor.yml",
-    "context/exemptions.yaml",
-]
+INPUTS_MANIFEST = REPO / "contracts" / "policy-inputs.json"
 
 
 def _conftest() -> str:
@@ -33,25 +25,33 @@ def _conftest() -> str:
     return found
 
 
+def _declared() -> tuple[PolicyInput, ...]:
+    """The input set, read through its contract from the file the task reads.
+
+    NOT A SECOND LIST. This probe kept its own, so adding an input to the policy
+    left it judging a smaller world than the real run -- the divergence a single
+    declared set removes.
+    """
+    return read_json(INPUTS_MANIFEST, PolicyInputs).inputs
+
+
 def _world(tmp_path: Path) -> Path:
-    for rel in INPUTS:
-        (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(REPO / rel, tmp_path / rel)
-    out = tmp_path / "policy" / "eslint-effective.json"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    subprocess.run(
-        [
-            "bun",
-            "--bun",
-            "run",
-            "--cwd",
-            str(REPO / "apps" / "site"),
-            "scripts/eslint-effective.ts",
-            str(out),
-        ],
-        check=True,
-        capture_output=True,
-    )
+    for entry in _declared():
+        if entry.generated:
+            continue
+        (tmp_path / entry.path).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(REPO / entry.path, tmp_path / entry.path)
+    for entry in _declared():
+        if not entry.generated:
+            continue
+        target = tmp_path / entry.path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        subprocess.run(
+            [*entry.generated.split(), str(target)],
+            cwd=REPO,
+            check=True,
+            capture_output=True,
+        )
     return tmp_path
 
 
@@ -65,8 +65,7 @@ def _prove(world: Path) -> subprocess.CompletedProcess[str]:
             "policy",
             "--policy",
             str(REPO / "policy"),
-            *INPUTS,
-            "policy/eslint-effective.json",
+            *[entry.path for entry in _declared()],
         ],
         cwd=world,
         capture_output=True,
@@ -104,17 +103,10 @@ def test_removing_a_floor_is_denied(tmp_path: Path) -> None:
 
 
 def test_an_undeclared_eslint_exemption_is_denied(tmp_path: Path) -> None:
-    """A protected rule relaxed for one file, with no register entry, is denied by name."""
     world = _world(tmp_path)
-    path = world / "policy" / "eslint-effective.json"
-    effective = read_json(path, EffectiveConfig)
-    target = "apps/site/src/data/evidence.ts"
-    file = effective.files[target]
-    relaxed = file.rules["no-restricted-syntax"].model_copy(update={"severity": "off"})
-    rules = {**file.rules, "no-restricted-syntax": relaxed}
-    files = {**effective.files, target: file.model_copy(update={"rules": rules})}
-    path.write_text(
-        effective.model_copy(update={"files": files}).model_dump_json(indent=2), encoding="utf-8"
+    text = (world / "context" / "exemptions.yaml").read_text(encoding="utf-8")
+    (world / "context" / "exemptions.yaml").write_text(
+        text.split("\neslint:\n")[0] + "\n", encoding="utf-8"
     )
     run = _prove(world)
-    assert run.returncode != 0 and "evidence.ts: not enforced" in run.stdout, run.stdout
+    assert run.returncode != 0 and "generate-contracts.ts: not enforced" in run.stdout, run.stdout

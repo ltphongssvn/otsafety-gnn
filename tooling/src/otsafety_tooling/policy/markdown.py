@@ -13,10 +13,12 @@ CI, so a skipped hook still cannot land a Markdown file through a pull request.
 
 from __future__ import annotations
 
-import sys
 from collections.abc import Iterable
 from pathlib import Path
 
+from pydantic import BaseModel, ConfigDict
+
+from otsafety_tooling.cli import note, result
 from otsafety_tooling.git.env import git
 from otsafety_tooling.paths import REPO_ROOT
 
@@ -43,16 +45,35 @@ def staged(root: Path) -> list[str]:
     return _listed(root, "diff", "--cached", "--name-only", "--diff-filter=ACMR")
 
 
+class MarkdownChecked(BaseModel):
+    """The staged Markdown files, if any: the whole of what this rule decides on."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    markdown: list[str]
+
+
 def main() -> int:
     found = forbidden(staged(REPO_ROOT))
     if found:
-        print(  # noqa: T201
+        note(
             "refusing: Markdown is not kept in this repository. Record it in the commit "
-            "message, or in the code and configuration it explains:\n  " + "\n  ".join(found),
-            file=sys.stderr,
+            "message, or in the code and configuration it explains:\n  " + "\n  ".join(found)
         )
-        return 1
-    return 0
+        return result(
+            "policy:no-markdown",
+            "refused",
+            "markdown_staged",
+            "refusing: Markdown is not kept in this repository: " + ", ".join(found),
+            MarkdownChecked(markdown=found),
+        )
+    return result(
+        "policy:no-markdown",
+        "success",
+        "no_markdown",
+        "no Markdown is staged",
+        MarkdownChecked(markdown=[]),
+    )
 
 
 if __name__ == "__main__":

@@ -87,6 +87,10 @@ module-name = "otsafety_tooling"
 # A typo'd marker or config key is an error, not a silent new marker; a
 # passing xfail is a failure, so a fixed bug cannot leave an empty test behind.
 addopts = ["--strict-markers", "--strict-config", "-ra"]
+# A FILE CLAIMS THE REQUIREMENT IT PROVES. The matrix joins evidence to proof
+# through this marker, never by scanning a file for an id: a mention is not a
+# claim, and --strict-markers above makes an unregistered claim an error.
+markers = ["requirement(id): the plan steps this file proves"]
 xfail_strict = true
 testpaths = ["tests"]
 

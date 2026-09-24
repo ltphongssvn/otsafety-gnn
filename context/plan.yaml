@@ -8,68 +8,72 @@
 # only when the plan itself changes, and in the same commit as the work.
 contract: project-plan/v1
 threads:
-  - {id: A, title: 'Research definition'}
-  - {id: B, title: 'Engineering platform'}
+  - {id: A, title: Research definition}
+  - {id: B, title: Engineering platform}
   - {id: C, title: 'Deliverables: the site and the sheet'}
-  - {id: D, title: 'Experiment tracking'}
-  - {id: E, title: 'The GNN package'}
+  - {id: D, title: Experiment tracking}
+  - {id: E, title: The GNN package}
   - {id: F, title: 'Release, deployment and supply chain'}
   - {id: G, title: 'Contracts, policy and evidence'}
 phases:
-  - {id: '0', title: 'Ground truth'}
-  - {id: '1', title: 'Branch divergence'}
-  - {id: '2', title: 'GitFlow baseline'}
-  - {id: '3', title: 'Worktree'}
-  - {id: '4', title: 'Stack inventory'}
-  - {id: '6', title: 'Toolchain and tasks'}
-  - {id: '7', title: 'The site'}
-  - {id: '8', title: 'The PDF'}
-  - {id: '8F', title: 'Release, deployment and supply chain'}
-  - {id: '8G', title: 'Contracts, policy and evidence'}
-  - {id: '9', title: 'The GNN package'}
-  - {id: '10', title: 'Lightning AI'}
-  - {id: '11', title: 'Research execution'}
+  - {id: '0', title: Ground truth}
+  - {id: '1', title: Branch divergence}
+  - {id: '2', title: GitFlow baseline}
+  - {id: '3', title: Worktree}
+  - {id: '4', title: Stack inventory}
+  - {id: '6', title: Toolchain and tasks}
+  - {id: '7', title: The site}
+  - {id: '8', title: The PDF}
+  - {id: 8F, title: 'Release, deployment and supply chain'}
+  - {id: 8G, title: 'Contracts, policy and evidence'}
+  - {id: '9', title: The GNN package}
+  - {id: '10', title: Lightning AI}
+  - {id: '11', title: Research execution}
 loops:
-  - {id: declare, code: 'infrastructure and configuration', data: 'inventory and actual state'}
-  - {id: constrain, code: 'policy', data: 'verdicts with reasons'}
+  - {id: declare, code: infrastructure and configuration, data: inventory and actual state}
+  - {id: constrain, code: policy, data: verdicts with reasons}
   - {id: produce, code: 'pipelines, schemas and quality checks', data: 'lineage, quality results and metrics'}
-  - {id: promise, code: 'contracts and SLOs', data: 'evidence'}
-  - {id: instrument, code: 'observability and alerts', data: 'telemetry and incidents'}
+  - {id: promise, code: contracts and SLOs, data: evidence}
+  - {id: instrument, code: observability and alerts, data: telemetry and incidents}
 steps:
   - id: '0.1'
-    title: 'Every repository and worktree located'
+    title: Every repository and worktree located
     thread: B
     phase: '0'
+    depends_on: []
     serves:
       - {loop: declare, side: data}
     done_when:
       - {kind: task, name: 'worktree:list'}
   - id: '0.2'
-    title: 'Remotes, default branch and develop recorded'
+    title: Remotes, default branch and develop recorded
     thread: B
     phase: '0'
+    depends_on: []
     serves:
       - {loop: declare, side: data}
     done_when:
       - {kind: task, name: 'repo:check'}
   - id: '0.3'
-    title: 'Per-branch ahead and behind, after fetch --prune'
+    title: Per-branch ahead and behind, after fetch --prune
     thread: B
     phase: '0'
+    depends_on: []
     serves:
       - {loop: declare, side: data}
     done_when:
-      - {kind: task, name: 'branches'}
+      - {kind: task, name: branches}
   - id: '0.4'
-    title: 'Working tree, index and stash state'
+    title: Working tree, index and stash state
     thread: B
     phase: '0'
+    depends_on: []
     serves:
       - {loop: declare, side: data}
     done_when:
-      - {kind: task, name: 'status'}
+      - {kind: task, name: status}
   - id: '0.5'
-    title: 'Worktree list as observed state'
+    title: Worktree list as observed state
     thread: B
     phase: '0'
     depends_on: ['0.1']
@@ -78,7 +82,7 @@ steps:
     done_when:
       - {kind: task, name: 'worktree:list'}
   - id: '1.1'
-    title: 'Branch divergence resolved; merged branches pruned by plan'
+    title: Branch divergence resolved; merged branches pruned by plan
     thread: B
     phase: '1'
     depends_on: ['0.3']
@@ -97,7 +101,7 @@ steps:
     done_when:
       - {kind: task, name: 'start:here'}
   - id: '2.2'
-    title: 'Merges by verified pull request, as merge commits'
+    title: Merges by verified pull request, as merge commits
     thread: B
     phase: '2'
     depends_on: ['2.1']
@@ -105,9 +109,9 @@ steps:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
     done_when:
-      - {kind: task, name: 'pr'}
+      - {kind: task, name: pr}
   - id: '3.1'
-    title: 'Sibling worktrees created by task'
+    title: Sibling worktrees created by task
     thread: B
     phase: '3'
     depends_on: ['2.1']
@@ -116,7 +120,7 @@ steps:
     done_when:
       - {kind: task, name: 'worktree:add'}
   - id: '3.2'
-    title: 'Worktrees removed with their merged branch, never forced'
+    title: Worktrees removed with their merged branch, never forced
     thread: B
     phase: '3'
     depends_on: ['3.1']
@@ -125,40 +129,43 @@ steps:
     done_when:
       - {kind: task, name: 'worktree:remove'}
   - id: '4.1'
-    title: 'Python, uv, Node, Docker and git versions inventoried'
+    title: Python, uv, Node, Docker and git versions inventoried
     thread: B
     phase: '4'
+    depends_on: []
     serves:
       - {loop: declare, side: data}
     done_when:
-      - {kind: path, path: 'toolchain.json'}
+      - {kind: path, path: toolchain.json}
   - id: '4.2'
-    title: 'Apple Silicon and Linux targets declared'
+    title: Apple Silicon and Linux targets declared
     thread: B
     phase: '4'
     depends_on: ['4.1']
     serves:
       - {loop: declare, side: code}
     done_when:
-      - {kind: path, path: 'flake.nix'}
+      - {kind: path, path: flake.nix}
   - id: '4.3'
-    title: 'Lightning AI CLI present, authenticated, GPU quota known'
+    title: Lightning AI CLI present, authenticated, GPU quota known
     thread: B
     phase: '4'
+    depends_on: []
     serves:
       - {loop: declare, side: data}
     done_when:
       - {kind: task, name: 'lightning:check'}
   - id: '4.5'
-    title: 'cs1090a-recsys manifests read and its tooling ported'
+    title: cs1090a-recsys manifests read and its tooling ported
     thread: B
     phase: '4'
+    depends_on: []
     serves:
       - {loop: declare, side: code}
     done_when:
-      - {kind: path, path: 'tooling/src/otsafety_tooling/git/worktree.py'}
+      - {kind: path, path: tooling/src/otsafety_tooling/git/worktree.py}
   - id: '6.1'
-    title: 'toolchain.json, flake.nix and flake.lock'
+    title: toolchain.json, flake.nix and flake.lock
     thread: B
     phase: '6'
     depends_on: ['4.2']
@@ -166,28 +173,28 @@ steps:
       - {loop: declare, side: code}
       - {loop: declare, side: data}
     done_when:
-      - {kind: path, path: 'flake.lock'}
+      - {kind: path, path: flake.lock}
   - id: '6.2'
-    title: 'Tooling package ported, strictly typed'
+    title: Tooling package ported, strictly typed
     thread: B
     phase: '6'
     depends_on: ['4.5']
     serves:
       - {loop: declare, side: code}
     done_when:
-      - {kind: path, path: 'tooling/pyproject.toml'}
-      - {kind: path, path: 'uv.lock'}
+      - {kind: path, path: tooling/pyproject.toml}
+      - {kind: path, path: uv.lock}
   - id: '6.3'
-    title: 'Every operation a mise task'
+    title: Every operation a mise task
     thread: B
     phase: '6'
     depends_on: ['6.2']
     serves:
       - {loop: declare, side: code}
     done_when:
-      - {kind: path, path: 'mise.toml'}
+      - {kind: path, path: mise.toml}
   - id: '6.4'
-    title: 'Evidence root and run records with live PTY output'
+    title: Evidence root and run records with live PTY output
     thread: B
     phase: '6'
     depends_on: ['6.3']
@@ -195,10 +202,10 @@ steps:
       - {loop: promise, side: code}
       - {loop: promise, side: data}
     done_when:
-      - {kind: task, name: 'run'}
-      - {kind: path, path: 'tooling/src/otsafety_tooling/contracts/run_record.py'}
+      - {kind: task, name: run}
+      - {kind: path, path: tooling/src/otsafety_tooling/contracts/run_record.py}
   - id: '6.5'
-    title: 'Repository settings as a contract, checked and applied'
+    title: Repository settings as a contract, checked and applied
     thread: B
     phase: '6'
     depends_on: ['6.3']
@@ -206,21 +213,21 @@ steps:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
     done_when:
-      - {kind: path, path: 'contracts/repository-settings.json'}
+      - {kind: path, path: contracts/repository-settings.json}
       - {kind: task, name: 'repo:configure'}
   - id: '6.6'
-    title: 'lefthook, test-tooling CI, zizmor and Dependabot'
+    title: lefthook, test-tooling CI, zizmor and Dependabot
     thread: B
     phase: '6'
     depends_on: ['6.3']
     serves:
       - {loop: constrain, side: code}
     done_when:
-      - {kind: path, path: 'lefthook.yml'}
-      - {kind: path, path: '.github/workflows/zizmor.yml'}
-      - {kind: path, path: '.github/dependabot.yml'}
+      - {kind: path, path: lefthook.yml}
+      - {kind: path, path: .github/workflows/zizmor.yml}
+      - {kind: path, path: .github/dependabot.yml}
   - id: '6.7'
-    title: 'Every gate in one pass, every failure reported'
+    title: Every gate in one pass, every failure reported
     thread: B
     phase: '6'
     depends_on: ['6.6']
@@ -228,63 +235,64 @@ steps:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
     done_when:
-      - {kind: path, path: 'scripts/check_all.py'}
-  - id: 'A.1'
-    title: 'Question, objective, Q1/Q2/Q3, granularity, label source'
+      - {kind: path, path: scripts/check_all.py}
+  - id: A.1
+    title: Question, objective, Q1/Q2/Q3, granularity, label source
     thread: A
     phase: '7'
+    depends_on: []
     serves:
       - {loop: promise, side: code}
     done_when:
-      - {kind: path, path: 'apps/site/src/data/research.ts'}
-  - id: 'A.2'
-    title: 'Ingestion contract pinned to Open Targets 26.03'
+      - {kind: path, path: apps/site/src/data/research.ts}
+  - id: A.2
+    title: Ingestion contract pinned to Open Targets 26.03
     thread: A
     phase: '7'
-    depends_on: ['A.1']
+    depends_on: [A.1]
     serves:
       - {loop: declare, side: code}
       - {loop: promise, side: code}
     done_when:
-      - {kind: path, path: 'conf/config.yaml'}
+      - {kind: path, path: conf/config.yaml}
   - id: '7.1'
-    title: 'Astro, React and bun; home and architecture pages'
+    title: Astro, React and bun; home and architecture pages
     thread: C
     phase: '7'
     depends_on: ['6.3']
     serves:
       - {loop: declare, side: code}
     done_when:
-      - {kind: path, path: 'apps/site/src/pages/architecture.astro'}
+      - {kind: path, path: apps/site/src/pages/architecture.astro}
   - id: '7.2'
-    title: 'Browser tests on Linux'
+    title: Browser tests on Linux
     thread: C
     phase: '7'
     depends_on: ['7.1']
     serves:
       - {loop: constrain, side: code}
     done_when:
-      - {kind: path, path: '.github/workflows/test-site.yml'}
+      - {kind: path, path: .github/workflows/test-site.yml}
   - id: '7.3'
-    title: 'Evidence page from run records and verdicts'
+    title: Evidence page from run records and verdicts
     thread: C
     phase: '7'
     depends_on: ['7.1', '6.4']
     serves:
       - {loop: promise, side: data}
     done_when:
-      - {kind: path, path: 'apps/site/src/pages/evidence.astro'}
+      - {kind: path, path: apps/site/src/pages/evidence.astro}
   - id: '7.4'
-    title: 'Method, data and stack pages'
+    title: Method, data and stack pages
     thread: C
     phase: '7'
-    depends_on: ['7.1', 'A.2']
+    depends_on: ['7.1', A.2]
     serves:
       - {loop: promise, side: code}
     done_when:
-      - {kind: path, path: 'apps/site/src/pages/stack.astro'}
+      - {kind: path, path: apps/site/src/pages/stack.astro}
   - id: '7.5'
-    title: 'Results page computed from experiment records'
+    title: Results page computed from experiment records
     thread: C
     phase: '7'
     depends_on: ['7.3']
@@ -294,7 +302,7 @@ steps:
     done_when:
       - {kind: pr, number: 13}
   - id: '7.6'
-    title: 'Site published at a live URL'
+    title: Site published at a live URL
     thread: C
     phase: '7'
     depends_on: ['7.5']
@@ -310,25 +318,25 @@ steps:
     serves:
       - {loop: promise, side: code}
     done_when:
-      - {kind: path, path: 'apps/site/src/pages/thinking.astro'}
+      - {kind: path, path: apps/site/src/pages/thinking.astro}
   - id: '7.8'
-    title: 'Site datasets derived from conf/config.yaml, not repeated'
+    title: Site datasets derived from conf/config.yaml, not repeated
     thread: C
     phase: '7'
-    depends_on: ['G.2', 'A.2']
+    depends_on: [G.2, A.2]
     serves:
       - {loop: promise, side: code}
     done_when:
-      - {kind: path, path: 'contracts/json/opentargets-config.v1.schema.json'}
+      - {kind: path, path: contracts/json/opentargets-config.v1.schema.json}
   - id: '8.1'
-    title: 'Architecture sheet generated in the repository'
+    title: Architecture sheet generated in the repository
     thread: C
     phase: '8'
     depends_on: ['6.3']
     serves:
       - {loop: produce, side: code}
     done_when:
-      - {kind: path, path: 'scripts/build_arch_onepager.py'}
+      - {kind: path, path: scripts/build_arch_onepager.py}
   - id: '8.2'
     title: 'Sheet asserted: one page, every section, no stale text'
     thread: C
@@ -337,9 +345,9 @@ steps:
     serves:
       - {loop: constrain, side: code}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_onepager.py'}
+      - {kind: path, path: tooling/tests/test_onepager.py}
   - id: '8.3'
-    title: 'Fonts vendored, renderer pinned, CI the render of record'
+    title: Fonts vendored, renderer pinned, CI the render of record
     thread: C
     phase: '8'
     depends_on: ['8.2']
@@ -348,7 +356,7 @@ steps:
     done_when:
       - {kind: pr, number: 12}
   - id: '8.4'
-    title: 'Sheet rendered by task in CI, uploaded even on failure'
+    title: Sheet rendered by task in CI, uploaded even on failure
     thread: C
     phase: '8'
     depends_on: ['8.3']
@@ -358,343 +366,353 @@ steps:
     done_when:
       - {kind: task, name: 'pdf:render'}
   - id: '8.5'
-    title: 'context/architecture.yaml under one contract: layers, pillars, loops, rungs, gates, stages, scope and questions, read by every page, the sheet and the sweep'
+    title: 'context/architecture.yaml under one contract: layers, pillars, loops, rungs, gates, stages, scope and questions,
+      read by every page, the sheet and the sweep'
     thread: C
     phase: '8'
     depends_on: ['8.1', '7.1']
     serves:
       - {loop: promise, side: code}
     done_when:
-      - {kind: path, path: 'context/architecture.yaml'}
-      - {kind: path, path: 'contracts/json/architecture.v1.schema.json'}
+      - {kind: path, path: context/architecture.yaml}
+      - {kind: path, path: contracts/json/architecture.v1.schema.json}
   - id: '8.6'
     title: 'Sheet status, phases, workstreams and stack line derived: from this plan and toolchain.json'
     thread: C
     phase: '8'
-    depends_on: ['G.0', 'G.20', 'G.23']
+    depends_on: [G.0, G.20, G.23]
     branch: feature/sheet-derived-status
     serves:
       - {loop: promise, side: code}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_sheet_from_plan.py'}
+      - {kind: path, path: tooling/tests/test_sheet_from_plan.py}
   - id: '8.7'
-    title: 'Conceptual one-pager, the ablation ladder, printed from its own site route'
+    title: Conceptual one-pager, the ablation ladder, printed from its own site route
     thread: C
     phase: '8'
     depends_on: ['8.5']
     serves:
       - {loop: produce, side: code}
     done_when:
-      - {kind: path, path: 'scripts/build_conceptual_onepager.py'}
+      - {kind: path, path: scripts/build_conceptual_onepager.py}
   - id: '8.8'
-    title: 'Sheet served from the site and published with each release'
+    title: Sheet served from the site and published with each release
     thread: C
     phase: '8'
-    depends_on: ['8.4', 'F.10', '8.10', '6.9']
+    depends_on: ['8.4', F.10, '8.10', '6.9']
     serves:
       - {loop: instrument, side: code}
       - {loop: promise, side: data}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_sheet_published.py'}
-  - id: 'D.1'
-    title: 'MLflow recording through the tracking port, verified on Linux'
+      - {kind: path, path: tooling/tests/test_sheet_published.py}
+  - id: D.1
+    title: MLflow recording through the tracking port, verified on Linux
     thread: D
     phase: '8'
+    depends_on: []
     serves:
       - {loop: produce, side: data}
     done_when:
-      - {kind: path, path: 'tooling/src/otsafety_tooling/tracking_mlflow.py'}
-      - {kind: path, path: 'tooling/tests/test_mlflow_tracker.py'}
-  - id: 'D.2'
-    title: 'Weights and Biases first-class beside MLflow, offline by default'
+      - {kind: path, path: tooling/src/otsafety_tooling/tracking_mlflow.py}
+      - {kind: path, path: tooling/tests/test_mlflow_tracker.py}
+  - id: D.2
+    title: Weights and Biases first-class beside MLflow, offline by default
     thread: D
     phase: '8'
-    depends_on: ['D.1']
+    depends_on: [D.1]
     serves:
       - {loop: produce, side: data}
     done_when:
-      - {kind: path, path: 'tooling/src/otsafety_tooling/tracking_wandb.py'}
-      - {kind: path, path: 'tooling/tests/test_wandb_tracker.py'}
-  - id: 'F.1'
-    title: 'Railway CLI and Caddy image pinned past a seven-day cooldown'
+      - {kind: path, path: tooling/src/otsafety_tooling/tracking_wandb.py}
+      - {kind: path, path: tooling/tests/test_wandb_tracker.py}
+  - id: F.1
+    title: Railway CLI and Caddy image pinned past a seven-day cooldown
     thread: F
-    phase: '8F'
+    phase: 8F
     depends_on: ['6.1']
     serves:
       - {loop: declare, side: code}
     done_when:
       - {kind: pr, number: 14}
-  - id: 'F.2'
-    title: 'Smoke-tested before deploy, verified after'
+  - id: F.2
+    title: Smoke-tested before deploy, verified after
     thread: F
-    phase: '8F'
-    depends_on: ['F.1']
+    phase: 8F
+    depends_on: [F.1]
     serves:
       - {loop: instrument, side: code}
       - {loop: instrument, side: data}
     done_when:
       - {kind: pr, number: 14}
       - {kind: task, name: 'deploy:verify'}
-  - id: 'F.3'
-    title: 'Versions cut from main; release tool in its own lock'
+  - id: F.3
+    title: Versions cut from main; release tool in its own lock
     thread: F
-    phase: '8F'
-    depends_on: ['F.2']
+    phase: 8F
+    depends_on: [F.2]
     serves:
       - {loop: produce, side: code}
       - {loop: promise, side: data}
     done_when:
       - {kind: pr, number: 15}
       - {kind: pr, number: 16}
-  - id: 'F.4'
-    title: 'Promotion by pull request; deploy refuses anything but a tag on main'
+  - id: F.4
+    title: Promotion by pull request; deploy refuses anything but a tag on main
     thread: F
-    phase: '8F'
-    depends_on: ['F.3']
+    phase: 8F
+    depends_on: [F.3]
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
     done_when:
       - {kind: pr, number: 17}
-      - {kind: release, tag: 'v1.0.0'}
-  - id: 'F.5'
-    title: 'A fix released from its tag, v1.0.1; its deployment is proven by F.6'
+      - {kind: release, tag: v1.0.0}
+  - id: F.5
+    title: A fix released from its tag, v1.0.1; its deployment is proven by F.6
     thread: F
-    phase: '8F'
-    depends_on: ['F.4']
+    phase: 8F
+    depends_on: [F.4]
     serves:
       - {loop: promise, side: data}
     done_when:
-      - {kind: release, tag: 'v1.0.1'}
-  - id: 'F.6'
-    title: 'The deployed version is verifiable'
+      - {kind: release, tag: v1.0.1}
+  - id: F.6
+    title: The deployed version is verifiable
     thread: F
-    phase: '8F'
-    depends_on: ['F.5']
+    phase: 8F
+    depends_on: [F.5]
     serves:
       - {loop: instrument, side: code}
       - {loop: instrument, side: data}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_deployed_version.py'}
-  - id: 'F.7'
-    title: 'Rollback to the previous tag, as a task'
+      - {kind: path, path: tooling/tests/test_deployed_version.py}
+  - id: F.7
+    title: Rollback to the previous tag, as a task
     thread: F
-    phase: '8F'
-    depends_on: ['F.6']
-    source: 'cs1090a-recsys I5'
+    phase: 8F
+    depends_on: [F.6]
+    source: cs1090a-recsys I5
     serves:
       - {loop: instrument, side: code}
     done_when:
       - {kind: task, name: 'deploy:rollback'}
-  - id: 'F.8'
-    title: 'Dependency scanning over every lockfile'
+  - id: F.8
+    title: Dependency scanning over every lockfile
     thread: F
-    phase: '8F'
-    source: 'cs1090a-recsys E11'
+    phase: 8F
+    depends_on: []
+    source: cs1090a-recsys E11
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
     done_when:
       - {kind: task, name: 'deps:scan'}
-  - id: 'F.9'
-    title: 'SBOM for every release'
+  - id: F.9
+    title: SBOM for every release
     thread: F
-    phase: '8F'
-    depends_on: ['F.5']
-    source: 'cs1090a-recsys F3'
+    phase: 8F
+    depends_on: [F.5]
+    source: cs1090a-recsys F3
     serves:
       - {loop: promise, side: data}
     done_when:
       - {kind: task, name: 'sbom:generate'}
-  - id: 'F.10'
-    title: 'Build provenance attested for sheet, image and SBOM'
+  - id: F.10
+    title: Build provenance attested for sheet, image and SBOM
     thread: F
-    phase: '8F'
-    depends_on: ['F.9', 'F.15']
-    source: 'cs1090a-recsys F1'
+    phase: 8F
+    depends_on: [F.9, F.15]
+    source: cs1090a-recsys F1
     serves:
       - {loop: promise, side: code}
       - {loop: promise, side: data}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_release_attests.py'}
-  - id: 'F.11'
-    title: 'Deploy refuses an artifact whose attestation fails'
+      - {kind: path, path: tooling/tests/test_release_attests.py}
+  - id: F.11
+    title: Deploy refuses an artifact whose attestation fails
     thread: F
-    phase: '8F'
-    depends_on: ['F.10']
-    source: 'cs1090a-recsys F2'
+    phase: 8F
+    depends_on: [F.10]
+    source: cs1090a-recsys F2
     serves:
       - {loop: constrain, side: code}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_deploy_verifies_attestation.py'}
-  - id: 'F.12'
-    title: 'Railway upgrade prompt silenced; DNS records as code'
+      - {kind: path, path: tooling/tests/test_deploy_verifies_attestation.py}
+  - id: F.12
+    title: Railway upgrade prompt silenced; DNS records as code
     thread: F
-    phase: '8F'
-    source: 'cs1090a-recsys G4'
+    phase: 8F
+    depends_on: []
+    source: cs1090a-recsys G4
     serves:
       - {loop: declare, side: code}
     done_when:
-      - {kind: path, path: 'deploy/dns/otsafetygnn.json'}
-  - id: 'F.13'
-    title: 'Dependency cooldown declared, not applied by hand'
+      - {kind: path, path: deploy/dns/otsafetygnn.json}
+  - id: F.13
+    title: Dependency cooldown declared, not applied by hand
     thread: F
-    phase: '8F'
+    phase: 8F
+    depends_on: []
     source: 'end-to-end-batch-data-pipeline-with-spark: exclude-newer'
     serves:
       - {loop: constrain, side: code}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_dependency_cooldown.py'}
-  - id: 'G.0'
-    title: 'The plan as intent; status observed, never typed'
+      - {kind: path, path: tooling/tests/test_dependency_cooldown.py}
+  - id: G.0
+    title: The plan as intent; status observed, never typed
     thread: G
-    phase: '8G'
-    depends_on: ['G.3']
+    phase: 8G
+    depends_on: [G.3]
     branch: feature/project-plan
     serves:
       - {loop: promise, side: code}
       - {loop: promise, side: data}
     done_when:
-      - {kind: path, path: 'context/plan.yaml'}
+      - {kind: path, path: context/plan.yaml}
       - {kind: task, name: 'plan:status'}
-  - id: 'G.1'
-    title: 'Merges wait for every check the workflows promise'
+  - id: G.1
+    title: Merges wait for every check the workflows promise
     thread: G
-    phase: '8G'
+    phase: 8G
+    depends_on: []
     serves:
       - {loop: constrain, side: code}
     done_when:
       - {kind: pr, number: 16}
-  - id: 'G.2'
-    title: 'Pydantic to JSON Schema to Zod, drift-gated'
+  - id: G.2
+    title: Pydantic to JSON Schema to Zod, drift-gated
     thread: G
-    phase: '8G'
-    depends_on: ['G.1']
+    phase: 8G
+    depends_on: [G.1]
     serves:
       - {loop: promise, side: code}
     done_when:
       - {kind: pr, number: 18}
-  - id: 'G.3'
+  - id: G.3
     title: 'Python policy: raw parsing banned; models for every config'
     thread: G
-    phase: '8G'
-    depends_on: ['G.2']
+    phase: 8G
+    depends_on: [G.2]
     branch: feature/policy-schema-first
     serves:
       - {loop: constrain, side: code}
     done_when:
-      - {kind: path, path: 'tooling/src/otsafety_tooling/contracts/files.py'}
-  - id: 'G.4'
-    title: 'TypeScript policy: every assertion but as const, any and ts-comments banned; JSON.parse only at the boundary; no hand-written Zod or object types; no inline disables; run in hooks and CI'
+      - {kind: path, path: tooling/src/otsafety_tooling/contracts/files.py}
+  - id: G.4
+    title: 'TypeScript policy: every assertion but as const, any and ts-comments banned; JSON.parse only at the boundary;
+      no hand-written Zod or object types; no inline disables; run in hooks and CI'
     thread: G
-    phase: '8G'
-    depends_on: ['G.3', 'G.31']
+    phase: 8G
+    depends_on: [G.3, G.31]
     branch: feature/policy-schema-first
     serves:
       - {loop: constrain, side: code}
     done_when:
       - {kind: task, name: 'site:lint'}
-  - id: 'G.5'
-    title: 'OPA and Regal pinned; Rego proves both bans exist'
+  - id: G.5
+    title: OPA and Regal pinned; Rego proves both bans exist
     thread: G
-    phase: '8G'
-    depends_on: ['G.4', 'G.24', 'G.25', 'G.26', 'G.27', 'G.28', 'G.33']
-    source: 'cs1090a-recsys E5 E6'
+    phase: 8G
+    depends_on: [G.4, G.24, G.25, G.26, G.27, G.28, G.33]
+    source: cs1090a-recsys E5 E6
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
     done_when:
-      - {kind: task, name: 'policy'}
-  - id: 'G.6'
+      - {kind: task, name: policy}
+  - id: G.6
     title: 'Remediation as code: every finding carries its fix'
     thread: G
-    phase: '8G'
-    depends_on: ['G.5']
-    source: 'cs1090a-recsys E7'
+    phase: 8G
+    depends_on: [G.5]
+    source: cs1090a-recsys E7
     serves:
       - {loop: constrain, side: data}
     done_when:
       - {kind: task, name: 'policy:remediate'}
-  - id: 'G.7'
-    title: 'Hooks run the aggregate gate'
+  - id: G.7
+    title: Hooks run the aggregate gate
     thread: G
-    phase: '8G'
+    phase: 8G
     depends_on: ['6.7']
-    source: 'cs1090a-recsys E8'
+    source: cs1090a-recsys E8
     serves:
       - {loop: constrain, side: code}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_hooks_run_the_aggregate.py'}
-  - id: 'G.8'
-    title: "Every contract's schema exported and drift-gated"
+      - {kind: path, path: tooling/tests/test_hooks_run_the_aggregate.py}
+  - id: G.8
+    title: Every contract's schema exported and drift-gated
     thread: G
-    phase: '8G'
-    depends_on: ['G.2', 'G.27']
-    source: 'cs1090a-recsys E3'
+    phase: 8G
+    depends_on: [G.2, G.27]
+    source: cs1090a-recsys E3
     serves:
       - {loop: promise, side: code}
     done_when:
-      - {kind: path, path: 'contracts/json/branch-report.v1.schema.json'}
-      - {kind: path, path: 'contracts/json/plan-status.v1.schema.json'}
-  - id: 'G.9'
-    title: 'Hash-chained run ledger, verified by a gate'
+      - {kind: path, path: contracts/json/branch-report.v1.schema.json}
+      - {kind: path, path: contracts/json/plan-status.v1.schema.json}
+  - id: G.9
+    title: Hash-chained run ledger, verified by a gate
     thread: G
-    phase: '8G'
-    depends_on: ['6.4', 'G.10']
-    source: 'cs1090a-recsys E2'
+    phase: 8G
+    depends_on: ['6.4', G.10]
+    source: cs1090a-recsys E2
     serves:
       - {loop: promise, side: data}
     done_when:
       - {kind: task, name: 'ledger:verify'}
-  - id: 'G.10'
-    title: 'Retention and redaction of run records'
+  - id: G.10
+    title: Retention and redaction of run records
     thread: G
-    phase: '8G'
+    phase: 8G
     depends_on: ['6.4']
-    source: 'cs1090a-recsys E4'
+    source: cs1090a-recsys E4
     serves:
       - {loop: constrain, side: code}
     done_when:
-      - {kind: path, path: 'tooling/src/otsafety_tooling/redaction.py'}
-  - id: 'G.11'
-    title: 'sync advances every protected branch, judges merged against origin/develop, and prunes empty never-pushed branches only on request'
+      - {kind: path, path: tooling/src/otsafety_tooling/redaction.py}
+  - id: G.11
+    title: sync advances every protected branch, judges merged against origin/develop, and prunes empty never-pushed branches
+      only on request
     thread: G
-    phase: '8G'
+    phase: 8G
+    depends_on: []
     branch: feature/sync-perennial-branches
-    source: 'cs1090a-recsys P11; the branch report failing B001 with main 59 commits behind; an empty branch sync could not remove'
+    source: cs1090a-recsys P11; the branch report failing B001 with main 59 commits behind; an empty branch sync could not
+      remove
     serves:
       - {loop: constrain, side: code}
       - {loop: declare, side: data}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_sync_perennial.py'}
-  - id: 'G.12'
-    title: 'Policy released and deployed'
+      - {kind: path, path: tooling/tests/test_sync_perennial.py}
+  - id: G.12
+    title: Policy released and deployed
     thread: G
-    phase: '8G'
-    depends_on: ['G.6']
+    phase: 8G
+    depends_on: [G.6]
     serves:
       - {loop: promise, side: data}
     done_when:
-      - {kind: release, tag: 'v1.1.0'}
+      - {kind: release, tag: v1.1.0}
   - id: '9.0'
     title: 'Layer boundaries enforced: data never imports models'
     thread: E
     phase: '9'
     depends_on: ['9.1']
-    source: 'cs1090a-recsys E11'
+    source: cs1090a-recsys E11
     serves:
       - {loop: constrain, side: code}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_architecture_boundaries.py'}
+      - {kind: path, path: tooling/tests/test_architecture_boundaries.py}
   - id: '9.1'
-    title: 'python/otsafety as a uv workspace member'
+    title: python/otsafety as a uv workspace member
     thread: E
     phase: '9'
-    depends_on: ['G.12']
+    depends_on: [G.12]
     serves:
       - {loop: declare, side: code}
     done_when:
-      - {kind: path, path: 'python/otsafety/pyproject.toml'}
+      - {kind: path, path: python/otsafety/pyproject.toml}
   - id: '9.2'
     title: 'Contracts: Edge, SafetyLabel, Split, GateVerdict'
     thread: E
@@ -703,12 +721,12 @@ steps:
     serves:
       - {loop: promise, side: code}
     done_when:
-      - {kind: path, path: 'python/otsafety/src/otsafety/contracts.py'}
+      - {kind: path, path: python/otsafety/src/otsafety/contracts.py}
   - id: '9.3'
-    title: 'Pinned release fetched and its digest recorded'
+    title: Pinned release fetched and its digest recorded
     thread: E
     phase: '9'
-    depends_on: ['9.1', 'A.2', 'G.13']
+    depends_on: ['9.1', A.2, G.13]
     serves:
       - {loop: produce, side: data}
     done_when:
@@ -722,9 +740,9 @@ steps:
       - {loop: produce, side: code}
       - {loop: produce, side: data}
     done_when:
-      - {kind: path, path: 'python/otsafety/src/otsafety/data/ingest.py'}
+      - {kind: path, path: python/otsafety/src/otsafety/data/ingest.py}
   - id: '9.5'
-    title: 'Temporal split at the cutoff and a target-disjoint cold-start split; leakage checks DL1-3 that raise'
+    title: Temporal split at the cutoff and a target-disjoint cold-start split; leakage checks DL1-3 that raise
     thread: E
     phase: '9'
     depends_on: ['9.4']
@@ -732,42 +750,45 @@ steps:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
     done_when:
-      - {kind: path, path: 'python/otsafety/src/otsafety/data/splits.py'}
-      - {kind: path, path: 'python/otsafety/src/otsafety/audit/leakage.py'}
-      - {kind: path, path: 'conf/split/temporal.yaml'}
-      - {kind: path, path: 'conf/split/cold_start.yaml'}
+      - {kind: path, path: python/otsafety/src/otsafety/data/splits.py}
+      - {kind: path, path: python/otsafety/src/otsafety/audit/leakage.py}
+      - {kind: path, path: conf/split/temporal.yaml}
+      - {kind: path, path: conf/split/cold_start.yaml}
   - id: '9.6'
-    title: 'Degree null, stratified partial rho, promotion gate'
+    title: Degree null, stratified partial rho, promotion gate
     thread: E
     phase: '9'
     depends_on: ['9.4', '9.5']
-    source: 'reference spike: linear rank-residualisation still reports |rho| of about 0.21 where the label is a degree threshold, so the gate must stratify'
+    source: 'reference spike: linear rank-residualisation still reports |rho| of about 0.21 where the label is a degree threshold,
+      so the gate must stratify'
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
     done_when:
-      - {kind: path, path: 'python/otsafety/src/otsafety/audit/degree.py'}
+      - {kind: path, path: python/otsafety/src/otsafety/audit/degree.py}
   - id: '9.7'
-    title: 'Endpoint DAG from EFO, MONDO and HPO, with a licensed MedDRA hierarchy mountable unchanged; true-path closure over every parent; predictions made coherent before scoring'
+    title: Endpoint DAG from EFO, MONDO and HPO, with a licensed MedDRA hierarchy mountable unchanged; true-path closure over
+      every parent; predictions made coherent before scoring
     thread: E
     phase: '9'
     depends_on: ['9.2', '9.6']
     serves:
       - {loop: produce, side: code}
     done_when:
-      - {kind: path, path: 'python/otsafety/src/otsafety/data/ontology.py'}
-      - {kind: path, path: 'python/otsafety/src/otsafety/models/hierarchy.py'}
+      - {kind: path, path: python/otsafety/src/otsafety/data/ontology.py}
+      - {kind: path, path: python/otsafety/src/otsafety/models/hierarchy.py}
   - id: '9.8'
     title: 'Attribution: Mantel-Haenszel and noisy-OR'
     thread: E
     phase: '9'
     depends_on: ['9.4', '9.7']
-    source: 'reference spike: noisy-OR recovers 0.746 against a true 0.75 where naive propagation gives a passenger 0.267; Mantel-Haenszel takes a crude ROR of 58.1 to 1.00 [0.67, 1.49]'
+    source: 'reference spike: noisy-OR recovers 0.746 against a true 0.75 where naive propagation gives a passenger 0.267;
+      Mantel-Haenszel takes a crude ROR of 58.1 to 1.00 [0.67, 1.49]'
     serves:
       - {loop: produce, side: code}
       - {loop: produce, side: data}
     done_when:
-      - {kind: path, path: 'python/otsafety/src/otsafety/data/attribution.py'}
+      - {kind: path, path: python/otsafety/src/otsafety/data/attribution.py}
   - id: '9.9'
     title: 'Labels: three states, tiers never pooled'
     thread: E
@@ -777,22 +798,22 @@ steps:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
     done_when:
-      - {kind: path, path: 'python/otsafety/src/otsafety/data/labels.py'}
+      - {kind: path, path: python/otsafety/src/otsafety/data/labels.py}
   - id: '9.10'
-    title: 'Model factory with the Q2 and Q3 arms, and the degree-offset head'
+    title: Model factory with the Q2 and Q3 arms, and the degree-offset head
     thread: E
     phase: '9'
     depends_on: ['9.9', '9.5', '9.6']
     serves:
       - {loop: produce, side: code}
     done_when:
-      - {kind: path, path: 'python/otsafety/src/otsafety/models/hetero_gnn.py'}
-      - {kind: path, path: 'conf/model/rgcn.yaml'}
-      - {kind: path, path: 'conf/model/hgt.yaml'}
-      - {kind: path, path: 'conf/model/sage.yaml'}
-      - {kind: path, path: 'conf/model/gat.yaml'}
+      - {kind: path, path: python/otsafety/src/otsafety/models/hetero_gnn.py}
+      - {kind: path, path: conf/model/rgcn.yaml}
+      - {kind: path, path: conf/model/hgt.yaml}
+      - {kind: path, path: conf/model/sage.yaml}
+      - {kind: path, path: conf/model/gat.yaml}
   - id: '9.11'
-    title: 'Pipeline emitting GateVerdict to the evidence root'
+    title: Pipeline emitting GateVerdict to the evidence root
     thread: E
     phase: '9'
     depends_on: ['9.10', '9.17']
@@ -800,28 +821,28 @@ steps:
       - {loop: produce, side: code}
       - {loop: produce, side: data}
     done_when:
-      - {kind: path, path: 'python/otsafety/src/otsafety/pipeline.py'}
+      - {kind: path, path: python/otsafety/src/otsafety/pipeline.py}
   - id: '9.12'
-    title: 'Conformal intervals, calibration, and metrics per seed, degree decile and level'
+    title: Conformal intervals, calibration, and metrics per seed, degree decile and level
     thread: E
     phase: '9'
     depends_on: ['9.11']
     serves:
       - {loop: produce, side: data}
     done_when:
-      - {kind: path, path: 'python/otsafety/src/otsafety/eval/metrics.py'}
+      - {kind: path, path: python/otsafety/src/otsafety/eval/metrics.py}
   - id: '9.13'
     title: 'Promotion gate as policy: rung 5 against rung 4, SLOs'
     thread: E
     phase: '9'
-    depends_on: ['9.12', 'G.5']
+    depends_on: ['9.12', G.5]
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
     done_when:
-      - {kind: path, path: 'policies/promotion/promotion.rego'}
+      - {kind: path, path: policies/promotion/promotion.rego}
   - id: '9.14'
-    title: 'Cypher provenance chain for every edge and verdict'
+    title: Cypher provenance chain for every edge and verdict
     thread: E
     phase: '9'
     depends_on: ['9.11', '9.29']
@@ -830,48 +851,48 @@ steps:
       - {loop: produce, side: data}
       - {loop: promise, side: data}
     done_when:
-      - {kind: path, path: 'python/otsafety/src/otsafety/provenance.py'}
+      - {kind: path, path: python/otsafety/src/otsafety/provenance.py}
   - id: '9.15'
-    title: 'Signed model card with its limitation statement, and its ML-BOM'
+    title: Signed model card with its limitation statement, and its ML-BOM
     thread: E
     phase: '9'
-    depends_on: ['9.13', 'F.10', '9.18', '9.14']
-    source: '2026 ML-BOM practice'
+    depends_on: ['9.13', F.10, '9.18', '9.14']
+    source: 2026 ML-BOM practice
     serves:
       - {loop: promise, side: data}
     done_when:
-      - {kind: path, path: 'python/otsafety/src/otsafety/eval/model_card.py'}
+      - {kind: path, path: python/otsafety/src/otsafety/eval/model_card.py}
   - id: '10.1'
-    title: 'Lightning AI bootstrapped; gates green on the same commit'
+    title: Lightning AI bootstrapped; gates green on the same commit
     thread: B
     phase: '10'
     depends_on: ['4.3', '9.1']
-    source: 'cs1090a-recsys G1 G2'
+    source: cs1090a-recsys G1 G2
     serves:
       - {loop: declare, side: data}
     done_when:
       - {kind: task, name: 'lightning:verify'}
   - id: '10.2'
-    title: 'Sync status of every copy as data'
+    title: Sync status of every copy as data
     thread: B
     phase: '10'
     depends_on: ['10.1']
-    source: 'cs1090a-recsys G3'
+    source: cs1090a-recsys G3
     serves:
       - {loop: declare, side: data}
     done_when:
       - {kind: task, name: 'sync:status'}
   - id: '10.3'
-    title: 'OpenTelemetry spans for pipeline runs'
+    title: OpenTelemetry spans for pipeline runs
     thread: B
     phase: '10'
     depends_on: ['10.1']
-    source: 'cs1090a-recsys F4'
+    source: cs1090a-recsys F4
     serves:
       - {loop: instrument, side: code}
       - {loop: instrument, side: data}
     done_when:
-      - {kind: path, path: 'tooling/src/otsafety_tooling/telemetry.py'}
+      - {kind: path, path: tooling/src/otsafety_tooling/telemetry.py}
   - id: '11.1'
     title: 'Q1 verdict: signal beyond node popularity'
     thread: A
@@ -880,16 +901,17 @@ steps:
     serves:
       - {loop: promise, side: data}
     done_when:
-      - {kind: path, path: 'context/verdicts/q1.yaml'}
+      - {kind: path, path: context/verdicts/q1.yaml}
   - id: '11.2'
-    title: 'Q2 verdict: the graph beyond target features, measured against the published ROC-AUC of about 0.71 from target features alone'
+    title: 'Q2 verdict: the graph beyond target features, measured against the published ROC-AUC of about 0.71 from target
+      features alone'
     thread: A
     phase: '11'
     depends_on: ['11.1']
     serves:
       - {loop: promise, side: data}
     done_when:
-      - {kind: path, path: 'context/verdicts/q2.yaml'}
+      - {kind: path, path: context/verdicts/q2.yaml}
   - id: '11.3'
     title: 'Q3 verdict: relation types carry the signal -- the research question'
     thread: A
@@ -898,7 +920,7 @@ steps:
     serves:
       - {loop: promise, side: data}
     done_when:
-      - {kind: path, path: 'context/verdicts/q3.yaml'}
+      - {kind: path, path: context/verdicts/q3.yaml}
   - id: '11.4'
     title: 'Secondary check: the same pipeline on target-disease association'
     thread: A
@@ -908,83 +930,84 @@ steps:
     serves:
       - {loop: promise, side: data}
     done_when:
-      - {kind: path, path: 'context/verdicts/secondary.yaml'}
+      - {kind: path, path: context/verdicts/secondary.yaml}
   - id: '11.5'
-    title: 'Cross-KG replication on Hetionet and PrimeKG'
+    title: Cross-KG replication on Hetionet and PrimeKG
     thread: A
     phase: '11'
     depends_on: ['11.3', '9.33']
-    source: 'sheet scope'
+    source: sheet scope
     serves:
       - {loop: promise, side: data}
     done_when:
-      - {kind: path, path: 'context/verdicts/replication.yaml'}
+      - {kind: path, path: context/verdicts/replication.yaml}
   - id: '11.6'
-    title: 'Proposal and sheet updated to the result, in either direction'
+    title: Proposal and sheet updated to the result, in either direction
     thread: C
     phase: '11'
     depends_on: ['11.4', '11.5', '8.6']
-    source: 'cs1090a-recsys J3'
+    source: cs1090a-recsys J3
     serves:
       - {loop: promise, side: data}
     done_when:
-      - {kind: path, path: 'context/verdicts/proposal-update.yaml'}
+      - {kind: path, path: context/verdicts/proposal-update.yaml}
   - id: '9.16'
-    title: 'Gate thresholds as configuration, SLOs declared in OpenSLO: min_partial_rho, min_ap_lift, max_drop and study-bias thresholds; the cutoff belongs to the split, step 9.5'
+    title: 'Gate thresholds as configuration, SLOs declared in OpenSLO: min_partial_rho, min_ap_lift, max_drop and study-bias
+      thresholds; the cutoff belongs to the split, step 9.5'
     thread: E
     phase: '9'
     depends_on: ['9.2']
-    source: "the as-code and as-data spine, and the one-pager's layers and stages"
+    source: the as-code and as-data spine, and the one-pager's layers and stages
     serves:
       - {loop: constrain, side: code}
     done_when:
-      - {kind: path, path: 'conf/gates.yaml'}
-      - {kind: path, path: 'policies/slo/promotion.openslo.yaml'}
+      - {kind: path, path: conf/gates.yaml}
+      - {kind: path, path: policies/slo/promotion.openslo.yaml}
   - id: '9.17'
-    title: 'Negative controls in the audit gate'
+    title: Negative controls in the audit gate
     thread: E
     phase: '9'
     depends_on: ['9.5', '9.6']
-    source: "the as-code and as-data spine, and the one-pager's layers and stages"
+    source: the as-code and as-data spine, and the one-pager's layers and stages
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
     done_when:
-      - {kind: path, path: 'python/otsafety/src/otsafety/audit/negative_controls.py'}
+      - {kind: path, path: python/otsafety/src/otsafety/audit/negative_controls.py}
   - id: '9.18'
     title: 'Audit evidence as records: metrics, degree strata, crude and adjusted, noisy-OR q vector'
     thread: E
     phase: '9'
-    depends_on: ['9.11', 'G.8']
-    source: "the as-code and as-data spine, and the one-pager's layers and stages"
+    depends_on: ['9.11', G.8]
+    source: the as-code and as-data spine, and the one-pager's layers and stages
     serves:
       - {loop: produce, side: data}
       - {loop: promise, side: data}
     done_when:
-      - {kind: path, path: 'contracts/json/audit-evidence.v1.schema.json'}
+      - {kind: path, path: contracts/json/audit-evidence.v1.schema.json}
   - id: '9.19'
     title: 'Verdicts and decisions as records: rule, verdict, reason; PROMOTE or REJECT'
     thread: E
     phase: '9'
-    depends_on: ['9.13', 'G.8', 'G.9']
-    source: "the as-code and as-data spine, and the one-pager's layers and stages"
+    depends_on: ['9.13', G.8, G.9]
+    source: the as-code and as-data spine, and the one-pager's layers and stages
     serves:
       - {loop: constrain, side: data}
     done_when:
-      - {kind: path, path: 'contracts/json/gate-verdict.v1.schema.json'}
-      - {kind: path, path: 'contracts/json/promotion-decision.v1.schema.json'}
+      - {kind: path, path: contracts/json/gate-verdict.v1.schema.json}
+      - {kind: path, path: contracts/json/promotion-decision.v1.schema.json}
   - id: '9.20'
     title: 'Enforcement: a REJECT turns CI red and the model card is refused'
     thread: E
     phase: '9'
     depends_on: ['9.19', '9.15']
-    source: "the as-code and as-data spine, and the one-pager's layers and stages"
+    source: the as-code and as-data spine, and the one-pager's layers and stages
     serves:
       - {loop: constrain, side: code}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_rejection_is_enforced.py'}
+      - {kind: path, path: tooling/tests/test_rejection_is_enforced.py}
   - id: '9.21'
-    title: "The spike's 25 tests re-derived as outside-in acceptance tests"
+    title: The spike's 25 tests re-derived as outside-in acceptance tests
     thread: E
     phase: '9'
     depends_on: ['9.1']
@@ -992,76 +1015,76 @@ steps:
     serves:
       - {loop: promise, side: code}
     done_when:
-      - {kind: path, path: 'python/otsafety/tests/acceptance/test_spike_expectations.py'}
+      - {kind: path, path: python/otsafety/tests/acceptance/test_spike_expectations.py}
   - id: '9.22'
     title: 'Training runner: five seeds, identical split, negatives and endpoints, bootstrap intervals'
     thread: E
     phase: '9'
     depends_on: ['9.10', '9.16', '9.23']
-    source: "the as-code and as-data spine, and the one-pager's layers and stages"
+    source: the as-code and as-data spine, and the one-pager's layers and stages
     serves:
       - {loop: produce, side: code}
       - {loop: produce, side: data}
     done_when:
-      - {kind: path, path: 'python/otsafety/src/otsafety/train.py'}
+      - {kind: path, path: python/otsafety/src/otsafety/train.py}
   - id: '9.23'
-    title: 'Versioned label set recorded'
+    title: Versioned label set recorded
     thread: E
     phase: '9'
-    depends_on: ['9.9', 'G.8']
-    source: "the as-code and as-data spine, and the one-pager's layers and stages"
+    depends_on: ['9.9', G.8]
+    source: the as-code and as-data spine, and the one-pager's layers and stages
     serves:
       - {loop: promise, side: data}
     done_when:
-      - {kind: path, path: 'contracts/json/label-set.v1.schema.json'}
+      - {kind: path, path: contracts/json/label-set.v1.schema.json}
   - id: '9.24'
     title: 'Baseline rungs: prevalence, degree-only null, tabular GBM and MLP, topology GBM'
     thread: E
     phase: '9'
     depends_on: ['9.9', '9.6', '9.31']
-    source: "the as-code and as-data spine, and the one-pager's layers and stages"
+    source: the as-code and as-data spine, and the one-pager's layers and stages
     serves:
       - {loop: produce, side: code}
     done_when:
-      - {kind: path, path: 'python/otsafety/src/otsafety/models/baselines.py'}
+      - {kind: path, path: python/otsafety/src/otsafety/models/baselines.py}
   - id: '9.25'
     title: 'Shallow KGE rungs: PyKEEN ComplEx and RotatE'
     thread: E
     phase: '9'
     depends_on: ['9.9']
-    source: "the as-code and as-data spine, and the one-pager's layers and stages"
+    source: the as-code and as-data spine, and the one-pager's layers and stages
     serves:
       - {loop: produce, side: code}
     done_when:
-      - {kind: path, path: 'python/otsafety/src/otsafety/models/kge.py'}
-      - {kind: path, path: 'conf/model/complex.yaml'}
-      - {kind: path, path: 'conf/model/rotate.yaml'}
+      - {kind: path, path: python/otsafety/src/otsafety/models/kge.py}
+      - {kind: path, path: conf/model/complex.yaml}
+      - {kind: path, path: conf/model/rotate.yaml}
   - id: '9.26'
-    title: "Every gate verdict shown on the site's evidence page"
+    title: Every gate verdict shown on the site's evidence page
     thread: C
     phase: '9'
-    depends_on: ['9.19', 'G.2']
-    source: "the as-code and as-data spine, and the one-pager's layers and stages"
+    depends_on: ['9.19', G.2]
+    source: the as-code and as-data spine, and the one-pager's layers and stages
     serves:
       - {loop: promise, side: data}
     done_when:
-      - {kind: path, path: 'apps/site/src/contracts/gate-verdict.v1.gen.ts'}
-  - id: 'F.14'
+      - {kind: path, path: apps/site/src/contracts/gate-verdict.v1.gen.ts}
+  - id: F.14
     title: 'Incidents as data: every production anomaly recorded, starting with the v1.0.1 deploy that printed no completion'
     thread: F
-    phase: '8F'
-    depends_on: ['F.6']
-    source: 'the as-code and as-data pillars'
+    phase: 8F
+    depends_on: [F.6]
+    source: the as-code and as-data pillars
     serves:
       - {loop: instrument, side: data}
     done_when:
-      - {kind: path, path: 'contracts/json/incident.v1.schema.json'}
+      - {kind: path, path: contracts/json/incident.v1.schema.json}
   - id: '10.4'
     title: 'Cost as data: Railway and Lightning GPU usage recorded'
     thread: B
     phase: '10'
     depends_on: ['10.1']
-    source: 'the as-code and as-data pillars'
+    source: the as-code and as-data pillars
     serves:
       - {loop: declare, side: data}
     done_when:
@@ -1071,23 +1094,23 @@ steps:
     thread: A
     phase: '11'
     depends_on: ['11.3']
-    source: 'the as-code and as-data pillars'
+    source: the as-code and as-data pillars
     serves:
       - {loop: produce, side: data}
     done_when:
-      - {kind: path, path: 'context/verdicts/release-drift.yaml'}
+      - {kind: path, path: context/verdicts/release-drift.yaml}
   - id: '9.27'
-    title: 'CI runs lint, contracts, policy, tests and the audit gate on a fixture graph'
+    title: CI runs lint, contracts, policy, tests and the audit gate on a fixture graph
     thread: E
     phase: '9'
-    depends_on: ['9.11', 'G.5']
+    depends_on: ['9.11', G.5]
     source: 'first plan, pillar-to-artifact table: Pipeline as Code'
     serves:
       - {loop: constrain, side: code}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_ci_runs_the_audit_gate.py'}
+      - {kind: path, path: tooling/tests/test_ci_runs_the_audit_gate.py}
   - id: '9.28'
-    title: 'The ladder declared as a DAG of runs'
+    title: The ladder declared as a DAG of runs
     thread: E
     phase: '9'
     depends_on: ['9.22', '8.5', '9.30']
@@ -1095,7 +1118,7 @@ steps:
     serves:
       - {loop: produce, side: code}
     done_when:
-      - {kind: path, path: 'conf/sweep.yaml'}
+      - {kind: path, path: conf/sweep.yaml}
   - id: '9.29'
     title: 'Lineage as data: OpenLineage events per pipeline stage'
     thread: E
@@ -1105,9 +1128,9 @@ steps:
     serves:
       - {loop: produce, side: data}
     done_when:
-      - {kind: path, path: 'python/otsafety/src/otsafety/lineage.py'}
+      - {kind: path, path: python/otsafety/src/otsafety/lineage.py}
   - id: '9.30'
-    title: "The package's CLI entry point, called by tasks"
+    title: The package's CLI entry point, called by tasks
     thread: E
     phase: '9'
     depends_on: ['9.1']
@@ -1115,30 +1138,30 @@ steps:
     serves:
       - {loop: declare, side: code}
     done_when:
-      - {kind: path, path: 'python/otsafety/src/otsafety/cli.py'}
-  - id: 'G.13'
+      - {kind: path, path: python/otsafety/src/otsafety/cli.py}
+  - id: G.13
     title: 'Compliance as code: MedDRA licence and Open Targets data-use terms checked in the gate'
     thread: G
-    phase: '8G'
-    depends_on: ['G.5']
+    phase: 8G
+    depends_on: [G.5]
     source: 'first plan, pillar-to-artifact table: Compliance as Code'
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
     done_when:
-      - {kind: path, path: 'policies/compliance/licences.rego'}
-  - id: 'G.14'
-    title: 'The plan rendered for reading, derived from plan.yaml'
+      - {kind: path, path: policies/compliance/licences.rego}
+  - id: G.14
+    title: The plan rendered for reading, derived from plan.yaml
     thread: G
-    phase: '8G'
-    depends_on: ['G.0']
+    phase: 8G
+    depends_on: [G.0]
     source: 'first plan, pillar-to-artifact table: Docs as Code'
     serves:
       - {loop: promise, side: data}
     done_when:
       - {kind: task, name: 'plan:show'}
   - id: '8.9'
-    title: 'The gate DAG as a generated Mermaid diagram'
+    title: The gate DAG as a generated Mermaid diagram
     thread: C
     phase: '8'
     depends_on: ['9.11']
@@ -1146,7 +1169,7 @@ steps:
     serves:
       - {loop: promise, side: code}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_gate_diagram.py'}
+      - {kind: path, path: tooling/tests/test_gate_diagram.py}
   - id: '10.5'
     title: 'Infrastructure as code: the Lightning AI job specification'
     thread: B
@@ -1156,9 +1179,9 @@ steps:
     serves:
       - {loop: declare, side: code}
     done_when:
-      - {kind: path, path: 'deploy/lightning/job.yaml'}
+      - {kind: path, path: deploy/lightning/job.yaml}
   - id: '6.8'
-    title: "The repository's description and homepage set through the repository-settings contract, pointing at the site"
+    title: The repository's description and homepage set through the repository-settings contract, pointing at the site
     thread: B
     phase: '6'
     depends_on: ['6.3']
@@ -1166,30 +1189,31 @@ steps:
     serves:
       - {loop: promise, side: code}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_repository_about.py'}
+      - {kind: path, path: tooling/tests/test_repository_about.py}
   - id: '6.9'
-    title: 'A licence, selected by research into what fits a public research repository, committed'
+    title: A licence, selected by research into what fits a public research repository, committed
     thread: B
     phase: '6'
+    depends_on: []
     source: 'commit 16dee9a: deliberately excluded, real work for a feature branch'
     serves:
       - {loop: promise, side: code}
     done_when:
-      - {kind: path, path: 'LICENSE'}
+      - {kind: path, path: LICENSE}
   - id: '8.10'
-    title: "The vendored fonts' SIL Open Font Licence travels with them"
+    title: The vendored fonts' SIL Open Font Licence travels with them
     thread: C
     phase: '8'
     depends_on: ['8.3']
-    source: 'SIL OFL 1.1 requires the licence to accompany the fonts'
+    source: SIL OFL 1.1 requires the licence to accompany the fonts
     serves:
       - {loop: constrain, side: data}
     done_when:
-      - {kind: path, path: 'assets/fonts/OFL.txt'}
-  - id: 'G.15'
-    title: 'Secrets scanned in the hooks and across the full history'
+      - {kind: path, path: assets/fonts/OFL.txt}
+  - id: G.15
+    title: Secrets scanned in the hooks and across the full history
     thread: G
-    phase: '8G'
+    phase: 8G
     depends_on: ['6.6']
     source: 'commit 16dee9a: the active layer of the three-part secret protection; cs1090a-recsys E11'
     serves:
@@ -1197,91 +1221,94 @@ steps:
       - {loop: constrain, side: data}
     done_when:
       - {kind: task, name: 'secrets:scan'}
-  - id: 'G.16'
-    title: 'Private vulnerability reporting enabled through the repository-settings contract'
+  - id: G.16
+    title: Private vulnerability reporting enabled through the repository-settings contract
     thread: G
-    phase: '8G'
-    depends_on: ['G.15']
+    phase: 8G
+    depends_on: [G.15]
     source: 'commit 16dee9a: the system its .gitignore was copied to serve'
     serves:
       - {loop: promise, side: code}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_vulnerability_reporting.py'}
+      - {kind: path, path: tooling/tests/test_vulnerability_reporting.py}
   - id: '10.6'
     title: 'Weights and Biases online on Lightning: entity declared there, offline runs synced'
     thread: D
     phase: '10'
-    depends_on: ['10.1', 'D.2']
+    depends_on: ['10.1', D.2]
     source: 'commit 8e40558: an online run with no entity lands in a personal project'
     serves:
       - {loop: produce, side: data}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_lightning_wandb_online.py'}
+      - {kind: path, path: tooling/tests/test_lightning_wandb_online.py}
   - id: '7.9'
-    title: 'The stack page derived from toolchain.json and the lockfiles, not typed'
+    title: The stack page derived from toolchain.json and the lockfiles, not typed
     thread: C
     phase: '7'
-    depends_on: ['7.4', 'G.3']
+    depends_on: ['7.4', G.3]
     source: 'pending since the platform work: stack page missing MLflow and W&B versions'
     serves:
       - {loop: promise, side: data}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_stack_page_derived.py'}
-  - id: 'G.17'
-    title: 'The ledger head anchored off-machine with each release'
+      - {kind: path, path: tooling/tests/test_stack_page_derived.py}
+  - id: G.17
+    title: The ledger head anchored off-machine with each release
     thread: G
-    phase: '8G'
-    depends_on: ['G.9', 'F.10']
+    phase: 8G
+    depends_on: [G.9, F.10]
     source: 'cs1090a-recsys F5: a local chain cannot detect its own truncation'
     serves:
       - {loop: promise, side: data}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_ledger_anchored.py'}
-  - id: 'G.18'
-    title: 'Promotion refuses unless develop already contains main'
+      - {kind: path, path: tooling/tests/test_ledger_anchored.py}
+  - id: G.18
+    title: Promotion refuses unless develop already contains main
     thread: G
-    phase: '8G'
-    depends_on: ['F.4']
-    source: "promotion PR #17 merged on checks from develop's push runs, sound only while develop contains main"
+    phase: 8G
+    depends_on: [F.4]
+    source: 'promotion PR #17 merged on checks from develop''s push runs, sound only while develop contains main'
     serves:
       - {loop: constrain, side: code}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_promotion_requires_back_merge.py'}
-  - id: 'G.19'
-    title: 'Every plan item traced to its source; completeness checked, not recalled'
+      - {kind: path, path: tooling/tests/test_promotion_requires_back_merge.py}
+  - id: G.19
+    title: Every plan item traced to its source; completeness checked, not recalled
     thread: G
-    phase: '8G'
-    depends_on: ['G.0']
-    source: 'the plan drifted from 64 to 92 to 103 steps while assembled from memory'
+    phase: 8G
+    depends_on: [G.0]
+    source: the plan drifted from 64 to 92 to 103 steps while assembled from memory
     serves:
       - {loop: promise, side: code}
       - {loop: promise, side: data}
     done_when:
-      - {kind: path, path: 'context/plan-trace.yaml'}
-  - id: 'F.15'
-    title: 'Every image input pinned, timestamps fixed, and each image rebuilt and digest-compared in CI'
+      - {kind: path, path: context/plan-trace.yaml}
+  - id: F.15
+    title: Every image input pinned, timestamps fixed, and each image rebuilt and digest-compared in CI
     thread: F
-    phase: '8F'
-    depends_on: ['F.1']
-    source: 'docker/render.Dockerfile installs pypdf>=5,<7, a range; 2026 reproducible-build practice'
+    phase: 8F
+    depends_on: [F.1]
+    source: docker/render.Dockerfile installs pypdf>=5,<7, a range; 2026 reproducible-build practice
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_images_reproducible.py'}
+      - {kind: path, path: tooling/tests/test_images_reproducible.py}
   - id: '9.31'
-    title: 'Non-graph target features for the Q2 control, materialized with keys and event time as of the cutoff: GTEx expression breadth, gnomAD pLI and LOEUF, protein family, subcellular localisation'
+    title: 'Non-graph target features for the Q2 control, materialized with keys and event time as of the cutoff: GTEx expression
+      breadth, gnomAD pLI and LOEUF, protein family, subcellular localisation'
     thread: E
     phase: '9'
-    depends_on: ['9.4', 'A.2']
-    source: "the one-pager's and the site's Q2 contrast; conf/config.yaml names different features, so the list is read off the Open Targets 26.03 schema, recorded once in the config, and derived by site and sheet"
+    depends_on: ['9.4', A.2]
+    source: the one-pager's and the site's Q2 contrast; conf/config.yaml names different features, so the list is read off
+      the Open Targets 26.03 schema, recorded once in the config, and derived by site and sheet
     serves:
       - {loop: produce, side: code}
       - {loop: produce, side: data}
     done_when:
-      - {kind: path, path: 'python/otsafety/src/otsafety/data/target_features.py'}
+      - {kind: path, path: python/otsafety/src/otsafety/data/target_features.py}
   - id: '7.10'
-    title: 'The architecture and method pages show the as-code and as-data pillars, the execution spine and the gate thresholds, read from the one source'
+    title: The architecture and method pages show the as-code and as-data pillars, the execution spine and the gate thresholds,
+      read from the one source
     thread: C
     phase: '7'
     depends_on: ['8.5', '9.16']
@@ -1290,41 +1317,44 @@ steps:
       - {loop: promise, side: code}
       - {loop: promise, side: data}
     done_when:
-      - {kind: path, path: 'apps/site/tests/test_architecture_pillars.py'}
-  - id: 'G.20'
-    title: 'Every context and conf YAML file exported through the contracts pipeline and loaded by the site as content collections with the generated Zod'
+      - {kind: path, path: apps/site/tests/test_architecture_pillars.py}
+  - id: G.20
+    title: Every context and conf YAML file exported through the contracts pipeline and loaded by the site as content collections
+      with the generated Zod
     thread: G
-    phase: '8G'
-    depends_on: ['G.2', 'G.8', 'G.32', 'G.30']
+    phase: 8G
+    depends_on: [G.2, G.8, G.32, G.30]
     source: 'one source for the plan, the one-pager and the site; 2026 practice: one YAML source, HTML and PDF from one template'
     serves:
       - {loop: promise, side: code}
       - {loop: promise, side: data}
     done_when:
-      - {kind: path, path: 'apps/site/src/content.config.ts'}
+      - {kind: path, path: apps/site/src/content.config.ts}
   - id: '7.11'
-    title: 'The plan on the site: threads, phases, steps and decisions from context/plan.yaml, with status from observed evidence, never typed'
+    title: 'The plan on the site: threads, phases, steps and decisions from context/plan.yaml, with status from observed evidence,
+      never typed'
     thread: C
     phase: '7'
-    depends_on: ['G.0', 'G.20', 'G.23']
+    depends_on: [G.0, G.20, G.23]
     source: 'one source for the plan, the one-pager and the site; 2026 practice: one YAML source, HTML and PDF from one template'
     serves:
       - {loop: promise, side: data}
     done_when:
-      - {kind: path, path: 'apps/site/src/pages/plan.astro'}
+      - {kind: path, path: apps/site/src/pages/plan.astro}
   - id: '8.12'
     title: 'The one-pager printed from a site route: one template and one stylesheet, the separate Python generator retired'
     thread: C
     phase: '8'
-    depends_on: ['8.5', '8.6', 'G.20', '7.8', '7.9']
+    depends_on: ['8.5', '8.6', G.20, '7.8', '7.9']
     source: 'one source for the plan, the one-pager and the site; 2026 practice: one YAML source, HTML and PDF from one template'
     serves:
       - {loop: produce, side: code}
     done_when:
-      - {kind: path, path: 'apps/site/src/pages/sheet.astro'}
-      - {kind: path, path: 'tooling/tests/test_sheet_is_the_site.py'}
+      - {kind: path, path: apps/site/src/pages/sheet.astro}
+      - {kind: path, path: tooling/tests/test_sheet_is_the_site.py}
   - id: '9.32'
-    title: 'Domain aggregates and value objects with their invariants: KnowledgeGraph and SafetyLabelSet beside the existing ExperimentRun, and ids and the release pin as value objects'
+    title: 'Domain aggregates and value objects with their invariants: KnowledgeGraph and SafetyLabelSet beside the existing
+      ExperimentRun, and ids and the release pin as value objects'
     thread: E
     phase: '9'
     depends_on: ['9.2']
@@ -1332,360 +1362,373 @@ steps:
     serves:
       - {loop: promise, side: code}
     done_when:
-      - {kind: path, path: 'python/otsafety/src/otsafety/domain/knowledge_graph.py'}
-      - {kind: path, path: 'python/otsafety/src/otsafety/domain/safety_label_set.py'}
-  - id: 'G.21'
-    title: 'Every tracked file opens with its repository path, proven by a gate rather than kept by habit'
+      - {kind: path, path: python/otsafety/src/otsafety/domain/knowledge_graph.py}
+      - {kind: path, path: python/otsafety/src/otsafety/domain/safety_label_set.py}
+  - id: G.21
+    title: Every tracked file opens with its repository path, proven by a gate rather than kept by habit
     thread: G
-    phase: '8G'
-    depends_on: ['G.5']
-    source: 'first plan, working rules: an inline comment on line 1 with the full path; today one test checks it for .gitignore alone'
+    phase: 8G
+    depends_on: [G.5]
+    source: 'first plan, working rules: an inline comment on line 1 with the full path; today one test checks it for .gitignore
+      alone'
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_every_file_names_its_path.py'}
+      - {kind: path, path: tooling/tests/test_every_file_names_its_path.py}
   - id: '9.33'
-    title: 'Hetionet and PrimeKG fetched, pinned by digest and ingested into the same Edge contract'
+    title: Hetionet and PrimeKG fetched, pinned by digest and ingested into the same Edge contract
     thread: E
     phase: '9'
     depends_on: ['9.4']
-    source: "the site's data table: secondary graphs replicate the Open Targets result on a different construction of the same biology"
+    source: 'the site''s data table: secondary graphs replicate the Open Targets result on a different construction of the
+      same biology'
     serves:
       - {loop: produce, side: code}
       - {loop: produce, side: data}
     done_when:
-      - {kind: path, path: 'python/otsafety/src/otsafety/data/secondary_graphs.py'}
-  - id: 'F.16'
-    title: 'The live site checked on a schedule, and a failure recorded as an incident'
+      - {kind: path, path: python/otsafety/src/otsafety/data/secondary_graphs.py}
+  - id: F.16
+    title: The live site checked on a schedule, and a failure recorded as an incident
     thread: F
-    phase: '8F'
-    depends_on: ['F.6', 'F.14']
+    phase: 8F
+    depends_on: [F.6, F.14]
     source: 'the pillars requirement: Monitoring and Alerting as Code; the site is verified only once, at deploy'
     serves:
       - {loop: instrument, side: code}
       - {loop: instrument, side: data}
     done_when:
-      - {kind: path, path: '.github/workflows/site-watch.yml'}
-  - id: 'G.22'
-    title: 'VIRTUAL_ENV isolated between worktrees'
+      - {kind: path, path: .github/workflows/site-watch.yml}
+  - id: G.22
+    title: VIRTUAL_ENV isolated between worktrees
     thread: G
-    phase: '8G'
-    source: 'cs1090a-recsys P16; observed here at worktree:add'
+    phase: 8G
+    depends_on: []
+    source: cs1090a-recsys P16; observed here at worktree:add
     serves:
       - {loop: constrain, side: code}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_virtual_env_isolation.py'}
-  - id: 'G.23'
-    title: 'Status observed at the commit being built, and stamped with its ref, commit and time on every rendered copy'
+      - {kind: path, path: tooling/tests/test_virtual_env_isolation.py}
+  - id: G.23
+    title: Status observed at the commit being built, and stamped with its ref, commit and time on every rendered copy
     thread: G
-    phase: '8G'
-    depends_on: ['G.0']
-    source: '2026 practice: no number typed; every rendered value resolved at build time from a record and re-checked by a gate'
+    phase: 8G
+    depends_on: [G.0]
+    source: '2026 practice: no number typed; every rendered value resolved at build time from a record and re-checked by a
+      gate'
     serves:
       - {loop: promise, side: data}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_status_stamped.py'}
+      - {kind: path, path: tooling/tests/test_status_stamped.py}
   - id: '8.13'
-    title: 'Rendered equals source: a gate re-reads the plan-status record and fails the build if the site or the sheet shows any value that differs'
+    title: 'Rendered equals source: a gate re-reads the plan-status record and fails the build if the site or the sheet shows
+      any value that differs'
     thread: C
     phase: '8'
-    depends_on: ['8.12', '7.11', 'G.23']
-    source: '2026 practice: no number typed; every rendered value resolved at build time from a record and re-checked by a gate'
+    depends_on: ['8.12', '7.11', G.23]
+    source: '2026 practice: no number typed; every rendered value resolved at build time from a record and re-checked by a
+      gate'
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_rendered_equals_source.py'}
-  - id: 'G.24'
-    title: 'Environment variables read only through one settings model; raw os.environ and os.getenv banned outside it'
+      - {kind: path, path: tooling/tests/test_rendered_equals_source.py}
+  - id: G.24
+    title: Environment variables read only through one settings model; raw os.environ and os.getenv banned outside it
     thread: G
-    phase: '8G'
-    source: 'schema-first as policy, before any more code; 2026 practice: ban the escape hatches outright, close inline bypass, enforce in hooks and CI'
+    phase: 8G
+    depends_on: []
+    source: 'schema-first as policy, before any more code; 2026 practice: ban the escape hatches outright, close inline bypass,
+      enforce in hooks and CI'
     serves:
       - {loop: constrain, side: code}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_settings_model.py'}
-  - id: 'G.25'
+      - {kind: path, path: tooling/tests/test_settings_model.py}
+  - id: G.25
     title: 'No Any in a signature: ruff ANN401 across tooling and scripts, tests exempt by configuration'
     thread: G
-    phase: '8G'
-    source: 'schema-first as policy, before any more code; 2026 practice: ban the escape hatches outright, close inline bypass, enforce in hooks and CI'
+    phase: 8G
+    depends_on: []
+    source: 'schema-first as policy, before any more code; 2026 practice: ban the escape hatches outright, close inline bypass,
+      enforce in hooks and CI'
     serves:
       - {loop: constrain, side: code}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_no_any.py'}
-  - id: 'G.26'
-    title: 'Every inline exemption declared in a contract-validated register with its reason; an undeclared noqa fails the gate'
+      - {kind: path, path: tooling/tests/test_no_any.py}
+  - id: G.26
+    title: Every inline exemption declared in a contract-validated register with its reason; an undeclared noqa fails the
+      gate
     thread: G
-    phase: '8G'
-    source: 'schema-first as policy, before any more code; 2026 practice: ban the escape hatches outright, close inline bypass, enforce in hooks and CI'
+    phase: 8G
+    depends_on: []
+    source: 'schema-first as policy, before any more code; 2026 practice: ban the escape hatches outright, close inline bypass,
+      enforce in hooks and CI'
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
     done_when:
-      - {kind: path, path: 'context/exemptions.yaml'}
-  - id: 'G.27'
+      - {kind: path, path: context/exemptions.yaml}
+  - id: G.27
     title: 'Generated Zod holds no z.any() or z.unknown(): a shape the generator cannot express fails the gate'
     thread: G
-    phase: '8G'
-    source: 'schema-first as policy, before any more code; 2026 practice: ban the escape hatches outright, close inline bypass, enforce in hooks and CI'
+    phase: 8G
+    depends_on: []
+    source: 'schema-first as policy, before any more code; 2026 practice: ban the escape hatches outright, close inline bypass,
+      enforce in hooks and CI'
     serves:
       - {loop: constrain, side: code}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_generated_zod_is_strict.py'}
-  - id: 'G.28'
-    title: 'No Markdown in the repository: a pre-commit floor over staged files, a gate over tracked files run in hooks and CI, one rule behind both'
+      - {kind: path, path: tooling/tests/test_generated_zod_is_strict.py}
+  - id: G.28
+    title: 'No Markdown in the repository: a pre-commit floor over staged files, a gate over tracked files run in hooks and
+      CI, one rule behind both'
     thread: G
-    phase: '8G'
-    source: 'Git is the record of repository documentation; a Markdown file beside the code drifts from what it describes'
+    phase: 8G
+    depends_on: []
+    source: Git is the record of repository documentation; a Markdown file beside the code drifts from what it describes
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_no_markdown.py'}
-  - id: 'G.29'
-    title: 'Every commit names its plan steps in a Plan-Step trailer, validated against the plan'
+      - {kind: path, path: tooling/tests/test_no_markdown.py}
+  - id: G.29
+    title: Every commit names its plan steps in a Plan-Step trailer, validated against the plan
     thread: G
-    phase: '8G'
-    source: 'Git is the record of repository documentation; a Markdown file beside the code drifts from what it describes'
+    phase: 8G
+    depends_on: []
+    source: Git is the record of repository documentation; a Markdown file beside the code drifts from what it describes
     serves:
       - {loop: promise, side: code}
       - {loop: promise, side: data}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_commit_trailers.py'}
-  - id: 'G.30'
-    title: 'One mypy configuration: the root''s and tooling''s are both in use and already drifted, so the no-Any rule and Pydantic''s plugin reach tooling/ only'
+      - {kind: path, path: tooling/tests/test_commit_trailers.py}
+  - id: G.30
+    title: 'One mypy configuration: the root''s and tooling''s are both in use and already drifted, so the no-Any rule and
+      Pydantic''s plugin reach tooling/ only'
     thread: G
-    phase: '8G'
-    depends_on: ['G.25']
-    source: 'the types task runs mypy from the root over scripts/ and apps/site/tests/, under the root configuration, which G.25 did not reach'
+    phase: 8G
+    depends_on: [G.25]
+    source: the types task runs mypy from the root over scripts/ and apps/site/tests/, under the root configuration, which
+      G.25 did not reach
     serves:
       - {loop: constrain, side: code}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_one_mypy_policy.py'}
-  - id: 'G.31'
+      - {kind: path, path: tooling/tests/test_one_mypy_policy.py}
+  - id: G.31
     title: 'The site''s TypeScript type-checked: TypeScript pinned, and astro check a gate in check and CI'
     thread: G
-    phase: '8G'
-    source: 'the site installs no TypeScript, so Astro strips its types and nothing has ever checked them'
+    phase: 8G
+    depends_on: []
+    source: the site installs no TypeScript, so Astro strips its types and nothing has ever checked them
     serves:
       - {loop: constrain, side: code}
     done_when:
       - {kind: task, name: 'site:types'}
-  - id: 'G.32'
-    title: 'Zod generated in-repo from the contracts, in current Zod 4 API; the abandoned generator removed, and astro check failing on any hint'
+  - id: G.32
+    title: Zod generated in-repo from the contracts, in the current Zod 4 API; the abandoned generator removed, and astro
+      check failing on any hint
     thread: G
-    phase: '8G'
-    depends_on: ['G.31']
-    source: 'json-schema-to-zod, abandoned March 2026, emitted z.string().datetime() seven times; astro check fails only on errors by default, so the deprecation passed as hints'
+    phase: 8G
+    depends_on: [G.31]
+    source: json-schema-to-zod, abandoned March 2026, emitted z.string().datetime() seven times; astro check fails only on
+      errors by default, so the deprecations passed as hints
     serves:
       - {loop: constrain, side: code}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_generated_zod_is_current.py'}
-  - id: 'G.33'
-    title: 'Binary provenance proved, not assumed: every task resolves each tool to its pinned location and version, checked as a task in every mode'
+      - {kind: path, path: tooling/tests/test_generated_zod_is_current.py}
+  - id: G.33
+    title: 'Binary provenance proved, not assumed: every task resolves each tool to its pinned location and version, checked
+      as a task in every mode'
     thread: G
-    phase: '8G'
-    source: 'provenance held by one line of task configuration and nothing proved it; zizmor ran at latest behind a pinned action'
+    phase: 8G
+    depends_on: []
+    source: provenance held by one line of task configuration and nothing proved it; zizmor ran at latest behind a pinned
+      action
     serves:
       - {loop: constrain, side: code}
       - {loop: instrument, side: data}
     done_when:
       - {kind: task, name: 'toolchain:verify'}
-  - id: 'G.34'
+  - id: G.34
     title: 'mise cannot update itself past its pin: a notice beside every install makes self-update and auto-update refuse'
     thread: G
-    phase: '8G'
-    source: 'a standalone mise self-updates normally; auto_update requires self-update to be available'
+    phase: 8G
+    depends_on: []
+    source: a standalone mise self-updates normally; auto_update requires self-update to be available
     serves:
       - {loop: constrain, side: code}
     done_when:
       - {kind: pr, number: 36}
-  - id: 'G.35'
-    title: 'A suppression carries its code alone; its reason lives only in the register, and the floor refuses a description'
+  - id: G.35
+    title: A suppression carries its code alone; its reason lives only in the register, and the floor refuses a description
     thread: G
-    phase: '8G'
-    source: "23 suppressions duplicated the register's reason; 10 still promised a register that already existed"
+    phase: 8G
+    depends_on: []
+    source: 23 suppressions duplicated the register's reason; 10 still promised a register that already existed
     serves:
       - {loop: constrain, side: code}
     done_when:
       - {kind: pr, number: 37}
-  - id: 'G.36'
-    title: 'A step claimed done is proved done: Plan-Done trailers checked against the evidence when claimed, and in CI ever after'
+  - id: G.36
+    title: 'A step claimed done is proved done: Plan-Done trailers checked against the evidence when claimed, and in CI ever
+      after'
     thread: G
-    phase: '8G'
-    depends_on: ['G.29', 'G.0']
-    source: 'G.25 merged yet read as unfinished: its evidence named a file never written under that name, and nothing checked the claim'
+    phase: 8G
+    depends_on: [G.29, G.0]
+    source: 'G.25 merged yet read as unfinished: its evidence named a file never written under that name, and nothing checked
+      the claim'
     serves:
       - {loop: constrain, side: code}
       - {loop: promise, side: data}
     done_when:
-      - {kind: path, path: 'tooling/tests/test_plan_done.py'}
+      - {kind: path, path: tooling/tests/test_plan_done.py}
+  - id: G.38
+    title: 'Setup makes a checkout usable: the site installed from its lockfile, frozen, beside the Python half'
+    thread: G
+    phase: 8G
+    depends_on: []
+    source: 'a fresh worktree failed four of ten gates with astro: command not found'
+    serves:
+      - {loop: constrain, side: code}
+    done_when:
+      - {kind: path, path: tooling/tests/test_fresh_checkout.py}
+  - id: G.39
+    title: 'No package runner may install a tool at run time: every bun x, bunx and npx carries --no-install'
+    thread: G
+    phase: 8G
+    depends_on: []
+    source: a test ran bun x astro build and bun fetched astro@latest from the registry
+    serves:
+      - {loop: constrain, side: code}
+    done_when:
+      - {kind: path, path: tooling/tests/test_fresh_checkout.py}
+  - id: G.41
+    title: 'A requirement''s identity is one object: the step, the observation that justifies it, the evidence file, and the
+      commits that claim it'
+    thread: G
+    phase: 8G
+    depends_on: [G.29, G.36]
+    source: 'the team does not say the setup bug, it says G.38; 2026 traceability practice: ids issued once and never reused,
+      links made when the work is made, the matrix generated and drift-gated'
+    serves:
+      - {loop: constrain, side: code}
+      - {loop: promise, side: data}
+    done_when:
+      - {kind: path, path: policy/requirements.rego}
+  - id: G.42
+    title: 'Every command emits a typed outcome: the payload on stdout, progress on stderr, and a refusal carrying a machine
+      code rather than prose'
+    thread: G
+    phase: 8G
+    depends_on: []
+    source: reading a command meant grepping its output; 2026 agent-facing practice separates the streams and gives every
+      outcome a contract and a deterministic exit code
+    serves:
+      - {loop: instrument, side: data}
+    done_when:
+      - {kind: path, path: tooling/tests/test_command_outcome.py}
+  - id: G.43
+    title: 'Source edits go through the syntax tree, not string anchors: a pinned structural codemod tool, with its transforms
+      as tested rules'
+    thread: G
+    phase: 8G
+    depends_on: [G.33]
+    source: repeated edit failures from text anchors and self-inspecting guards; 2026 practice calls agent text-editing non-deterministic
+      and unverifiable
+    serves:
+      - {loop: constrain, side: code}
+    done_when:
+      - {kind: path, path: tooling/tests/test_codemod.py}
+  - id: G.44
+    title: One writer for the plan, from the model, and a gate that the committed file is what that writer produces
+    thread: G
+    phase: 8G
+    depends_on: [G.3]
+    source: steps were added by splicing a hand-built YAML block; 2026 practice for a file a program owns is one writer from
+      the model, one canonical form, and a drift gate
+    serves:
+      - {loop: constrain, side: code}
+    done_when:
+      - {kind: path, path: tooling/tests/test_plan_writer.py}
 decisions:
-  - id: 'X.SPIKE'
-    title: 'Reference spike, the original thread B'
-    state: superseded
-    reason: 'thread B dissolved by the rule change moving all execution local: the sandbox prototype became reference reading only and every line is re-derived red-first; its numbers survive as expected values on steps 9.6 and 9.8'
-  - id: 'X.P5'
-    title: 'Phase 5, architecture decision records'
-    state: declined
-    reason: "it was '2026 research to ADR', and the rule against architecture decision records removed it; a band advertising a cancelled practice is the stale documentation that rule exists to prevent"
-    source: 'commit 881542e, banner in scripts/build_onepager.py'
-  - id: 'X.PAGES'
-    title: 'GitHub Pages for the site'
-    state: superseded
-    reason: "replaced by Railway with a Cloudflare DNS record, at the owner's choice"
-  - id: 'X.PARSE'
-    title: "The sheet reading the site's TypeScript data"
-    state: superseded
-    reason: 'a plain-string parser dropped the inline emphasis and five of nine sections; replaced not by a better parser but by removing the second renderer: one data source, step 8.5, and the sheet printed from a site route, step 8.12'
-  - id: 'X.FAS'
-    title: 'FAS OnDemand as an environment'
-    state: declined
-    reason: "dropped by the owner's decision; the three environments are this laptop, GitHub Actions and Lightning AI"
-    source: 'cs1090a-recsys G'
-  - id: 'X.E9'
-    title: 'One CI quality-gate job'
-    state: declined
-    reason: 'same guarantee by another design: the required checks are derived from the workflows'
-    source: 'cs1090a-recsys E9'
-  - id: 'X.E10'
-    title: 'Branch protection as data'
-    state: declined
-    reason: "no server-side rulesets, by the owner's decision"
-    source: 'cs1090a-recsys E10'
-  - id: 'X.PII'
-    title: 'PII scanning'
-    state: declined
-    reason: 'Open Targets is public data; no personal records exist to leak'
-    source: 'cs1090a-recsys E11'
-  - id: 'X.APP'
-    title: 'Backend, serving and database'
-    state: declined
-    reason: 'the site is static; there is no application'
-    source: 'cs1090a-recsys I1-I4'
-  - id: 'X.OPE'
-    title: 'Off-policy evaluation'
-    state: declined
-    reason: 'needs logged propensities from a live recommender; this project has none'
-    source: 'cs1090a-recsys J2'
-  - id: 'X.SIB'
-    title: 'Required-checks fix ported to three sibling repositories'
-    state: deferred
-    reason: 'belongs to the plans of cscie103-data-engineering, cs1090a-recsys and cscie103-olap-oltp, not this one'
-  - id: X.DEVC
-    title: 'Environment as code through .devcontainer'
-    state: superseded
-    reason: 'the Nix flake devshell is the environment: a devcontainer beside it would be a second declaration of the toolchain, and is only as reproducible as its Dockerfile; if a container is ever needed it is built from the flake'
-    source: 'first plan, pillar-to-artifact table: Environment as Code'
-  - id: X.API
-    title: 'A Fastify backend serving provenance queries'
-    state: deferred
-    reason: 'planned for a second phase only; the site is static and no step schedules it'
-    source: 'first plan, stack table and outstanding list'
-  - id: X.DOCKER
-    title: 'Docker builds from a pruned builder, with --no-cache, always'
-    state: superseded
-    reason: 'discarding the cache treats the symptom: with a floating input a no-cache build is merely different each time; pinning every input makes cached and uncached builds identical, which step F.15 does and verifies'
-    source: 'first plan, working rules'
-  - id: X.PNPM
-    title: 'pnpm workspaces for the site'
-    state: superseded
-    reason: 'the site is built with bun, pinned in toolchain.json'
-    source: 'first plan, stack table'
-  - id: X.STAGING
-    title: 'A staging environment'
-    state: deferred
-    reason: 'one environment: production, deployed only from a release tag on main'
-    source: 'cs1090a-recsys I5'
-  - id: X.BIKG
-    title: 'AstraZeneca BIKG as data'
-    state: declined
-    reason: 'the architectural reference only; it is internal and not usable as data'
-    source: "the one-pager's scope boundaries"
-  - id: X.MOL
-    title: 'Molecular structure prediction'
-    state: declined
-    reason: 'out of scope'
-    source: "the one-pager's scope boundaries"
-  - id: X.TOX
-    title: 'Compound-level toxicity from chemistry'
-    state: declined
-    reason: 'out of scope'
-    source: "the one-pager's scope boundaries"
-  - id: X.CDS
-    title: 'Clinical decision support'
-    state: declined
-    reason: 'out of scope'
-    source: "the one-pager's scope boundaries"
-  - id: X.PRIV
-    title: 'Anything requiring non-public data'
-    state: declined
-    reason: 'out of scope: public, open-source knowledge graphs only'
-    source: "the one-pager's scope boundaries"
-  - id: X.RENDER
-    title: 'Bit-for-bit PDF reproduction on the laptop'
-    state: declined
-    reason: 'an Apple laptop runs the pinned amd64 image under emulation, which floors page sizes to whole inches; the native CI render is the record and the local render a preview'
-    source: 'the page-size investigation for PR 12'
-  - id: X.BOT
-    title: 'A GitHub App to perform promotion'
-    state: declined
-    reason: "promotion runs under the owner's gh login, whose merge emits the push event release.yml needs; FleetManagement needed an App for ruleset bypass, and there are no rulesets here"
-    source: 'FleetManagement promote.yml'
-  - id: X.MAKE
-    title: 'A Makefile for builds and tasks'
-    state: superseded
-    reason: 'every operation is a mise task; a Makefile would be a second task runner, the duplicate mise.toml exists to prevent'
-    source: 'first plan, pillar-to-artifact table: Build as Code'
-  - id: X.GENLINT
-    title: "Removing the sheet generator's lint exemptions"
-    state: superseded
-    reason: 'the generator itself is retired by step 8.12, when the sheet becomes a route of the site'
-    source: 'restored with C408, E501 and N806 scoped away and the formatter excluded'
-  - id: X.TURBO
-    title: 'Turborepo as the task runner, once CI exceeds five minutes'
-    state: superseded
-    reason: 'every operation is a mise task; a second task runner is the duplication mise.toml exists to prevent'
-    source: 'first plan, stack table: task runner deferred'
-  - id: X.NODE
-    title: 'Node.js as a pinned runtime'
-    state: declined
-    reason: 'bun is the JavaScript runtime and package manager, pinned in toolchain.json; no Node is pinned and none is needed'
-    source: "the site's stack table"
-  - id: X.CHAOS
-    title: 'Reliability, resilience and chaos engineering as code'
-    state: declined
-    reason: 'no running service to exercise beyond a static site, whose health check, rollback and scheduled check cover it'
-    source: 'the pillars requirement'
-  - id: X.IAM
-    title: 'Identity, access control and entitlements as code'
-    state: declined
-    reason: 'a single-owner repository with no users or roles to model; workflow token permissions are already declared per job'
-    source: 'the pillars requirement'
-  - id: X.NETPOL
-    title: 'Network policy as code'
-    state: declined
-    reason: 'no network to constrain beyond a static site behind Railway and Cloudflare, whose routing is the Caddyfile'
-    source: 'the pillars requirement'
-  - id: X.PYNIX
-    title: 'The Python interpreter built by Nix'
-    state: declined
-    reason: 'uv provides the interpreter, identical on all three environments, so Nix never builds Python; toolchain.json pins uv, and uv enforces the version'
-    source: 'commit e560610'
-  - id: X.README
-    title: 'A README.md'
-    state: superseded
-    reason: "the live site, derived from data, is the project's front door; the repository's description and homepage are settings, step 6.8"
-    source: 'Git is the record of repository documentation; a Markdown file beside the code drifts from what it describes'
-  - id: X.SECMD
-    title: 'A SECURITY.md'
-    state: superseded
-    reason: 'private vulnerability reporting is a repository setting, step G.16; a policy document beside the code would drift'
-    source: 'Git is the record of repository documentation; a Markdown file beside the code drifts from what it describes'
-  - id: X.TS7
-    title: 'TypeScript 7'
-    state: deferred
-    reason: 'typescript-eslint supports <6.1.0 and @astrojs/check ^5 || ^6, so the site pins 6.0.3; revisit when both ranges include 7'
-    source: 'the registry, September 2026'
+  - {id: X.SPIKE, title: 'Reference spike, the original thread B', state: superseded, reason: 'thread B dissolved by the rule
+      change moving all execution local: the sandbox prototype became reference reading only and every line is re-derived
+      red-first; its numbers survive as expected values on steps 9.6 and 9.8'}
+  - {id: X.P5, title: 'Phase 5, architecture decision records', state: declined, reason: 'it was ''2026 research to ADR'',
+      and the rule against architecture decision records removed it; a band advertising a cancelled practice is the stale
+      documentation that rule exists to prevent', source: 'commit 881542e, banner in scripts/build_onepager.py'}
+  - {id: X.PAGES, title: GitHub Pages for the site, state: superseded, reason: 'replaced by Railway with a Cloudflare DNS
+      record, at the owner''s choice'}
+  - {id: X.PARSE, title: The sheet reading the site's TypeScript data, state: superseded, reason: 'a plain-string parser dropped
+      the inline emphasis and five of nine sections; replaced not by a better parser but by removing the second renderer:
+      one data source, step 8.5, and the sheet printed from a site route, step 8.12'}
+  - {id: X.FAS, title: FAS OnDemand as an environment, state: declined, reason: 'dropped by the owner''s decision; the three
+      environments are this laptop, GitHub Actions and Lightning AI', source: cs1090a-recsys G}
+  - {id: X.E9, title: One CI quality-gate job, state: declined, reason: 'same guarantee by another design: the required checks
+      are derived from the workflows', source: cs1090a-recsys E9}
+  - {id: X.E10, title: Branch protection as data, state: declined, reason: 'no server-side rulesets, by the owner''s decision',
+    source: cs1090a-recsys E10}
+  - {id: X.PII, title: PII scanning, state: declined, reason: Open Targets is public data; no personal records exist to leak,
+    source: cs1090a-recsys E11}
+  - {id: X.APP, title: 'Backend, serving and database', state: declined, reason: the site is static; there is no application,
+    source: cs1090a-recsys I1-I4}
+  - {id: X.OPE, title: Off-policy evaluation, state: declined, reason: needs logged propensities from a live recommender;
+      this project has none, source: cs1090a-recsys J2}
+  - {id: X.SIB, title: Required-checks fix ported to three sibling repositories, state: deferred, reason: 'belongs to the
+      plans of cscie103-data-engineering, cs1090a-recsys and cscie103-olap-oltp, not this one'}
+  - {id: X.DEVC, title: Environment as code through .devcontainer, state: superseded, reason: 'the Nix flake devshell is the
+      environment: a devcontainer beside it would be a second declaration of the toolchain, and is only as reproducible as
+      its Dockerfile; if a container is ever needed it is built from the flake', source: 'first plan, pillar-to-artifact table:
+      Environment as Code'}
+  - {id: X.API, title: A Fastify backend serving provenance queries, state: deferred, reason: planned for a second phase only;
+      the site is static and no step schedules it, source: 'first plan, stack table and outstanding list'}
+  - {id: X.DOCKER, title: 'Docker builds from a pruned builder, with --no-cache, always', state: superseded, reason: 'discarding
+      the cache treats the symptom: with a floating input a no-cache build is merely different each time; pinning every input
+      makes cached and uncached builds identical, which step F.15 does and verifies', source: 'first plan, working rules'}
+  - {id: X.PNPM, title: pnpm workspaces for the site, state: superseded, reason: 'the site is built with bun, pinned in toolchain.json',
+    source: 'first plan, stack table'}
+  - {id: X.STAGING, title: A staging environment, state: deferred, reason: 'one environment: production, deployed only from
+      a release tag on main', source: cs1090a-recsys I5}
+  - {id: X.BIKG, title: AstraZeneca BIKG as data, state: declined, reason: the architectural reference only; it is internal
+      and not usable as data, source: the one-pager's scope boundaries}
+  - {id: X.MOL, title: Molecular structure prediction, state: declined, reason: out of scope, source: the one-pager's scope
+      boundaries}
+  - {id: X.TOX, title: Compound-level toxicity from chemistry, state: declined, reason: out of scope, source: the one-pager's
+      scope boundaries}
+  - {id: X.CDS, title: Clinical decision support, state: declined, reason: out of scope, source: the one-pager's scope boundaries}
+  - {id: X.PRIV, title: Anything requiring non-public data, state: declined, reason: 'out of scope: public, open-source knowledge
+      graphs only', source: the one-pager's scope boundaries}
+  - {id: X.RENDER, title: Bit-for-bit PDF reproduction on the laptop, state: declined, reason: 'an Apple laptop runs the pinned
+      amd64 image under emulation, which floors page sizes to whole inches; the native CI render is the record and the local
+      render a preview', source: the page-size investigation for PR 12}
+  - {id: X.BOT, title: A GitHub App to perform promotion, state: declined, reason: 'promotion runs under the owner''s gh login,
+      whose merge emits the push event release.yml needs; FleetManagement needed an App for ruleset bypass, and there are
+      no rulesets here', source: FleetManagement promote.yml}
+  - {id: X.MAKE, title: A Makefile for builds and tasks, state: superseded, reason: 'every operation is a mise task; a Makefile
+      would be a second task runner, the duplicate mise.toml exists to prevent', source: 'first plan, pillar-to-artifact table:
+      Build as Code'}
+  - {id: X.GENLINT, title: Removing the sheet generator's lint exemptions, state: superseded, reason: 'the generator itself
+      is retired by step 8.12, when the sheet becomes a route of the site', source: 'restored with C408, E501 and N806 scoped
+      away and the formatter excluded'}
+  - {id: X.TURBO, title: 'Turborepo as the task runner, once CI exceeds five minutes', state: superseded, reason: every operation
+      is a mise task; a second task runner is the duplication mise.toml exists to prevent, source: 'first plan, stack table:
+      task runner deferred'}
+  - {id: X.NODE, title: Node.js as a pinned runtime, state: declined, reason: 'bun is the JavaScript runtime and package manager,
+      pinned in toolchain.json; no Node is pinned and none is needed', source: the site's stack table}
+  - {id: X.CHAOS, title: 'Reliability, resilience and chaos engineering as code', state: declined, reason: 'no running service
+      to exercise beyond a static site, whose health check, rollback and scheduled check cover it', source: the pillars requirement}
+  - {id: X.IAM, title: 'Identity, access control and entitlements as code', state: declined, reason: a single-owner repository
+      with no users or roles to model; workflow token permissions are already declared per job, source: the pillars requirement}
+  - {id: X.NETPOL, title: Network policy as code, state: declined, reason: 'no network to constrain beyond a static site behind
+      Railway and Cloudflare, whose routing is the Caddyfile', source: the pillars requirement}
+  - {id: X.PYNIX, title: The Python interpreter built by Nix, state: declined, reason: 'uv provides the interpreter, identical
+      on all three environments, so Nix never builds Python; toolchain.json pins uv, and uv enforces the version', source: commit
+      e560610}
+  - {id: X.README, title: A README.md, state: superseded, reason: 'the live site, derived from data, is the project''s front
+      door; the repository''s description and homepage are settings, step 6.8', source: Git is the record of repository documentation;
+      a Markdown file beside the code drifts from what it describes}
+  - {id: X.SECMD, title: A SECURITY.md, state: superseded, reason: 'private vulnerability reporting is a repository setting,
+      step G.16; a policy document beside the code would drift', source: Git is the record of repository documentation; a
+      Markdown file beside the code drifts from what it describes}
+  - {id: X.TS7, title: TypeScript 7, state: deferred, reason: 'typescript-eslint supports <6.1.0 and @astrojs/check ^5 ||
+      ^6, so the site pins 6.0.3; revisit when both ranges include 7', source: 'the registry, September 2026'}

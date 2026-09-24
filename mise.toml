@@ -98,6 +98,10 @@ fi
 
 uv sync --locked --all-packages --all-groups
 
+# THE SITE TOO: a checkout without it fails site:types, site:lint, policy and
+# test:e2e with 'command not found', and a package runner would fetch the tool.
+mise run site:install
+
 locked="$(uv run lefthook version)"
 uv run lefthook install
 
@@ -743,24 +747,20 @@ run = 'uv run python -m otsafety_tooling.policy.trailers "${usage_file?}"'
 
 [tasks.policy]
 description = "Prove every ban, floor and ceiling present: Conftest over the configuration, Regal over the policy"
-# The input list is checked by the policy itself: a file missing here is denied.
+# THE INPUT SET IS DECLARED ONCE, in contracts/policy-inputs.json: this passes what
+# the manifest names, the probe builds the same world, and the Rego derives what it
+# requires from the manifest itself. A test checks this line against the manifest.
 run = """
 set -euo pipefail
 mise run -q policy:inputs
-root="$(mise run -q artifacts:path)"
 conftest verify --policy policy
-conftest test --combine --namespace policy --policy policy pyproject.toml tooling/pyproject.toml lefthook.yml .github/workflows/test-site.yml .github/workflows/test-tooling.yml .github/workflows/zizmor.yml context/exemptions.yaml "$root/policy/eslint-effective.json"
+uv run python -m otsafety_tooling.policy.inputs --paths | xargs conftest test --combine --namespace policy --policy policy
 regal lint policy
 """
 
 [tasks."policy:inputs"]
-description = "Write ESLint's effective configuration, per linted file, for the Rego policy"
-run = """
-set -euo pipefail
-root="$(mise run -q artifacts:path)"
-mkdir -p "$root/policy"
-bun --bun run --cwd apps/site scripts/eslint-effective.ts "$root/policy/eslint-effective.json"
-"""
+description = "Write every generated policy input the manifest declares"
+run = "uv run python -m otsafety_tooling.policy.inputs"
 
 [tasks."policy:exemptions"]
 description = "Refuse any exemption from a rule that context/exemptions.yaml does not declare, and any entry gone stale"

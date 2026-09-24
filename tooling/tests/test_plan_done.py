@@ -16,12 +16,17 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
+import pytest
+
 from otsafety_tooling.contracts.files import parse_yaml
 from otsafety_tooling.contracts.plan import ProjectPlan
 from otsafety_tooling.git.env import git
 from otsafety_tooling.paths import REPO_ROOT
 from otsafety_tooling.planning.status import Facts, gather_facts, staged_facts, unmet
 from otsafety_tooling.policy.trailers import claimed_done, commits_since_cutoff, problems
+
+# THIS FILE PROVES G.36: the claim the requirement matrix joins on.
+pytestmark = pytest.mark.requirement("G.36")
 
 IDS = frozenset({"G.25", "G.29", "X.README"})
 PLAN = ProjectPlan.model_validate(

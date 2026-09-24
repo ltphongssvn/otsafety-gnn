@@ -37,8 +37,14 @@ zizmor_pinned if {
 	step["with"].version != "latest"
 }
 
-full_history if {
-	some job in doc(".github/workflows/test-tooling.yml").jobs
+# EVERY JOB THAT READS HISTORY FETCHES ALL OF IT. The Plan-Step ceiling walks the
+# commits since the cutoff, and so does the requirement matrix; against a shallow
+# clone both would read almost nothing and report clean -- a gate manufacturing
+# confidence. A filter keeps the download small without truncating the graph.
+reads_history := {".github/workflows/test-site.yml", ".github/workflows/test-tooling.yml"}
+
+full_history(path) if {
+	some job in doc(path).jobs
 	some s in job.steps
 	startswith(s.uses, "actions/checkout@")
 	s["with"]["fetch-depth"] == 0
@@ -58,7 +64,11 @@ deny contains msg if {
 
 deny contains "lefthook.yml: commit-msg must run policy:trailers" if not trailers_checked
 
-deny contains "test-tooling.yml: checkout must fetch full history" if not full_history
+deny contains msg if {
+	some path in reads_history
+	not full_history(path)
+	msg := sprintf("%s: checkout must fetch full history; the policy reads commits", [path])
+}
 
 deny contains "test-tooling.yml: CI must run mise run toolchain:verify" if {
 	not "mise run toolchain:verify" in tooling_ci_runs

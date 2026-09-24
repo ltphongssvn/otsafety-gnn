@@ -14,6 +14,7 @@ required := {
 	".github/workflows/test-tooling.yml",
 	".github/workflows/zizmor.yml",
 	"context/exemptions.yaml",
+	"context/plan-ids.yaml",
 }
 
 doc(path) := d.contents if {
@@ -35,3 +36,5 @@ deny contains msg if {
 }
 
 deny contains "eslint-effective.json: missing; run mise run policy:inputs" if not effective
+
+deny contains "requirement-matrix.json: missing; run mise run policy:inputs" if not matrix

@@ -1,0 +1,52 @@
+{
+  "additionalProperties": false,
+  "description": "Every command found in the tree, for the policy to judge.",
+  "properties": {
+    "contract": {
+      "title": "Contract",
+      "type": "string"
+    },
+    "commands": {
+      "items": {
+        "additionalProperties": false,
+        "description": "One command: where it lives, whether it emits an envelope, and why not.",
+        "properties": {
+          "module": {
+            "title": "Module",
+            "type": "string"
+          },
+          "emits": {
+            "title": "Emits",
+            "type": "boolean"
+          },
+          "exempt_because": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exempt Because"
+          }
+        },
+        "required": [
+          "module",
+          "emits",
+          "exempt_because"
+        ],
+        "title": "Command",
+        "type": "object"
+      },
+      "title": "Commands",
+      "type": "array"
+    }
+  },
+  "required": [
+    "contract",
+    "commands"
+  ],
+  "title": "CommandInventory",
+  "type": "object"
+}

@@ -146,11 +146,14 @@ def test_a_diverged_main_is_refused_and_named(tmp_path: Path) -> None:
         advance_protected(repo, "main")
 
 
-def test_an_unknown_argument_is_refused() -> None:
+def test_an_unknown_argument_is_refused(capsys: pytest.CaptureFixture[str]) -> None:
+    """A REFUSAL IS AN OUTCOME: exit 2 with a machine code, where it used to raise."""
+    from otsafety_tooling.contracts.outcome import CommandOutcome
     from otsafety_tooling.git.sync import main
 
-    with pytest.raises(SystemExit, match="--prune"):
-        main(["--everything"])
+    assert main(["--nonsense"]) == 2
+    envelope = CommandOutcome.model_validate_json(capsys.readouterr().out)
+    assert envelope.code == "usage" and "--prune" in envelope.message
 
 
 def test_sync_prunes_only_when_asked_and_advances_main(

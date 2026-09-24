@@ -32,9 +32,11 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Protocol
 
-from pydantic import ValidationError
+from pydantic import BaseModel, ConfigDict, ValidationError
 
 from otsafety_tooling.artifacts import artifacts_root
+from otsafety_tooling.cli import note, result
+from otsafety_tooling.contracts.outcome import Verdict as Outcome
 from otsafety_tooling.contracts.repository_settings import (
     REASON_CODES,
     SETTING_NAMES,
@@ -76,9 +78,8 @@ class GhRepository:
 
 
 def _say(text: str) -> None:
-    """Write one line of the command's output, flushed so logs keep their order."""
-    sys.stdout.write(text + "\n")
-    sys.stdout.flush()
+    """One line of the command's report: stderr, because stdout carries the envelope."""
+    note(text)
 
 
 def compare(desired: MergeSettings, observed: ObservedSettings) -> tuple[SettingFinding, ...]:
@@ -126,6 +127,17 @@ def _verdict(findings: tuple[SettingFinding, ...]) -> Verdict:
     return "unknown" if rules else "pass"
 
 
+class SettingsOutcome(BaseModel):
+    """The verdict on GitHub's settings, and where the record of it was written."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    verdict: str
+    repository: str
+    findings: list[str]
+    record: str
+
+
 def _record(repository: str, findings: tuple[SettingFinding, ...], artifacts: Path) -> int:
     report = SettingsCheckReport(
         generated_at=datetime.now(UTC),
@@ -141,7 +153,24 @@ def _record(repository: str, findings: tuple[SettingFinding, ...], artifacts: Pa
     for finding in findings:
         _say(f"  {finding.rule_id} {finding.reason_code}: {finding.message}")
     _say(f"  recorded: {path}")
-    return 0 if report.verdict == "pass" else 1
+    outcomes: dict[str, tuple[Outcome, str]] = {
+        "pass": ("success", "settings_match"),
+        "fail": ("refused", "settings_differ"),
+        "unknown": ("failed", "settings_unreadable"),
+    }
+    outcome, code = outcomes[report.verdict]
+    return result(
+        "repo:check",
+        outcome,
+        code,
+        f"repository settings: {report.verdict} ({repository})",
+        SettingsOutcome(
+            verdict=report.verdict,
+            repository=repository,
+            findings=[f"{f.rule_id} {f.reason_code}" for f in findings],
+            record=str(path),
+        ),
+    )
 
 
 def check(repository: GitHubRepository, desired: MergeSettings, artifacts: Path) -> int:

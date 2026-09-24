@@ -32,12 +32,16 @@ mistake is fixed before it reaches history anyone else can see.
 from __future__ import annotations
 
 import argparse
-import re
 import subprocess
 import sys
 from collections.abc import Sequence
 from pathlib import Path
 
+from pydantic import BaseModel, ConfigDict, ValidationError
+
+from otsafety_tooling.cli import CommandRefused, note, refusal
+from otsafety_tooling.cli import result as emit_result
+from otsafety_tooling.git.commit_domain import SUBJECT_LIMIT, TYPES, CommitSubject
 from otsafety_tooling.git.env import git, scrubbed_env
 from otsafety_tooling.paths import REPO_ROOT
 
@@ -48,36 +52,60 @@ ARTIFACT_DIRS = frozenset(
 ARTIFACT_SUFFIXES = (".pyc", ".pyo", ".pyd")
 ARTIFACT_NAMES = frozenset({".DS_Store"})
 
-TYPES = (
-    "build",
-    "chore",
-    "ci",
-    "docs",
-    "feat",
-    "fix",
-    "perf",
-    "refactor",
-    "revert",
-    "style",
-    "test",
-)
-SUBJECT = re.compile(rf"^(?:{'|'.join(TYPES)})(?:\([a-z0-9-]+\))?!?: \S.*$")
-MAX_SUBJECT = 100
+MAX_SUBJECT = SUBJECT_LIMIT
+
+
+class _Payload(BaseModel):
+    """A command's payload: named fields, checked where they are written.
+
+    **kwargs cannot be checked -- a misspelt field would ship -- so each command
+    declares what it carries, and a list stays a list because the model says so.
+    """
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+
+class SubjectRefused(_Payload):
+    subject: str
+
+
+class StagedOutside(_Payload):
+    staged_outside: list[str]
+
+
+class BuildArtifacts(_Payload):
+    artifacts: list[str]
+
+
+class Committed(_Payload):
+    commit: str
+    subject: str
+    paths: list[str]
+
+
+class HookRefused(_Payload):
+    paths: list[str]
+
+
+class Undone(_Payload):
+    subject: str
+
+
+class Unstaged(_Payload):
+    paths: list[str]
 
 
 def validate_subject(subject: str) -> None:
-    """Refuse a subject that is not `type(scope): summary`."""
-    if "\n" in subject:
-        raise SystemExit("commit refused: the subject must be one line; put detail in --body")
-    if len(subject) > MAX_SUBJECT:
-        raise SystemExit(
-            f"commit refused: subject is {len(subject)} characters (max {MAX_SUBJECT})"
-        )
-    if not SUBJECT.match(subject):
-        raise SystemExit(
-            "commit refused: subject must be `type(scope): summary` with type one of "
-            + ", ".join(TYPES)
-        )
+    """Refuse a subject the domain will not accept; the type holds the invariants."""
+    try:
+        CommitSubject(text=subject)
+    except ValidationError as error:
+        raise CommandRefused(
+            "subject_invalid",
+            f"commit refused: the subject must be one line of at most {SUBJECT_LIMIT} "
+            "characters, shaped `type(scope): summary` with type one of " + ", ".join(TYPES),
+            SubjectRefused(subject=subject),
+        ) from error
 
 
 def is_within(path: str, roots: Sequence[str]) -> bool:
@@ -119,14 +147,14 @@ def pending_paths(roots: Sequence[str], root: Path) -> list[str]:
         cwd=root,
     )
     if result.returncode != 0:
-        raise SystemExit(f"could not list changes: {result.stderr.strip()}")
+        raise CommandRefused("git_failed", f"could not list changes: {result.stderr.strip()}")
     return sorted({path for path in result.stdout.split("\0") if path})
 
 
 def staged_paths(root: Path) -> list[str]:
     result = git("diff", "--cached", "--name-only", "-z", cwd=root)
     if result.returncode != 0:
-        raise SystemExit(f"could not read the index: {result.stderr.strip()}")
+        raise CommandRefused("git_failed", f"could not read the index: {result.stderr.strip()}")
     return [path for path in result.stdout.split("\0") if path]
 
 
@@ -138,41 +166,49 @@ def normalise(paths: Sequence[str], root: Path) -> list[str]:
         try:
             normalised.append(absolute.relative_to(root.resolve()).as_posix() or ".")
         except ValueError:
-            raise SystemExit(f"commit refused: {raw} is outside the repository") from None
+            raise CommandRefused(
+                "path_outside_repository", f"commit refused: {raw} is outside the repository"
+            ) from None
     return normalised
 
 
 def commit(subject: str, body: str, paths: Sequence[str], root: Path) -> int:
     validate_subject(subject)
     if not paths:
-        raise SystemExit("commit refused: name at least one path")
+        raise CommandRefused("no_paths", "commit refused: name at least one path")
     roots = normalise(paths, root)
 
     already = outsiders(staged_paths(root), roots)
     if already:
-        raise SystemExit(
-            "commit refused: already staged outside the named paths: " + ", ".join(already)
+        raise CommandRefused(
+            "staged_outside_paths",
+            "commit refused: already staged outside the named paths: " + ", ".join(already),
+            StagedOutside(staged_outside=already),
         )
 
     artifacts = [path for path in pending_paths(roots, root) if is_artifact(path)]
     if artifacts:
-        raise SystemExit(
+        raise CommandRefused(
+            "build_artifacts",
             "commit refused: build artifacts under the named paths (add them to "
-            ".gitignore, or delete them):\n  " + "\n  ".join(artifacts)
+            ".gitignore, or delete them): " + ", ".join(artifacts),
+            BuildArtifacts(artifacts=artifacts),
         )
 
     added = git("add", "--", *roots, cwd=root)
     if added.returncode != 0:
-        raise SystemExit(f"git add failed: {added.stderr.strip()}")
+        raise CommandRefused("git_add_failed", f"git add failed: {added.stderr.strip()}")
 
     staged = staged_paths(root)
     unchanged = [r for r in roots if not any(is_within(path, [r]) for path in staged)]
     if unchanged:
-        raise SystemExit("commit refused: no changes under " + ", ".join(unchanged))
+        raise CommandRefused(
+            "no_changes", "commit refused: no changes under " + ", ".join(unchanged)
+        )
 
-    print("committing:")
+    note("committing:")
     for path in staged:
-        print(f"  {path}")
+        note(f"  {path}")
 
     message = ["-m", subject] + (["-m", body] if body.strip() else [])
     # OUTPUT IS NOT CAPTURED: the hook's report is the point of running it.
@@ -183,16 +219,28 @@ def commit(subject: str, body: str, paths: Sequence[str], root: Path) -> int:
         check=False,
     )
     if result.returncode != 0:
-        print(
-            "\ncommit refused by git or a hook; the files remain staged. "
-            "Fix the report above and run the task again.",
-            file=sys.stderr,
-        )
-        return result.returncode
+        return result_envelope_for_hook_refusal(staged)
 
-    head = git("log", "-1", "--format=%h %s", cwd=root).stdout.strip()
-    print(f"\ncommitted {head}")
-    return 0
+    head = git("rev-parse", "HEAD", cwd=root).stdout.strip()
+    return emit_result(
+        "commit",
+        "success",
+        "committed",
+        f"committed {head[:9]} {subject}",
+        Committed(commit=head, subject=subject, paths=staged),
+    )
+
+
+def result_envelope_for_hook_refusal(staged: Sequence[str]) -> int:
+    """git or a hook refused: the files remain staged, and that is an outcome."""
+    return emit_result(
+        "commit",
+        "refused",
+        "hook_refused",
+        "commit refused by git or a hook; the files remain staged. "
+        "Fix the report above and run the task again.",
+        HookRefused(paths=list(staged)),
+    )
 
 
 PROTECTED = frozenset({"develop", "main"})
@@ -209,32 +257,42 @@ def undo_last(root: Path) -> int:
     """
     branch = git("rev-parse", "--abbrev-ref", "HEAD", cwd=root).stdout.strip()
     if branch in PROTECTED:
-        raise SystemExit(f"undo refused: on protected branch {branch!r}")
+        raise CommandRefused("protected_branch", f"undo refused: on protected branch {branch!r}")
 
     if staged_paths(root):
-        raise SystemExit("undo refused: changes are staged; commit or unstage them first")
+        raise CommandRefused(
+            "index_not_clean", "undo refused: changes are staged; commit or unstage them first"
+        )
 
     parents = git("rev-list", "--parents", "-n", "1", "HEAD", cwd=root).stdout.split()
     if len(parents) != 2:
         kind = "the first commit" if len(parents) < 2 else "a merge commit"
-        raise SystemExit(f"undo refused: HEAD is {kind}")
+        raise CommandRefused("head_not_ordinary", f"undo refused: HEAD is {kind}")
 
     remotes = git("branch", "-r", "--contains", "HEAD", cwd=root)
     if remotes.returncode != 0:
-        raise SystemExit(f"could not check remote branches: {remotes.stderr.strip()}")
+        raise CommandRefused(
+            "git_failed", f"could not check remote branches: {remotes.stderr.strip()}"
+        )
     if remotes.stdout.strip():
-        raise SystemExit(
+        raise CommandRefused(
+            "already_pushed",
             "undo refused: HEAD is already pushed ("
             + ", ".join(line.strip() for line in remotes.stdout.splitlines())
-            + "); fix it with a new commit instead"
+            + "); fix it with a new commit instead",
         )
 
     subject = git("log", "-1", "--format=%h %s", cwd=root).stdout.strip()
     reset = git("reset", "--mixed", "--quiet", "HEAD~1", cwd=root)
     if reset.returncode != 0:
-        raise SystemExit(f"undo failed: {reset.stderr.strip()}")
-    print(f"undid {subject}; its changes are back in the working tree, unstaged")
-    return 0
+        raise CommandRefused("undo_failed", f"undo failed: {reset.stderr.strip()}")
+    return emit_result(
+        "commit:undo",
+        "success",
+        "undone",
+        f"undid {subject}; its changes are back in the working tree, unstaged",
+        Undone(subject=subject),
+    )
 
 
 def unstage(paths: Sequence[str], root: Path) -> int:
@@ -245,12 +303,14 @@ def unstage(paths: Sequence[str], root: Path) -> int:
     staged under it, so a typo cannot report success while changing nothing.
     """
     if not paths:
-        raise SystemExit("unstage refused: name at least one path")
+        raise CommandRefused("no_paths", "unstage refused: name at least one path")
     roots = normalise(paths, root)
     staged = staged_paths(root)
     missing = [r for r in roots if not any(is_within(path, [r]) for path in staged)]
     if missing:
-        raise SystemExit("unstage refused: nothing staged under " + ", ".join(missing))
+        raise CommandRefused(
+            "nothing_staged", "unstage refused: nothing staged under " + ", ".join(missing)
+        )
 
     targets = [path for path in staged if is_within(path, roots)]
     has_head = git("rev-parse", "--verify", "--quiet", "HEAD", cwd=root).returncode == 0
@@ -259,13 +319,25 @@ def unstage(paths: Sequence[str], root: Path) -> int:
     )
     result = git(*command, *targets, cwd=root)
     if result.returncode != 0:
-        raise SystemExit(f"unstage failed: {result.stderr.strip()}")
-    for path in targets:
-        print(f"unstaged {path}")
-    return 0
+        raise CommandRefused("unstage_failed", f"unstage failed: {result.stderr.strip()}")
+    return emit_result(
+        "commit:unstage",
+        "success",
+        "unstaged",
+        f"unstaged {len(targets)} paths",
+        Unstaged(paths=targets),
+    )
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    """A refusal is an outcome: exit 2 with a machine code, never a crash."""
+    try:
+        return _dispatch(argv)
+    except CommandRefused as error:
+        return refusal("commit", error)
+
+
+def _dispatch(argv: Sequence[str] | None = None) -> int:
     args_list = sys.argv[1:] if argv is None else list(argv)
     if args_list == ["undo"]:
         return undo_last(REPO_ROOT)

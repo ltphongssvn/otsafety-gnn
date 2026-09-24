@@ -16,6 +16,7 @@ tests for the contract and the rules do.
 from pathlib import Path
 
 from otsafety_tooling.contracts.branch_report import BranchReport
+from otsafety_tooling.contracts.outcome import EXIT_CODES
 from otsafety_tooling.git.branches import run_report
 from otsafety_tooling.git.env import git
 
@@ -83,7 +84,9 @@ def test_develop_behind_its_upstream_is_b001(tmp_path: Path) -> None:
     _git("push", "-q", "origin", "HEAD:develop", cwd=seed)
     artifacts = tmp_path / "artifacts"
 
-    assert run_report(repo, artifacts, fetch=True) == 1
+    # A FAIL IS A REFUSAL: the repository state is wrong, so the outcome is refused
+    # -- exit 2 -- where it used to be a bare 1.
+    assert run_report(repo, artifacts, fetch=True) == EXIT_CODES["refused"]
 
     report = _report(artifacts)
     assert report.verdict == "fail"
@@ -96,7 +99,9 @@ def test_develop_ahead_of_its_upstream_is_b002(tmp_path: Path) -> None:
     _git("commit", "-q", "--allow-empty", "-m", "made on develop", cwd=repo)
     artifacts = tmp_path / "artifacts"
 
-    assert run_report(repo, artifacts, fetch=True) == 1
+    # A FAIL IS A REFUSAL: the repository state is wrong, so the outcome is refused
+    # -- exit 2 -- where it used to be a bare 1.
+    assert run_report(repo, artifacts, fetch=True) == EXIT_CODES["refused"]
     assert _rule_ids(_report(artifacts)) == {"B002"}
 
 
@@ -109,7 +114,9 @@ def test_a_merged_feature_branch_left_on_the_remote_is_b003(tmp_path: Path) -> N
     _git("pull", "-q", "--ff-only", cwd=repo)
     artifacts = tmp_path / "artifacts"
 
-    assert run_report(repo, artifacts, fetch=True) == 1
+    # A FAIL IS A REFUSAL: the repository state is wrong, so the outcome is refused
+    # -- exit 2 -- where it used to be a bare 1.
+    assert run_report(repo, artifacts, fetch=True) == EXIT_CODES["refused"]
 
     report = _report(artifacts)
     assert _rule_ids(report) == {"B003"}
@@ -123,7 +130,9 @@ def test_a_diverged_develop_is_only_b004(tmp_path: Path) -> None:
     _git("push", "-q", "origin", "HEAD:develop", cwd=seed)
     artifacts = tmp_path / "artifacts"
 
-    assert run_report(repo, artifacts, fetch=True) == 1
+    # A FAIL IS A REFUSAL: the repository state is wrong, so the outcome is refused
+    # -- exit 2 -- where it used to be a bare 1.
+    assert run_report(repo, artifacts, fetch=True) == EXIT_CODES["refused"]
     assert _rule_ids(_report(artifacts)) == {"B004"}
 
 
@@ -135,7 +144,9 @@ def test_main_not_merged_back_into_develop_is_b005(tmp_path: Path) -> None:
     _git("fetch", "-q", "origin", "main:main", cwd=repo)
     artifacts = tmp_path / "artifacts"
 
-    assert run_report(repo, artifacts, fetch=True) == 1
+    # A FAIL IS A REFUSAL: the repository state is wrong, so the outcome is refused
+    # -- exit 2 -- where it used to be a bare 1.
+    assert run_report(repo, artifacts, fetch=True) == EXIT_CODES["refused"]
 
     report = _report(artifacts)
     assert _rule_ids(report) == {"B005"}
@@ -148,5 +159,7 @@ def test_the_report_is_written_before_a_failing_exit(tmp_path: Path) -> None:
     _git("commit", "-q", "--allow-empty", "-m", "made on develop", cwd=repo)
     artifacts = tmp_path / "artifacts"
 
-    assert run_report(repo, artifacts, fetch=True) == 1
+    # A FAIL IS A REFUSAL: the repository state is wrong, so the outcome is refused
+    # -- exit 2 -- where it used to be a bare 1.
+    assert run_report(repo, artifacts, fetch=True) == EXIT_CODES["refused"]
     assert list(artifacts.glob("*.json"))
