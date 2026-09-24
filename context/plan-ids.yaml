@@ -1,3 +1,4 @@
+# context/plan-ids.yaml
 contract: id-ledger/v1
 issued:
 - id: '0.1'
@@ -619,4 +620,7 @@ issued:
   retired: false
 - id: G.51
   first_title: The site's generated types exist before anything type-aware reads them
+  retired: false
+- id: G.52
+  first_title: The committed Zod is what the generator produces, proved by regenerating and comparing
   retired: false

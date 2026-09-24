@@ -6514,6 +6514,15 @@
         "G.51"
       ],
       "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "observed: the generated Zod had no drift gate",
+      "text": "the generator's header changed and twenty-four tests passed both before and after regenerating, because none of them compares generated output with what is committed",
+      "maps_to": [
+        "G.52"
+      ],
+      "not_a_plan_item": null
     }
   ]
 }

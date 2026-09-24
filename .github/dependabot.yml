@@ -1,3 +1,4 @@
+# .github/dependabot.yml
 version: 2
 # SCOPE. Python packages are NOT updated here: Dependabot's uv updater
 # chooses its own Python (it ignores .python-version and requires-python;

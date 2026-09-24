@@ -1,3 +1,4 @@
+// apps/site/src/contracts/eslint-calculated-config.v1.gen.ts
 // GENERATED from contracts/json/eslint-calculated-config.v1.schema.json by otsafety_tooling.contracts.zod.
 // Do not edit: change the Pydantic model and run mise run contracts:generate.
 import { z } from "zod";

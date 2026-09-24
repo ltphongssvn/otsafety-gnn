@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# scripts/check_all.py
 """Run every gate, report every result, exit nonzero if any failed.
 
 PORTED FROM cscie103-data-engineering, WHOSE COMMIT EXPLAINS WHY IT EXISTS:

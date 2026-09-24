@@ -1,3 +1,4 @@
+# policy/gates.rego
 # Every floor in the hooks, and every ceiling in CI.
 package policy
 

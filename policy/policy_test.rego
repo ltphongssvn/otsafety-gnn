@@ -1,3 +1,4 @@
+# policy/policy_test.rego
 # Each denial fires on the input it describes, exercised from outside the policy.
 package policy_test
 

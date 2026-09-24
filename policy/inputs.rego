@@ -1,3 +1,4 @@
+# policy/inputs.rego
 # METADATA
 # title: The configuration that enforces this repository's policy
 # description: |

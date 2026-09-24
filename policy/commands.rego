@@ -1,3 +1,4 @@
+# policy/commands.rego
 # G.42: every command reports as data, or says at its own line why it cannot.
 package policy
 

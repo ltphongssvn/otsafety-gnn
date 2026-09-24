@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# scripts/check_site.py
 """Assert the published site answers correctly, against any base URL.
 
 ONE DEFINITION OF "THE SITE WORKS", used before a deploy against the local image
