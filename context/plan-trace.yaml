@@ -3834,3 +3834,9 @@ candidates:
     had merged sixty PRs ago
   maps_to:
   - G.48
+- source: SESSION
+  ref: 'observed: sync dirtied the lockfile it then refused to merge over'
+  text: uv run re-added libcst to a lockfile eleven commits old, and the fast-forward aborted on the change uv had just made;
+    --no-sync completed it at once
+  maps_to:
+  - G.50

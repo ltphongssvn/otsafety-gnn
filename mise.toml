@@ -52,7 +52,7 @@ shell = "nix develop --command bash -c"
 
 [tasks."toolchain:verify"]
 description = "Prove every task resolves the pinned binary of each tool, at its pinned version"
-run = "uv run python -m otsafety_tooling.toolchain_verify"
+run = "uv run --no-sync python -m otsafety_tooling.toolchain_verify"
 
 [tasks."nix:shell"]
 description = "Enter the Nix devShell interactively"
@@ -138,22 +138,22 @@ description = "Apply every safe autofix: formatting AND import ordering"
 # `;` NOT `&&`: ruff check --fix exits non-zero on a finding with no safe fix,
 # and the formatter is often what resolves it. Each directory uses its own
 # pyproject's ruff settings.
-run = "uv run ruff check --fix tooling scripts apps/site/tests ; uv run ruff format tooling scripts apps/site/tests"
+run = "uv run --no-sync ruff check --fix tooling scripts apps/site/tests ; uv run ruff format tooling scripts apps/site/tests"
 
 [tasks.lint]
 description = "Lint, and check formatting and spelling, without changing anything"
 run = '''
 set -euo pipefail
-uv run ruff check tooling scripts apps/site/tests
-uv run ruff format --check tooling scripts apps/site/tests
+uv run --no-sync ruff check tooling scripts apps/site/tests
+uv run --no-sync ruff format --check tooling scripts apps/site/tests
 # SPELLING, AS CI CHECKS IT: the template's pre-commit job runs typos
 # (v1.49.0, pinned identically in uv.lock) with the same flag and the
 # [tool.typos] settings in pyproject.toml. Without this, a spelling
 # error passed every local hook and failed only after the push.
-uv run typos --force-exclude
+uv run --no-sync typos --force-exclude
 # LEFTHOOK VALIDATES ITS OWN CONFIGURATION against the schema it ships, so the
 # framework owns lefthook.yml's shape; the tests read only what they assert.
-uv run lefthook validate
+uv run --no-sync lefthook validate
 '''
 
 [tasks.types]
@@ -167,11 +167,11 @@ description = "Strict static type check of the tooling, for both platforms it ru
 # from tooling/pyproject.toml.
 run = '''
 set -euo pipefail
-uv run --directory tooling mypy --config-file ../pyproject.toml --platform darwin src tests
-uv run --directory tooling mypy --config-file ../pyproject.toml --platform linux src tests
+uv run --no-sync --directory tooling mypy --config-file ../pyproject.toml --platform darwin src tests
+uv run --no-sync --directory tooling mypy --config-file ../pyproject.toml --platform linux src tests
 # scripts/ IS STANDALONE: it has no package settings of its own, and it
 # runs before anything is installed, so it is checked strictly as a file.
-uv run mypy --config-file pyproject.toml scripts apps/site/tests
+uv run --no-sync mypy --config-file pyproject.toml scripts apps/site/tests
 '''
 
 [tasks.test]
@@ -197,7 +197,7 @@ if [ -n "${usage_paths-}" ]; then
 else
   paths=(tooling)
 fi
-uv run pytest "${paths[@]}"
+uv run --no-sync pytest "${paths[@]}"
 '''
 
 
@@ -226,7 +226,7 @@ description = "Report the W&B mode, and refuse an online run that would land now
 # and it succeeds, writing to whoever ran it personal project -- silent, and only
 # noticed when someone goes looking for results that are not there. This refuses
 # the second, before a run rather than after it.
-run = "uv run python -m otsafety_tooling.contracts.settings check"
+run = "uv run --no-sync python -m otsafety_tooling.contracts.settings check"
 
 [tasks."wandb:sync"]
 description = "Push offline W&B runs to the server; needs a key, idempotent"
@@ -239,7 +239,7 @@ set -euo pipefail
   echo "refusing: wandb sync needs WANDB_API_KEY" >&2
   exit 1
 }
-uv run wandb sync --sync-all
+uv run --no-sync wandb sync --sync-all
 '''
 
 [tasks."wandb:install"]
@@ -273,11 +273,11 @@ description = "Regenerate the contract pipeline: Pydantic -> JSON Schema -> the 
 # that. Tests fail when either committed half differs from what this produces.
 run = """
 set -euo pipefail
-uv run python -m otsafety_tooling.contracts.schemas
-uv run python -m otsafety_tooling.contracts.zod
+uv run --no-sync python -m otsafety_tooling.contracts.schemas
+uv run --no-sync python -m otsafety_tooling.contracts.zod
 # THE DATA, BESIDE THE SHAPES: each context and conf file validated by its model
 # and written as JSON the site loads as a content collection.
-uv run python -m otsafety_tooling.contracts.data
+uv run --no-sync python -m otsafety_tooling.contracts.data
 """
 
 [tasks."site:lock"]
@@ -319,7 +319,7 @@ description = "Run the site's dev server on http://localhost:4321"
 # empty .artifacts/.
 run = '''
 set -euo pipefail
-export OTSAFETY_ARTIFACTS="$(uv run python -m otsafety_tooling.artifacts)"
+export OTSAFETY_ARTIFACTS="$(uv run --no-sync python -m otsafety_tooling.artifacts)"
 bun run --cwd apps/site dev
 '''
 
@@ -330,7 +330,7 @@ description = "Build the site to apps/site/dist"
 # empty .artifacts/.
 run = '''
 set -euo pipefail
-export OTSAFETY_ARTIFACTS="$(uv run python -m otsafety_tooling.artifacts)"
+export OTSAFETY_ARTIFACTS="$(uv run --no-sync python -m otsafety_tooling.artifacts)"
 bun run --cwd apps/site build
 '''
 
@@ -342,7 +342,7 @@ description = "Build the site against the real evidence and assemble exactly wha
 # the built output, nothing else from the repository.
 run = """
 set -euo pipefail
-export OTSAFETY_ARTIFACTS="$(uv run python -m otsafety_tooling.artifacts)"
+export OTSAFETY_ARTIFACTS="$(uv run --no-sync python -m otsafety_tooling.artifacts)"
 bun run --cwd apps/site build
 rm -rf build/deploy-site
 mkdir -p build/deploy-site
@@ -363,24 +363,24 @@ docker build --platform linux/amd64 -t otsafety-site:smoke build/deploy-site
 cid="$(docker run -d --platform linux/amd64 -e PORT=8080 -p 18080:8080 otsafety-site:smoke)"
 trap 'docker rm -f "$cid" >/dev/null' EXIT
 for i in $(seq 1 40); do curl -sf -o /dev/null http://127.0.0.1:18080/ && break; sleep 0.5; done
-uv run python scripts/check_site.py http://127.0.0.1:18080
+uv run --no-sync python scripts/check_site.py http://127.0.0.1:18080
 """
 
 [tasks."release:promote"]
 description = "Merge develop into main through a verified PR, then back-merge with [skip ci]"
 # Ported from FleetManagement's promote.yml. Runs under the person's gh login, so
 # the merge emits a push event and release.yml cuts the version tag.
-run = "uv run python -m otsafety_tooling.git.pr promote"
+run = "uv run --no-sync python -m otsafety_tooling.git.pr promote"
 
 [tasks."release:preview"]
 description = "Print the version the next release would cut, changing nothing"
-run = "uv run --project tools/release semantic-release --noop version --print"
+run = "uv run --no-sync --project tools/release semantic-release --noop version --print"
 
 [tasks."release:version"]
 description = "Cut the next release from main: tag and GitHub Release, nothing committed"
 # Run by .github/workflows/release.yml on every push to main. --no-commit and
 # --no-changelog keep main untouched: the GitHub Release is the changelog.
-run = "uv run --project tools/release semantic-release version --no-commit --no-changelog --tag --push --vcs-release"
+run = "uv run --no-sync --project tools/release semantic-release version --no-commit --no-changelog --tag --push --vcs-release"
 
 [tasks."deploy:site"]
 description = "Deploy the site to Railway: clean tree, smoke-tested image, the commit named"
@@ -424,7 +424,7 @@ railway up build/deploy-site --path-as-root --no-gitignore \
 
 [tasks."deploy:verify"]
 description = "Check the live site with the same assertions the image passed before deploying"
-run = "uv run python scripts/check_site.py https://otsafetygnn.thanhphongle.net"
+run = "uv run --no-sync python scripts/check_site.py https://otsafetygnn.thanhphongle.net"
 
 [tasks."pdf:render"]
 description = "Render the sheet inside the pinned image: the same bytes on every machine"
@@ -467,7 +467,7 @@ description = "Preview the sheet with this machine's own browser (see pdf:render
 # by tests rather than by sharing a parser.
 #
 # Needs e2e:install: the renderer is the Chromium the acceptance tests use.
-run = "uv run python scripts/build_arch_onepager.py"
+run = "uv run --no-sync python scripts/build_arch_onepager.py"
 
 [tasks."test:e2e"]
 description = "Acceptance tests: a real browser against the built site (needs site:install)"
@@ -477,7 +477,7 @@ description = "Acceptance tests: a real browser against the built site (needs si
 # stops it, including when a test fails.
 run = '''
 set -euo pipefail
-uv run pytest apps/site/tests
+uv run --no-sync pytest apps/site/tests
 '''
 
 # --- Repository settings ------------------------------------------------------
@@ -488,12 +488,12 @@ uv run pytest apps/site/tests
 
 [tasks."repo:check"]
 description = "Verify GitHub's merge settings against contracts/repository-settings.json"
-run = "uv run python -m otsafety_tooling.github.settings check"
+run = "uv run --no-sync python -m otsafety_tooling.github.settings check"
 
 [tasks."repo:configure"]
 description = "Apply contracts/repository-settings.json to GitHub, then verify it"
 # CHANGES LIVE SETTINGS. Review the contract file first; the run ends with a check.
-run = "uv run python -m otsafety_tooling.github.settings configure"
+run = "uv run --no-sync python -m otsafety_tooling.github.settings configure"
 
 # --- Workflow -----------------------------------------------------------------
 
@@ -520,7 +520,7 @@ description = "Record every branch's state as data and judge it against GitFlow"
 # Fetches with pruning, writes branch-report/v1 to .artifacts/branch-report/,
 # and exits 0 only when the verdict is pass. The rules (B001-B005) are in
 # tooling/src/otsafety_tooling/git/branches.py.
-run = "uv run python -m otsafety_tooling.git.branches"
+run = "uv run --no-sync python -m otsafety_tooling.git.branches"
 
 [tasks."branches:prune"]
 description = "Delete merged remote branches found by the latest branch report (plan unless --apply)"
@@ -536,9 +536,9 @@ flag "--apply" help="Delete the planned branches on origin instead of only plann
 run = '''
 set -euo pipefail
 if [ "${usage_apply-}" = "true" ]; then
-  uv run python -m otsafety_tooling.git.prune --apply
+  uv run --no-sync python -m otsafety_tooling.git.prune --apply
 else
-  uv run python -m otsafety_tooling.git.prune
+  uv run --no-sync python -m otsafety_tooling.git.prune
 fi
 '''
 
@@ -563,7 +563,7 @@ if [ -n "${usage_arguments-}" ]; then
 else
   arguments=()
 fi
-uv run python -m otsafety_tooling.runs "${usage_task?}" "${arguments[@]}"
+uv run --no-sync python -m otsafety_tooling.runs "${usage_task?}" "${arguments[@]}"
 '''
 
 [tasks."artifacts:path"]
@@ -574,7 +574,7 @@ description = "Print the clone's shared evidence folder, the main checkout's .ar
 #   mise run -q test > "$(mise run -q artifacts:path)/logs/test.log" 2>&1
 #
 # The folder is created by whatever writes into it.
-run = "uv run python -m otsafety_tooling.artifacts"
+run = "uv run --no-sync python -m otsafety_tooling.artifacts"
 
 [tasks."start:check"]
 description = "Refuse to work on a protected branch"
@@ -633,7 +633,7 @@ description = "Move THIS shell to an existing branch, e.g. back to develop"
 usage = '''
 arg "<branch>" help="An existing local branch, e.g. develop"
 '''
-run = 'uv run python -m otsafety_tooling.git.sync switch "${usage_branch?}"'
+run = 'uv run --no-sync python -m otsafety_tooling.git.sync switch "${usage_branch?}"'
 
 [tasks.check]
 description = "Every gate, run to completion, with all failures reported in one pass"
@@ -651,7 +651,7 @@ description = "Every gate, run to completion, with all failures reported in one 
 usage = '''
 arg "[mode]" help="--fast, --ci, or omitted for everything this machine can run"
 '''
-run = "uv run python scripts/check_all.py ${usage_mode-}"
+run = "uv run --no-sync python scripts/check_all.py ${usage_mode-}"
 
 [tasks.commit]
 description = "Commit exactly the named paths with a conventional message, through the hooks"
@@ -668,7 +668,7 @@ arg "<paths>..." var=#true help="Files or directories to commit"
 run = '''
 set -euo pipefail
 eval "paths=(${usage_paths?})"
-uv run python -m otsafety_tooling.git.commit \
+uv run --no-sync python -m otsafety_tooling.git.commit \
   --message "${usage_message?}" \
   --body "${usage_body-}" \
   -- "${paths[@]}"
@@ -678,7 +678,7 @@ uv run python -m otsafety_tooling.git.commit \
 description = "Undo the last commit, keeping its changes, only if it has not been pushed"
 # Refuses on develop/main, for a pushed, merge or first commit, and when
 # anything is staged. A pushed mistake is fixed with a new commit instead.
-run = "uv run python -m otsafety_tooling.git.commit undo"
+run = "uv run --no-sync python -m otsafety_tooling.git.commit undo"
 
 [tasks."commit:unstage"]
 description = "Remove the named paths from the index, leaving the files untouched"
@@ -690,7 +690,7 @@ arg "<paths>..." var=#true help="Files or directories to unstage"
 run = '''
 set -euo pipefail
 eval "paths=(${usage_paths?})"
-uv run python -m otsafety_tooling.git.commit unstage -- "${paths[@]}"
+uv run --no-sync python -m otsafety_tooling.git.commit unstage -- "${paths[@]}"
 '''
 
 # --- Worktrees ----------------------------------------------------------------
@@ -703,11 +703,11 @@ description = "Create a sibling worktree on a new feature branch, with setup run
 usage = '''
 arg "<slug>" help="Short kebab-case description, e.g. run-records"
 '''
-run = 'uv run python -m otsafety_tooling.git.worktree add "${usage_slug?}"'
+run = 'uv run --no-sync python -m otsafety_tooling.git.worktree add "${usage_slug?}"'
 
 [tasks."worktree:list"]
 description = "List worktrees, their branches, and any locked or prunable flags"
-run = "uv run python -m otsafety_tooling.git.worktree list"
+run = "uv run --no-sync python -m otsafety_tooling.git.worktree list"
 
 [tasks."worktree:refresh"]
 description = "Rebase an unpushed worktree branch onto current origin/develop"
@@ -716,14 +716,14 @@ description = "Rebase an unpushed worktree branch onto current origin/develop"
 usage = '''
 arg "<slug>" help="The slug used with worktree:add"
 '''
-run = 'uv run python -m otsafety_tooling.git.worktree refresh "${usage_slug?}"'
+run = 'uv run --no-sync python -m otsafety_tooling.git.worktree refresh "${usage_slug?}"'
 
 [tasks."worktree:remove"]
 description = "Remove a worktree and delete its merged branch, never forcing either"
 usage = '''
 arg "<slug>" help="The slug used with worktree:add"
 '''
-run = 'uv run python -m otsafety_tooling.git.worktree remove "${usage_slug?}"'
+run = 'uv run --no-sync python -m otsafety_tooling.git.worktree remove "${usage_slug?}"'
 
 [tasks.sync]
 description = "Advance every protected branch, leave a finished branch, remove what is safe; empty unpushed branches only with --prune"
@@ -733,20 +733,20 @@ usage = 'flag "--prune" help="Also remove empty branches that were never pushed"
 run = """
 set -euo pipefail
 if [ "${usage_prune-}" = "true" ]; then
-  uv run python -m otsafety_tooling.git.sync --prune
+  uv run --no-sync python -m otsafety_tooling.git.sync --prune
 else
-  uv run python -m otsafety_tooling.git.sync
+  uv run --no-sync python -m otsafety_tooling.git.sync
 fi
 """
 
 [tasks."plan:status"]
 description = "Observe the plan on origin/develop: status derived from evidence, recorded as data, never typed"
-run = "uv run python -m otsafety_tooling.planning"
+run = "uv run --no-sync python -m otsafety_tooling.planning"
 
 [tasks."policy:trailers"]
 description = "Refuse a commit message that does not name its plan steps in a Plan-Step trailer"
 usage = 'arg "<file>" help="The commit message file git passes to commit-msg"'
-run = 'uv run python -m otsafety_tooling.policy.trailers "${usage_file?}"'
+run = 'uv run --no-sync python -m otsafety_tooling.policy.trailers "${usage_file?}"'
 
 [tasks.policy]
 description = "Prove every ban, floor and ceiling present: Conftest over the configuration, Regal over the policy"
@@ -757,27 +757,27 @@ run = """
 set -euo pipefail
 mise run -q policy:inputs
 conftest verify --policy policy
-uv run python -m otsafety_tooling.policy.inputs --paths | xargs conftest test --combine --namespace policy --policy policy
+uv run --no-sync python -m otsafety_tooling.policy.inputs --paths | xargs conftest test --combine --namespace policy --policy policy
 regal lint policy
 """
 
 [tasks."policy:inputs"]
 description = "Write every generated policy input the manifest declares"
-run = "uv run python -m otsafety_tooling.policy.inputs"
+run = "uv run --no-sync python -m otsafety_tooling.policy.inputs"
 
 [tasks."policy:exemptions"]
 description = "Refuse any exemption from a rule that context/exemptions.yaml does not declare, and any entry gone stale"
-run = "uv run python -m otsafety_tooling.policy.exemptions"
+run = "uv run --no-sync python -m otsafety_tooling.policy.exemptions"
 
 [tasks."policy:no-markdown"]
 description = "Refuse staged Markdown: Git is the record of this repository's documentation"
-run = "uv run python -m otsafety_tooling.policy.markdown"
+run = "uv run --no-sync python -m otsafety_tooling.policy.markdown"
 
 [tasks.pr]
 description = "Open (or reuse) a PR into develop and block until it is merged"
 # Verifies every check before merging with a merge commit, then confirms the
 # merge happened. See tooling/src/otsafety_tooling/git/pr.py.
-run = "uv run python -m otsafety_tooling.git.pr"
+run = "uv run --no-sync python -m otsafety_tooling.git.pr"
 
 [tasks."pr:merge"]
 description = "Verify and merge an existing PR into develop by number, without checking it out"
@@ -786,7 +786,7 @@ description = "Verify and merge an existing PR into develop by number, without c
 usage = '''
 arg "<number>" help="The pull request number, e.g. 8"
 '''
-run = 'uv run python -m otsafety_tooling.git.pr merge "${usage_number?}"'
+run = 'uv run --no-sync python -m otsafety_tooling.git.pr merge "${usage_number?}"'
 
 [tasks."pr:logs"]
 description = "Show why CI failed: failing job logs, or one named step, for this branch's current commit"

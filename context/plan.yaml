@@ -1721,6 +1721,18 @@ steps:
       - {loop: promise, side: data}
     done_when:
       - {kind: path, path: tooling/tests/test_blind_observation.py}
+  - id: G.50
+    title: 'No task modifies a tracked file merely by starting: uv runs frozen unless it is resolving on purpose'
+    thread: G
+    phase: 8G
+    depends_on: [G.42]
+    source: mise run sync could not fast-forward a checkout eleven commits behind, because uv run reconciled the stale lockfile
+      before the module started and the merge then found the file dirty -- a task unable to run on exactly the checkout that
+      needs it
+    serves:
+      - {loop: constrain, side: code}
+    done_when:
+      - {kind: path, path: tooling/tests/test_tasks_do_not_resolve.py}
 decisions:
   - {id: X.SPIKE, title: 'Reference spike, the original thread B', state: superseded, reason: 'thread B dissolved by the rule
       change moving all execution local: the sandbox prototype became reference reading only and every line is re-derived
