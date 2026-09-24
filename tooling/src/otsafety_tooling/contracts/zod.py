@@ -16,8 +16,9 @@ import re
 import sys
 from pathlib import Path
 
-from pydantic import JsonValue, TypeAdapter
+from pydantic import BaseModel, ConfigDict, JsonValue, TypeAdapter
 
+from otsafety_tooling.cli import note, result
 from otsafety_tooling.paths import REPO_ROOT
 
 SOURCE = REPO_ROOT / "contracts" / "json"
@@ -246,11 +247,28 @@ def generate(target: Path = TARGET) -> list[str]:
     return written
 
 
+class ZodWritten(BaseModel):
+    """Which contracts were generated, and where each one landed."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    files: list[str]
+    target: str
+
+
 def main(argv: list[str]) -> int:
     """An optional directory writes elsewhere, so a test can compare with the committed files."""
-    written = generate(Path(argv[0]) if argv else TARGET)
-    print("\n".join(written))  # noqa: T201
-    return 0
+    target = Path(argv[0]) if argv else TARGET
+    written = generate(target)
+    for path in written:
+        note(path)
+    return result(
+        "contracts:zod",
+        "success",
+        "zod_written",
+        f"{len(written)} contracts generated into {target}",
+        ZodWritten(files=[str(path) for path in written], target=str(target)),
+    )
 
 
 if __name__ == "__main__":

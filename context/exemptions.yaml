@@ -145,10 +145,6 @@ inline:
   rule: E402
   count: 1
   reason: imports after importorskip, so the module still collects where the optional extra is absent
-- path: tooling/src/otsafety_tooling/contracts/zod.py
-  rule: T201
-  count: 1
-  reason: 'prints the command''s output: this is a command-line entry point'
 - path: tooling/src/otsafety_tooling/toolchain_verify.py
   rule: S603
   count: 1
