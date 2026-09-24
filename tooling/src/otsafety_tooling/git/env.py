@@ -41,6 +41,7 @@ def _local_env_var_names() -> list[str] | None:
     """Git's own enumeration of the repository-local variables, or None."""
     listing = subprocess.run(
         ["git", "rev-parse", "--local-env-vars"],  # noqa: S607
+        env=inherited_env(),
         capture_output=True,
         text=True,
         check=False,
@@ -48,22 +49,36 @@ def _local_env_var_names() -> list[str] | None:
     return listing.stdout.split() if listing.returncode == 0 else None
 
 
+def inherited_env() -> dict[str, str]:
+    """The caller's environment, copied whole: named, so no child inherits it by omission."""
+    return dict(os.environ)  # noqa: TID251
+
+
 def scrubbed_env() -> dict[str, str]:
-    """A copy of the environment with git's repository-local variables removed.
+    """A copy of the environment, safe for a child that may run in another checkout.
 
-    FAILS CLOSED ON THE FALLBACK. If git cannot enumerate the variables, every
-    GIT_ name is removed rather than a guessed subset: over-removing makes git
-    resolve from cwd, which is what the caller asked for.
+    Git's repository-local variables are removed, so git resolves from cwd. FAILS
+    CLOSED ON THE FALLBACK: if git cannot enumerate them, every GIT_ name goes.
+
+    AN INHERITED VIRTUAL ENVIRONMENT IS REMOVED TOO. uv run exports VIRTUAL_ENV and
+    puts its .venv/bin first on PATH, both the calling checkout's; a child spawned
+    into another checkout would otherwise warn, find the wrong tools first, and --
+    under uv pip -- install into the wrong environment silently.
     """
-    environment = dict(os.environ)  # noqa: TID251
+    environment = inherited_env()
     names = _local_env_var_names()
-
     if names is None:
-        return {key: value for key, value in environment.items() if not key.startswith("GIT_")}
-
-    for name in names:
-        environment.pop(name, None)
-
+        environment = {
+            key: value for key, value in environment.items() if not key.startswith("GIT_")
+        }
+    else:
+        for name in names:
+            environment.pop(name, None)
+    venv = environment.pop("VIRTUAL_ENV", None)
+    environment.pop("UV_PROJECT_ENVIRONMENT", None)
+    if venv:
+        kept = [entry for entry in environment.get("PATH", "").split(":") if entry != f"{venv}/bin"]
+        environment["PATH"] = ":".join(kept)
     return environment
 
 

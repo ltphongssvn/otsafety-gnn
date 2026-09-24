@@ -24,6 +24,8 @@ import subprocess
 
 from pydantic import BaseModel, ValidationError
 
+from otsafety_tooling.git.env import scrubbed_env
+
 # gh's DOCUMENTED CODE FOR "NOT AUTHENTICATED", named once.
 NOT_AUTHENTICATED = 4
 
@@ -49,6 +51,7 @@ def gh(*args: str) -> str:
     """
     result = subprocess.run(  # noqa: S603
         ["gh", *args],  # noqa: S607
+        env=scrubbed_env(),
         capture_output=True,
         text=True,
         check=False,

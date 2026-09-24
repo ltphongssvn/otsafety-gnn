@@ -3687,3 +3687,13 @@ candidates:
   maps_to:
   - G.25
   - G.36
+- source: SESSION
+  ref: 'observed: uv run exports VIRTUAL_ENV and PATH'
+  text: a uv run child has VIRTUAL_ENV and .venv/bin first on PATH; run_setup passed both into another checkout
+  maps_to:
+  - G.22
+- source: SESSION
+  ref: 'observed: site toolchain warnings'
+  text: Vite 8 deprecations from an unused React integration; astro 7.3.3 locked at five days old through a caret
+  maps_to:
+  - G.37

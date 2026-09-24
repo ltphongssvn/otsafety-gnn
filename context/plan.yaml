@@ -1368,7 +1368,7 @@ steps:
     done_when:
       - {kind: path, path: '.github/workflows/site-watch.yml'}
   - id: 'G.22'
-    title: 'VIRTUAL_ENV isolated between worktrees'
+    title: 'A child spawned into another checkout inherits no virtual environment, and every subprocess names its environment'
     thread: G
     phase: '8G'
     source: 'cs1090a-recsys P16; observed here at worktree:add'
@@ -1522,6 +1522,15 @@ steps:
       - {loop: promise, side: data}
     done_when:
       - {kind: path, path: 'tooling/tests/test_plan_done.py'}
+  - id: 'G.37'
+    title: 'The site builds without a warning: the unused React integration removed, and every site dependency pinned exactly past the cooldown'
+    thread: G
+    phase: '8G'
+    source: 'astro check printed three Vite 8 deprecation warnings from @vitejs/plugin-react 5, pulled in by an unused @astrojs/react; caret ranges let astro 7.3.3 in at five days old'
+    serves:
+      - {loop: constrain, side: code}
+    done_when:
+      - {kind: path, path: 'apps/site/tests/test_site_build_is_quiet.py'}
 decisions:
   - id: 'X.SPIKE'
     title: 'Reference spike, the original thread B'
