@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from pydantic import ValidationError
+from pydantic import JsonValue, ValidationError
 
 from otsafety_tooling.contracts.outcome import EXIT_CODES
 from otsafety_tooling.contracts.repository_settings import (
@@ -56,6 +56,7 @@ class InMemoryRepository:
         self.ignored = ignored
         self.unreachable = unreachable
         self.updates: list[dict[str, bool]] = []
+        self.held: list[JsonValue] = []
 
     def read(self) -> RepositoryResponse:
         if self.unreachable:
@@ -64,6 +65,14 @@ class InMemoryRepository:
         return RepositoryResponse.model_validate(
             {**visible, "full_name": "owner/repo", "private": True}
         )
+
+    def rulesets(self) -> tuple[JsonValue, ...]:
+        if self.unreachable:
+            raise NotAuthenticatedError("gh is not authenticated (exit 4).")
+        return tuple(self.held)
+
+    def create_ruleset(self, payload: dict[str, JsonValue]) -> None:
+        self.held.append(payload)
 
     def update(self, changes: dict[str, bool]) -> RepositoryResponse:
         self.updates.append(dict(changes))

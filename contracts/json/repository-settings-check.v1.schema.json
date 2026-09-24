@@ -95,6 +95,46 @@
       "title": "Findings",
       "type": "array"
     },
+    "protection": {
+      "items": {
+        "additionalProperties": false,
+        "description": "One reason the remote does not refuse what this repository bans.",
+        "properties": {
+          "rule_id": {
+            "enum": [
+              "P001",
+              "P002"
+            ],
+            "title": "Rule Id",
+            "type": "string"
+          },
+          "reason_code": {
+            "title": "Reason Code",
+            "type": "string"
+          },
+          "message": {
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
+          },
+          "branch": {
+            "minLength": 1,
+            "title": "Branch",
+            "type": "string"
+          }
+        },
+        "required": [
+          "rule_id",
+          "reason_code",
+          "message",
+          "branch"
+        ],
+        "title": "ProtectionFinding",
+        "type": "object"
+      },
+      "title": "Protection",
+      "type": "array"
+    },
     "verdict": {
       "enum": [
         "pass",
@@ -110,6 +150,7 @@
     "generated_at",
     "repository",
     "findings",
+    "protection",
     "verdict"
   ],
   "title": "SettingsCheckReport",

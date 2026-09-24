@@ -180,14 +180,18 @@ class SettingsCheckReport(BaseModel, frozen=True, extra="forbid"):
     generated_at: AwareDatetime
     repository: str = Field(min_length=1)
     findings: tuple[SettingFinding, ...] = ()
+    # PROTECTION IS PART OF THE VERDICT: a repository whose merge settings match
+    # while a force push still lands is not at its policy.
+    protection: tuple[ProtectionFinding, ...] = ()
     verdict: Verdict
 
     @model_validator(mode="after")
     def _verdict_follows_the_findings(self) -> Self:
         rules = {finding.rule_id for finding in self.findings}
-        if "S001" in rules:
+        guards = {finding.rule_id for finding in self.protection}
+        if "S001" in rules or "P001" in guards:
             implied: Verdict = "fail"
-        elif rules:
+        elif rules or guards:
             implied = "unknown"
         else:
             implied = "pass"
