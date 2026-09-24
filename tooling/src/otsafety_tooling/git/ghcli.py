@@ -87,6 +87,7 @@ def gh_input(document: str, *args: str) -> str:
         capture_output=True,
         text=True,
         check=False,
+        env=scrubbed_env(),
     )
     if result.returncode == NOT_AUTHENTICATED:
         raise NotAuthenticatedError(
