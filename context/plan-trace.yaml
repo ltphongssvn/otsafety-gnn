@@ -3807,3 +3807,8 @@ candidates:
   text: a fresh worktree inherited VIRTUAL_ENV from the checkout that created it, and setup used that interpreter
   maps_to:
   - G.22
+- source: SESSION
+  ref: 'observed: a module-wide exemption hid sixty-one sites'
+  text: tooling/pyproject.toml exempted tests.* from the ban on explicit Any, so nobody had examined what it permitted
+  maps_to:
+  - G.45

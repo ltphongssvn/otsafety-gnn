@@ -36,9 +36,10 @@ import tarfile
 import tempfile
 import urllib.request
 import zipfile
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Required, TypedDict
 
 BLOCK_BYTES = 64 * 1024
 VERSION = re.compile(r"(\d+\.\d+(?:\.\d+)?)")
@@ -48,6 +49,32 @@ SUPPORTED = {
     ("Darwin", "arm64"): "aarch64-darwin",
     ("Darwin", "aarch64"): "aarch64-darwin",
 }
+
+
+# THE SHAPE toolchain.json HOLDS, IN THE STANDARD LIBRARY ONLY. This script runs
+# before uv, mise or a virtual environment exist, so it cannot import Pydantic and
+# cannot use the contract the rest of the repository reads this file through. A
+# TypedDict is the stdlib equivalent: real field names with real types, so every
+# read here is checked rather than permitted by Any.
+
+
+class Artifact(TypedDict):
+    url: str
+    sha256: str
+    dir: str
+
+
+class Probe(TypedDict):
+    args: list[str]
+    pattern: str
+
+
+class ToolchainEntry(TypedDict, total=False):
+    version: Required[str]
+    artifacts: Required[dict[str, Artifact]]
+    binaries: Required[list[str]]
+    probe: Required[Probe]
+    self_update_notice: str
 
 
 @dataclass(frozen=True)
@@ -69,7 +96,7 @@ def platform_key(system: str, machine: str) -> str:
     return key
 
 
-def installed_version(destination: Path, entry: dict[str, Any]) -> str | None:
+def installed_version(destination: Path, entry: ToolchainEntry) -> str | None:
     """The pinned version, if the binary AT THE DESTINATION reports it through its probe.
 
     NEVER WHAT IS ON PATH. A runner shipped gh 2.101.0 in /usr/bin, so the bootstrap
@@ -97,7 +124,7 @@ def installed_version(destination: Path, entry: dict[str, Any]) -> str | None:
     return entry["version"] if re.match(pattern, first) else None
 
 
-def plan_tool(name: str, entry: dict[str, Any], key: str, installed: str | None) -> Plan:
+def plan_tool(name: str, entry: ToolchainEntry, key: str, installed: str | None) -> Plan:
     """Skip, install, or refuse, for one declared tool."""
     wanted = entry["version"]
     artifact = entry["artifacts"].get(key)
@@ -117,7 +144,9 @@ def plan_tool(name: str, entry: dict[str, Any], key: str, installed: str | None)
     )
 
 
-def plan_all(toolchain: dict[str, Any], key: str, installed: dict[str, str | None]) -> list[Plan]:
+def plan_all(
+    toolchain: Mapping[str, ToolchainEntry], key: str, installed: dict[str, str | None]
+) -> list[Plan]:
     """A plan for every declared tool, in declaration order."""
     return [
         plan_tool(name, entry, key, installed.get(name))
@@ -156,7 +185,7 @@ def _extract(archive: Path, into: Path) -> None:
         bundle.extractall(into, filter="data")
 
 
-def write_pin_notice(tool: str, entry: dict[str, Any], destination: Path) -> list[Path]:
+def write_pin_notice(tool: str, entry: ToolchainEntry, destination: Path) -> list[Path]:
     """A pin notice beside the install prefix, where the tool reads one.
 
     mise reads it relative to its own binary; its self-update then refuses and names
@@ -173,7 +202,7 @@ def write_pin_notice(tool: str, entry: dict[str, Any], destination: Path) -> lis
     return [written]
 
 
-def install(plan: Plan, entry: dict[str, Any], key: str, destination: Path) -> list[Path]:
+def install(plan: Plan, entry: ToolchainEntry, key: str, destination: Path) -> list[Path]:
     """Download, verify, extract, and place every declared binary."""
     artifact = entry["artifacts"][key]
     installed: list[Path] = []
@@ -212,7 +241,7 @@ def note(text: str) -> None:
     sys.stderr.write(f"{text}\n")
 
 
-def emit(command: str, outcome: str, code: str, message: str, data: dict[str, Any]) -> int:
+def emit(command: str, outcome: str, code: str, message: str, data: Mapping[str, object]) -> int:
     """The envelope on stdout, and the exit code the outcome carries.
 
     BUILT AS PLAIN DATA, not through a model: this runs before anything is

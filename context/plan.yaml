@@ -1675,6 +1675,18 @@ steps:
       - {loop: promise, side: data}
     done_when:
       - {kind: path, path: tooling/tests/test_no_history_rewrite.py}
+  - id: G.45
+    title: 'The tooling''s tests hold no explicit Any: every double implements a protocol this repository owns, and every
+      builder names its shape'
+    thread: G
+    phase: 8G
+    depends_on: [G.30]
+    source: unifying the mypy configuration revealed 61 explicit Any in tests that the tooling's own section had exempted
+      module-wide; the wandb adapter's seam now has a protocol, as MLflow's already did, and the tests must implement it
+    serves:
+      - {loop: constrain, side: code}
+    done_when:
+      - {kind: path, path: tooling/tests/test_wandb_tracker.py}
 decisions:
   - {id: X.SPIKE, title: 'Reference spike, the original thread B', state: superseded, reason: 'thread B dissolved by the rule
       change moving all execution local: the sandbox prototype became reference reading only and every line is re-derived

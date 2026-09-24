@@ -598,3 +598,7 @@ issued:
   first_title: 'No command rewrites lineage, and the remote refuses a rewrite: refresh merges, and branch protection is declared
     as data'
   retired: false
+- id: G.45
+  first_title: 'The tooling''s tests hold no explicit Any: every double implements a protocol this repository owns, and every
+    builder names its shape'
+  retired: false

@@ -30,7 +30,7 @@ import json
 import re
 import subprocess
 import sys
-from typing import Any
+from collections.abc import Mapping
 
 # THE PAYLOAD IS BUILT AS PLAIN DATA, not through a model: scripts/ runs BEFORE
 # anything is installed -- the bootstrap calls it -- so it imports only the
@@ -69,7 +69,13 @@ GATES: list[tuple[str, list[str], str, bool]] = [
 ]
 
 
-def emit(outcome: str, code: str, message: str, data: dict[str, Any]) -> int:
+# THE PAYLOAD IS JSON, AND THIS SCRIPT IS STANDARD LIBRARY ONLY: the contract
+# model may not be installed where it runs, so the payload cannot be a Pydantic
+# model. Mapping[str, object] is the honest stdlib type -- object rather than Any,
+# so nothing is exempted from checking, and Mapping rather than dict because dict
+# is INVARIANT in its value type: dict[str, str] is not a dict[str, object], which
+# is what made an earlier alias need widening at every call site.
+def emit(outcome: str, code: str, message: str, data: Mapping[str, object]) -> int:
     """The envelope on stdout, and the exit code the outcome carries."""
     envelope = {
         "contract": CONTRACT,
@@ -110,7 +116,7 @@ def main(argv_in: list[str] | None = None) -> int:
         print(f"skipping: {', '.join(skipped)}", file=sys.stderr)
 
     results: list[tuple[str, bool, str]] = []
-    gates: list[dict[str, Any]] = []
+    gates: list[Mapping[str, object]] = []
 
     for name, command, _, _ in selected:
         completed = subprocess.run(command, capture_output=True, text=True, check=False)
