@@ -92,7 +92,16 @@ class _Summary(Protocol):
 
 
 class _Artifact(Protocol):
-    """The one artifact method this adapter calls."""
+    """What this adapter builds and attaches: the fields it sets, and add_file."""
+
+    @property
+    def name(self) -> str: ...
+
+    @property
+    def type(self) -> str: ...
+
+    @property
+    def metadata(self) -> dict[str, object]: ...
 
     def add_file(self, local_path: str, name: str | None = None) -> object: ...
 
