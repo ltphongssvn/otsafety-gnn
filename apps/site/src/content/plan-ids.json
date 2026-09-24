@@ -990,6 +990,11 @@
       "id": "G.50",
       "first_title": "No task modifies a tracked file merely by starting: uv runs frozen unless it is resolving on purpose",
       "retired": false
+    },
+    {
+      "id": "G.51",
+      "first_title": "The site's generated types exist before anything type-aware reads them",
+      "retired": false
     }
   ]
 }

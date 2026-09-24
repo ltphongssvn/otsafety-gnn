@@ -78,11 +78,8 @@ pre-push:
   # Piped as well: nothing after a failing check is worth waiting for.
   piped: true
   jobs:
-    - name: types
-      run: mise run types
-
-    - name: test
-      run: mise run test
+    - name: check
+      run: mise run check
 
 commit-msg:
   jobs:

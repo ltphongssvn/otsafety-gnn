@@ -6505,6 +6505,15 @@
         "G.50"
       ],
       "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "observed: the site linted only where it had already been built",
+      "text": "a fresh worktree rejected content.config.ts with twenty-one unsafe-call errors because .astro/types.d.ts had never been generated there",
+      "maps_to": [
+        "G.51"
+      ],
+      "not_a_plan_item": null
     }
   ]
 }

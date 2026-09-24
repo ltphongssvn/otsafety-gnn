@@ -4189,6 +4189,29 @@
           "path": "tooling/tests/test_tasks_do_not_resolve.py"
         }
       ]
+    },
+    {
+      "id": "G.51",
+      "title": "The site's generated types exist before anything type-aware reads them",
+      "thread": "G",
+      "phase": "8G",
+      "depends_on": [
+        "G.20"
+      ],
+      "branch": null,
+      "source": "site:lint failed with twenty-one no-unsafe errors in a fresh worktree and passed in one where site:types had run: Astro writes the types for astro:content only when it syncs, and nothing ordered the two",
+      "serves": [
+        {
+          "loop": "constrain",
+          "side": "code"
+        }
+      ],
+      "done_when": [
+        {
+          "kind": "path",
+          "path": "tooling/tests/test_site_sync_before_lint.py"
+        }
+      ]
     }
   ],
   "decisions": [
