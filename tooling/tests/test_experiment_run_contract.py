@@ -16,7 +16,6 @@ username or a hostname: experiment records are shared evidence.
 """
 
 from datetime import UTC, datetime, timedelta
-from typing import Any
 
 import pytest
 from pydantic import ValidationError
@@ -29,8 +28,8 @@ DIGEST = "b" * 64
 MACHINE = "8f14e45f-ea8f-4b1a-9c3d-2b6b1a0f7e21"
 
 
-def _run(**overrides: Any) -> dict[str, Any]:
-    run: dict[str, Any] = {
+def _run(**overrides: object) -> dict[str, object]:
+    run: dict[str, object] = {
         "id": "0192f3ac9e7b",
         "experiment": "baseline-ridge",
         "started_at": START,

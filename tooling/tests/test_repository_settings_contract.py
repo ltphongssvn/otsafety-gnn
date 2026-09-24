@@ -14,8 +14,6 @@ ONE LIST OF NAMES. The SettingName type and the models each spell out the five
 settings; the last test fails if they ever disagree.
 """
 
-from typing import Any
-
 import pytest
 from pydantic import ValidationError
 
@@ -58,7 +56,7 @@ def test_the_file_names_its_contract() -> None:
 
 
 def test_an_observed_response_keeps_only_the_merge_settings() -> None:
-    response: dict[str, Any] = {**POLICY, "name": "otsafety-gnn", "private": False}
+    response: dict[str, object] = {**POLICY, "name": "otsafety-gnn", "private": False}
     observed = ObservedSettings.model_validate(response)
     assert observed.model_dump() == POLICY
 
