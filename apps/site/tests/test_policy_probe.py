@@ -55,7 +55,9 @@ def _world(tmp_path: Path) -> Path:
     return tmp_path
 
 
-def _prove(world: Path) -> subprocess.CompletedProcess[str]:
+def _prove(
+    world: Path, inputs: list[PolicyInput] | None = None
+) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         [
             _conftest(),
@@ -65,7 +67,7 @@ def _prove(world: Path) -> subprocess.CompletedProcess[str]:
             "policy",
             "--policy",
             str(REPO / "policy"),
-            *[entry.path for entry in _declared()],
+            *[entry.path for entry in (inputs if inputs is not None else _declared())],
         ],
         cwd=world,
         capture_output=True,
@@ -102,11 +104,17 @@ def test_removing_a_floor_is_denied(tmp_path: Path) -> None:
     )
 
 
-def test_an_undeclared_eslint_exemption_is_denied(tmp_path: Path) -> None:
+def test_a_missing_generated_input_is_denied(tmp_path: Path) -> None:
+    """THE PROBE THIS REPLACES removed the eslint section of the register, whose only
+    entry was the TypeScript generator G.32 deleted: it removed something that no
+    longer exists, so nothing was denied and the probe proved nothing. This removes
+    a generated input instead, which inputs.rego denies by name -- the guard that
+    keeps every rule reading the whole world rather than passing vacuously."""
     world = _world(tmp_path)
-    text = (world / "context" / "exemptions.yaml").read_text(encoding="utf-8")
-    (world / "context" / "exemptions.yaml").write_text(
-        text.split("\neslint:\n")[0] + "\n", encoding="utf-8"
-    )
-    run = _prove(world)
-    assert run.returncode != 0 and "generate-contracts.ts: not enforced" in run.stdout, run.stdout
+    # NOT DELETED: conftest refuses to start on a named file that is absent, so the
+    # rule would never run. A real drift looks like this instead -- a rule reading an
+    # input nobody passes -- and inputs.rego denies exactly that.
+    withheld = [entry for entry in _declared() if not entry.path.endswith("command-inventory.json")]
+    run = _prove(world, withheld)
+    assert run.returncode != 0, run.stdout
+    assert "command-inventory.json: missing" in run.stdout, run.stdout
