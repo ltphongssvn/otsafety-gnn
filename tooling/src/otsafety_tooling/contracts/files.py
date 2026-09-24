@@ -1,4 +1,5 @@
 # tooling/src/otsafety_tooling/contracts/files.py
+# G.3: proves this step of the plan.
 """The one place a file is read into a model.
 
 JSON needs no parser of ours: Pydantic parses and validates it in one step with

@@ -1,4 +1,5 @@
 # .github/workflows/test-site.yml
+# 7.2: proves this step of the plan.
 # The site's acceptance tests, on Linux, for every pull request.
 #
 # WHY A SECOND WORKFLOW. test-tooling.yml runs lint, types and test -- the fast

@@ -25,6 +25,8 @@ from otsafety_tooling.git.env import git as _run_git
 from otsafety_tooling.git.state import Branch, RepositoryState, Worktree, gather
 from otsafety_tooling.git.sync import advance_protected, plan_cleanup
 
+pytestmark = pytest.mark.requirement("G.11")
+
 MAIN_CHECKOUT = Path("/nonexistent/repo")
 
 

@@ -15,10 +15,14 @@ request. A glob in lefthook.yml would be a second copy of the rule.
 
 from __future__ import annotations
 
+import pytest
+
 from otsafety_tooling.contracts.files import read_yaml
 from otsafety_tooling.contracts.lefthook_config import LefthookConfig
 from otsafety_tooling.paths import REPO_ROOT
 from otsafety_tooling.policy.markdown import FORBIDDEN_SUFFIXES, forbidden, tracked
+
+pytestmark = pytest.mark.requirement("G.28")
 
 
 def test_the_rule_names_every_markdown_suffix() -> None:

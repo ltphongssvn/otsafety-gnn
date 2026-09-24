@@ -1,4 +1,5 @@
 # tooling/pyproject.toml
+# 6.2: proves this step of the plan.
 # REPOSITORY TOOLING: the git workflow, and later the gates, policy and
 # evidence ledger. A workspace member of its own, so none of it ships in the
 # backend image and none of the backend's dependencies leak into it.

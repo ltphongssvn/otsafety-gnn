@@ -1,5 +1,5 @@
 {
-  "$comment": "contracts/repository-settings.json -- the repository's merge policy and branch protection, applied by `mise run repo:configure` and verified by `mise run repo:check`. GitFlow: merge commits only; merged branches are deleted; pr merges synchronously, so auto-merge stays off. Protection is what holds in a clone that never ran setup: the local hook refuses work on a protected branch, but only the remote can refuse a force push.",
+  "$comment": "6.5: contracts/repository-settings.json -- the repository's merge policy and branch protection, applied by `mise run repo:configure` and verified by `mise run repo:check`. GitFlow: merge commits only; merged branches are deleted; pr merges synchronously, so auto-merge stays off. Protection is what holds in a clone that never ran setup: the local hook refuses work on a protected branch, but only the remote can refuse a force push.",
   "contract": "repository-settings/v1",
   "settings": {
     "allow_merge_commit": true,

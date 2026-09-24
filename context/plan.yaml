@@ -173,7 +173,7 @@ steps:
       - {loop: declare, side: code}
       - {loop: declare, side: data}
     done_when:
-      - {kind: path, path: flake.lock}
+      - {kind: path, path: tooling/tests/test_toolchain_declaration.py}
   - id: '6.2'
     title: Tooling package ported, strictly typed
     thread: B
@@ -649,8 +649,7 @@ steps:
     serves:
       - {loop: promise, side: code}
     done_when:
-      - {kind: path, path: contracts/json/branch-report.v1.schema.json}
-      - {kind: path, path: contracts/json/plan-status.v1.schema.json}
+      - {kind: path, path: tooling/tests/test_contract_export.py}
   - id: G.9
     title: Hash-chained run ledger, verified by a gate
     thread: G
@@ -1686,7 +1685,7 @@ steps:
     serves:
       - {loop: constrain, side: code}
     done_when:
-      - {kind: path, path: tooling/tests/test_wandb_tracker.py}
+      - {kind: path, path: tooling/tests/test_tooling_tests_hold_no_any.py}
   - id: G.46
     title: The ban on Any cannot be reopened, and the implicit forms are caught too
     thread: G
@@ -1756,6 +1755,18 @@ steps:
       - {loop: promise, side: data}
     done_when:
       - {kind: path, path: tooling/tests/test_generated_zod_is_committed.py}
+  - id: G.54
+    title: Evidence declares how it is verified, so a file that cannot carry a marker is still confirmable
+    thread: G
+    phase: 8G
+    depends_on: [G.41]
+    source: the matrix confirms a path only through pytest.mark.requirement and reads only .py files, so twenty-seven completed
+      steps proved by flake.nix, mise.toml, lefthook.yml or TypeScript are unconfirmable by construction; 2026 practice names
+      inspection and analysis beside test execution
+    serves:
+      - {loop: promise, side: data}
+    done_when:
+      - {kind: path, path: tooling/tests/test_evidence_names_its_method.py}
 decisions:
   - {id: X.SPIKE, title: 'Reference spike, the original thread B', state: superseded, reason: 'thread B dissolved by the rule
       change moving all execution local: the sandbox prototype became reference reading only and every line is re-derived
