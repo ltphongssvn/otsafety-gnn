@@ -31,6 +31,7 @@ so any worktree can write a log with
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 from otsafety_tooling.contracts.settings import settings
@@ -57,7 +58,10 @@ def artifacts_root(root: Path) -> Path:
 
 def main() -> int:
     """Print the shared evidence root, as the only line of output."""
-    print(artifacts_root(REPO_ROOT), flush=True)  # noqa: T201
+    # A VALUE, NOT AN ENVELOPE: mise.toml substitutes this with $(...), so the
+    # path is the whole of stdout. A command-outcome envelope here would be
+    # interpolated into a shell variable and break every caller.
+    sys.stdout.write(f"{artifacts_root(REPO_ROOT)}\n")
     return 0
 
 

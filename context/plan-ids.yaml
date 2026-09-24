@@ -1,0 +1,600 @@
+contract: id-ledger/v1
+issued:
+- id: '0.1'
+  first_title: Every repository and worktree located
+  retired: false
+- id: '0.2'
+  first_title: Remotes, default branch and develop recorded
+  retired: false
+- id: '0.3'
+  first_title: Per-branch ahead and behind, after fetch --prune
+  retired: false
+- id: '0.4'
+  first_title: Working tree, index and stash state
+  retired: false
+- id: '0.5'
+  first_title: Worktree list as observed state
+  retired: false
+- id: '1.1'
+  first_title: Branch divergence resolved; merged branches pruned by plan
+  retired: false
+- id: '10.1'
+  first_title: Lightning AI bootstrapped; gates green on the same commit
+  retired: false
+- id: '10.2'
+  first_title: Sync status of every copy as data
+  retired: false
+- id: '10.3'
+  first_title: OpenTelemetry spans for pipeline runs
+  retired: false
+- id: '10.4'
+  first_title: 'Cost as data: Railway and Lightning GPU usage recorded'
+  retired: false
+- id: '10.5'
+  first_title: 'Infrastructure as code: the Lightning AI job specification'
+  retired: false
+- id: '10.6'
+  first_title: 'Weights and Biases online on Lightning: entity declared there, offline runs synced'
+  retired: false
+- id: '11.1'
+  first_title: 'Q1 verdict: signal beyond node popularity'
+  retired: false
+- id: '11.2'
+  first_title: 'Q2 verdict: the graph beyond target features, measured against the published ROC-AUC of about 0.71 from target
+    features alone'
+  retired: false
+- id: '11.3'
+  first_title: 'Q3 verdict: relation types carry the signal -- the research question'
+  retired: false
+- id: '11.4'
+  first_title: 'Secondary check: the same pipeline on target-disease association'
+  retired: false
+- id: '11.5'
+  first_title: Cross-KG replication on Hetionet and PrimeKG
+  retired: false
+- id: '11.6'
+  first_title: Proposal and sheet updated to the result, in either direction
+  retired: false
+- id: '11.7'
+  first_title: 'Drift as data: the next Open Targets release compared against the pinned one'
+  retired: false
+- id: '2.1'
+  first_title: 'GitFlow: feature branches cut from origin/develop by task'
+  retired: false
+- id: '2.2'
+  first_title: Merges by verified pull request, as merge commits
+  retired: false
+- id: '3.1'
+  first_title: Sibling worktrees created by task
+  retired: false
+- id: '3.2'
+  first_title: Worktrees removed with their merged branch, never forced
+  retired: false
+- id: '4.1'
+  first_title: Python, uv, Node, Docker and git versions inventoried
+  retired: false
+- id: '4.2'
+  first_title: Apple Silicon and Linux targets declared
+  retired: false
+- id: '4.3'
+  first_title: Lightning AI CLI present, authenticated, GPU quota known
+  retired: false
+- id: '4.5'
+  first_title: cs1090a-recsys manifests read and its tooling ported
+  retired: false
+- id: '6.1'
+  first_title: toolchain.json, flake.nix and flake.lock
+  retired: false
+- id: '6.2'
+  first_title: Tooling package ported, strictly typed
+  retired: false
+- id: '6.3'
+  first_title: Every operation a mise task
+  retired: false
+- id: '6.4'
+  first_title: Evidence root and run records with live PTY output
+  retired: false
+- id: '6.5'
+  first_title: Repository settings as a contract, checked and applied
+  retired: false
+- id: '6.6'
+  first_title: lefthook, test-tooling CI, zizmor and Dependabot
+  retired: false
+- id: '6.7'
+  first_title: Every gate in one pass, every failure reported
+  retired: false
+- id: '6.8'
+  first_title: The repository's description and homepage set through the repository-settings contract, pointing at the site
+  retired: false
+- id: '6.9'
+  first_title: A licence, selected by research into what fits a public research repository, committed
+  retired: false
+- id: '7.1'
+  first_title: Astro, React and bun; home and architecture pages
+  retired: false
+- id: '7.10'
+  first_title: The architecture and method pages show the as-code and as-data pillars, the execution spine and the gate thresholds,
+    read from the one source
+  retired: false
+- id: '7.11'
+  first_title: 'The plan on the site: threads, phases, steps and decisions from context/plan.yaml, with status from observed
+    evidence, never typed'
+  retired: false
+- id: '7.2'
+  first_title: Browser tests on Linux
+  retired: false
+- id: '7.3'
+  first_title: Evidence page from run records and verdicts
+  retired: false
+- id: '7.4'
+  first_title: Method, data and stack pages
+  retired: false
+- id: '7.5'
+  first_title: Results page computed from experiment records
+  retired: false
+- id: '7.6'
+  first_title: Site published at a live URL
+  retired: false
+- id: '7.7'
+  first_title: 'The thinking page: nine layers in long form'
+  retired: false
+- id: '7.8'
+  first_title: Site datasets derived from conf/config.yaml, not repeated
+  retired: false
+- id: '7.9'
+  first_title: The stack page derived from toolchain.json and the lockfiles, not typed
+  retired: false
+- id: '8.1'
+  first_title: Architecture sheet generated in the repository
+  retired: false
+- id: '8.10'
+  first_title: The vendored fonts' SIL Open Font Licence travels with them
+  retired: false
+- id: '8.12'
+  first_title: 'The one-pager printed from a site route: one template and one stylesheet, the separate Python generator retired'
+  retired: false
+- id: '8.13'
+  first_title: 'Rendered equals source: a gate re-reads the plan-status record and fails the build if the site or the sheet
+    shows any value that differs'
+  retired: false
+- id: '8.2'
+  first_title: 'Sheet asserted: one page, every section, no stale text'
+  retired: false
+- id: '8.3'
+  first_title: Fonts vendored, renderer pinned, CI the render of record
+  retired: false
+- id: '8.4'
+  first_title: Sheet rendered by task in CI, uploaded even on failure
+  retired: false
+- id: '8.5'
+  first_title: 'context/architecture.yaml under one contract: layers, pillars, loops, rungs, gates, stages, scope and questions,
+    read by every page, the sheet and the sweep'
+  retired: false
+- id: '8.6'
+  first_title: 'Sheet status, phases, workstreams and stack line derived: from this plan and toolchain.json'
+  retired: false
+- id: '8.7'
+  first_title: Conceptual one-pager, the ablation ladder, printed from its own site route
+  retired: false
+- id: '8.8'
+  first_title: Sheet served from the site and published with each release
+  retired: false
+- id: '8.9'
+  first_title: The gate DAG as a generated Mermaid diagram
+  retired: false
+- id: '9.0'
+  first_title: 'Layer boundaries enforced: data never imports models'
+  retired: false
+- id: '9.1'
+  first_title: python/otsafety as a uv workspace member
+  retired: false
+- id: '9.10'
+  first_title: Model factory with the Q2 and Q3 arms, and the degree-offset head
+  retired: false
+- id: '9.11'
+  first_title: Pipeline emitting GateVerdict to the evidence root
+  retired: false
+- id: '9.12'
+  first_title: Conformal intervals, calibration, and metrics per seed, degree decile and level
+  retired: false
+- id: '9.13'
+  first_title: 'Promotion gate as policy: rung 5 against rung 4, SLOs'
+  retired: false
+- id: '9.14'
+  first_title: Cypher provenance chain for every edge and verdict
+  retired: false
+- id: '9.15'
+  first_title: Signed model card with its limitation statement, and its ML-BOM
+  retired: false
+- id: '9.16'
+  first_title: 'Gate thresholds as configuration, SLOs declared in OpenSLO: min_partial_rho, min_ap_lift, max_drop and study-bias
+    thresholds; the cutoff belongs to the split, step 9.5'
+  retired: false
+- id: '9.17'
+  first_title: Negative controls in the audit gate
+  retired: false
+- id: '9.18'
+  first_title: 'Audit evidence as records: metrics, degree strata, crude and adjusted, noisy-OR q vector'
+  retired: false
+- id: '9.19'
+  first_title: 'Verdicts and decisions as records: rule, verdict, reason; PROMOTE or REJECT'
+  retired: false
+- id: '9.2'
+  first_title: 'Contracts: Edge, SafetyLabel, Split, GateVerdict'
+  retired: false
+- id: '9.20'
+  first_title: 'Enforcement: a REJECT turns CI red and the model card is refused'
+  retired: false
+- id: '9.21'
+  first_title: The spike's 25 tests re-derived as outside-in acceptance tests
+  retired: false
+- id: '9.22'
+  first_title: 'Training runner: five seeds, identical split, negatives and endpoints, bootstrap intervals'
+  retired: false
+- id: '9.23'
+  first_title: Versioned label set recorded
+  retired: false
+- id: '9.24'
+  first_title: 'Baseline rungs: prevalence, degree-only null, tabular GBM and MLP, topology GBM'
+  retired: false
+- id: '9.25'
+  first_title: 'Shallow KGE rungs: PyKEEN ComplEx and RotatE'
+  retired: false
+- id: '9.26'
+  first_title: Every gate verdict shown on the site's evidence page
+  retired: false
+- id: '9.27'
+  first_title: CI runs lint, contracts, policy, tests and the audit gate on a fixture graph
+  retired: false
+- id: '9.28'
+  first_title: The ladder declared as a DAG of runs
+  retired: false
+- id: '9.29'
+  first_title: 'Lineage as data: OpenLineage events per pipeline stage'
+  retired: false
+- id: '9.3'
+  first_title: Pinned release fetched and its digest recorded
+  retired: false
+- id: '9.30'
+  first_title: The package's CLI entry point, called by tasks
+  retired: false
+- id: '9.31'
+  first_title: 'Non-graph target features for the Q2 control, materialized with keys and event time as of the cutoff: GTEx
+    expression breadth, gnomAD pLI and LOEUF, protein family, subcellular localisation'
+  retired: false
+- id: '9.32'
+  first_title: 'Domain aggregates and value objects with their invariants: KnowledgeGraph and SafetyLabelSet beside the existing
+    ExperimentRun, and ids and the release pin as value objects'
+  retired: false
+- id: '9.33'
+  first_title: Hetionet and PrimeKG fetched, pinned by digest and ingested into the same Edge contract
+  retired: false
+- id: '9.4'
+  first_title: 'Ingest: pinned release, undated edges quarantined'
+  retired: false
+- id: '9.5'
+  first_title: Temporal split at the cutoff and a target-disjoint cold-start split; leakage checks DL1-3 that raise
+  retired: false
+- id: '9.6'
+  first_title: Degree null, stratified partial rho, promotion gate
+  retired: false
+- id: '9.7'
+  first_title: Endpoint DAG from EFO, MONDO and HPO, with a licensed MedDRA hierarchy mountable unchanged; true-path closure
+    over every parent; predictions made coherent before scoring
+  retired: false
+- id: '9.8'
+  first_title: 'Attribution: Mantel-Haenszel and noisy-OR'
+  retired: false
+- id: '9.9'
+  first_title: 'Labels: three states, tiers never pooled'
+  retired: false
+- id: A.1
+  first_title: Question, objective, Q1/Q2/Q3, granularity, label source
+  retired: false
+- id: A.2
+  first_title: Ingestion contract pinned to Open Targets 26.03
+  retired: false
+- id: D.1
+  first_title: MLflow recording through the tracking port, verified on Linux
+  retired: false
+- id: D.2
+  first_title: Weights and Biases first-class beside MLflow, offline by default
+  retired: false
+- id: F.1
+  first_title: Railway CLI and Caddy image pinned past a seven-day cooldown
+  retired: false
+- id: F.10
+  first_title: Build provenance attested for sheet, image and SBOM
+  retired: false
+- id: F.11
+  first_title: Deploy refuses an artifact whose attestation fails
+  retired: false
+- id: F.12
+  first_title: Railway upgrade prompt silenced; DNS records as code
+  retired: false
+- id: F.13
+  first_title: Dependency cooldown declared, not applied by hand
+  retired: false
+- id: F.14
+  first_title: 'Incidents as data: every production anomaly recorded, starting with the v1.0.1 deploy that printed no completion'
+  retired: false
+- id: F.15
+  first_title: Every image input pinned, timestamps fixed, and each image rebuilt and digest-compared in CI
+  retired: false
+- id: F.16
+  first_title: The live site checked on a schedule, and a failure recorded as an incident
+  retired: false
+- id: F.2
+  first_title: Smoke-tested before deploy, verified after
+  retired: false
+- id: F.3
+  first_title: Versions cut from main; release tool in its own lock
+  retired: false
+- id: F.4
+  first_title: Promotion by pull request; deploy refuses anything but a tag on main
+  retired: false
+- id: F.5
+  first_title: A fix released from its tag, v1.0.1; its deployment is proven by F.6
+  retired: false
+- id: F.6
+  first_title: The deployed version is verifiable
+  retired: false
+- id: F.7
+  first_title: Rollback to the previous tag, as a task
+  retired: false
+- id: F.8
+  first_title: Dependency scanning over every lockfile
+  retired: false
+- id: F.9
+  first_title: SBOM for every release
+  retired: false
+- id: G.0
+  first_title: The plan as intent; status observed, never typed
+  retired: false
+- id: G.1
+  first_title: Merges wait for every check the workflows promise
+  retired: false
+- id: G.10
+  first_title: Retention and redaction of run records
+  retired: false
+- id: G.11
+  first_title: sync advances every protected branch, judges merged against origin/develop, and prunes empty never-pushed branches
+    only on request
+  retired: false
+- id: G.12
+  first_title: Policy released and deployed
+  retired: false
+- id: G.13
+  first_title: 'Compliance as code: MedDRA licence and Open Targets data-use terms checked in the gate'
+  retired: false
+- id: G.14
+  first_title: The plan rendered for reading, derived from plan.yaml
+  retired: false
+- id: G.15
+  first_title: Secrets scanned in the hooks and across the full history
+  retired: false
+- id: G.16
+  first_title: Private vulnerability reporting enabled through the repository-settings contract
+  retired: false
+- id: G.17
+  first_title: The ledger head anchored off-machine with each release
+  retired: false
+- id: G.18
+  first_title: Promotion refuses unless develop already contains main
+  retired: false
+- id: G.19
+  first_title: Every plan item traced to its source; completeness checked, not recalled
+  retired: false
+- id: G.2
+  first_title: Pydantic to JSON Schema to Zod, drift-gated
+  retired: false
+- id: G.20
+  first_title: Every context and conf YAML file exported through the contracts pipeline and loaded by the site as content
+    collections with the generated Zod
+  retired: false
+- id: G.21
+  first_title: Every tracked file opens with its repository path, proven by a gate rather than kept by habit
+  retired: false
+- id: G.22
+  first_title: VIRTUAL_ENV isolated between worktrees
+  retired: false
+- id: G.23
+  first_title: Status observed at the commit being built, and stamped with its ref, commit and time on every rendered copy
+  retired: false
+- id: G.24
+  first_title: Environment variables read only through one settings model; raw os.environ and os.getenv banned outside it
+  retired: false
+- id: G.25
+  first_title: 'No Any in a signature: ruff ANN401 across tooling and scripts, tests exempt by configuration'
+  retired: false
+- id: G.26
+  first_title: Every inline exemption declared in a contract-validated register with its reason; an undeclared noqa fails
+    the gate
+  retired: false
+- id: G.27
+  first_title: 'Generated Zod holds no z.any() or z.unknown(): a shape the generator cannot express fails the gate'
+  retired: false
+- id: G.28
+  first_title: 'No Markdown in the repository: a pre-commit floor over staged files, a gate over tracked files run in hooks
+    and CI, one rule behind both'
+  retired: false
+- id: G.29
+  first_title: Every commit names its plan steps in a Plan-Step trailer, validated against the plan
+  retired: false
+- id: G.3
+  first_title: 'Python policy: raw parsing banned; models for every config'
+  retired: false
+- id: G.30
+  first_title: 'One mypy configuration: the root''s and tooling''s are both in use and already drifted, so the no-Any rule
+    and Pydantic''s plugin reach tooling/ only'
+  retired: false
+- id: G.31
+  first_title: 'The site''s TypeScript type-checked: TypeScript pinned, and astro check a gate in check and CI'
+  retired: false
+- id: G.32
+  first_title: 'Generated Zod uses no deprecated API: json-schema-to-zod emits z.string().datetime(), which Zod 4 deprecates'
+  retired: false
+- id: G.33
+  first_title: 'Binary provenance proved, not assumed: every task resolves each tool to its pinned location and version, checked
+    as a task in every mode'
+  retired: false
+- id: G.34
+  first_title: 'mise cannot update itself past its pin: a notice beside every install makes self-update and auto-update refuse'
+  retired: false
+- id: G.35
+  first_title: A suppression carries its code alone; its reason lives only in the register, and the floor refuses a description
+  retired: false
+- id: G.36
+  first_title: 'A step claimed done is proved done: Plan-Done trailers checked against the evidence when claimed, and in CI
+    ever after'
+  retired: false
+- id: G.38
+  first_title: 'Setup makes a checkout usable: the site installed from its lockfile, frozen, beside the Python half'
+  retired: false
+- id: G.39
+  first_title: 'No package runner may install a tool at run time: every bun x, bunx and npx carries --no-install'
+  retired: false
+- id: G.4
+  first_title: 'TypeScript policy: every assertion but as const, any and ts-comments banned; JSON.parse only at the boundary;
+    no hand-written Zod or object types; no inline disables; run in hooks and CI'
+  retired: false
+- id: G.41
+  first_title: 'A requirement''s identity is one object: the step, the observation that justifies it, the evidence file, and
+    the commits that claim it'
+  retired: false
+- id: G.42
+  first_title: 'Every command emits a typed outcome: the payload on stdout, progress on stderr, and a refusal carrying a machine
+    code rather than prose'
+  retired: false
+- id: G.43
+  first_title: 'Source edits go through the syntax tree, not string anchors: a pinned structural codemod tool, with its transforms
+    as tested rules'
+  retired: false
+- id: G.44
+  first_title: One writer for the plan, from the model, and a gate that the committed file is what that writer produces
+  retired: false
+- id: G.5
+  first_title: OPA and Regal pinned; Rego proves both bans exist
+  retired: false
+- id: G.6
+  first_title: 'Remediation as code: every finding carries its fix'
+  retired: false
+- id: G.7
+  first_title: Hooks run the aggregate gate
+  retired: false
+- id: G.8
+  first_title: Every contract's schema exported and drift-gated
+  retired: false
+- id: G.9
+  first_title: Hash-chained run ledger, verified by a gate
+  retired: false
+- id: X.API
+  first_title: A Fastify backend serving provenance queries
+  retired: false
+- id: X.APP
+  first_title: Backend, serving and database
+  retired: false
+- id: X.BIKG
+  first_title: AstraZeneca BIKG as data
+  retired: false
+- id: X.BOT
+  first_title: A GitHub App to perform promotion
+  retired: false
+- id: X.CDS
+  first_title: Clinical decision support
+  retired: false
+- id: X.CHAOS
+  first_title: Reliability, resilience and chaos engineering as code
+  retired: false
+- id: X.DEVC
+  first_title: Environment as code through .devcontainer
+  retired: false
+- id: X.DOCKER
+  first_title: Docker builds from a pruned builder, with --no-cache, always
+  retired: false
+- id: X.E10
+  first_title: Branch protection as data
+  retired: false
+- id: X.E9
+  first_title: One CI quality-gate job
+  retired: false
+- id: X.FAS
+  first_title: FAS OnDemand as an environment
+  retired: false
+- id: X.GENLINT
+  first_title: Removing the sheet generator's lint exemptions
+  retired: false
+- id: X.IAM
+  first_title: Identity, access control and entitlements as code
+  retired: false
+- id: X.MAKE
+  first_title: A Makefile for builds and tasks
+  retired: false
+- id: X.MOL
+  first_title: Molecular structure prediction
+  retired: false
+- id: X.NETPOL
+  first_title: Network policy as code
+  retired: false
+- id: X.NODE
+  first_title: Node.js as a pinned runtime
+  retired: false
+- id: X.OPE
+  first_title: Off-policy evaluation
+  retired: false
+- id: X.P5
+  first_title: Phase 5, architecture decision records
+  retired: false
+- id: X.PAGES
+  first_title: GitHub Pages for the site
+  retired: false
+- id: X.PARSE
+  first_title: The sheet reading the site's TypeScript data
+  retired: false
+- id: X.PII
+  first_title: PII scanning
+  retired: false
+- id: X.PNPM
+  first_title: pnpm workspaces for the site
+  retired: false
+- id: X.PRIV
+  first_title: Anything requiring non-public data
+  retired: false
+- id: X.PYNIX
+  first_title: The Python interpreter built by Nix
+  retired: false
+- id: X.README
+  first_title: A README.md
+  retired: false
+- id: X.RENDER
+  first_title: Bit-for-bit PDF reproduction on the laptop
+  retired: false
+- id: X.SECMD
+  first_title: A SECURITY.md
+  retired: false
+- id: X.SIB
+  first_title: Required-checks fix ported to three sibling repositories
+  retired: false
+- id: X.SPIKE
+  first_title: Reference spike, the original thread B
+  retired: false
+- id: X.STAGING
+  first_title: A staging environment
+  retired: false
+- id: X.TOX
+  first_title: Compound-level toxicity from chemistry
+  retired: false
+- id: X.TS7
+  first_title: TypeScript 7
+  retired: false
+- id: X.TURBO
+  first_title: Turborepo as the task runner, once CI exceeds five minutes
+  retired: false
+- id: G.37
+  first_title: 'The site''s toolchain warns about nothing: its React integration removed where unused, and every dependency
+    pinned exactly'
+  retired: false
+- id: G.40
+  first_title: 'No command rewrites lineage, and the remote refuses a rewrite: refresh merges, and branch protection is declared
+    as data'
+  retired: false

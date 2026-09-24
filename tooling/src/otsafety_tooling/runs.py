@@ -289,6 +289,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     if not args:
         raise SystemExit("usage: python -m otsafety_tooling.runs <task> [arguments...]")
 
+    # NO ENVELOPE OF ITS OWN: this WRAPS a task, whose envelope is already the whole
+    # of stdout; a second one here would give a caller two. The evidence this command
+    # leaves is the run-record/v1 file it writes, not a line on stdout.
+
     from otsafety_tooling.artifacts import artifacts_root
     from otsafety_tooling.paths import REPO_ROOT
 

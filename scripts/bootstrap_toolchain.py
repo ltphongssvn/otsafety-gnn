@@ -204,8 +204,46 @@ def install(plan: Plan, entry: dict[str, Any], key: str, destination: Path) -> l
     return installed
 
 
+CONTRACT = "command-outcome/v1"
+
+
+def note(text: str) -> None:
+    """Human-facing progress: stderr, never the payload channel."""
+    sys.stderr.write(f"{text}\n")
+
+
+def emit(command: str, outcome: str, code: str, message: str, data: dict[str, Any]) -> int:
+    """The envelope on stdout, and the exit code the outcome carries.
+
+    BUILT AS PLAIN DATA, not through a model: this runs before anything is
+    installed, so it imports only the standard library. The shape is the same
+    command-outcome/v1 every command emits, and a test validates it through the
+    contract so a drift fails there rather than in a caller.
+    """
+    envelope = {
+        "contract": CONTRACT,
+        "command": command,
+        "outcome": outcome,
+        "code": code,
+        "message": message,
+        "data": data,
+    }
+    sys.stdout.write(json.dumps(envelope) + "\n")
+    return {"success": 0, "failed": 1, "refused": 2}[outcome]
+
+
 def main(argv: list[str] | None = None) -> int:
     args = sys.argv[1:] if argv is None else argv
+    # AN UNKNOWN ARGUMENT IS REFUSED, not taken as a destination: --plan-only was
+    # silently treated as a path, which is how a typo installs somewhere unintended.
+    if len(args) > 1 or (args and args[0].startswith("-")):
+        return emit(
+            "bootstrap",
+            "refused",
+            "usage",
+            "usage: bootstrap_toolchain.py [destination]",
+            {"arguments": args},
+        )
     repo_root = Path(__file__).resolve().parent.parent
     destination = Path(args[0]) if args else Path.home() / ".local" / "bin"
 
@@ -215,25 +253,38 @@ def main(argv: list[str] | None = None) -> int:
     # the Toolchain model in the gate, before any bootstrap reads it.
     toolchain = json.loads((repo_root / "toolchain.json").read_text(encoding="utf-8"))  # noqa: TID251
     key = platform_key(platform.system(), platform.machine())
-    print(f"platform: {key}")
-    print(f"destination: {destination}")
+    note(f"platform: {key}")
+    note(f"destination: {destination}")
 
     names = [n for n, e in toolchain.items() if isinstance(e, dict) and "artifacts" in e]
     installed = {name: installed_version(destination, toolchain[name]) for name in names}
     plans = plan_all(toolchain, key, installed)
 
     for plan in plans:
-        print(f"  {plan.tool}: {plan.action} ({plan.reason})")
+        note(f"  {plan.tool}: {plan.action} ({plan.reason})")
 
+    placed_paths: list[str] = []
     for plan in plans:
         if plan.action != "install":
             continue
         placed = install(plan, toolchain[plan.tool], key, destination)
         for path in placed:
-            print(f"installed {path.name} -> {path}")
+            note(f"installed {path.name} -> {path}")
+            placed_paths.append(str(path))
 
-    print("bootstrap complete")
-    return 0
+    note("bootstrap complete")
+    return emit(
+        "bootstrap",
+        "success",
+        "installed",
+        f"{len(placed_paths)} file(s) placed in {destination}",
+        {
+            "platform": key,
+            "destination": str(destination),
+            "tools": [{"tool": p.tool, "action": p.action, "reason": p.reason} for p in plans],
+            "placed": placed_paths,
+        },
+    )
 
 
 if __name__ == "__main__":

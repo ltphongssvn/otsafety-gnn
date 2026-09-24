@@ -27,38 +27,61 @@ was requested.
 
 from __future__ import annotations
 
+import json
 import sys
+from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Protocol
 
-from pydantic import ValidationError
+from pydantic import BaseModel, ConfigDict, JsonValue, RootModel, ValidationError
 
 from otsafety_tooling.artifacts import artifacts_root
+from otsafety_tooling.cli import note, result
+from otsafety_tooling.contracts.outcome import Verdict as Outcome
 from otsafety_tooling.contracts.repository_settings import (
+    PROTECTION_CODES,
     REASON_CODES,
     SETTING_NAMES,
+    BranchProtection,
     MergeSettings,
     ObservedSettings,
+    ProtectionFinding,
     RepositoryResponse,
     SettingFinding,
     SettingsCheckReport,
     Verdict,
     load_desired,
 )
-from otsafety_tooling.git.ghcli import GhError, gh_json
+from otsafety_tooling.git.ghcli import GhError, gh_input, gh_json
 from otsafety_tooling.paths import REPO_ROOT
 
 UNKNOWN_REPOSITORY = "unknown"
 _API_PATH = "repos/{owner}/{repo}"
 
 
+class Rulesets(RootModel[tuple[JsonValue, ...]]):
+    """GitHub answers the rulesets endpoint with an array, so the model has a root.
+
+    A RootModel IS a BaseModel, so this still reads through gh_json, the one
+    sanctioned reader: the array never reaches a caller as unvalidated text.
+    """
+
+
+class Ruleset(RootModel[JsonValue]):
+    """One ruleset in full, as the by-id endpoint answers it."""
+
+
 class GitHubRepository(Protocol):
-    """The two operations settings management needs from GitHub."""
+    """The four operations settings management needs from GitHub."""
 
     def read(self) -> RepositoryResponse: ...
 
     def update(self, changes: dict[str, bool]) -> RepositoryResponse: ...
+
+    def rulesets(self) -> tuple[JsonValue, ...]: ...
+
+    def create_ruleset(self, payload: dict[str, JsonValue]) -> None: ...
 
 
 class GhRepository:
@@ -74,11 +97,25 @@ class GhRepository:
             fields += ["-F", f"{name}={'true' if value else 'false'}"]
         return gh_json(RepositoryResponse, "api", "-X", "PATCH", _API_PATH, *fields)
 
+    def rulesets(self) -> tuple[JsonValue, ...]:
+        # EACH ONE IN FULL: the list endpoint answers summaries, so every id is
+        # fetched again for the conditions and rules that say what it refuses.
+        listed = gh_json(Rulesets, "api", f"{_API_PATH}/rulesets").root
+        detailed: list[JsonValue] = [
+            gh_json(Ruleset, "api", f"{_API_PATH}/rulesets/{identifier}").root
+            for identifier in needs_detail(listed)
+        ]
+        return (*(answer for answer in listed if not needs_detail([answer])), *detailed)
+
+    def create_ruleset(self, payload: dict[str, JsonValue]) -> None:
+        # THE WHOLE PAYLOAD AS JSON: --input - takes a document on stdin, where -f
+        # would flatten the nested conditions and rules into query-style fields.
+        gh_input(json.dumps(payload), "api", "-X", "POST", f"{_API_PATH}/rulesets", "--input", "-")
+
 
 def _say(text: str) -> None:
-    """Write one line of the command's output, flushed so logs keep their order."""
-    sys.stdout.write(text + "\n")
-    sys.stdout.flush()
+    """One line of the command's report: stderr, because stdout carries the envelope."""
+    note(text)
 
 
 def compare(desired: MergeSettings, observed: ObservedSettings) -> tuple[SettingFinding, ...]:
@@ -111,6 +148,151 @@ def compare(desired: MergeSettings, observed: ObservedSettings) -> tuple[Setting
     return tuple(findings)
 
 
+# THE THREE RULES THIS REPOSITORY BANS, in GitHub's own vocabulary: a force push
+# replaces published commits, a deletion discards them, and a direct push bypasses
+# the review that would have caught either.
+RULE_FOR = {
+    "allow_force_pushes": "non_fast_forward",
+    "allow_deletions": "deletion",
+    "require_pull_request": "pull_request",
+}
+
+
+def ruleset_payload(rule: BranchProtection) -> dict[str, JsonValue]:
+    """One declared protection as the ruleset GitHub's API documents.
+
+    NOBODY BYPASSES IT: bypass_actors is empty, so the rule holds for every actor
+    including an administrator. A rule with an exception is a rule that reports
+    protection it does not provide.
+    """
+    rules: list[JsonValue] = []
+    if not rule.allow_deletions:
+        rules.append({"type": "deletion"})
+    if not rule.allow_force_pushes:
+        rules.append({"type": "non_fast_forward"})
+    if rule.require_pull_request:
+        rules.append({"type": "pull_request"})
+    return {
+        "name": f"Protect {rule.branch}",
+        "target": "branch",
+        "enforcement": "active",
+        "bypass_actors": [],
+        "conditions": {"ref_name": {"include": [f"refs/heads/{rule.branch}"], "exclude": []}},
+        "rules": rules,
+    }
+
+
+def needs_detail(answered: Sequence[JsonValue]) -> tuple[int, ...]:
+    """The ids whose answer carries no rules, so it must be fetched in full.
+
+    THE LIST ENDPOINT ANSWERS SUMMARIES: id, name, enforcement and target, with no
+    conditions and no rules. Reading one as protection found no rules and reported
+    an unprotected branch while the ruleset held all three -- a check that could
+    never pass, and one that blamed the remote for it.
+    """
+    wanted: list[int] = []
+    for answer in answered:
+        if not isinstance(answer, Mapping) or "rules" in answer:
+            continue
+        identifier = answer.get("id")
+        if isinstance(identifier, int):
+            wanted.append(identifier)
+    return tuple(wanted)
+
+
+def protection_observed(answered: Sequence[JsonValue]) -> tuple[BranchProtection, ...]:
+    """What the remote actually refuses, expressed as the contract declares it.
+
+    A DISABLED OR EVALUATING RULESET REFUSES NOTHING, so it is not read as
+    protection: reporting one as protective would call a repository safe while a
+    force push still succeeds.
+    """
+    held: list[BranchProtection] = []
+    for answer in answered:
+        # GITHUB'S ANSWER IS JSON, narrowed rather than declared as Any: a shape
+        # that is not what the API documents contributes no protection.
+        if not isinstance(answer, Mapping):
+            continue
+        if answer.get("enforcement") != "active" or answer.get("target") != "branch":
+            continue
+        rules = answer.get("rules")
+        kinds = {
+            entry.get("type")
+            for entry in (rules if isinstance(rules, Sequence) else ())
+            if isinstance(entry, Mapping)
+        }
+        conditions = answer.get("conditions")
+        ref_name = conditions.get("ref_name") if isinstance(conditions, Mapping) else None
+        included = ref_name.get("include") if isinstance(ref_name, Mapping) else None
+        for ref in included if isinstance(included, Sequence) else ():
+            held.append(
+                BranchProtection(
+                    branch=str(ref).removeprefix("refs/heads/"),
+                    allow_force_pushes="non_fast_forward" not in kinds,
+                    allow_deletions="deletion" not in kinds,
+                    require_pull_request="pull_request" in kinds,
+                )
+            )
+    return tuple(held)
+
+
+def protection_findings(
+    declared: Sequence[BranchProtection], observed: Sequence[BranchProtection] | None
+) -> tuple[ProtectionFinding, ...]:
+    """Every declared protection the remote does not hold, or would not show.
+
+    UNKNOWN, NEVER PASS: GitHub returns rulesets only to an administrative reader,
+    and an empty answer is indistinguishable from none declared. A caller that read
+    nothing gets P002 for every branch rather than a clean verdict.
+    """
+    if observed is None:
+        return tuple(
+            ProtectionFinding(
+                rule_id="P002",
+                reason_code=PROTECTION_CODES["P002"],
+                message=(
+                    f"the ruleset protecting {rule.branch} was not returned; "
+                    "administrative read is needed to see it"
+                ),
+                branch=rule.branch,
+            )
+            for rule in declared
+        ) or (
+            ProtectionFinding(
+                rule_id="P002",
+                reason_code=PROTECTION_CODES["P002"],
+                message="no ruleset was returned; administrative read is needed to see them",
+                branch="*",
+            ),
+        )
+    held = {rule.branch: rule for rule in observed}
+    findings: list[ProtectionFinding] = []
+    for rule in declared:
+        actual = held.get(rule.branch)
+        if actual is None:
+            findings.append(
+                ProtectionFinding(
+                    rule_id="P001",
+                    reason_code=PROTECTION_CODES["P001"],
+                    message=f"{rule.branch} has no ruleset; a force push is not refused",
+                    branch=rule.branch,
+                )
+            )
+            continue
+        for field in ("allow_force_pushes", "allow_deletions", "require_pull_request"):
+            want, got = getattr(rule, field), getattr(actual, field)
+            if want != got:
+                findings.append(
+                    ProtectionFinding(
+                        rule_id="P001",
+                        reason_code=PROTECTION_CODES["P001"],
+                        message=f"{rule.branch}: {field} is {got} but the policy requires {want}",
+                        branch=rule.branch,
+                    )
+                )
+    return tuple(findings)
+
+
 def _unreachable(error: Exception) -> SettingFinding:
     return SettingFinding(
         rule_id="S003",
@@ -119,59 +301,136 @@ def _unreachable(error: Exception) -> SettingFinding:
     )
 
 
-def _verdict(findings: tuple[SettingFinding, ...]) -> Verdict:
+def _verdict(
+    findings: Sequence[SettingFinding], protection: Sequence[ProtectionFinding] = ()
+) -> Verdict:
+    """The verdict the findings imply, over both the settings and the protection.
+
+    THE REPORT ENFORCES THIS TOO, and refuses a verdict that disagrees with its
+    findings; this is the one place that derives it, so the two cannot drift.
+    """
     rules = {finding.rule_id for finding in findings}
-    if "S001" in rules:
+    guards = {finding.rule_id for finding in protection}
+    if "S001" in rules or "P001" in guards:
         return "fail"
-    return "unknown" if rules else "pass"
+    if rules or guards:
+        return "unknown"
+    return "pass"
 
 
-def _record(repository: str, findings: tuple[SettingFinding, ...], artifacts: Path) -> int:
+class SettingsOutcome(BaseModel):
+    """The verdict on GitHub's settings, and where the record of it was written."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    verdict: str
+    repository: str
+    findings: list[str]
+    record: str
+
+
+def _record(
+    repository: str,
+    findings: tuple[SettingFinding, ...],
+    artifacts: Path,
+    protection: tuple[ProtectionFinding, ...] = (),
+) -> int:
     report = SettingsCheckReport(
         generated_at=datetime.now(UTC),
         repository=repository,
         findings=findings,
-        verdict=_verdict(findings),
+        protection=protection,
+        verdict=_verdict(findings, protection),
     )
     artifacts.mkdir(parents=True, exist_ok=True)
     path = artifacts / f"{report.generated_at.strftime('%Y%m%dT%H%M%S%fZ')}.json"
     path.write_text(report.model_dump_json(indent=2) + "\n", encoding="utf-8")
 
     _say(f"repository settings: {report.verdict} ({repository})")
-    for finding in findings:
+    reported: tuple[SettingFinding | ProtectionFinding, ...] = (*findings, *protection)
+    for finding in reported:
         _say(f"  {finding.rule_id} {finding.reason_code}: {finding.message}")
     _say(f"  recorded: {path}")
-    return 0 if report.verdict == "pass" else 1
+    outcomes: dict[str, tuple[Outcome, str]] = {
+        "pass": ("success", "settings_match"),
+        "fail": ("refused", "settings_differ"),
+        "unknown": ("failed", "settings_unreadable"),
+    }
+    outcome, code = outcomes[report.verdict]
+    return result(
+        "repo:check",
+        outcome,
+        code,
+        f"repository settings: {report.verdict} ({repository})",
+        SettingsOutcome(
+            verdict=report.verdict,
+            repository=repository,
+            findings=[f"{f.rule_id} {f.reason_code}" for f in reported],
+            record=str(path),
+        ),
+    )
 
 
-def check(repository: GitHubRepository, desired: MergeSettings, artifacts: Path) -> int:
-    """Read GitHub, judge its settings, record the result, return 0 only on pass."""
+def check(
+    repository: GitHubRepository,
+    desired: MergeSettings,
+    artifacts: Path,
+    protection: Sequence[BranchProtection] = (),
+) -> int:
+    """Read GitHub, judge its settings and its protection, record both, return 0 only on pass."""
     try:
         observed = repository.read()
     except (GhError, OSError, ValidationError) as error:
         return _record(UNKNOWN_REPOSITORY, (_unreachable(error),), artifacts)
 
-    return _record(observed.full_name or UNKNOWN_REPOSITORY, compare(desired, observed), artifacts)
+    try:
+        held: Sequence[JsonValue] | None = repository.rulesets()
+    except (GhError, OSError, ValidationError):
+        # UNKNOWN, NEVER PASS: a ruleset this caller cannot see is not absent.
+        held = None
+    guards = protection_findings(
+        protection, protection_observed(held) if held is not None else None
+    )
+    return _record(
+        observed.full_name or UNKNOWN_REPOSITORY,
+        compare(desired, observed),
+        artifacts,
+        guards,
+    )
 
 
-def configure(repository: GitHubRepository, desired: MergeSettings, artifacts: Path) -> int:
-    """Apply every declared setting, then check what GitHub actually holds."""
+def configure(
+    repository: GitHubRepository,
+    desired: MergeSettings,
+    artifacts: Path,
+    protection: Sequence[BranchProtection] = (),
+) -> int:
+    """Apply every declared setting and protection, then check what GitHub holds."""
     try:
         repository.update(desired.model_dump())
+        held = protection_observed(repository.rulesets())
+        protected = {rule.branch for rule in held}
+        for rule in protection:
+            if rule.branch not in protected:
+                repository.create_ruleset(ruleset_payload(rule))
     except (GhError, OSError) as error:
         return _record(UNKNOWN_REPOSITORY, (_unreachable(error),), artifacts)
-    return check(repository, desired, artifacts)
+    return check(repository, desired, artifacts, protection)
 
 
 def main(argv: list[str] | None = None) -> int:
     args = sys.argv[1:] if argv is None else argv
     artifacts = artifacts_root(REPO_ROOT) / "repo-settings"
-    desired = load_desired().settings
+    declared = load_desired()
+    desired = declared.settings
+    # THE DECLARED PROTECTION REACHES THE COMMANDS: without this the contract would
+    # hold rules that nothing ever applied or verified.
+    guards = declared.protection or ()
     match args:
         case ["check"]:
-            return check(GhRepository(), desired, artifacts)
+            return check(GhRepository(), desired, artifacts, guards)
         case ["configure"]:
-            return configure(GhRepository(), desired, artifacts)
+            return configure(GhRepository(), desired, artifacts, guards)
         case other:
             raise SystemExit(
                 f"usage: python -m otsafety_tooling.github.settings check|configure (got {other})"

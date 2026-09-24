@@ -52,6 +52,8 @@ from pydantic import (
     model_validator,
 )
 
+from otsafety_tooling.cli import CommandRefused, note, refusal
+from otsafety_tooling.cli import result as emit_result
 from otsafety_tooling.contracts.files import read_yaml
 from otsafety_tooling.contracts.workflow import Workflow
 from otsafety_tooling.git.env import git, scrubbed_env
@@ -75,12 +77,39 @@ CHECKS_COMPLETE_TIMEOUT = 1200
 POLL_INTERVAL = 5
 
 
+class _Payload(BaseModel):
+    """A command's payload: named fields, checked where they are written."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+
+class Merged(_Payload):
+    pull_request: int
+    state: str
+    branch: str | None
+
+
+class Promoted(_Payload):
+    pull_request: int
+    commits: int
+
+
+class ProtectedBranch(_Payload):
+    branch: str
+
+
+class NothingToPropose(_Payload):
+    branch: str
+    pull_request: int | None
+    action: str
+
+
 def report(result: subprocess.CompletedProcess[str]) -> None:
-    """Print BOTH streams of a failed command."""
+    """BOTH streams of a failed command, on stderr: stdout carries the envelope."""
     if result.stdout.strip():
-        print(result.stdout.strip())
+        note(result.stdout.strip())
     if result.stderr.strip():
-        print(result.stderr.strip(), file=sys.stderr)
+        note(result.stderr.strip())
 
 
 def gh(*args: str, check: bool = True) -> str:
@@ -95,7 +124,7 @@ def gh(*args: str, check: bool = True) -> str:
     )
     if check and result.returncode != 0:
         report(result)
-        raise SystemExit(f"gh {' '.join(args)} failed")
+        raise CommandRefused("gh_failed", f"gh {' '.join(args)} failed")
     return result.stdout
 
 
@@ -230,11 +259,15 @@ def commits_ahead(root: Path) -> int:
     fetched = git("fetch", "origin", "--prune", "--quiet", cwd=root)
     if fetched.returncode != 0:
         report(fetched)
-        raise SystemExit("fetch failed; cannot tell what this branch would propose")
+        raise CommandRefused(
+            "fetch_failed", "fetch failed; cannot tell what this branch would propose"
+        )
     counted = git("rev-list", "--count", f"origin/{INTEGRATION_BRANCH}..HEAD", cwd=root)
     if counted.returncode != 0:
         report(counted)
-        raise SystemExit(f"could not compare HEAD with origin/{INTEGRATION_BRANCH}")
+        raise CommandRefused(
+            "compare_failed", f"could not compare HEAD with origin/{INTEGRATION_BRANCH}"
+        )
     return int(counted.stdout.strip())
 
 
@@ -341,7 +374,7 @@ def wait_for_checks_to_register(
     while time.monotonic() < deadline:
         checks = pr_state(pr_number).checks
         if checks and not missing_required(checks, required):
-            print("checks registered: " + ", ".join(check.name for check in checks))
+            note("checks registered: " + ", ".join(check.name for check in checks))
             return True
         time.sleep(POLL_INTERVAL)
     return False
@@ -362,13 +395,14 @@ def wait_for_checks(deadline: float, pr_number: int | None) -> PullRequest:
             return observed
         if time.monotonic() >= deadline:
             pending = ", ".join(c.name for c in observed.checks if c.conclusion is None)
-            raise SystemExit(
-                f"checks did not conclude within {CHECKS_COMPLETE_TIMEOUT}s: {pending}"
+            raise CommandRefused(
+                "checks_unreadable",
+                f"checks did not conclude within {CHECKS_COMPLETE_TIMEOUT}s: {pending}",
             )
         time.sleep(POLL_INTERVAL)
         latest = pr_state(pr_number)
         for line in describe_transitions(observed.checks, latest.checks):
-            print(line)
+            note(line)
         observed = latest
 
 
@@ -379,19 +413,25 @@ def verify_checks(checks: tuple[Check, ...], required: frozenset[str] = frozense
     not a green pull request.
     """
     if not checks:
-        raise SystemExit("merge refused: no checks reported at all")
+        raise CommandRefused("no_checks", "merge refused: no checks reported at all")
 
     missing = missing_required(checks, required)
     if missing:
-        raise SystemExit(f"merge refused: required checks missing: {', '.join(missing)}")
+        raise CommandRefused(
+            "checks_missing", f"merge refused: required checks missing: {', '.join(missing)}"
+        )
 
     unfinished = [c.name for c in checks if c.conclusion is None]
     if unfinished:
-        raise SystemExit(f"merge refused: checks still running: {', '.join(unfinished)}")
+        raise CommandRefused(
+            "checks_running", f"merge refused: checks still running: {', '.join(unfinished)}"
+        )
 
     failing = [c.name for c in checks if c.conclusion not in PASSING_CONCLUSIONS]
     if failing:
-        raise SystemExit(f"merge refused: unacceptable checks: {', '.join(failing)}")
+        raise CommandRefused(
+            "checks_failing", f"merge refused: unacceptable checks: {', '.join(failing)}"
+        )
 
 
 def verify_target(pr: PullRequest, base: str = INTEGRATION_BRANCH) -> None:
@@ -402,8 +442,9 @@ def verify_target(pr: PullRequest, base: str = INTEGRATION_BRANCH) -> None:
     for main, explicitly.
     """
     if pr.base != base:
-        raise SystemExit(
-            f"merge refused: PR #{pr.number} targets {pr.base or '(unknown)'!r}, not {base!r}"
+        raise CommandRefused(
+            "checks_unreadable",
+            f"merge refused: PR #{pr.number} targets {pr.base or '(unknown)'!r}, not {base!r}",
         )
 
 
@@ -430,7 +471,7 @@ def execute_merge(pr_number: int) -> MergeResult:
     )
     if response.returncode != 0:
         report(response)
-        raise SystemExit("merge request failed")
+        raise CommandRefused("merge_request_failed", "merge request failed")
 
     return MergeResult.model_validate_json(response.stdout)
 
@@ -443,14 +484,15 @@ def merge_when_green(
     deadline = time.monotonic() + CHECKS_APPEAR_TIMEOUT
     if not wait_for_checks_to_register(deadline, pr_number, required):
         missing = missing_required(pr_state(pr_number).checks, required)
-        raise SystemExit(
+        raise CommandRefused(
+            "merge_not_allowed",
             f"required checks did not register within {CHECKS_APPEAR_TIMEOUT}s: "
-            f"{', '.join(missing) or '(none registered)'}"
+            f"{', '.join(missing) or '(none registered)'}",
         )
 
     observed = wait_for_checks(time.monotonic() + CHECKS_COMPLETE_TIMEOUT, pr_number)
     if observed.is_terminal:
-        print(f"PR #{observed.number} is already {observed.state}")
+        note(f"PR #{observed.number} is already {observed.state}")
         return None
 
     verify_target(observed, base)
@@ -458,9 +500,11 @@ def merge_when_green(
 
     result = execute_merge(observed.number)
     if not result.merged:
-        raise SystemExit(f"PR #{observed.number} was not merged: {result.message}")
+        raise CommandRefused(
+            "not_merged", f"PR #{observed.number} was not merged: {result.message}"
+        )
 
-    print(f"merged {result.sha[:12]}: {result.message}")
+    note(f"merged {result.sha[:12]}: {result.message}")
     return result
 
 
@@ -473,9 +517,14 @@ def merge_existing(pr_number: int) -> int:
     merge_when_green(pr_number)
     final = pr_state(pr_number)
     if not final.is_merged:
-        raise SystemExit(f"PR #{final.number} is {final.state}, not MERGED.")
-    print(f"\nPR #{final.number} merged. next: mise run sync")
-    return 0
+        raise CommandRefused("not_merged", f"PR #{final.number} is {final.state}, not MERGED.")
+    return emit_result(
+        "pr:merge",
+        "success",
+        "merged",
+        f"PR #{final.number} merged. next: mise run sync",
+        Merged(pull_request=final.number, state=final.state, branch=None),
+    )
 
 
 class PromotionPlan(BaseModel, frozen=True, extra="forbid"):
@@ -493,7 +542,7 @@ def _git_or_exit(*args: str, why: str) -> str:
     result = git(*args, cwd=REPO_ROOT)
     if result.returncode != 0:
         report(result)
-        raise SystemExit(why)
+        raise CommandRefused("promote_refused", why)
     return result.stdout.strip()
 
 
@@ -515,7 +564,7 @@ def back_merge() -> None:
         "merge-base", "--is-ancestor", f"origin/{RELEASE_BRANCH}", "HEAD", cwd=REPO_ROOT
     )
     if contained.returncode == 0:
-        print(f"{INTEGRATION_BRANCH} already contains {RELEASE_BRANCH}; no back-merge needed")
+        note(f"{INTEGRATION_BRANCH} already contains {RELEASE_BRANCH}; no back-merge needed")
         return
     _git_or_exit(
         "merge",
@@ -526,7 +575,7 @@ def back_merge() -> None:
         why="back-merge failed; develop is unchanged on origin",
     )
     _git_or_exit("push", "origin", INTEGRATION_BRANCH, why="push of the back-merge refused")
-    print(f"back-merged {RELEASE_BRANCH} into {INTEGRATION_BRANCH} with [skip ci]")
+    note(f"back-merged {RELEASE_BRANCH} into {INTEGRATION_BRANCH} with [skip ci]")
 
 
 def promote() -> int:
@@ -538,15 +587,18 @@ def promote() -> int:
     """
     branch = _git_or_exit("rev-parse", "--abbrev-ref", "HEAD", why="cannot read the branch")
     if branch != INTEGRATION_BRANCH:
-        raise SystemExit(f"refusing: promote runs from {INTEGRATION_BRANCH}, not {branch!r}")
+        raise CommandRefused(
+            "wrong_branch", f"refusing: promote runs from {INTEGRATION_BRANCH}, not {branch!r}"
+        )
     if _git_or_exit("status", "--porcelain", why="cannot read the working tree"):
-        raise SystemExit("refusing: the working tree is not clean")
+        raise CommandRefused("tree_not_clean", "refusing: the working tree is not clean")
     _git_or_exit("fetch", "origin", "--prune", "--tags", "--quiet", why="fetch failed")
     local = _git_or_exit("rev-parse", "HEAD", why="cannot resolve HEAD")
     remote = _git_or_exit("rev-parse", f"origin/{INTEGRATION_BRANCH}", why="no origin/develop")
     if local != remote:
-        raise SystemExit(
-            f"refusing: local {INTEGRATION_BRANCH} differs from origin; run mise run sync"
+        raise CommandRefused(
+            "promote_refused",
+            f"refusing: local {INTEGRATION_BRANCH} differs from origin; run mise run sync",
         )
 
     ahead = int(
@@ -558,7 +610,7 @@ def promote() -> int:
         )
     )
     if plan_promotion(ahead).action == "nothing":
-        print(f"nothing to promote: {RELEASE_BRANCH} already has every commit")
+        note(f"nothing to promote: {RELEASE_BRANCH} already has every commit")
         return 0
 
     query = (
@@ -577,7 +629,7 @@ def promote() -> int:
     )
     existing = gh(*query).strip()
     if existing:
-        print(f"reusing open promotion PR #{existing}")
+        note(f"reusing open promotion PR #{existing}")
     else:
         gh(
             "pr",
@@ -594,52 +646,79 @@ def promote() -> int:
         )
         existing = gh(*query).strip()
     number = int(existing)
-    print(f"promoting {ahead} commit(s) through PR #{number}\n")
+    note(f"promoting {ahead} commit(s) through PR #{number}\n")
 
     merge_when_green(number, base=RELEASE_BRANCH)
     final = pr_state(number)
     if not final.is_merged:
-        raise SystemExit(f"PR #{number} is {final.state}, not MERGED")
+        raise CommandRefused("not_merged", f"PR #{number} is {final.state}, not MERGED")
 
     back_merge()
-    print(
-        "\npromoted. next: the Release workflow cuts the tag; then check out the "
-        "tag and run mise run deploy:site"
+    return emit_result(
+        "release:promote",
+        "success",
+        "promoted",
+        "promoted. next: the Release workflow cuts the tag; then check out the tag "
+        "and run mise run deploy:site",
+        Promoted(pull_request=number, commits=ahead),
     )
-    return 0
 
 
 def parse_number(argv: list[str]) -> int:
     """The single positive integer argument of `merge`, or a usage error."""
     if len(argv) != 1 or not argv[0].isdigit() or int(argv[0]) < 1:
-        raise SystemExit("usage: python -m otsafety_tooling.git.pr merge <number>")
+        raise CommandRefused("usage", "usage: python -m otsafety_tooling.git.pr merge <number>")
     return int(argv[0])
 
 
 def main(argv: list[str] | None = None) -> int:
+    """A refusal is an outcome: exit 2 with a machine code, never a crash."""
+    try:
+        return _dispatch(argv)
+    except CommandRefused as error:
+        return refusal("pr", error)
+
+
+def _dispatch(argv: list[str] | None = None) -> int:
     args = sys.argv[1:] if argv is None else argv
     if args[:1] == ["merge"]:
         return merge_existing(parse_number(args[1:]))
     if args == ["promote"]:
         return promote()
     if args:
-        raise SystemExit("usage: python -m otsafety_tooling.git.pr [merge <number> | promote]")
+        raise CommandRefused(
+            "usage", "usage: python -m otsafety_tooling.git.pr [merge <number> | promote]"
+        )
 
     branch = git("rev-parse", "--abbrev-ref", "HEAD", cwd=REPO_ROOT).stdout.strip()
     if branch in PROTECTED:
-        raise SystemExit(f"refusing: on protected branch {branch!r}; work on a feature branch")
+        raise CommandRefused(
+            "protected_branch",
+            f"refusing: on protected branch {branch!r}; work on a feature branch",
+            ProtectedBranch(branch=branch),
+        )
 
     # DECIDE BEFORE PUSHING: a merged branch must not be pushed again.
     ahead = commits_ahead(REPO_ROOT)
     plan = plan_rerun(ahead, merged_pr_number(branch) if ahead == 0 else None)
     if plan.action != "propose":
-        print(plan.message)
-        return 0
+        note(plan.message)
+        return emit_result(
+            "pr",
+            "success",
+            "nothing_to_propose",
+            plan.message,
+            NothingToPropose(
+                branch=branch,
+                pull_request=merged_pr_number(branch) if ahead == 0 else None,
+                action=plan.action,
+            ),
+        )
 
     push = git("push", "-u", "origin", branch, cwd=REPO_ROOT)
     if push.returncode != 0:
         report(push)
-        raise SystemExit("push refused; see the hook output above")
+        raise CommandRefused("push_refused", "push refused; see the hook output above")
 
     # AN EXISTING PULL REQUEST IS THE NORMAL CASE after every correction.
     existing = gh(
@@ -656,19 +735,24 @@ def main(argv: list[str] | None = None) -> int:
     ).strip()
 
     if existing:
-        print(f"reusing open PR #{existing}")
+        note(f"reusing open PR #{existing}")
     else:
         gh("pr", "create", "--base", INTEGRATION_BRANCH, "--head", branch, "--fill")
 
-    print(f"opened {pr_state().url}\n")
+    note(f"opened {pr_state().url}\n")
     merge_when_green()
 
     final = pr_state()
     if not final.is_merged:
-        raise SystemExit(f"PR #{final.number} is {final.state}, not MERGED.")
+        raise CommandRefused("not_merged", f"PR #{final.number} is {final.state}, not MERGED.")
 
-    print(f"\nPR #{final.number} merged. next: mise run sync")
-    return 0
+    return emit_result(
+        "pr",
+        "success",
+        "merged",
+        f"PR #{final.number} merged. next: mise run sync",
+        Merged(pull_request=final.number, state=final.state, branch=branch),
+    )
 
 
 if __name__ == "__main__":

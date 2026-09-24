@@ -1,0 +1,52 @@
+{
+  "additionalProperties": false,
+  "description": "The whole input set: the source the task, the probe and the Rego read.",
+  "properties": {
+    "contract": {
+      "title": "Contract",
+      "type": "string"
+    },
+    "inputs": {
+      "items": {
+        "additionalProperties": false,
+        "description": "One file the policy reads, and how it comes to exist.",
+        "properties": {
+          "path": {
+            "title": "Path",
+            "type": "string"
+          },
+          "why": {
+            "title": "Why",
+            "type": "string"
+          },
+          "generated": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Generated"
+          }
+        },
+        "required": [
+          "path",
+          "why",
+          "generated"
+        ],
+        "title": "PolicyInput",
+        "type": "object"
+      },
+      "title": "Inputs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "contract",
+    "inputs"
+  ],
+  "title": "PolicyInputs",
+  "type": "object"
+}

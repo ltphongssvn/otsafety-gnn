@@ -18,8 +18,9 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from pydantic import ValidationError
+from pydantic import JsonValue, ValidationError
 
+from otsafety_tooling.contracts.outcome import EXIT_CODES
 from otsafety_tooling.contracts.repository_settings import (
     MergeSettings,
     ObservedSettings,
@@ -55,6 +56,7 @@ class InMemoryRepository:
         self.ignored = ignored
         self.unreachable = unreachable
         self.updates: list[dict[str, bool]] = []
+        self.held: list[JsonValue] = []
 
     def read(self) -> RepositoryResponse:
         if self.unreachable:
@@ -63,6 +65,14 @@ class InMemoryRepository:
         return RepositoryResponse.model_validate(
             {**visible, "full_name": "owner/repo", "private": True}
         )
+
+    def rulesets(self) -> tuple[JsonValue, ...]:
+        if self.unreachable:
+            raise NotAuthenticatedError("gh is not authenticated (exit 4).")
+        return tuple(self.held)
+
+    def create_ruleset(self, payload: dict[str, JsonValue]) -> None:
+        self.held.append(payload)
 
     def update(self, changes: dict[str, bool]) -> RepositoryResponse:
         self.updates.append(dict(changes))
@@ -121,7 +131,7 @@ def test_a_repository_at_its_policy_passes_and_is_recorded(tmp_path: Path) -> No
 
 def test_drift_fails_and_names_every_setting(tmp_path: Path) -> None:
     drifted = {**POLICY, "allow_squash_merge": True, "delete_branch_on_merge": False}
-    assert check(InMemoryRepository(drifted), DESIRED, tmp_path) == 1
+    assert check(InMemoryRepository(drifted), DESIRED, tmp_path) == EXIT_CODES["refused"]
     report = _report(tmp_path)
     assert report.verdict == "fail"
     assert _rules(report) == [
@@ -132,14 +142,17 @@ def test_drift_fails_and_names_every_setting(tmp_path: Path) -> None:
 
 def test_settings_github_hides_are_unknown_not_pass(tmp_path: Path) -> None:
     repository = InMemoryRepository(POLICY, hidden=frozenset(POLICY))
-    assert check(repository, DESIRED, tmp_path) == 1
+    assert check(repository, DESIRED, tmp_path) == EXIT_CODES["failed"]
     report = _report(tmp_path)
     assert report.verdict == "unknown"
     assert {rule for rule, _ in _rules(report)} == {"S002"}
 
 
 def test_an_unreachable_github_is_unknown_and_still_recorded(tmp_path: Path) -> None:
-    assert check(InMemoryRepository(POLICY, unreachable=True), DESIRED, tmp_path) == 1
+    assert (
+        check(InMemoryRepository(POLICY, unreachable=True), DESIRED, tmp_path)
+        == EXIT_CODES["failed"]
+    )
     report = _report(tmp_path)
     assert (report.verdict, _rules(report)) == ("unknown", [("S003", None)])
 
@@ -157,7 +170,7 @@ def test_configure_catches_a_change_github_did_not_apply(tmp_path: Path) -> None
         {**POLICY, "delete_branch_on_merge": False},
         ignored=frozenset({"delete_branch_on_merge"}),
     )
-    assert configure(repository, DESIRED, tmp_path) == 1
+    assert configure(repository, DESIRED, tmp_path) == EXIT_CODES["refused"]
     assert _rules(_report(tmp_path)) == [("S001", "delete_branch_on_merge")]
 
 

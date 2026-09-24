@@ -20,9 +20,10 @@ Ported from cscie103-olap-oltp (src/cscie103_olap_oltp/git/worktree.py), with
 two changes:
   - every command takes the repository root, and add takes the setup runner,
     so the behaviour is tested on real repositories without running mise;
-  - refresh REFUSES A BRANCH THAT IS ALREADY PUSHED. A rebase rewrites its
-    commits, the next push is rejected as non-fast-forward, and the only way
-    through is a force push -- which this repository never performs.
+  - refresh MERGES rather than rebases. A rebase rewrites the branch's commits,
+    so the next push is rejected as non-fast-forward and only a force push gets
+    through -- which this repository never performs. A merge keeps every commit
+    reachable, so refresh treats a pushed branch and a local one alike.
 """
 
 from __future__ import annotations
@@ -32,6 +33,9 @@ import sys
 from collections.abc import Callable
 from pathlib import Path
 
+from pydantic import BaseModel, ConfigDict
+
+from otsafety_tooling.cli import CommandRefused, note, refusal, result
 from otsafety_tooling.git.env import git, scrubbed_env
 from otsafety_tooling.paths import REPO_ROOT
 
@@ -46,10 +50,51 @@ KNOWN_ATTRIBUTES = frozenset(
 SetupRunner = Callable[[Path], int]
 
 
+class _Payload(BaseModel):
+    """A command's payload: named fields, checked where they are written.
+
+    **kwargs cannot be checked -- a misspelt field would ship -- so each command
+    declares what it carries, and a list stays a list because the model says so.
+    """
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+
+class WorktreeRow(_Payload):
+    worktree: str
+    branch: str | None
+    flags: list[str]
+
+
+class WorktreeList(_Payload):
+    worktrees: list[WorktreeRow]
+
+
+class WorktreeCreated(_Payload):
+    worktree: str
+    branch: str
+    base_ref: str
+    commit: str
+
+
+class WorktreeRefreshed(_Payload):
+    worktree: str
+    before: str
+    after: str
+    base_ref: str
+    target: str
+
+
+class WorktreeRemoved(_Payload):
+    worktree: str
+    branch: str
+    branch_deleted: bool
+
+
 def validate_slug(slug: str) -> None:
     """A slug becomes both a branch name and a directory name."""
     if not slug or not all(ch.islower() or ch.isdigit() or ch == "-" for ch in slug):
-        raise SystemExit(f"slug must be lowercase kebab-case: {slug!r}")
+        raise CommandRefused("slug_invalid", f"slug must be lowercase kebab-case: {slug!r}")
 
 
 def sibling_name(main: Path, slug: str) -> Path:
@@ -72,8 +117,8 @@ def parse_records(root: Path, _raw: bytes | None = None) -> list[dict[str, str]]
             env=scrubbed_env(),
         )
         if result.returncode != 0:
-            print(result.stderr.decode(errors="replace").strip(), file=sys.stderr)
-            raise SystemExit("git worktree list failed")
+            note(result.stderr.decode(errors="replace").strip())
+            raise CommandRefused("worktree_list_failed", "git worktree list failed")
         _raw = result.stdout
 
     records: list[dict[str, str]] = []
@@ -87,16 +132,21 @@ def parse_records(root: Path, _raw: bytes | None = None) -> list[dict[str, str]]
         try:
             text = token.decode("utf-8")
         except UnicodeDecodeError as error:
-            raise SystemExit(f"worktree path is not UTF-8: {error}") from error
+            raise CommandRefused("path_not_utf8", f"worktree path is not UTF-8: {error}") from error
         key, _, value = text.partition(" ")
         if key not in KNOWN_ATTRIBUTES:
-            raise SystemExit(f"unrecognised worktree attribute {key!r}; refusing to continue")
+            raise CommandRefused(
+                "unknown_attribute",
+                f"unrecognised worktree attribute {key!r}; refusing to continue",
+            )
         current[key] = value
     if current:
         records.append(current)
 
     if not records or "worktree" not in records[0]:
-        raise SystemExit("no main worktree reported; is this a git repository?")
+        raise CommandRefused(
+            "not_a_repository", "no main worktree reported; is this a git repository?"
+        )
     return records
 
 
@@ -125,12 +175,23 @@ def run_setup(path: Path) -> int:
 
 
 def cmd_list(root: Path) -> int:
-    for record in parse_records(root):
-        branch = record.get("branch", "").removeprefix("refs/heads/") or "(detached)"
-        flags = [flag for flag in ("locked", "prunable") if flag in record]
-        suffix = f"  [{', '.join(flags)}]" if flags else ""
-        print(f"{record['worktree']}  {branch}{suffix}")
-    return 0
+    worktrees = [
+        WorktreeRow(
+            worktree=record["worktree"],
+            branch=record.get("branch", "").removeprefix("refs/heads/") or None,
+            flags=[flag for flag in ("locked", "prunable") if flag in record],
+        )
+        for record in parse_records(root)
+    ]
+    for entry in worktrees:
+        note(f"{entry.worktree}  {entry.branch or '(detached)'}")
+    return result(
+        "worktree:list",
+        "success",
+        "worktrees_listed",
+        f"{len(worktrees)} worktrees",
+        WorktreeList(worktrees=worktrees),
+    )
 
 
 def cmd_add(slug: str, root: Path, setup: SetupRunner = run_setup) -> int:
@@ -139,14 +200,17 @@ def cmd_add(slug: str, root: Path, setup: SetupRunner = run_setup) -> int:
     path = sibling_name(main_path(root), slug)
 
     if path.exists():
-        raise SystemExit(f"{path} already exists. Remove it first: mise run worktree:remove {slug}")
+        raise CommandRefused(
+            "worktree_exists",
+            f"{path} already exists. Remove it first: mise run worktree:remove {slug}",
+        )
 
     # OFF origin/develop, FETCHED FIRST: a worktree cut from a stale develop
     # starts life behind.
     fetched = git("fetch", "origin", "--prune", "--quiet", cwd=root)
     if fetched.returncode != 0:
-        print(fetched.stderr.strip(), file=sys.stderr)
-        raise SystemExit("fetch failed")
+        note(fetched.stderr.strip())
+        raise CommandRefused("fetch_failed", "fetch failed")
 
     # --no-track, EXPLICITLY. Starting from a remote branch, git may set
     # origin/develop as the new branch's upstream, depending on each machine's
@@ -164,29 +228,45 @@ def cmd_add(slug: str, root: Path, setup: SetupRunner = run_setup) -> int:
         cwd=root,
     )
     if added.returncode != 0:
-        print(added.stderr.strip(), file=sys.stderr)
-        raise SystemExit("git worktree add failed")
-    print(f"created {path} on {branch}\n")
-
-    print("running setup in the new worktree...")
+        note(added.stderr.strip())
+        raise CommandRefused("worktree_add_failed", "git worktree add failed")
+    note(f"created {path} on {branch}")
+    note("running setup in the new worktree...")
+    base = git("rev-parse", f"origin/{INTEGRATION_BRANCH}", cwd=root).stdout.strip()
+    facts = WorktreeCreated(
+        worktree=str(path),
+        branch=branch,
+        base_ref=f"origin/{INTEGRATION_BRANCH}",
+        commit=base,
+    )
     if setup(path) != 0:
-        print(
-            f"\nsetup failed in {path}. The worktree exists but is not usable. "
-            f"Fix setup there, or remove it:\n  mise run worktree:remove {slug}",
-            file=sys.stderr,
+        return result(
+            "worktree:add",
+            "failed",
+            "setup_failed",
+            f"setup failed in {path}: the worktree exists but is not usable. "
+            f"Fix setup there, or remove it: mise run worktree:remove {slug}",
+            facts,
         )
-        return 1
-
-    print(f"\nnext:\n  cd {path}")
-    return 0
+    note(f"next:\n  cd {path}")
+    return result(
+        "worktree:add", "success", "worktree_created", f"{path} created on {branch}", facts
+    )
 
 
 def cmd_refresh(slug: str, root: Path) -> int:
-    """Rebase an UNPUSHED worktree branch onto current origin/develop."""
+    """Merge current origin/develop into a worktree branch.
+
+    A MERGE, NEVER A REBASE. Rebasing rewrites the branch's commits: measured here,
+    a branch's own commit stopped being reachable from its own HEAD after a refresh
+    that reported success. The next push is then a non-fast-forward, and only a
+    force push resolves it -- which this repository never performs. A merge keeps
+    every commit reachable, so it is safe whether or not the branch was pushed.
+    """
     validate_slug(slug)
     path = sibling_name(main_path(root), slug)
     if not path.exists():
-        raise SystemExit(f"{path} does not exist")
+        raise CommandRefused("worktree_missing", f"{path} does not exist")
 
     status = subprocess.run(
         ["git", "status", "--porcelain", "-z"],  # noqa: S607
@@ -196,44 +276,49 @@ def cmd_refresh(slug: str, root: Path) -> int:
         env=scrubbed_env(),
     )
     if status.stdout.strip(b"\0"):
-        raise SystemExit(
+        raise CommandRefused(
+            "worktree_dirty",
             f"refusing: {path} has uncommitted changes. Commit or discard them first; "
-            "--autostash would hide the work in a stash nobody created."
+            "--autostash would hide the work in a stash nobody created.",
         )
 
     fetched = git("fetch", "origin", "--prune", "--quiet", cwd=root)
     if fetched.returncode != 0:
-        print(fetched.stderr.strip(), file=sys.stderr)
-        raise SystemExit("fetch failed")
+        note(fetched.stderr.strip())
+        raise CommandRefused("fetch_failed", "fetch failed")
 
-    # A PUSHED BRANCH IS NOT REBASED: rewriting published commits would make the
-    # next push a non-fast-forward, and this repository never force-pushes.
-    # `pr` always pushes with -u, so an upstream is the record of a push.
-    upstream = git("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}", cwd=path)
-    if upstream.returncode == 0:
-        raise SystemExit(
-            f"refusing: {path} tracks {upstream.stdout.strip()}, so it was pushed. "
-            "Rebasing would rewrite published commits and need a force push; "
-            "bring develop in through the pull request instead."
-        )
-
+    # NO PUSHED-BRANCH REFUSAL: it existed only because a rebase would have needed a
+    # force push. A merge adds a commit and rewrites none, so a pushed branch is
+    # refreshed exactly like a local one.
     before = git("rev-parse", "HEAD", cwd=path).stdout.strip()
-    rebased = git("rebase", f"origin/{INTEGRATION_BRANCH}", cwd=path)
-    if rebased.returncode != 0:
-        print((rebased.stdout + rebased.stderr).strip(), file=sys.stderr)
-        raise SystemExit(
-            f"rebase stopped in {path}. Resolve there and continue, or abort the rebase."
+    merged = git("merge", "--no-edit", f"origin/{INTEGRATION_BRANCH}", cwd=path)
+    if merged.returncode != 0:
+        note((merged.stdout + merged.stderr).strip())
+        raise CommandRefused(
+            "merge_stopped",
+            f"the merge stopped in {path}. Resolve the conflicts there and commit, "
+            "or abort it with git merge --abort.",
         )
     after = git("rev-parse", "HEAD", cwd=path).stdout.strip()
     target = git("rev-parse", f"origin/{INTEGRATION_BRANCH}", cwd=path).stdout.strip()
 
-    # REPORT AN OBSERVED STATE CHANGE, NOT PARSED OUTPUT: rebase writes its
-    # success message to stderr, and comparing SHAs cannot misreport.
-    if before == after:
-        print(f"{path} was already on origin/{INTEGRATION_BRANCH} ({target[:12]})")
-    else:
-        print(f"{path}: {before[:12]} -> {after[:12]} (onto {target[:12]})")
-    return 0
+    # REPORT AN OBSERVED STATE CHANGE, NOT PARSED OUTPUT: git writes its success
+    # message to stderr, and comparing SHAs cannot misreport.
+    return result(
+        "worktree:refresh",
+        "success",
+        "already_current" if before == after else "branch_moved",
+        f"{path} was already on origin/{INTEGRATION_BRANCH} ({target[:12]})"
+        if before == after
+        else f"{path}: {before[:12]} -> {after[:12]} (onto {target[:12]})",
+        WorktreeRefreshed(
+            worktree=str(path),
+            before=before,
+            after=after,
+            base_ref=f"origin/{INTEGRATION_BRANCH}",
+            target=target,
+        ),
+    )
 
 
 def cmd_remove(slug: str, root: Path) -> int:
@@ -242,14 +327,14 @@ def cmd_remove(slug: str, root: Path) -> int:
     branch = f"feature/{slug}"
 
     if not path.exists():
-        raise SystemExit(f"{path} does not exist")
+        raise CommandRefused("worktree_missing", f"{path} does not exist")
 
     # NO --force, EVER.
     removed = git("worktree", "remove", str(path), cwd=root)
     if removed.returncode != 0:
-        print(removed.stderr.strip(), file=sys.stderr)
-        raise SystemExit(f"refused to remove {path}")
-    print(f"removed {path}")
+        note(removed.stderr.strip())
+        raise CommandRefused("remove_refused", f"refused to remove {path}")
+    note(f"removed {path}")
 
     # `-d`, NOT `-D`.
     deleted = git("branch", "-d", branch, cwd=root)
@@ -257,21 +342,42 @@ def cmd_remove(slug: str, root: Path) -> int:
         detail = deleted.stderr.strip()
         # ALREADY GONE (usually removed by sync) is not "unmerged".
         if "not found" in detail:
-            print(f"removed the worktree; branch {branch} was already gone")
-            return 0
-        print(
-            f"worktree removed, but branch {branch} was NOT deleted:\n  {detail}\n"
+            return result(
+                "worktree:remove",
+                "success",
+                "worktree_removed_branch_gone",
+                f"removed the worktree; branch {branch} was already gone",
+                WorktreeRemoved(worktree=str(path), branch=branch, branch_deleted=False),
+            )
+        return result(
+            "worktree:remove",
+            "refused",
+            "branch_unmerged",
+            f"worktree removed, but branch {branch} was NOT deleted: {detail}. "
             "That refusal means the branch is unmerged. Merge it first.",
-            file=sys.stderr,
+            WorktreeRemoved(worktree=str(path), branch=branch, branch_deleted=False),
         )
-        return 1
 
-    print(f"deleted branch {branch}")
-    return 0
+    return result(
+        "worktree:remove",
+        "success",
+        "worktree_removed",
+        f"removed {path} and deleted {branch}",
+        WorktreeRemoved(worktree=str(path), branch=branch, branch_deleted=True),
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
     args = sys.argv[1:] if argv is None else argv
+    verb = args[0] if args else "usage"
+    try:
+        return _dispatch(args)
+    except CommandRefused as error:
+        # A REFUSAL IS AN OUTCOME, not a crash: exit 2, with its machine code.
+        return refusal(f"worktree:{verb}", error)
+
+
+def _dispatch(args: list[str]) -> int:
     match args:
         case ["list"]:
             return cmd_list(REPO_ROOT)
@@ -282,9 +388,10 @@ def main(argv: list[str] | None = None) -> int:
         case ["remove", slug]:
             return cmd_remove(slug, REPO_ROOT)
         case other:
-            raise SystemExit(
+            raise CommandRefused(
+                "usage",
                 "usage: python -m otsafety_tooling.git.worktree "
-                f"add|list|refresh|remove [slug]  (got {other})"
+                f"add|list|refresh|remove [slug]  (got {other})",
             )
 
 

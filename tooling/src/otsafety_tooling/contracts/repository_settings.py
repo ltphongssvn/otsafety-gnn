@@ -53,6 +53,9 @@ SettingName = Literal[
     "delete_branch_on_merge",
 ]
 SettingRule = Literal["S001", "S002", "S003"]
+# PROTECTION HAS ITS OWN RULES: a ruleset is a different endpoint, and a finding
+# that named a merge setting could not describe a branch.
+ProtectionRule = Literal["P001", "P002"]
 Verdict = Literal["pass", "fail", "unknown"]
 
 SETTING_NAMES: Final[tuple[SettingName, ...]] = get_args(SettingName)
@@ -61,6 +64,11 @@ REASON_CODES: Final[dict[str, str]] = {
     "S001": "SETTING_DIFFERS",
     "S002": "SETTING_NOT_VISIBLE",
     "S003": "GITHUB_UNREACHABLE",
+}
+
+PROTECTION_CODES: Final[dict[str, str]] = {
+    "P001": "PROTECTION_DIFFERS",
+    "P002": "PROTECTION_NOT_VISIBLE",
 }
 
 
@@ -74,6 +82,38 @@ class MergeSettings(BaseModel, frozen=True, extra="forbid"):
     delete_branch_on_merge: StrictBool
 
 
+class BranchProtection(BaseModel, frozen=True, extra="forbid"):
+    """What the remote must refuse on one branch, whatever a clone's hooks say.
+
+    A SIBLING OF THE MERGE POLICY, NOT PART OF IT: a ruleset is a different
+    endpoint with a different shape, and one model covering both would let a
+    check report a verdict on settings it never read.
+    """
+
+    branch: str
+    # THE THREE WAYS LINEAGE IS REWRITTEN, each refused at the remote: a force
+    # push replaces published commits, a deletion discards them, and a direct
+    # push bypasses the review that would have noticed either.
+    allow_force_pushes: StrictBool = False
+    allow_deletions: StrictBool = False
+    require_pull_request: StrictBool = True
+
+
+class ProtectionFinding(BaseModel, frozen=True, extra="forbid"):
+    """One reason the remote does not refuse what this repository bans."""
+
+    rule_id: ProtectionRule
+    reason_code: str
+    message: str = Field(min_length=1)
+    branch: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _consistent(self) -> Self:
+        if self.reason_code != PROTECTION_CODES[self.rule_id]:
+            raise ValueError(f"{self.rule_id} must carry {PROTECTION_CODES[self.rule_id]}")
+        return self
+
+
 class SettingsFile(BaseModel, frozen=True, extra="forbid"):
     """contracts/repository-settings.json, as committed."""
 
@@ -82,6 +122,7 @@ class SettingsFile(BaseModel, frozen=True, extra="forbid"):
     AUTHORED: ClassVar[bool] = True
     contract: Literal["repository-settings/v1"]
     settings: MergeSettings
+    protection: tuple[BranchProtection, ...] | None = None
 
 
 class ObservedSettings(BaseModel, frozen=True, extra="ignore"):
@@ -139,14 +180,18 @@ class SettingsCheckReport(BaseModel, frozen=True, extra="forbid"):
     generated_at: AwareDatetime
     repository: str = Field(min_length=1)
     findings: tuple[SettingFinding, ...] = ()
+    # PROTECTION IS PART OF THE VERDICT: a repository whose merge settings match
+    # while a force push still lands is not at its policy.
+    protection: tuple[ProtectionFinding, ...] = ()
     verdict: Verdict
 
     @model_validator(mode="after")
     def _verdict_follows_the_findings(self) -> Self:
         rules = {finding.rule_id for finding in self.findings}
-        if "S001" in rules:
+        guards = {finding.rule_id for finding in self.protection}
+        if "S001" in rules or "P001" in guards:
             implied: Verdict = "fail"
-        elif rules:
+        elif rules or guards:
             implied = "unknown"
         else:
             implied = "pass"

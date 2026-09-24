@@ -13,7 +13,8 @@ so its reader requires every field and fills in nothing: a default would become
 Zod's .default(), supplying a missing field instead of rejecting the record. An
 authored file is written by a person who leaves defaults out, so a model marked
 AUTHORED is exported as Pydantic accepts it. Both have references inlined, since
-json-schema-to-zod does not follow $ref, and discriminator mappings dropped,
+json-schema-to-zod, the generator before G.32, did not follow $ref, and
+discriminator mappings dropped,
 since after inlining they would point at definitions that no longer exist.
 
 Cross-field rules live in model validators and cannot be expressed in JSON
@@ -28,9 +29,10 @@ import pkgutil
 import typing
 from pathlib import Path
 
-from pydantic import BaseModel, JsonValue
+from pydantic import BaseModel, ConfigDict, JsonValue
 
 import otsafety_tooling.contracts as _package
+from otsafety_tooling.cli import note, result
 from otsafety_tooling.paths import REPO_ROOT
 
 SCHEMA_DIR = Path("contracts") / "json"
@@ -140,14 +142,31 @@ def json_schema(contract: str) -> dict[str, JsonValue]:
     return _prepare(model.model_json_schema(mode="validation"), authored=is_authored(contract))
 
 
+class SchemasWritten(BaseModel):
+    """Which contracts were exported, and where each one landed."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    contracts: list[str]
+    files: list[str]
+
+
 def main() -> int:
     """Write every schema; the committed files are what the site generates from."""
+    written: list[str] = []
     for contract in EXPORTED:
         path = REPO_ROOT / schema_path(contract)
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(json_schema(contract), indent=2) + "\n", encoding="utf-8")
-        print(f"wrote {path.relative_to(REPO_ROOT)}")  # noqa: T201
-    return 0
+        written.append(str(path.relative_to(REPO_ROOT)))
+        note(f"wrote {path.relative_to(REPO_ROOT)}")
+    return result(
+        "contracts:export",
+        "success",
+        "schemas_written",
+        f"{len(written)} contracts exported",
+        SchemasWritten(contracts=sorted(EXPORTED), files=written),
+    )
 
 
 if __name__ == "__main__":

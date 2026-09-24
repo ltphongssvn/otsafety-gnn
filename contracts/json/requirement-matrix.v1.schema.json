@@ -1,0 +1,123 @@
+{
+  "additionalProperties": false,
+  "description": "Generated from the plan, its trace, the tree and the commits: never written by hand.",
+  "properties": {
+    "contract": {
+      "const": "requirement-matrix/v1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "ref": {
+      "minLength": 1,
+      "title": "Ref",
+      "type": "string"
+    },
+    "requirements": {
+      "items": {
+        "additionalProperties": false,
+        "description": "One row of the matrix: everything that hangs off one id.",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "thread": {
+            "title": "Thread",
+            "type": "string"
+          },
+          "phase": {
+            "title": "Phase",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "step",
+              "decision"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "evidence": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Evidence",
+            "type": "array"
+          },
+          "justified_by": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Justified By",
+            "type": "array"
+          },
+          "named_in": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Named In",
+            "type": "array"
+          },
+          "referenced_by": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Referenced By",
+            "type": "array"
+          },
+          "claimed_by": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Claimed By",
+            "type": "array"
+          },
+          "unconfirmed": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Unconfirmed",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "thread",
+          "phase",
+          "kind",
+          "evidence",
+          "justified_by",
+          "named_in",
+          "referenced_by",
+          "claimed_by",
+          "unconfirmed"
+        ],
+        "title": "Requirement",
+        "type": "object"
+      },
+      "minItems": 1,
+      "title": "Requirements",
+      "type": "array"
+    },
+    "orphan_candidates": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Orphan Candidates",
+      "type": "array"
+    }
+  },
+  "required": [
+    "contract",
+    "ref",
+    "requirements",
+    "orphan_candidates"
+  ],
+  "title": "RequirementMatrix",
+  "type": "object"
+}

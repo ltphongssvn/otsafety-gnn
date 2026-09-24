@@ -11,7 +11,12 @@ from __future__ import annotations
 
 import subprocess
 
+import pytest
+
 from otsafety_tooling.paths import REPO_ROOT
+
+# THIS FILE PROVES G.25: the claim the requirement matrix joins on.
+pytestmark = pytest.mark.requirement("G.25")
 
 
 def _run(*args: str, stdin: str | None = None) -> subprocess.CompletedProcess[str]:

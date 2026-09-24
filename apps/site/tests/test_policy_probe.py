@@ -12,16 +12,11 @@ import shutil
 import subprocess
 from pathlib import Path
 
+from otsafety_tooling.contracts.files import read_json
+from otsafety_tooling.contracts.policy_inputs import PolicyInput, PolicyInputs
+
 REPO = Path(__file__).resolve().parents[3]
-INPUTS = [
-    "pyproject.toml",
-    "tooling/pyproject.toml",
-    "lefthook.yml",
-    ".github/workflows/test-site.yml",
-    ".github/workflows/test-tooling.yml",
-    ".github/workflows/zizmor.yml",
-    "context/exemptions.yaml",
-]
+INPUTS_MANIFEST = REPO / "contracts" / "policy-inputs.json"
 
 
 def _conftest() -> str:
@@ -30,29 +25,39 @@ def _conftest() -> str:
     return found
 
 
+def _declared() -> tuple[PolicyInput, ...]:
+    """The input set, read through its contract from the file the task reads.
+
+    NOT A SECOND LIST. This probe kept its own, so adding an input to the policy
+    left it judging a smaller world than the real run -- the divergence a single
+    declared set removes.
+    """
+    return read_json(INPUTS_MANIFEST, PolicyInputs).inputs
+
+
 def _world(tmp_path: Path) -> Path:
-    for rel in INPUTS:
-        (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(REPO / rel, tmp_path / rel)
-    out = tmp_path / "policy" / "eslint-effective.json"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    subprocess.run(
-        [
-            "bun",
-            "--bun",
-            "run",
-            "--cwd",
-            str(REPO / "apps" / "site"),
-            "scripts/eslint-effective.ts",
-            str(out),
-        ],
-        check=True,
-        capture_output=True,
-    )
+    for entry in _declared():
+        if entry.generated:
+            continue
+        (tmp_path / entry.path).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(REPO / entry.path, tmp_path / entry.path)
+    for entry in _declared():
+        if not entry.generated:
+            continue
+        target = tmp_path / entry.path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        subprocess.run(
+            [*entry.generated.split(), str(target)],
+            cwd=REPO,
+            check=True,
+            capture_output=True,
+        )
     return tmp_path
 
 
-def _prove(world: Path) -> subprocess.CompletedProcess[str]:
+def _prove(
+    world: Path, inputs: list[PolicyInput] | None = None
+) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         [
             _conftest(),
@@ -62,8 +67,7 @@ def _prove(world: Path) -> subprocess.CompletedProcess[str]:
             "policy",
             "--policy",
             str(REPO / "policy"),
-            *INPUTS,
-            "policy/eslint-effective.json",
+            *[entry.path for entry in (inputs if inputs is not None else _declared())],
         ],
         cwd=world,
         capture_output=True,
@@ -100,11 +104,17 @@ def test_removing_a_floor_is_denied(tmp_path: Path) -> None:
     )
 
 
-def test_an_undeclared_eslint_exemption_is_denied(tmp_path: Path) -> None:
+def test_a_missing_generated_input_is_denied(tmp_path: Path) -> None:
+    """THE PROBE THIS REPLACES removed the eslint section of the register, whose only
+    entry was the TypeScript generator G.32 deleted: it removed something that no
+    longer exists, so nothing was denied and the probe proved nothing. This removes
+    a generated input instead, which inputs.rego denies by name -- the guard that
+    keeps every rule reading the whole world rather than passing vacuously."""
     world = _world(tmp_path)
-    text = (world / "context" / "exemptions.yaml").read_text(encoding="utf-8")
-    (world / "context" / "exemptions.yaml").write_text(
-        text.split("\neslint:\n")[0] + "\n", encoding="utf-8"
-    )
-    run = _prove(world)
-    assert run.returncode != 0 and "generate-contracts.ts: not enforced" in run.stdout, run.stdout
+    # NOT DELETED: conftest refuses to start on a named file that is absent, so the
+    # rule would never run. A real drift looks like this instead -- a rule reading an
+    # input nobody passes -- and inputs.rego denies exactly that.
+    withheld = [entry for entry in _declared() if not entry.path.endswith("command-inventory.json")]
+    run = _prove(world, withheld)
+    assert run.returncode != 0, run.stdout
+    assert "command-inventory.json: missing" in run.stdout, run.stdout

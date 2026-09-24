@@ -79,7 +79,8 @@ def test_another_worktree_holding_develop_is_reported_not_fetched_into(
     advance_develop(linked)
 
     assert _at(linked, "origin/develop") == _at(seed, "HEAD")
-    message = capsys.readouterr().out
+    # A HELPER REPORTS ON STDERR: stdout belongs to the command's envelope.
+    message = capsys.readouterr().err
     assert "repo" in message
     assert str(repo) not in message
 

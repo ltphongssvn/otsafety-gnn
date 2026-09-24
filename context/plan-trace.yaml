@@ -55,28 +55,34 @@ candidates:
 - source: T1
   ref: 'line 7113: Rule'
   text: Rule | How I'll apply it
+  maps_to: []
   not_a_plan_item: a working rule for how commands are written and run, not a deliverable
 - source: T1
   ref: 'line 7113: No CLI execution by me'
   text: No CLI execution by me | I suggest, you run, you paste output. **One command per answer.
+  maps_to: []
   not_a_plan_item: a working rule for how commands are written and run, not a deliverable
 - source: T1
   ref: 'line 7113: Verify, don''t assume'
   text: Verify, don't assume | Every step has a *before* check and an *after* check. I decide the next step only from real
     console output.
+  maps_to: []
   not_a_plan_item: a working rule for how commands are written and run, not a deliverable
 - source: T1
   ref: 'line 7113: Parse guard'
   text: Parse guard | Every write block ends with `ast.parse(new_content)` before `write_text`. Non-parsing files never touch
     disk.
+  maps_to: []
   not_a_plan_item: a working rule for how commands are written and run, not a deliverable
 - source: T1
   ref: 'line 7113: Edits'
   text: Edits | Exact-match anchor, refuse unless the anchor occurs **exactly once**, write nothing otherwise.
+  maps_to: []
   not_a_plan_item: a working rule for how commands are written and run, not a deliverable
 - source: T1
   ref: 'line 7113: Checks'
   text: Checks | Separate, individually reported lines — header, last line, no stray delimiter, counts. Never `&&` chains.
+  maps_to: []
   not_a_plan_item: a working rule for how commands are written and run, not a deliverable
 - source: T1
   ref: 'line 7113: Docker'
@@ -86,6 +92,7 @@ candidates:
 - source: T1
   ref: 'line 7113: On GREEN'
   text: On GREEN | Stage → commit → push.
+  maps_to: []
   not_a_plan_item: a working rule for how commands are written and run, not a deliverable
 - source: T1
   ref: 'line 7113: 0.1'
@@ -395,6 +402,7 @@ candidates:
 - source: T1
   ref: 'line 7227: Layer'
   text: Layer | Failure if unguarded
+  maps_to: []
   not_a_plan_item: a table header, not an item
 - source: T1
   ref: 'line 7227: ②'
@@ -420,6 +428,7 @@ candidates:
 - source: T1
   ref: 'line 7227: Layer'
   text: Layer | As Code
+  maps_to: []
   not_a_plan_item: a table header, not an item
 - source: T1
   ref: 'line 7227: ② SELECTION'
@@ -465,10 +474,12 @@ candidates:
 - source: T1
   ref: 'line 7227: Layer'
   text: Layer | Spike status
+  maps_to: []
   not_a_plan_item: a table header, not an item
 - source: T1
   ref: 'line 15231: Layer'
   text: Layer | Choice
+  maps_to: []
   not_a_plan_item: a table header, not an item
 - source: T1
   ref: 'line 15231: Workspace'
@@ -493,24 +504,29 @@ candidates:
 - source: T1
   ref: 'line 16185: `~/ltphongssvn/`'
   text: '`~/ltphongssvn/` | `~/code/ltphongssvn/`'
+  maps_to: []
   not_a_plan_item: a note on where repositories live, not a deliverable
 - source: T1
   ref: 'line 16185: `cs1090a-*`, `cscie103-*` — every entry '
   text: '`cs1090a-*`, `cscie103-*` — every entry course-coded | FleetManagement, spark pipeline — neither is'
+  maps_to: []
   not_a_plan_item: a note on where repositories live, not a deliverable
 - source: T1
   ref: 'line 17221: `description`'
   text: '`description` | `cs1090a-recsys` → `otsafety-gnn`'
+  maps_to: []
   not_a_plan_item: an edit made while porting the tooling, already done
 - source: T1
   ref: 'line 17221: Banner line'
   text: Banner line | the uv-0.12.11-vs-0.12.7 example cites FAS OnDemand — rewrite the example, keep the argument, which
     stands on its own
+  maps_to: []
   not_a_plan_item: an edit made while porting the tooling, already done
 - source: T1
   ref: 'line 17221: `bun`'
   text: '`bun` | resolve at site time; `toolNames` is derived from the JSON, so removing or swapping a tool needs no edit
     here'
+  maps_to: []
   not_a_plan_item: an edit made while porting the tooling, already done
 - source: T1
   ref: 'line 18292: `test-tooling.yml`'
@@ -897,10 +913,12 @@ candidates:
 - source: T2
   ref: 'line 10920: Adapter'
   text: Adapter | `MlflowTracker`
+  maps_to: []
   not_a_plan_item: a table header, not an item
 - source: T2
   ref: 'line 10920: Extra'
   text: Extra | `ml`
+  maps_to: []
   not_a_plan_item: a table header, not an item
 - source: T2
   ref: 'line 10920: Hermetic store'
@@ -1572,22 +1590,27 @@ candidates:
 - source: CODE
   ref: mise.toml:258
   text: e2e install once blocked the first red test
+  maps_to: []
   not_a_plan_item: a description of a defect already fixed, not a promise
 - source: CODE
   ref: mise.toml:728
   text: pr blocks until merged
+  maps_to: []
   not_a_plan_item: a description of current behaviour
 - source: CODE
   ref: scripts/bootstrap_toolchain.py:19
   text: a placeholder digest refused gh
+  maps_to: []
   not_a_plan_item: a description of a defect already fixed, not a promise
 - source: CODE
   ref: tooling/tests/test_bootstrap.py:11
   text: a misread checksums file refused mise
+  maps_to: []
   not_a_plan_item: a description of a defect already fixed, not a promise
 - source: CODE
   ref: tooling/src/otsafety_tooling/git/state.py:6
   text: awk parsing failed when a worktree held a branch
+  maps_to: []
   not_a_plan_item: a description of a defect already fixed, not a promise
 - source: CONTEXT
   ref: audit backlog P1
@@ -1861,6 +1884,7 @@ candidates:
 - source: T1
   ref: T1:7113 phase 7
   text: no source before a failing test
+  maps_to: []
   not_a_plan_item: a working rule applied to every step, not a deliverable
 - source: T1
   ref: T1:7173 phase 0 exit
@@ -1932,38 +1956,47 @@ candidates:
 - source: T1
   ref: T1:1214 bullets
   text: 'PyKEEN changelog: fft compatibility, MuRE diagonal constraint'
+  maps_to: []
   not_a_plan_item: library release notes read during research, not a deliverable
 - source: T1
   ref: T1:16215 bullets
   text: gh protocol ssh; workflow scope present
+  maps_to: []
   not_a_plan_item: debugging narrative from that session, not a deliverable
 - source: T1
   ref: T1:16296 bullet
   text: init.defaultbranch must be main
+  maps_to: []
   not_a_plan_item: debugging narrative from that session, not a deliverable
 - source: T1
   ref: T1:16326 bullet
   text: core.hookspath absent
+  maps_to: []
   not_a_plan_item: debugging narrative from that session, not a deliverable
 - source: T1
   ref: T1:16400 bullet
   text: append only missing .gitignore rules
+  maps_to: []
   not_a_plan_item: debugging narrative from that session, not a deliverable
 - source: T1
   ref: T1:16903 bullet
   text: bytecode ignore landed as its own later commit
+  maps_to: []
   not_a_plan_item: debugging narrative from that session, not a deliverable
 - source: T1
   ref: T1:17221 bullet
   text: Nix not installed; nothing runs without it
+  maps_to: []
   not_a_plan_item: debugging narrative from that session, not a deliverable
 - source: T1
   ref: T1:17311 bullet
   text: a copy failed silently despite cp exiting clean
+  maps_to: []
   not_a_plan_item: debugging narrative from that session, not a deliverable
 - source: T1
   ref: T1:17461 bullet
   text: aarch64-darwin platform key lost in a rewrite
+  maps_to: []
   not_a_plan_item: debugging narrative from that session, not a deliverable
 - source: T1
   ref: T1:17491 bullet
@@ -1973,14 +2006,17 @@ candidates:
 - source: T1
   ref: T1:18352 bullet
   text: collection completes; MLflow tests skip on the absent ml group
+  maps_to: []
   not_a_plan_item: debugging narrative from that session, not a deliverable
 - source: T2
   ref: T2:1363 bullet
   text: bun lockfile flag behaved differently from its documentation
+  maps_to: []
   not_a_plan_item: debugging narrative from that session, not a deliverable
 - source: T2
   ref: T2:6698 bullets
   text: 'generator source lines: phase band and SVG drawing'
+  maps_to: []
   not_a_plan_item: source code quoted in a message, not a promise
 - source: SHEET
   ref: 'outstanding: split configs'
@@ -1990,6 +2026,7 @@ candidates:
 - source: T1
   ref: T1:7113 file writes
   text: file writes isolated in a single here-document; never cat > or cat >>
+  maps_to: []
   not_a_plan_item: a working rule for how commands are written, not a deliverable
 - source: T1
   ref: T1:7113 file headers
@@ -2009,6 +2046,7 @@ candidates:
 - source: T1
   ref: T1:18292 keep and leave
   text: column headers of the workflow cleanup table
+  maps_to: []
   not_a_plan_item: a table header, not an item
 - source: T2
   ref: T2:4035 phase 0 row
@@ -2053,38 +2091,47 @@ candidates:
 - source: T2
   ref: T2 scoreboard counts
   text: 6 PRs, 11 commits, 340 + 9 tests green on macOS and Linux
+  maps_to: []
   not_a_plan_item: typed counts, the status this plan refuses to store; true once and false now
 - source: T2
   ref: T2 scoreboard defect 1
   text: three failing tests on the .gitignore and gate coverage
+  maps_to: []
   not_a_plan_item: a defect caught by a gate and fixed where it was found, not a promise
 - source: T2
   ref: T2 scoreboard defect 2
   text: commit refusing .python-version
+  maps_to: []
   not_a_plan_item: a defect caught by a gate and fixed where it was found, not a promise
 - source: T2
   ref: T2 scoreboard defect 3
   text: repo:check finding GitHub's defaults
+  maps_to: []
   not_a_plan_item: a defect caught by a gate and fixed where it was found, not a promise
 - source: T2
   ref: T2 scoreboard defect 4
   text: bun --frozen-lockfile writing no lockfile
+  maps_to: []
   not_a_plan_item: a defect caught by a gate and fixed where it was found, not a promise
 - source: T2
   ref: T2 scoreboard defect 5
   text: CI catching the unformatted bootstrap
+  maps_to: []
   not_a_plan_item: a defect caught by a gate and fixed where it was found, not a promise
 - source: T2
   ref: T2 scoreboard defect 6
   text: CI catching the mypy configuration gap
+  maps_to: []
   not_a_plan_item: a defect caught by a gate and fixed where it was found, not a promise
 - source: T2
   ref: T2 scoreboard defect 7
   text: CI catching the evidence page's empty state
+  maps_to: []
   not_a_plan_item: a defect caught by a gate and fixed where it was found, not a promise
 - source: T2
   ref: T2 scoreboard defect 8
   text: typos on RotatE
+  maps_to: []
   not_a_plan_item: a defect caught by a gate and fixed where it was found, not a promise
 - source: SITE
   ref: 'data table: Open Targets'
@@ -2220,6 +2267,7 @@ candidates:
 - source: SESSION
   ref: 'status map: percentages'
   text: C about 80%, F about 90%, G about 45%
+  maps_to: []
   not_a_plan_item: typed progress, the status this plan refuses to store; progress is computed from observed evidence
 - source: SESSION
   ref: 'status map outstanding: live version'
@@ -2511,34 +2559,42 @@ candidates:
 - source: CS
   ref: D7
   text: delete its five stale branches
+  maps_to: []
   not_a_plan_item: specific to cs1090a-recsys's own repository, already done there; nothing here to carry over
 - source: CS
   ref: D8
   text: merge its PR 8
+  maps_to: []
   not_a_plan_item: specific to cs1090a-recsys's own repository, already done there; nothing here to carry over
 - source: CS
   ref: D9
   text: remove its branch-prune worktree
+  maps_to: []
   not_a_plan_item: specific to cs1090a-recsys's own repository, already done there; nothing here to carry over
 - source: CS
   ref: H2
   text: 'Module A: data audit and EDA on MovieLens'
+  maps_to: []
   not_a_plan_item: coursework modules for a MovieLens recommender; this project's research code is its own Phase 9
 - source: CS
   ref: H3
   text: 'Modules B and C: regression ladder, probabilistic and low-rank'
+  maps_to: []
   not_a_plan_item: coursework modules for a MovieLens recommender; this project's research code is its own Phase 9
 - source: CS
   ref: H4
   text: 'Module D: Bayesian layer in PyMC'
+  maps_to: []
   not_a_plan_item: coursework modules for a MovieLens recommender; this project's research code is its own Phase 9
 - source: CS
   ref: H5
   text: 'Modules E and G: multi-task tower, gated mixture for cold start'
+  maps_to: []
   not_a_plan_item: coursework modules for a MovieLens recommender; this project's research code is its own Phase 9
 - source: CS
   ref: H6
   text: 'Module F: tree rerankers'
+  maps_to: []
   not_a_plan_item: coursework modules for a MovieLens recommender; this project's research code is its own Phase 9
 - source: SHEET
   ref: layer 1 row
@@ -3012,10 +3068,12 @@ candidates:
 - source: PILLARS
   ref: 'pillar header: Code'
   text: a column header of the pillar table
+  maps_to: []
   not_a_plan_item: a table header, not an item
 - source: PILLARS
   ref: 'pillar header: Data'
   text: a column header of the pillar table
+  maps_to: []
   not_a_plan_item: a table header, not an item
 - source: PILLARS
   ref: 'pillar: Platform as Code'
@@ -3129,6 +3187,7 @@ candidates:
 - source: PILLARS
   ref: 'pillar: prompt and tool definitions as code'
   text: prompt and tool definitions versioned with the app
+  maps_to: []
   not_a_plan_item: the project has no language-model component to version
 - source: PILLARS
   ref: 'pillar: FinOps / Cost as Code'
@@ -3242,6 +3301,7 @@ candidates:
 - source: COMMITS
   ref: eba67dd
   text: non-violations are listed so the rule is not later applied to internal shapes it exempts
+  maps_to: []
   not_a_plan_item: a description of existing design, not a promise
 - source: COMMITS
   ref: ae28ac6
@@ -3266,6 +3326,7 @@ candidates:
 - source: COMMITS
   ref: b6d77fb
   text: the next local build would have shown a degree-null result from five seeds never run
+  maps_to: []
   not_a_plan_item: a description of a defect already fixed, not a promise
 - source: COMMITS
   ref: b6d77fb
@@ -3275,6 +3336,7 @@ candidates:
 - source: COMMITS
   ref: e8a6cf0
   text: a comment claiming the wrong cause would send the next reader down the same path
+  maps_to: []
   not_a_plan_item: a description of a defect already fixed, not a promise
 - source: COMMITS
   ref: 04f3a38
@@ -3314,6 +3376,7 @@ candidates:
 - source: COMMITS
   ref: f9629c5
   text: site:install and the Playwright setup were one task, blocking the first test from running red
+  maps_to: []
   not_a_plan_item: a description of a defect already fixed, not a promise
 - source: COMMITS
   ref: e560610
@@ -3688,12 +3751,59 @@ candidates:
   - G.25
   - G.36
 - source: SESSION
-  ref: 'observed: uv run exports VIRTUAL_ENV and PATH'
-  text: a uv run child has VIRTUAL_ENV and .venv/bin first on PATH; run_setup passed both into another checkout
+  ref: 'observed: a fresh checkout fetched a tool'
+  text: setup did not install the site, and a test's bun x fetched astro@latest rather than failing
   maps_to:
-  - G.22
+  - G.38
+  - G.39
 - source: SESSION
-  ref: 'observed: site toolchain warnings'
-  text: Vite 8 deprecations from an unused React integration; astro 7.3.3 locked at five days old through a caret
+  ref: 'observed: an id is the join key'
+  text: the step, its trace candidate and its test path all hang off one id, and nothing checked that the test names it
+  maps_to:
+  - G.41
+- source: SESSION
+  ref: 'observed: commands spoke in prose'
+  text: 'reading a command''s result meant grepping it: presentation filtering, not evidence'
+  maps_to:
+  - G.42
+- source: SESSION
+  ref: 'observed: text anchors are unverifiable'
+  text: an empty deletion, a dollar-anchored pattern and a self-inspecting guard each wrote or skipped the wrong thing
+  maps_to:
+  - G.43
+- source: SESSION
+  ref: 'observed: the plan had no writer'
+  text: every step was spliced in as hand-built YAML, and the quoting drifted from what a model-driven writer produces
+  maps_to:
+  - G.44
+- source: SESSION
+  ref: 'observed: the gate ignored hints'
+  text: astro check's minimumFailingSeverity defaults to error, so seven deprecations passed as hints
+  maps_to:
+  - G.32
+- source: SESSION
+  ref: 'observed: json-schema-to-zod abandoned'
+  text: the generator behind every generated contract stopped being maintained in March 2026
+  maps_to:
+  - G.32
+- source: SESSION
+  ref: 'observed: the site warned and the build passed'
+  text: astro check reported an unused React integration and a Vite 8 deprecation, and nothing failed
   maps_to:
   - G.37
+- source: SESSION
+  ref: 'observed: a refresh lost a commit'
+  text: after worktree:refresh, the branch's own commit was no longer reachable from its HEAD, while the command reported
+    success
+  maps_to:
+  - G.40
+- source: SESSION
+  ref: 'observed: the remote declares no ruleset'
+  text: the rulesets API returns an empty list, so develop and main are protected by a local hook and nothing else
+  maps_to:
+  - G.40
+- source: SESSION
+  ref: 'observed: a worktree ran the wrong python'
+  text: a fresh worktree inherited VIRTUAL_ENV from the checkout that created it, and setup used that interpreter
+  maps_to:
+  - G.22

@@ -75,6 +75,32 @@ def gh(*args: str) -> str:
     return result.stdout
 
 
+def gh_input(document: str, *args: str) -> str:
+    """Run gh with a JSON document on stdin, for a request gh's -f cannot express.
+
+    -f FLATTENS INTO QUERY-STYLE FIELDS, which cannot carry a ruleset's nested
+    conditions and rules array; --input - takes the document whole.
+    """
+    result = subprocess.run(  # noqa: S603
+        ["gh", *args],  # noqa: S607
+        input=document,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode == NOT_AUTHENTICATED:
+        raise NotAuthenticatedError(
+            f"gh is not authenticated (exit 4).\n  gh said: {result.stderr.strip() or '(nothing)'}"
+        )
+    if result.returncode != 0:
+        raise GhError(
+            f"gh {' '.join(args)} failed with exit {result.returncode}: "
+            f"{result.stderr.strip() or '(no stderr)'}"
+            + (f" -- {result.stdout.strip()}" if result.stdout.strip() else "")
+        )
+    return result.stdout
+
+
 def gh_json[M: BaseModel](model: type[M], *args: str) -> M:
     """Run gh and validate its JSON into a model, naming the command if it does not fit.
 

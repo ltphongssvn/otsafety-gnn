@@ -1,0 +1,49 @@
+{
+  "additionalProperties": false,
+  "description": "context/plan-ids.yaml: append-only. An id leaves this file only by being retired.",
+  "properties": {
+    "contract": {
+      "const": "id-ledger/v1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "issued": {
+      "items": {
+        "additionalProperties": false,
+        "description": "One identifier, issued once. Retired ids stay here so none is ever reused.",
+        "properties": {
+          "id": {
+            "pattern": "^[A-Z0-9]+\\.[A-Za-z0-9]+$",
+            "title": "Id",
+            "type": "string"
+          },
+          "first_title": {
+            "minLength": 1,
+            "title": "First Title",
+            "type": "string"
+          },
+          "retired": {
+            "title": "Retired",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "first_title",
+          "retired"
+        ],
+        "title": "IssuedId",
+        "type": "object"
+      },
+      "minItems": 1,
+      "title": "Issued",
+      "type": "array"
+    }
+  },
+  "required": [
+    "contract",
+    "issued"
+  ],
+  "title": "IdLedger",
+  "type": "object"
+}

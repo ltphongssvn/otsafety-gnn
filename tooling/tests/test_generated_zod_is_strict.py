@@ -1,7 +1,8 @@
 # tooling/tests/test_generated_zod_is_strict.py
 """Generated Zod holds no z.any() or z.unknown().
 
-WHY THIS EXISTS. json-schema-to-zod writes z.any() wherever it meets a construct
+WHY THIS EXISTS. json-schema-to-zod, the generator before G.32, wrote z.any()
+wherever it meets a construct
 it does not read -- a $ref once, 2020-12 prefixItems tuples now -- and the build
 still passes, because z.any() accepts everything. A shape the generator cannot
 express is a trust boundary left unchecked, so it fails here instead.
