@@ -69,6 +69,13 @@ jobs:
       - name: Prove the toolchain
         run: mise run toolchain:verify
 
+      # THE AUTHORITATIVE GATE. The hook is bypassable -- --no-verify skips it, and
+      # so does any commit made without hooks -- so the unbypassable scan runs
+      # here, over the whole history rather than the staged diff.
+      - name: Scan the whole history for secrets
+        run: mise run secrets:scan
+
+
       - name: Lint, and check formatting and spelling
         run: mise run lint
 

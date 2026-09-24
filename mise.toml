@@ -781,6 +781,20 @@ run = "uv run --no-sync python -m otsafety_tooling.policy.inputs"
 description = "Refuse any exemption from a rule that context/exemptions.yaml does not declare, and any entry gone stale"
 run = "uv run --no-sync python -m otsafety_tooling.policy.exemptions"
 
+[tasks."secrets:staged"]
+description = "Scan what is staged, before it becomes a commit"
+# THE FAST PATH, AND THE BYPASSABLE ONE. This stops an honest mistake at zero
+# latency; --no-verify skips it, and so does anything that commits without hooks.
+# secrets:scan is what that defers to.
+run = "gitleaks git --staged --redact --no-banner"
+
+[tasks."secrets:scan"]
+description = "Scan the whole history: the gate the staged scan defers to"
+# --redact SO A FINDING DOES NOT PRINT THE SECRET into a log that is itself kept.
+# The whole history, because a secret removed from the tip is still in the commit
+# that added it, and that is what has to be rotated.
+run = "gitleaks git --redact --no-banner"
+
 [tasks."policy:no-markdown"]
 description = "Refuse staged Markdown: Git is the record of this repository's documentation"
 run = "uv run --no-sync python -m otsafety_tooling.policy.markdown"
