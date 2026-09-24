@@ -1,5 +1,11 @@
 // apps/site/astro.config.mjs
-// The project site: Astro with React islands, built by the pinned bun.
+// The project site: Astro, built by the pinned bun.
+//
+// NO FRAMEWORK INTEGRATION. React was registered here and declared in
+// package.json, and nothing rendered with it: no .tsx file, no client:
+// directive. Its integration pulled in vite:react-babel, which sets esbuild
+// and optimizeDeps.esbuildOptions -- both deprecated in Vite 8 -- so every
+// build warned three times for a framework the site never used.
 //
 // STATIC OUTPUT. Every "retrieve as data" section reads evidence that is
 // committed in this repository -- .artifacts/runs/*.json carries a versioned
@@ -7,10 +13,8 @@
 // committed files at build time needs no server, and a malformed record fails
 // the build instead of rendering broken in production.
 import { defineConfig } from "astro/config";
-import react from "@astrojs/react";
 
 export default defineConfig({
   output: "static",
-  integrations: [react()],
   server: { port: 4321 },
 });
