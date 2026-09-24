@@ -49,6 +49,10 @@ inline:
   rule: TID251
   count: 1
   reason: 'standard library only: bootstrap runs before any dependency is installed'
+- path: tooling/src/otsafety_tooling/codemod.py
+  rule: N802
+  count: 1
+  reason: LibCST names visitor methods after the node types they visit; that is its API contract
 - path: tooling/src/otsafety_tooling/contracts/files.py
   rule: TID251
   count: 4
@@ -143,7 +147,7 @@ inline:
   reason: 'asserts a frozen model refuses assignment: mypy rejects the assignment the test exists to attempt'
 - path: tooling/tests/test_wandb_tracker.py
   rule: E402
-  count: 1
+  count: 2
   reason: imports after importorskip, so the module still collects where the optional extra is absent
 - path: tooling/src/otsafety_tooling/toolchain_verify.py
   rule: S603
