@@ -28,11 +28,13 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
-from pydantic import ValidationError
+from pydantic import BaseModel, ConfigDict, ValidationError
 
 from otsafety_tooling.artifacts import artifacts_root
+from otsafety_tooling.cli import note, result
 from otsafety_tooling.contracts.branch_prune import PruneDecision, PruneRecord, Verdict
 from otsafety_tooling.contracts.branch_report import BranchReport
+from otsafety_tooling.contracts.outcome import Verdict as Outcome
 from otsafety_tooling.git.env import git
 from otsafety_tooling.paths import REPO_ROOT
 
@@ -42,9 +44,8 @@ PROTECTED_REMOTE = frozenset({"origin/develop", "origin/main"})
 
 
 def _say(text: str) -> None:
-    """One line of the command's output, flushed so logs keep their order."""
-    sys.stdout.write(text + "\n")
-    sys.stdout.flush()
+    """One line of the command's report: stderr, because stdout carries the envelope."""
+    note(text)
 
 
 def newest_report(reports: Path) -> Path | None:
@@ -119,6 +120,17 @@ def _verdict(source: str | None, decisions: tuple[PruneDecision, ...]) -> Verdic
     return "fail" if any(d.outcome == "failed" for d in decisions) else "pass"
 
 
+class PruneOutcome(BaseModel):
+    """What the prune decided, and where the record of it was written."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    verdict: str
+    applied: bool
+    decisions: list[str]
+    record: str
+
+
 def _record(
     records: Path,
     repository: str,
@@ -143,7 +155,24 @@ def _record(
     for d in decisions:
         _say(f"  {d.decision} {d.branch}: {d.reason_code} -> {d.outcome}")
     _say(f"  recorded: {path}")
-    return 0 if record.verdict == "pass" else 1
+    outcomes: dict[str, tuple[Outcome, str]] = {
+        "pass": ("success", "pruned"),
+        "fail": ("refused", "prune_incomplete"),
+        "unknown": ("failed", "prune_undecided"),
+    }
+    outcome, code = outcomes[record.verdict]
+    return result(
+        "branches:prune",
+        outcome,
+        code,
+        f"branch prune ({mode}): {record.verdict}",
+        PruneOutcome(
+            verdict=record.verdict,
+            applied=applied,
+            decisions=[f"{d.decision} {d.branch}: {d.outcome}" for d in decisions],
+            record=str(path),
+        ),
+    )
 
 
 def run_prune(root: Path, reports: Path, records: Path, *, apply: bool) -> int:
