@@ -18,9 +18,9 @@ schema must equal what the model produces now.
 from __future__ import annotations
 
 import json
-from typing import Any
 
 import pytest
+from pydantic import JsonValue
 
 from otsafety_tooling.contracts import schemas
 from otsafety_tooling.paths import REPO_ROOT
@@ -41,14 +41,31 @@ def test_the_committed_schema_matches_the_model(contract: str) -> None:
 
 def test_a_fixed_vocabulary_becomes_an_enum_the_site_can_check() -> None:
     """verdict and outcome were bare strings on the TypeScript side."""
-    schema: dict[str, Any] = schemas.json_schema("repository-settings-check/v1")
-    verdict = schema["properties"]["verdict"]
+    schema = schemas.json_schema("repository-settings-check/v1")
+    verdict = _at(schema, "properties", "verdict")
     assert verdict["enum"] == ["pass", "fail", "unknown"]
 
 
-def _objects(node: object) -> list[dict[str, Any]]:
+def _at(node: JsonValue, *path: str) -> dict[str, JsonValue]:
+    """Walk into a schema document to the mapping at PATH, refusing anything else.
+
+    A SCHEMA IS A UNION BY CONSTRUCTION. The tests read three levels in, and an
+    annotation of dict[str, Any] made those reads look safe while checking none of
+    them. Every path here addresses an object -- properties, a named property, its
+    items -- so the walk returns a mapping and names the path that failed.
+    """
+    for key in path:
+        if not isinstance(node, dict):
+            raise AssertionError(f"{'.'.join(path)}: {key} does not address a mapping")
+        node = node[key]
+    if not isinstance(node, dict):
+        raise AssertionError(f"{'.'.join(path)} is not a mapping")
+    return node
+
+
+def _objects(node: object) -> list[dict[str, JsonValue]]:
     """Every object schema in the tree, however deeply nested."""
-    found: list[dict[str, Any]] = []
+    found: list[dict[str, JsonValue]] = []
     if isinstance(node, dict):
         if node.get("type") == "object" and "properties" in node:
             found.append(node)
@@ -74,12 +91,17 @@ def test_the_reader_requires_every_field_and_fills_in_none(contract: str) -> Non
     for obj in _objects(schemas.json_schema(contract)):
         props = obj["properties"]
         assert isinstance(props, dict)
-        assert sorted(obj.get("required", [])) == sorted(props), f"optional fields in {contract}"
+        required = obj.get("required", [])
+        assert isinstance(required, list)
+        names = [name for name in required if isinstance(name, str)]
+        assert sorted(names) == sorted(props), f"optional fields in {contract}"
     assert '"default"' not in json.dumps(schemas.json_schema(contract))
 
 
 def test_a_finding_is_a_checked_object_not_anything() -> None:
-    schema: dict[str, Any] = schemas.json_schema("repository-settings-check/v1")
-    items = schema["properties"]["findings"]["items"]
+    schema = schemas.json_schema("repository-settings-check/v1")
+    items = _at(schema, "properties", "findings", "items")
     assert items["type"] == "object"
-    assert {"rule_id", "reason_code", "message"} <= set(items["properties"])
+    properties = items["properties"]
+    assert isinstance(properties, dict)
+    assert {"rule_id", "reason_code", "message"} <= set(properties)

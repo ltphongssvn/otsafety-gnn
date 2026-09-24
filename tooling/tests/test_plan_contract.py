@@ -17,7 +17,6 @@ plan and refuse each deliberate mutation of it.
 from __future__ import annotations
 
 import copy
-from typing import Any
 
 import pytest
 from pydantic import ValidationError
@@ -25,7 +24,7 @@ from pydantic import ValidationError
 from otsafety_tooling.contracts.plan import ProjectPlan
 
 
-def _valid() -> dict[str, Any]:
+def _valid() -> dict[str, object]:
     return {
         "contract": "project-plan/v1",
         "threads": [{"id": "F", "title": "Release and deployment"}],
@@ -68,16 +67,23 @@ def _valid() -> dict[str, Any]:
     }
 
 
-def _mutate(path: str, value: Any) -> dict[str, Any]:
+def _mutate(path: str, value: object) -> dict[str, object]:
     plan = copy.deepcopy(_valid())
-    node: Any = plan
+    node: object = plan
     *parents, last = path.split(".")
     for key in parents:
-        node = node[int(key)] if key.isdigit() else node[key]
+        if isinstance(node, list):
+            node = node[int(key)]
+        elif isinstance(node, dict):
+            node = node[key]
+        else:
+            raise AssertionError(f"{path}: {key} does not address a list or a mapping")
     if isinstance(node, list):
         node[int(last)] = value
-    else:
+    elif isinstance(node, dict):
         node[last] = value
+    else:
+        raise AssertionError(f"{path}: {last} does not address a list or a mapping")
     return plan
 
 
@@ -107,7 +113,7 @@ def test_a_converged_plan_is_accepted() -> None:
         ("a loop missing its data side", "loops.0", {"id": "constrain", "code": "policy"}),
     ],
 )
-def test_each_mutation_is_refused(mutation: str, path: str, value: Any) -> None:
+def test_each_mutation_is_refused(mutation: str, path: str, value: object) -> None:
     with pytest.raises(ValidationError):
         ProjectPlan.model_validate(_mutate(path, value))
 
