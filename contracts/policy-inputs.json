@@ -1,0 +1,56 @@
+{
+  "contract": "policy-inputs/v1",
+  "inputs": [
+    {
+      "path": "pyproject.toml",
+      "why": "the bans, floors and per-file ignores this policy proves present"
+    },
+    {
+      "path": "tooling/pyproject.toml",
+      "why": "the tooling's own settings, including the registered requirement marker"
+    },
+    {
+      "path": "lefthook.yml",
+      "why": "the floors: what every commit and push must run"
+    },
+    {
+      "path": ".github/workflows/test-site.yml",
+      "why": "the ceilings CI must run, and its checkout depth"
+    },
+    {
+      "path": ".github/workflows/test-tooling.yml",
+      "why": "the ceilings CI must run, and its checkout depth"
+    },
+    {
+      "path": ".github/workflows/zizmor.yml",
+      "why": "the workflow scanner, pinned rather than latest"
+    },
+    {
+      "path": "context/exemptions.yaml",
+      "why": "every declared exemption, checked both ways"
+    },
+    {
+      "path": "context/plan-ids.yaml",
+      "why": "the ledger: every id ever issued, never reused"
+    },
+    {
+      "path": "contracts/policy-inputs.json",
+      "why": "this manifest, so the Rego derives what it requires from it"
+    },
+    {
+      "path": "policy/eslint-effective.json",
+      "why": "ESLint's effective configuration, per linted file",
+      "generated": "bun --bun run --cwd apps/site scripts/eslint-effective.ts"
+    },
+    {
+      "path": "policy/requirement-matrix.json",
+      "why": "one row per requirement, with its evidence and claims",
+      "generated": "uv run python -m otsafety_tooling.planning.matrix"
+    },
+    {
+      "path": "policy/command-inventory.json",
+      "why": "every command, and whether it reports as data",
+      "generated": "uv run python -m otsafety_tooling.policy.inventory"
+    }
+  ]
+}
