@@ -1,0 +1,13 @@
+# .gitleaks.toml
+# G.15: the scanner's rules, extending the defaults and hiding nothing.
+#
+# NO BROAD ALLOWLIST. 2026 reporting names two root causes for secret scanning
+# that runs and finds nothing: a shallow checkout that hides the history, and a
+# configuration that suppresses more than it was meant to. This adds no rule-wide
+# allowlist, so no class of finding can disappear quietly; a specific false
+# positive is answered with a specific, commented entry when one actually occurs.
+title = "otsafety-gnn"
+
+[extend]
+# The upstream ruleset is the floor, never the whole of it.
+useDefault = true

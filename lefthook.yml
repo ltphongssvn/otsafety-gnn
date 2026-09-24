@@ -54,6 +54,9 @@ pre-commit:
 
     # NO MARKDOWN, BEFORE ANY WORK IS SPENT ON THE COMMIT. One rule, in
     # otsafety_tooling.policy.markdown; the test suite runs it over tracked files.
+    - name: secrets
+      run: mise run secrets:staged
+
     - name: no-markdown
       run: mise run policy:no-markdown
 

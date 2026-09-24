@@ -95,6 +95,7 @@ class Toolchain(_Strict):
     railway: BinaryTool
     conftest: BinaryTool
     regal: BinaryTool
+    gitleaks: BinaryTool
     render_image: ContainerImage
     site_image: ContainerImage
 

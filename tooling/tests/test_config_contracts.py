@@ -27,7 +27,16 @@ WORKFLOWS = sorted((REPO_ROOT / ".github" / "workflows").glob("*.yml"))
 
 def test_the_toolchain_file_validates() -> None:
     toolchain = read_json(REPO_ROOT / "toolchain.json", Toolchain)
-    assert set(toolchain.binaries) == {"uv", "bun", "gh", "mise", "railway", "conftest", "regal"}
+    assert set(toolchain.binaries) == {
+        "uv",
+        "bun",
+        "gh",
+        "mise",
+        "railway",
+        "conftest",
+        "regal",
+        "gitleaks",
+    }
 
 
 def test_a_toolchain_entry_with_an_unknown_key_is_refused() -> None:
