@@ -611,3 +611,6 @@ issued:
 - id: G.48
   first_title: An observation that cannot see an evidence kind says so, rather than reporting it unmet
   retired: false
+- id: G.49
+  first_title: The working rules are data in this repository, each naming the gate that enforces it, not prose in a chat window
+  retired: false
