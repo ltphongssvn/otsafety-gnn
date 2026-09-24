@@ -24,6 +24,7 @@ from pydantic import BaseModel, ConfigDict
 from otsafety_tooling.cli import note, result
 from otsafety_tooling.contracts.files import read_json
 from otsafety_tooling.contracts.toolchain import BinaryTool, Toolchain
+from otsafety_tooling.git.env import scrubbed_env
 from otsafety_tooling.paths import REPO_ROOT
 
 # Where scripts/bootstrap_toolchain.py installs when given no destination: CI,
@@ -59,7 +60,13 @@ def problems(
                 f"it is neither its Nix store path nor {bootstrap}"
             )
             continue
-        run = subprocess.run([where, *tool.probe.args], capture_output=True, text=True, check=False)  # noqa: S603
+        run = subprocess.run(  # noqa: S603
+            [where, *tool.probe.args],
+            capture_output=True,
+            text=True,
+            check=False,
+            env=scrubbed_env(),
+        )
         first = (run.stdout.splitlines() or [""])[0]
         if not re.match(tool.probe.pattern.replace("{version}", re.escape(tool.version)), first):
             found.append(f"{name}: {where} reports {first!r}, not {tool.version}")

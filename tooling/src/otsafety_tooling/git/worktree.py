@@ -157,8 +157,21 @@ def main_path(root: Path) -> Path:
 
 def run_setup(path: Path) -> int:
     """Trust the new checkout's mise config and run its setup task."""
-    subprocess.run(["mise", "trust"], cwd=path, check=False, capture_output=True)  # noqa: S607
-    return subprocess.run(["mise", "run", "setup"], cwd=path, check=False).returncode  # noqa: S607
+    # The NEW checkout's own environment: nothing of the one this ran in.
+    environment = scrubbed_env()
+    subprocess.run(
+        ["mise", "trust"],  # noqa: S607
+        cwd=path,
+        check=False,
+        capture_output=True,
+        env=environment,
+    )
+    return subprocess.run(
+        ["mise", "run", "setup"],  # noqa: S607
+        cwd=path,
+        check=False,
+        env=environment,
+    ).returncode
 
 
 def cmd_list(root: Path) -> int:

@@ -56,7 +56,7 @@ from otsafety_tooling.cli import CommandRefused, note, refusal
 from otsafety_tooling.cli import result as emit_result
 from otsafety_tooling.contracts.files import read_yaml
 from otsafety_tooling.contracts.workflow import Workflow
-from otsafety_tooling.git.env import git
+from otsafety_tooling.git.env import git, scrubbed_env
 from otsafety_tooling.paths import REPO_ROOT
 
 PROTECTED = frozenset({"develop", "main"})
@@ -116,6 +116,7 @@ def gh(*args: str, check: bool = True) -> str:
     """Run gh in the repository, or fail loudly."""
     result = subprocess.run(  # noqa: S603
         ["gh", *args],  # noqa: S607
+        env=scrubbed_env(),
         capture_output=True,
         text=True,
         check=False,
@@ -462,6 +463,7 @@ def execute_merge(pr_number: int) -> MergeResult:
             "-f",
             "merge_method=merge",
         ],
+        env=scrubbed_env(),
         capture_output=True,
         text=True,
         check=False,

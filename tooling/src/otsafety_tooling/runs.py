@@ -40,6 +40,7 @@ from pathlib import Path
 from typing import IO
 
 from otsafety_tooling.contracts.run_record import RunRecord
+from otsafety_tooling.git.env import inherited_env
 
 # 64 KiB of output kept per run: enough for a failing gate's report, small
 # enough that a year of runs stays readable. The digest covers the rest.
@@ -223,6 +224,7 @@ def record_run(
     try:
         process = subprocess.Popen(  # noqa: S603
             argv,
+            env=inherited_env(),
             stdout=slave if on_tty else subprocess.PIPE,
             stderr=slave if on_tty else subprocess.STDOUT,
             cwd=root,

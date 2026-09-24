@@ -16,6 +16,7 @@ from pathlib import Path
 from otsafety_tooling.artifacts import artifacts_root
 from otsafety_tooling.contracts.files import read_json
 from otsafety_tooling.contracts.policy_inputs import PolicyInputs
+from otsafety_tooling.git.env import scrubbed_env
 from otsafety_tooling.paths import REPO_ROOT
 
 MANIFEST = Path("contracts") / "policy-inputs.json"
@@ -49,6 +50,7 @@ def generate(root: Path = REPO_ROOT, evidence: Path | None = None) -> list[str]:
             cwd=root,
             check=True,
             capture_output=True,
+            env=scrubbed_env(),
         )
         written.append(str(target))
     return written

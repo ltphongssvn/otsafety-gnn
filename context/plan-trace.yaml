@@ -3802,3 +3802,8 @@ candidates:
   text: the rulesets API returns an empty list, so develop and main are protected by a local hook and nothing else
   maps_to:
   - G.40
+- source: SESSION
+  ref: 'observed: a worktree ran the wrong python'
+  text: a fresh worktree inherited VIRTUAL_ENV from the checkout that created it, and setup used that interpreter
+  maps_to:
+  - G.22
