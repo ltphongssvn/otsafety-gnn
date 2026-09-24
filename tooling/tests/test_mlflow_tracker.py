@@ -13,7 +13,7 @@ as an artifact so MLflow never becomes the only copy of what happened.
 
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any
+from typing import Protocol
 
 import pytest
 from pydantic import TypeAdapter
@@ -29,8 +29,8 @@ COMMIT = "a" * 40
 DIGEST = "b" * 64
 
 
-def _run(**overrides: Any) -> ExperimentRun:
-    payload: dict[str, Any] = {
+def _run(**overrides: object) -> ExperimentRun:
+    payload: dict[str, object] = {
         "id": "0192f3ac9e7b",
         "experiment": "baseline-ridge",
         "started_at": START,
@@ -58,11 +58,50 @@ def _store(tmp_path: Path) -> Path:
     return tmp_path / "mlflow" / "runs.db"
 
 
+class _RunData(Protocol):
+    """The three mappings these tests read from a recorded run."""
+
+    @property
+    def params(self) -> dict[str, str]: ...
+
+    @property
+    def metrics(self) -> dict[str, float]: ...
+
+    @property
+    def tags(self) -> dict[str, str]: ...
+
+
+class _RunInfo(Protocol):
+    """The four fields these tests read from a recorded run's info."""
+
+    @property
+    def status(self) -> str: ...
+
+    @property
+    def start_time(self) -> int: ...
+
+    @property
+    def end_time(self) -> int: ...
+
+    @property
+    def artifact_uri(self) -> str: ...
+
+
+class _Recorded(Protocol):
+    """A recorded MLflow run, as these tests read it."""
+
+    @property
+    def data(self) -> _RunData: ...
+
+    @property
+    def info(self) -> _RunInfo: ...
+
+
 def _tracker(tmp_path: Path) -> MlflowTracker:
     return MlflowTracker(store=_store(tmp_path))
 
 
-def _recorded(tmp_path: Path, name: str) -> Any:
+def _recorded(tmp_path: Path, name: str) -> _Recorded:
     """The single MLflow run for an experiment, read back through MLflow."""
     mlflow.set_tracking_uri(tracking_uri(_store(tmp_path)))
     client = mlflow.tracking.MlflowClient()
@@ -70,7 +109,8 @@ def _recorded(tmp_path: Path, name: str) -> Any:
     assert experiment is not None, f"no MLflow experiment named {name}"
     runs = client.search_runs([experiment.experiment_id])
     assert len(runs) == 1, runs
-    return runs[0]
+    recorded: _Recorded = runs[0]
+    return recorded
 
 
 def test_a_run_reaches_mlflow_with_its_parameters_and_metrics(tmp_path: Path) -> None:
