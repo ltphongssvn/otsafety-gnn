@@ -5,8 +5,6 @@ No git runs here: each test builds the facts it needs through the contract, so
 every rule is checked on its own, including the cases it must NOT flag.
 """
 
-from typing import Any
-
 import pytest
 
 from otsafety_tooling.contracts.branch_report import BranchFact, Finding
@@ -30,8 +28,8 @@ def _local(name: str, ahead: int, behind: int) -> BranchFact:
     )
 
 
-def _remote(name: str, **overrides: Any) -> BranchFact:
-    fact: dict[str, Any] = {
+def _remote(name: str, **overrides: object) -> BranchFact:
+    fact: dict[str, object] = {
         "name": name,
         "kind": "remote",
         "commit": SHA,

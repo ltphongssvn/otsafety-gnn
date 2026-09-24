@@ -13,7 +13,7 @@ code rather than a bare SystemExit.
 from __future__ import annotations
 
 import subprocess
-from collections.abc import Callable
+from typing import Protocol
 
 import pytest
 
@@ -29,7 +29,13 @@ def _envelope(out: str) -> CommandOutcome:
     return CommandOutcome.model_validate_json(lines[0])
 
 
-def _git(result: str = "", code: int = 0) -> Callable[..., subprocess.CompletedProcess[str]]:
+class _Git(Protocol):
+    """The git() seam, with the signature the stand-in actually has."""
+
+    def __call__(self, *args: str, **kwargs: object) -> subprocess.CompletedProcess[str]: ...
+
+
+def _git(result: str = "", code: int = 0) -> _Git:
     """A stand-in for git(): the seam every remote call in pr.py goes through."""
 
     def run(*args: str, **_: object) -> subprocess.CompletedProcess[str]:

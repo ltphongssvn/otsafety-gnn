@@ -15,7 +15,6 @@ a check that saw every setting at its declared value passes.
 
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
 
 import pytest
 from pydantic import JsonValue, ValidationError
@@ -174,8 +173,8 @@ def test_configure_catches_a_change_github_did_not_apply(tmp_path: Path) -> None
     assert _rules(_report(tmp_path)) == [("S001", "delete_branch_on_merge")]
 
 
-def _report_payload(**overrides: Any) -> dict[str, Any]:
-    payload: dict[str, Any] = {
+def _report_payload(**overrides: object) -> dict[str, object]:
+    payload: dict[str, object] = {
         "generated_at": datetime(2026, 9, 17, tzinfo=UTC),
         "repository": "owner/repo",
         "findings": [],
