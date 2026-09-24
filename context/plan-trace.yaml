@@ -3687,3 +3687,13 @@ candidates:
   maps_to:
   - G.25
   - G.36
+- source: SESSION
+  ref: 'observed: the gate ignored hints'
+  text: astro check's minimumFailingSeverity defaults to error, so seven deprecations passed as hints
+  maps_to:
+  - G.32
+- source: SESSION
+  ref: 'observed: json-schema-to-zod abandoned'
+  text: the generator behind every *.gen.ts stopped being maintained in March 2026
+  maps_to:
+  - G.32

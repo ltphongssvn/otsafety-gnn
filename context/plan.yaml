@@ -1474,11 +1474,11 @@ steps:
     done_when:
       - {kind: task, name: 'site:types'}
   - id: 'G.32'
-    title: 'Generated Zod uses no deprecated API: json-schema-to-zod emits z.string().datetime(), which Zod 4 deprecates'
+    title: 'Zod generated in-repo from the contracts, in current Zod 4 API; the abandoned generator removed, and astro check failing on any hint'
     thread: G
     phase: '8G'
     depends_on: ['G.31']
-    source: 'the first astro check: six ts(6385) warnings, all in generated contracts'
+    source: 'json-schema-to-zod, abandoned March 2026, emitted z.string().datetime() seven times; astro check fails only on errors by default, so the deprecation passed as hints'
     serves:
       - {loop: constrain, side: code}
     done_when:

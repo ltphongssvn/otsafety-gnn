@@ -270,7 +270,7 @@ description = "Regenerate the contract pipeline: Pydantic -> JSON Schema -> the 
 run = """
 set -euo pipefail
 uv run python -m otsafety_tooling.contracts.schemas
-bun run apps/site/scripts/generate-contracts.ts
+uv run python -m otsafety_tooling.contracts.zod
 """
 
 [tasks."site:lock"]

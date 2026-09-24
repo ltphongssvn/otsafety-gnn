@@ -13,7 +13,8 @@ so its reader requires every field and fills in nothing: a default would become
 Zod's .default(), supplying a missing field instead of rejecting the record. An
 authored file is written by a person who leaves defaults out, so a model marked
 AUTHORED is exported as Pydantic accepts it. Both have references inlined, since
-json-schema-to-zod does not follow $ref, and discriminator mappings dropped,
+json-schema-to-zod, the generator before G.32, did not follow $ref, and
+discriminator mappings dropped,
 since after inlining they would point at definitions that no longer exist.
 
 Cross-field rules live in model validators and cannot be expressed in JSON

@@ -12,6 +12,9 @@ import shutil
 import subprocess
 from pathlib import Path
 
+from otsafety_tooling.contracts.eslint_config import EffectiveConfig
+from otsafety_tooling.contracts.files import read_json
+
 REPO = Path(__file__).resolve().parents[3]
 INPUTS = [
     "pyproject.toml",
@@ -101,10 +104,17 @@ def test_removing_a_floor_is_denied(tmp_path: Path) -> None:
 
 
 def test_an_undeclared_eslint_exemption_is_denied(tmp_path: Path) -> None:
+    """A protected rule relaxed for one file, with no register entry, is denied by name."""
     world = _world(tmp_path)
-    text = (world / "context" / "exemptions.yaml").read_text(encoding="utf-8")
-    (world / "context" / "exemptions.yaml").write_text(
-        text.split("\neslint:\n")[0] + "\n", encoding="utf-8"
+    path = world / "policy" / "eslint-effective.json"
+    effective = read_json(path, EffectiveConfig)
+    target = "apps/site/src/data/evidence.ts"
+    file = effective.files[target]
+    relaxed = file.rules["no-restricted-syntax"].model_copy(update={"severity": "off"})
+    rules = {**file.rules, "no-restricted-syntax": relaxed}
+    files = {**effective.files, target: file.model_copy(update={"rules": rules})}
+    path.write_text(
+        effective.model_copy(update={"files": files}).model_dump_json(indent=2), encoding="utf-8"
     )
     run = _prove(world)
-    assert run.returncode != 0 and "generate-contracts.ts: not enforced" in run.stdout, run.stdout
+    assert run.returncode != 0 and "evidence.ts: not enforced" in run.stdout, run.stdout

@@ -23,7 +23,7 @@ SITE = read_json(REPO_ROOT / "apps" / "site" / "package.json", SitePackage)
 
 
 def test_the_task_runs_the_sites_own_check_script() -> None:
-    assert SITE.scripts["check"] == "astro check"
+    assert SITE.scripts["check"] == "astro check --minimumFailingSeverity hint"
     task = read_toml(REPO_ROOT / "mise.toml", MiseConfig).tasks["site:types"]
     assert "bun run --cwd apps/site check" in "\n".join(task.scripts)
 

@@ -54,7 +54,7 @@ def test_the_drifted_shape_fails_the_build(tmp_path: Path) -> None:
 def test_the_committed_zod_is_what_the_schemas_generate(tmp_path: Path) -> None:
     """A hand-edited .gen.ts would pass every other test; this is its gate."""
     generated = subprocess.run(
-        ["bun", "run", "scripts/generate-contracts.ts", str(tmp_path)],
+        ["uv", "run", "python", "-m", "otsafety_tooling.contracts.zod", str(tmp_path)],
         cwd=SITE,
         capture_output=True,
         text=True,

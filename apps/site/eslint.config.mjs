@@ -54,15 +54,4 @@ export default defineConfig([
       ],
     },
   },
-  {
-    // EXEMPT, WITH ITS REASON: the generator reads the JSON Schema documents this
-    // repository exported itself, and hands them to json-schema-to-zod, typed for
-    // exactly that input. Trusted data, one file; the register mirrors it under G.5.
-    files: ["scripts/generate-contracts.ts"],
-    rules: {
-      "no-restricted-syntax": "off",
-      "@typescript-eslint/no-unsafe-assignment": "off",
-      "@typescript-eslint/no-unsafe-argument": "off",
-    },
-  },
 ]);
