@@ -116,27 +116,37 @@ def test_add_reports_a_failed_setup(tmp_path: Path) -> None:
     assert (tmp_path / "work" / "repo-half").is_dir()
 
 
-def test_refresh_rebases_an_unpushed_branch(tmp_path: Path) -> None:
+def test_refresh_brings_develop_in_without_rewriting(tmp_path: Path) -> None:
+    """WAS: the log reads mine, theirs, which is a rebase replaying commits. The
+    claim now is stronger and not about the log's shape: the branch's own commit is
+    still reachable, and develop's is too."""
     repo, seed = _clone(tmp_path)
     cmd_add("work", repo, setup=_ok)
     sibling = tmp_path / "work" / "repo-work"
     _git("commit", "-q", "--allow-empty", "-m", "mine", cwd=sibling)
+    mine = _git("rev-parse", "HEAD", cwd=sibling).strip()
     _git("commit", "-q", "--allow-empty", "-m", "theirs", cwd=seed)
     _git("push", "-q", "origin", "HEAD:develop", cwd=seed)
 
     assert cmd_refresh("work", repo) == 0
-    subjects = _git("log", "--format=%s", "-3", cwd=sibling).split("\n")
-    assert subjects[:2] == ["mine", "theirs"]
+    # REACHABILITY IS THE CLAIM: --is-ancestor exits non-zero when it does not hold,
+    # and _git asserts that, so this line fails if the commit was rewritten away.
+    _git("merge-base", "--is-ancestor", mine, "HEAD", cwd=sibling)
+    subjects = _git("log", "--format=%s", "-4", cwd=sibling).split("\n")
+    assert "mine" in subjects and "theirs" in subjects
 
 
-def test_refresh_refuses_a_pushed_branch(tmp_path: Path) -> None:
+def test_refresh_treats_a_pushed_branch_like_any_other(tmp_path: Path) -> None:
+    """WAS: a pushed branch was refused, because rebasing it would have needed a
+    force push. A merge rewrites nothing, so there is nothing to refuse."""
     repo, _ = _clone(tmp_path)
     cmd_add("shared", repo, setup=_ok)
     sibling = tmp_path / "work" / "repo-shared"
     _git("commit", "-q", "--allow-empty", "-m", "published", cwd=sibling)
+    published = _git("rev-parse", "HEAD", cwd=sibling).strip()
     _git("push", "-q", "-u", "origin", "feature/shared", cwd=sibling)
-    with pytest.raises(SystemExit, match="pushed"):
-        cmd_refresh("shared", repo)
+    assert cmd_refresh("shared", repo) == 0
+    assert published in _git("log", "--format=%H", "-5", cwd=sibling)
 
 
 def test_refresh_refuses_a_dirty_tree(tmp_path: Path) -> None:

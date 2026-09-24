@@ -3786,3 +3786,19 @@ candidates:
   text: the generator behind every generated contract stopped being maintained in March 2026
   maps_to:
   - G.32
+- source: SESSION
+  ref: 'observed: the site warned and the build passed'
+  text: astro check reported an unused React integration and a Vite 8 deprecation, and nothing failed
+  maps_to:
+  - G.37
+- source: SESSION
+  ref: 'observed: a refresh lost a commit'
+  text: after worktree:refresh, the branch's own commit was no longer reachable from its HEAD, while the command reported
+    success
+  maps_to:
+  - G.40
+- source: SESSION
+  ref: 'observed: the remote declares no ruleset'
+  text: the rulesets API returns an empty list, so develop and main are protected by a local hook and nothing else
+  maps_to:
+  - G.40

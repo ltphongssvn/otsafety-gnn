@@ -20,9 +20,10 @@ Ported from cscie103-olap-oltp (src/cscie103_olap_oltp/git/worktree.py), with
 two changes:
   - every command takes the repository root, and add takes the setup runner,
     so the behaviour is tested on real repositories without running mise;
-  - refresh REFUSES A BRANCH THAT IS ALREADY PUSHED. A rebase rewrites its
-    commits, the next push is rejected as non-fast-forward, and the only way
-    through is a force push -- which this repository never performs.
+  - refresh MERGES rather than rebases. A rebase rewrites the branch's commits,
+    so the next push is rejected as non-fast-forward and only a force push gets
+    through -- which this repository never performs. A merge keeps every commit
+    reachable, so refresh treats a pushed branch and a local one alike.
 """
 
 from __future__ import annotations
@@ -241,7 +242,14 @@ def cmd_add(slug: str, root: Path, setup: SetupRunner = run_setup) -> int:
 
 
 def cmd_refresh(slug: str, root: Path) -> int:
-    """Rebase an UNPUSHED worktree branch onto current origin/develop."""
+    """Merge current origin/develop into a worktree branch.
+
+    A MERGE, NEVER A REBASE. Rebasing rewrites the branch's commits: measured here,
+    a branch's own commit stopped being reachable from its own HEAD after a refresh
+    that reported success. The next push is then a non-fast-forward, and only a
+    force push resolves it -- which this repository never performs. A merge keeps
+    every commit reachable, so it is safe whether or not the branch was pushed.
+    """
     validate_slug(slug)
     path = sibling_name(main_path(root), slug)
     if not path.exists():
@@ -266,31 +274,23 @@ def cmd_refresh(slug: str, root: Path) -> int:
         note(fetched.stderr.strip())
         raise CommandRefused("fetch_failed", "fetch failed")
 
-    # A PUSHED BRANCH IS NOT REBASED: rewriting published commits would make the
-    # next push a non-fast-forward, and this repository never force-pushes.
-    # `pr` always pushes with -u, so an upstream is the record of a push.
-    upstream = git("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}", cwd=path)
-    if upstream.returncode == 0:
-        raise CommandRefused(
-            "branch_already_pushed",
-            f"refusing: {path} tracks {upstream.stdout.strip()}, so it was pushed. "
-            "Rebasing would rewrite published commits and need a force push; "
-            "bring develop in through the pull request instead.",
-        )
-
+    # NO PUSHED-BRANCH REFUSAL: it existed only because a rebase would have needed a
+    # force push. A merge adds a commit and rewrites none, so a pushed branch is
+    # refreshed exactly like a local one.
     before = git("rev-parse", "HEAD", cwd=path).stdout.strip()
-    rebased = git("rebase", f"origin/{INTEGRATION_BRANCH}", cwd=path)
-    if rebased.returncode != 0:
-        note((rebased.stdout + rebased.stderr).strip())
+    merged = git("merge", "--no-edit", f"origin/{INTEGRATION_BRANCH}", cwd=path)
+    if merged.returncode != 0:
+        note((merged.stdout + merged.stderr).strip())
         raise CommandRefused(
-            "rebase_stopped",
-            f"rebase stopped in {path}. Resolve there and continue, or abort the rebase.",
+            "merge_stopped",
+            f"the merge stopped in {path}. Resolve the conflicts there and commit, "
+            "or abort it with git merge --abort.",
         )
     after = git("rev-parse", "HEAD", cwd=path).stdout.strip()
     target = git("rev-parse", f"origin/{INTEGRATION_BRANCH}", cwd=path).stdout.strip()
 
-    # REPORT AN OBSERVED STATE CHANGE, NOT PARSED OUTPUT: rebase writes its
-    # success message to stderr, and comparing SHAs cannot misreport.
+    # REPORT AN OBSERVED STATE CHANGE, NOT PARSED OUTPUT: git writes its success
+    # message to stderr, and comparing SHAs cannot misreport.
     return result(
         "worktree:refresh",
         "success",
