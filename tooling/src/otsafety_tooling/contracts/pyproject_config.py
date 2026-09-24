@@ -51,10 +51,29 @@ class _Pytest(_Rest):
     ini_options: PytestConfig | None = None
 
 
+class MypyOverride(_Rest):
+    """One [[tool.mypy.overrides]] entry: the modules it names, and what it relaxes."""
+
+    module: tuple[str, ...] = ()
+    ignore_missing_imports: bool | None = None
+    disallow_any_explicit: bool | None = None
+    disable_error_code: tuple[str, ...] = ()
+
+
+class MypySection(_Rest):
+    """[tool.mypy], read as data so a gate can compare two of them."""
+
+    strict: bool | None = None
+    disallow_any_explicit: bool | None = None
+    plugins: tuple[str, ...] = ()
+    overrides: tuple[MypyOverride, ...] = ()
+
+
 class _Tools(_Rest):
     ruff: RuffConfig | None = None
     uv: _Uv | None = None
     pytest: _Pytest | None = None
+    mypy: MypySection | None = None
 
 
 class _Project(_Rest):

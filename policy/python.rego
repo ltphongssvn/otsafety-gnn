@@ -7,7 +7,16 @@ tooling := doc("tooling/pyproject.toml").tool
 
 selected := {rule | some rule in ruff.lint.select}
 
-plugins := {plugin | some plugin in tooling.mypy.plugins}
+root := doc("pyproject.toml").tool
+
+mypy := root.mypy
+
+plugins := {plugin | some plugin in mypy.plugins}
+
+mypy_invocations := [line |
+	some line in split(doc("mise.toml").tasks.types.run, "\n")
+	contains(line, " mypy ")
+]
 
 required_rules := {"TID251", "ANN401", "RUF100", "S", "T20", "BLE"}
 
@@ -32,16 +41,35 @@ deny contains "pyproject.toml: ruff's target-version must be declared" if not ru
 
 deny contains "tooling/pyproject.toml: must hold no ruff configuration" if tooling.ruff
 
+# RUFF'S RULE, APPLIED TO MYPY. Line 33 already required the tooling package to
+# hold no ruff configuration, because ruff reads the closest file outright and a
+# second one would replace the root's policy for that package. mypy behaves the
+# same way and its documentation says so: there is no merging of configuration
+# files. The tooling package had a full second section that had already drifted --
+# the root permitted explicit Any and loaded no pydantic plugin, so scripts/ and
+# the site's tests were checked under weaker rules than src/.
 deny contains msg if {
 	some setting in ["strict", "disallow_any_explicit"]
-	not tooling.mypy[setting] == true
-	msg := sprintf("tooling/pyproject.toml: mypy must set %s", [setting])
+	not mypy[setting] == true
+	msg := sprintf("pyproject.toml: mypy must set %s", [setting])
 }
 
-deny contains "tooling/pyproject.toml: mypy must load pydantic.mypy" if not "pydantic.mypy" in plugins
+deny contains "pyproject.toml: mypy must load pydantic.mypy" if not "pydantic.mypy" in plugins
 
 deny contains msg if {
 	some setting in ["init_typed", "init_forbid_extra"]
-	not tooling["pydantic-mypy"][setting] == true
-	msg := sprintf("tooling/pyproject.toml: pydantic-mypy must set %s", [setting])
+	not root["pydantic-mypy"][setting] == true
+	msg := sprintf("pyproject.toml: pydantic-mypy must set %s", [setting])
+}
+
+deny contains "tooling/pyproject.toml: must hold no mypy configuration" if tooling.mypy
+
+# THE RULE THAT MAKES ONE CONFIGURATION TRUE. Without --config-file mypy reads
+# whatever file is closest to where it runs, so an invocation that omits it
+# bypasses the root's policy silently -- which is how the tooling was disarmed
+# for one commit, caught by a probe rather than by reading.
+deny contains msg if {
+	some line in mypy_invocations
+	not contains(line, "--config-file")
+	msg := sprintf("mise.toml: this mypy invocation reads whatever is closest: %s", [trim_space(line)])
 }

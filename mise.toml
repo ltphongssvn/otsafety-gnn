@@ -167,11 +167,11 @@ description = "Strict static type check of the tooling, for both platforms it ru
 # from tooling/pyproject.toml.
 run = '''
 set -euo pipefail
-uv run --directory tooling mypy --platform darwin src tests
-uv run --directory tooling mypy --platform linux src tests
+uv run --directory tooling mypy --config-file ../pyproject.toml --platform darwin src tests
+uv run --directory tooling mypy --config-file ../pyproject.toml --platform linux src tests
 # scripts/ IS STANDALONE: it has no package settings of its own, and it
 # runs before anything is installed, so it is checked strictly as a file.
-uv run mypy --strict scripts apps/site/tests
+uv run mypy --config-file pyproject.toml scripts apps/site/tests
 '''
 
 [tasks.test]

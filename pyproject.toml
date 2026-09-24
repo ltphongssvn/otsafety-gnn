@@ -49,14 +49,31 @@ members = ["tooling"]
 # the extra is absent, and this is that statement for the type checker.
 [tool.mypy]
 strict = true
+disallow_any_explicit = true
+plugins = ["pydantic.mypy"]
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
 
 [[tool.mypy.overrides]]
 # pypdf JOINS THEM FOR THE SAME REASON. It lives in the e2e extra, which the
 # tooling workflow does not install, so mypy resolved it on this laptop and not
 # on a runner. Third time this exact gap has appeared: an optional dependency
 # imported inside a function still needs saying so to the type checker.
-module = ["playwright.*", "pytest_playwright.*", "pypdf.*"]
+# mlflow AND wandb JOIN THEM from the tooling package's own section, which is
+# removed: mypy does not merge configurations, so every override belongs here.
+module = ["playwright.*", "pytest_playwright.*", "pypdf.*", "mlflow.*", "wandb.*"]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# SIXTY-ONE SITES, MEASURED, AND G.45 REMOVES THEM. The tooling package exempted
+# tests.* module-wide, which permitted whatever anyone wrote; unifying the
+# configuration made the real number visible for the first time. The wandb seam
+# now has a protocol this repository owns, as MLflow's already did, and the doubles
+# implement it in G.45. Until then this is a named debt, not a silent allowance.
+module = ["tests.*"]
+disallow_any_explicit = false
 
 [[tool.mypy.overrides]]
 # THE ONE-PAGER GENERATOR IS PRESERVED VERBATIM. Its STAGES entries mix str and

@@ -41,8 +41,12 @@ def test_ruff_refuses_any_in_a_signature() -> None:
 
 
 def test_mypy_refuses_any_anywhere() -> None:
+    """THE PROBE NAMES THE CONFIGURATION, because mypy does not merge or inherit:
+    its documentation says so outright. Run from tooling/ without --config-file it
+    reads no policy at all, which is how this test caught the settings being moved
+    to the root and the tooling silently disarmed."""
     probe = "from typing import Any\n\nvalue: dict[str, Any] = {}\n"
-    run = _run("uv", "run", "--directory", "tooling", "mypy", "-c", probe)
+    run = _run("uv", "run", "mypy", "--config-file", str(REPO_ROOT / "pyproject.toml"), "-c", probe)
     assert run.returncode != 0 and "explicit-any" in run.stdout, run.stdout + run.stderr
 
 

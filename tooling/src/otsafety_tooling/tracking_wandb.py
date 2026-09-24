@@ -42,7 +42,7 @@ says which code and which data produced it.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Protocol
 
 from otsafety_tooling.artifacts import artifacts_root
 from otsafety_tooling.contracts.experiment_run import ExperimentRun
@@ -83,6 +83,39 @@ RESERVED = frozenset(
         "duration_ms",
     }
 )
+
+
+class _Summary(Protocol):
+    """The run summary this adapter writes, typed where wandb ships no py.typed."""
+
+    def update(self, values: dict[str, object]) -> None: ...
+
+
+class _Artifact(Protocol):
+    """The one artifact method this adapter calls."""
+
+    def add_file(self, local_path: str, name: str | None = None) -> object: ...
+
+
+class _Run(Protocol):
+    """WHAT THIS ADAPTER NEEDS FROM A W&B RUN, and nothing else.
+
+    THE SAME TREATMENT MLFLOW'S ADAPTER ALREADY HAS, applied here: wandb ships no
+    py.typed, so every call through it went unchecked and its test carried
+    fourteen explicit Any to describe a surface nobody had typed. A protocol the
+    repository owns inverts that -- the real wandb run satisfies it structurally,
+    and a test double implements it with no Any on either side.
+    """
+
+    @property
+    def summary(self) -> _Summary: ...
+
+    @property
+    def dir(self) -> str: ...
+
+    def log_artifact(self, artifact: _Artifact) -> object: ...
+
+    def finish(self, exit_code: int = 0) -> None: ...
 
 
 def default_directory() -> Path | None:

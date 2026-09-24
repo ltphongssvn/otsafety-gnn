@@ -20,7 +20,7 @@ import json
 import sys
 import urllib.error
 import urllib.request
-from typing import Any
+from collections.abc import Mapping
 
 EXPECTED = [
     ("/", 200),
@@ -53,7 +53,13 @@ def note(text: str) -> None:
     sys.stderr.write(f"{text}\n")
 
 
-def emit(command: str, outcome: str, code: str, message: str, data: dict[str, Any]) -> int:
+# THE PAYLOAD IS JSON, AND THIS SCRIPT IS STANDARD LIBRARY ONLY: the contract
+# model may not be installed where it runs, so the payload cannot be a Pydantic
+# model. Mapping[str, object] is the honest stdlib type -- object rather than Any,
+# so nothing is exempted from checking, and Mapping rather than dict because dict
+# is INVARIANT in its value type: dict[str, str] is not a dict[str, object], which
+# is what made an earlier alias need widening at every call site.
+def emit(command: str, outcome: str, code: str, message: str, data: Mapping[str, object]) -> int:
     """The envelope on stdout, and the exit code the outcome carries.
 
     BUILT AS PLAIN DATA: this runs where the contract model may not be installed,
@@ -79,7 +85,7 @@ def main(argv: list[str] | None = None) -> int:
             "site:check", "refused", "usage", "usage: check_site.py BASE_URL", {"arguments": args}
         )
     base = args[0].rstrip("/")
-    checks: list[dict[str, Any]] = []
+    checks: list[Mapping[str, object]] = []
 
     for path, expected in EXPECTED:
         got, _ = status(base + path)
