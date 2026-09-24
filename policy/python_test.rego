@@ -1,3 +1,4 @@
+# policy/python_test.rego
 # Each denial fires on the input it describes, exercised from outside the policy.
 #
 # THE PYTHON RULES HAD NO TESTS. They have guarded ruff's bans and mypy's settings

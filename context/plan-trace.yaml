@@ -1,3 +1,4 @@
+# context/plan-trace.yaml
 contract: plan-trace/v1
 sources:
 - id: T1
@@ -3846,3 +3847,9 @@ candidates:
     been generated there
   maps_to:
   - G.51
+- source: SESSION
+  ref: 'observed: the generated Zod had no drift gate'
+  text: the generator's header changed and twenty-four tests passed both before and after regenerating, because none of them
+    compares generated output with what is committed
+  maps_to:
+  - G.52

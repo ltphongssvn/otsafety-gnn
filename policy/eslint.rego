@@ -1,3 +1,4 @@
+# policy/eslint.rego
 # ESLint's effective configuration: the protected rules enforced on every file,
 # and every exception declared in the register, in both directions. Severity is
 # what is read -- a disabled rule keeps its options -- and an absent rule counts

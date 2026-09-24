@@ -220,13 +220,19 @@ def _object(schema: dict[str, JsonValue], where: str) -> str:
     return code
 
 
-def module(file: Path) -> tuple[str, str]:
-    """The generated TypeScript for one exported contract, and the name it exports."""
+def module(file: Path, out: Path) -> tuple[str, str]:
+    """The generated TypeScript for one exported contract, and the name it exports.
+
+    THE FILE NAMES ITSELF FIRST. A generated module said where it came FROM and
+    not where it IS, so eighteen of them failed the header gate; fixing them by
+    hand would be undone by the next run, so the generator writes both.
+    """
     stem = file.name.removesuffix(".schema.json")
     parts = re.split(r"[.-]", stem)
     name = parts[0] + "".join(p[:1].upper() + p[1:] for p in parts[1:]) + "Schema"
     schema: JsonValue = TypeAdapter(JsonValue).validate_json(file.read_text(encoding="utf-8"))
     header = (
+        f"// {TARGET.relative_to(REPO_ROOT)}/{out.name}\n"
         f"// GENERATED from contracts/json/{file.name} by otsafety_tooling.contracts.zod.\n"
         "// Do not edit: change the Pydantic model and run mise run contracts:generate.\n"
     )
@@ -240,8 +246,8 @@ def generate(target: Path = TARGET) -> list[str]:
     target.mkdir(parents=True, exist_ok=True)
     written = []
     for file in sorted(SOURCE.glob("*.schema.json")):
-        name, code = module(file)
         out = target / f"{file.name.removesuffix('.schema.json')}.gen.ts"
+        name, code = module(file, out)
         out.write_text(code, encoding="utf-8")
         written.append(f"wrote {out.name} ({name})")
     return written

@@ -1,3 +1,4 @@
+# policy/requirements.rego
 # An id is one object: the step, what justifies it, what proves it, who claims it.
 # G.41: this file is that step's evidence, and carries its id so the inspection
 # rule below can confirm the link rather than assume it.

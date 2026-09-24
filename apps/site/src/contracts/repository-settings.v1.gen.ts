@@ -1,3 +1,4 @@
+// apps/site/src/contracts/repository-settings.v1.gen.ts
 // GENERATED from contracts/json/repository-settings.v1.schema.json by otsafety_tooling.contracts.zod.
 // Do not edit: change the Pydantic model and run mise run contracts:generate.
 import { z } from "zod";

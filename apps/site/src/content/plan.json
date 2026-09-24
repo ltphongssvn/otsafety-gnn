@@ -4212,6 +4212,29 @@
           "path": "tooling/tests/test_site_sync_before_lint.py"
         }
       ]
+    },
+    {
+      "id": "G.52",
+      "title": "The committed Zod is what the generator produces, proved by regenerating and comparing",
+      "thread": "G",
+      "phase": "8G",
+      "depends_on": [
+        "G.32"
+      ],
+      "branch": null,
+      "source": "changing the generator's header left every committed .gen.ts stale and twenty-four tests passed: they check for deprecated APIs and loose shapes, and nothing regenerates and compares, so the data export has a drift gate its older sibling lacks",
+      "serves": [
+        {
+          "loop": "promise",
+          "side": "data"
+        }
+      ],
+      "done_when": [
+        {
+          "kind": "path",
+          "path": "tooling/tests/test_generated_zod_is_committed.py"
+        }
+      ]
     }
   ],
   "decisions": [

@@ -1,3 +1,4 @@
+// apps/site/src/contracts/exemption-register.v1.gen.ts
 // GENERATED from contracts/json/exemption-register.v1.schema.json by otsafety_tooling.contracts.zod.
 // Do not edit: change the Pydantic model and run mise run contracts:generate.
 import { z } from "zod";

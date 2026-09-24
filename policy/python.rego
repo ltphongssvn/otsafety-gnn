@@ -1,3 +1,4 @@
+# policy/python.rego
 # The Python bans, proved present in the configuration that enforces them.
 package policy
 

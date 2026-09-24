@@ -38,13 +38,19 @@ def issue(ledger: IdLedger, entry: IssuedId) -> IdLedger:
 
 
 def canonical(ledger: IdLedger) -> str:
-    """The one serialization, as the plan writer has one."""
-    return yaml.safe_dump(
+    """The one serialization, as the plan writer has one.
+
+    THE FILE NAMES ITSELF. Written without a header, it failed the header gate
+    and a hand-added comment would have been erased by the next save -- the same
+    reason the generated Zod is fixed at its generator rather than by hand.
+    """
+    body = yaml.safe_dump(
         ledger.model_dump(mode="json", by_alias=True, exclude_none=True),
         sort_keys=False,
         allow_unicode=True,
         width=120,
     )
+    return f"# context/plan-ids.yaml\n{body}"
 
 
 def save_ledger(ledger: IdLedger, path: Path | None = None) -> Path:
