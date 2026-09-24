@@ -14,11 +14,16 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+import pytest
+
 from otsafety_tooling.contracts.files import read_json, read_toml
 from otsafety_tooling.contracts.mise_config import MiseConfig
 from otsafety_tooling.contracts.site_package import SitePackage
 from otsafety_tooling.contracts.toolchain import Toolchain
 from otsafety_tooling.paths import REPO_ROOT
+
+# THIS FILE PROVES G.37: the claim the requirement matrix joins on.
+pytestmark = pytest.mark.requirement("G.37")
 
 SITE = read_json(REPO_ROOT / "apps" / "site" / "package.json", SitePackage)
 
@@ -70,3 +75,22 @@ def test_the_site_declares_no_framework_it_does_not_use() -> None:
 
     used = [path.relative_to(REPO_ROOT) for path in source.rglob("*") if uses_an_island(path)]
     assert used == [], f"these use a framework island: {used}"
+
+
+def test_the_site_declares_its_own_jsx_element_type() -> None:
+    """THE SITE OWNS ITS JSX TYPE, rather than a framework it does not render with.
+
+    Astro defines astroHTML.JSX.Element as HTMLElement | any, and resolves that any
+    through whichever framework supplies JSX types. React was the only one here, so
+    removing it left every .astro template returning an unresolvable type and
+    typescript-eslint reported fourteen no-unsafe-return errors -- the caveat
+    eslint-plugin-astro documents for a project with no framework present.
+
+    It passed locally only because bun install left React in node_modules; a clean
+    install, which is what CI does, reproduced all fourteen.
+    """
+    declaration = REPO_ROOT / "apps" / "site" / "src" / "jsx.d.ts"
+    assert declaration.is_file(), "the site declares JSX.Element itself"
+    text = declaration.read_text(encoding="utf-8")
+    assert 'import "astro/astro-jsx"' in text
+    assert "type Element = HTMLElement" in text
