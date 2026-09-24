@@ -1650,6 +1650,31 @@ steps:
       - {loop: constrain, side: code}
     done_when:
       - {kind: path, path: tooling/tests/test_plan_writer.py}
+  - id: G.37
+    title: 'The site''s toolchain warns about nothing: its React integration removed where unused, and every dependency pinned
+      exactly'
+    thread: G
+    phase: 8G
+    depends_on: [G.31]
+    source: astro check reported an unused React integration and a Vite 8 deprecation behind @astrojs/react; a range in package.json
+      lets a build differ between machines
+    serves:
+      - {loop: constrain, side: code}
+    done_when:
+      - {kind: path, path: tooling/tests/test_site_types.py}
+  - id: G.40
+    title: 'No command rewrites lineage, and the remote refuses a rewrite: refresh merges, and branch protection is declared
+      as data'
+    thread: G
+    phase: 8G
+    depends_on: [G.29]
+    source: worktree:refresh rebased an unpushed branch, so its own commit stopped being reachable while the command reported
+      success; the remote declares no ruleset, so develop and main are protected by a local hook alone
+    serves:
+      - {loop: constrain, side: code}
+      - {loop: promise, side: data}
+    done_when:
+      - {kind: path, path: tooling/tests/test_no_history_rewrite.py}
 decisions:
   - {id: X.SPIKE, title: 'Reference spike, the original thread B', state: superseded, reason: 'thread B dissolved by the rule
       change moving all execution local: the sandbox prototype became reference reading only and every line is re-derived

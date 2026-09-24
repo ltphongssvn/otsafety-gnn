@@ -590,3 +590,11 @@ issued:
 - id: X.TURBO
   first_title: Turborepo as the task runner, once CI exceeds five minutes
   retired: false
+- id: G.37
+  first_title: 'The site''s toolchain warns about nothing: its React integration removed where unused, and every dependency
+    pinned exactly'
+  retired: false
+- id: G.40
+  first_title: 'No command rewrites lineage, and the remote refuses a rewrite: refresh merges, and branch protection is declared
+    as data'
+  retired: false
