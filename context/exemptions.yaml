@@ -49,10 +49,6 @@ inline:
   rule: TID251
   count: 1
   reason: 'standard library only: bootstrap runs before any dependency is installed'
-- path: tooling/src/otsafety_tooling/artifacts.py
-  rule: T201
-  count: 1
-  reason: 'prints the command''s output: this is a command-line entry point'
 - path: tooling/src/otsafety_tooling/contracts/files.py
   rule: TID251
   count: 4
@@ -113,14 +109,6 @@ inline:
   rule: S607
   count: 4
   reason: a bare executable name resolved on the PATH that mise and the Nix shell provide; no shell
-- path: tooling/src/otsafety_tooling/planning/__main__.py
-  rule: T201
-  count: 2
-  reason: 'prints the command''s output: this is a command-line entry point'
-- path: tooling/src/otsafety_tooling/policy/markdown.py
-  rule: T201
-  count: 1
-  reason: 'prints the command''s output: this is a command-line entry point'
 - path: tooling/src/otsafety_tooling/runs.py
   rule: S603
   count: 1
@@ -161,10 +149,6 @@ inline:
   rule: E402
   count: 1
   reason: imports after importorskip, so the module still collects where the optional extra is absent
-- path: tooling/src/otsafety_tooling/policy/exemptions.py
-  rule: T201
-  count: 1
-  reason: 'prints the command''s output: this is a command-line entry point'
 - path: tooling/src/otsafety_tooling/toolchain_verify.py
   rule: S603
   count: 1

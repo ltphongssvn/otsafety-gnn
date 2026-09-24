@@ -105,3 +105,16 @@ def test_a_suppression_carries_its_code_only(tmp_path: Path) -> None:
         f"print(1)  {marker} -- a reason, here\n", encoding="utf-8"
     )
     assert any("described.py:1" in p and "code only" in p for p in described(tmp_path))
+
+
+def test_the_command_emits_an_envelope(capsys: pytest.CaptureFixture[str]) -> None:
+    """NOTHING DROVE main() BEFORE, so an undefined name in it went unseen until a
+    hook ran it. The command is exercised here, as every other command is."""
+    from otsafety_tooling.contracts.outcome import CommandOutcome
+    from otsafety_tooling.policy.exemptions import main
+
+    code = main()
+    envelope = CommandOutcome.model_validate_json(capsys.readouterr().out)
+    assert envelope.command == "policy:exemptions"
+    assert (code == 0) == (envelope.outcome == "success")
+    assert envelope.code in {"exemptions_declared", "exemption_undeclared"}
