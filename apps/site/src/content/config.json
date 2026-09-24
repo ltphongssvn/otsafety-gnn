@@ -1,0 +1,62 @@
+{
+  "data": {
+    "platform_version": "26.03",
+    "base_url": "https://ftp.ebi.ac.uk/pub/databases/opentargets/platform",
+    "root": "/data/opentargets/26.03",
+    "relations": {
+      "drug_targets": [
+        "drug_mechanism_of_action",
+        "actionType",
+        null
+      ],
+      "drug_indicated_for": [
+        "clinical_indication",
+        "source",
+        null
+      ],
+      "drug_causes_ae": [
+        "openfda_significant_adverse_drug_reactions",
+        null,
+        null
+      ],
+      "associated_with": [
+        "association_by_datasource_direct",
+        "datasourceId",
+        null
+      ],
+      "interacts_with": [
+        "interaction",
+        "sourceDatabase",
+        null
+      ],
+      "expressed_in": [
+        "expression",
+        null,
+        null
+      ]
+    }
+  },
+  "labels": {
+    "curated": [
+      "drug_warning",
+      "target"
+    ],
+    "clinical_precedence": "evidence_clinical_precedence",
+    "min_phase_for_negative": 3
+  },
+  "target_features": [
+    "target_prioritisation",
+    "target_essentiality",
+    "expression",
+    "mouse_phenotype"
+  ],
+  "endpoints": {
+    "ontologies": [
+      "efo",
+      "mondo",
+      "hp"
+    ],
+    "ontology_api": "https://www.ebi.ac.uk/ols4/api/ontologies",
+    "meddra_hierarchy": null
+  }
+}

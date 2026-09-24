@@ -275,6 +275,9 @@ run = """
 set -euo pipefail
 uv run python -m otsafety_tooling.contracts.schemas
 uv run python -m otsafety_tooling.contracts.zod
+# THE DATA, BESIDE THE SHAPES: each context and conf file validated by its model
+# and written as JSON the site loads as a content collection.
+uv run python -m otsafety_tooling.contracts.data
 """
 
 [tasks."site:lock"]

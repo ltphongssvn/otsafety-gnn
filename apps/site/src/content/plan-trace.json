@@ -1,0 +1,6501 @@
+{
+  "contract": "plan-trace/v1",
+  "sources": [
+    {
+      "id": "T1",
+      "title": "First session transcript",
+      "locator": "/mnt/transcripts/2026-09-21-00-04-54-otsafety-gnn-session.txt"
+    },
+    {
+      "id": "T2",
+      "title": "Second session transcript",
+      "locator": "/mnt/transcripts/2026-09-21-02-47-06-otsafety-gnn-session.txt"
+    },
+    {
+      "id": "PILLARS",
+      "title": "The owner's as-code and as-data pillars requirement",
+      "locator": "first session, the pillars message"
+    },
+    {
+      "id": "SPINE",
+      "title": "The as-code and as-data spine, mapped to this project",
+      "locator": "the spine diagram given during plan verification"
+    },
+    {
+      "id": "SHEET",
+      "title": "The one-page architecture sheet",
+      "locator": "build/onepager/project-architecture.pdf"
+    },
+    {
+      "id": "CS",
+      "title": "cs1090a-recsys complete plan, phases A-J",
+      "locator": "cs1090a-recsys planning conversation, the complete plan"
+    },
+    {
+      "id": "COMMITS",
+      "title": "Commit bodies promising later work",
+      "locator": "git log --all"
+    },
+    {
+      "id": "SESSION",
+      "title": "This session's work after the second compaction",
+      "locator": "the third session, from the font fix to plan verification"
+    },
+    {
+      "id": "CODE",
+      "title": "Promises in comments and code",
+      "locator": "every tracked file, excluding lockfiles and generated files"
+    },
+    {
+      "id": "CONTEXT",
+      "title": "The schema-first rule's audit backlog",
+      "locator": "context/schema-first-contracts.md"
+    },
+    {
+      "id": "SITE",
+      "title": "The site's research data",
+      "locator": "apps/site/src/data/research.ts"
+    },
+    {
+      "id": "PRS",
+      "title": "Every merged pull request",
+      "locator": "git log origin/develop --merges"
+    }
+  ],
+  "candidates": [
+    {
+      "source": "T1",
+      "ref": "line 4920: Q1",
+      "text": "Q1 | Is there any signal beyond node popularity?",
+      "maps_to": [
+        "11.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 4920: Q2",
+      "text": "Q2 | Does the graph help beyond non-graph target features?",
+      "maps_to": [
+        "11.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 4920: Q3",
+      "text": "Q3 | Do the relation *types* carry the signal?",
+      "maps_to": [
+        "11.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7113: Rule",
+      "text": "Rule | How I'll apply it",
+      "maps_to": [],
+      "not_a_plan_item": "a working rule for how commands are written and run, not a deliverable"
+    },
+    {
+      "source": "T1",
+      "ref": "line 7113: No CLI execution by me",
+      "text": "No CLI execution by me | I suggest, you run, you paste output. **One command per answer.",
+      "maps_to": [],
+      "not_a_plan_item": "a working rule for how commands are written and run, not a deliverable"
+    },
+    {
+      "source": "T1",
+      "ref": "line 7113: Verify, don't assume",
+      "text": "Verify, don't assume | Every step has a *before* check and an *after* check. I decide the next step only from real console output.",
+      "maps_to": [],
+      "not_a_plan_item": "a working rule for how commands are written and run, not a deliverable"
+    },
+    {
+      "source": "T1",
+      "ref": "line 7113: Parse guard",
+      "text": "Parse guard | Every write block ends with `ast.parse(new_content)` before `write_text`. Non-parsing files never touch disk.",
+      "maps_to": [],
+      "not_a_plan_item": "a working rule for how commands are written and run, not a deliverable"
+    },
+    {
+      "source": "T1",
+      "ref": "line 7113: Edits",
+      "text": "Edits | Exact-match anchor, refuse unless the anchor occurs **exactly once**, write nothing otherwise.",
+      "maps_to": [],
+      "not_a_plan_item": "a working rule for how commands are written and run, not a deliverable"
+    },
+    {
+      "source": "T1",
+      "ref": "line 7113: Checks",
+      "text": "Checks | Separate, individually reported lines — header, last line, no stray delimiter, counts. Never `&&` chains.",
+      "maps_to": [],
+      "not_a_plan_item": "a working rule for how commands are written and run, not a deliverable"
+    },
+    {
+      "source": "T1",
+      "ref": "line 7113: Docker",
+      "text": "Docker | `docker builder prune -af` first, then `docker build --no-cache …`. Always.",
+      "maps_to": [
+        "X.DOCKER"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7113: On GREEN",
+      "text": "On GREEN | Stage → commit → push.",
+      "maps_to": [],
+      "not_a_plan_item": "a working rule for how commands are written and run, not a deliverable"
+    },
+    {
+      "source": "T1",
+      "ref": "line 7113: 0.1",
+      "text": "0.1 | Locate all git repos + existing worktrees",
+      "maps_to": [
+        "0.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7113: 0.2",
+      "text": "0.2 | Identify remotes, default branch, integration branch",
+      "maps_to": [
+        "0.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7113: 0.3",
+      "text": "0.3 | `git fetch --prune`, then per-branch ahead/behind",
+      "maps_to": [
+        "0.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7113: 0.4",
+      "text": "0.4 | Working tree / index / stash state",
+      "maps_to": [
+        "0.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7113: 0.5",
+      "text": "0.5 | `git worktree list`",
+      "maps_to": [
+        "0.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: A. Research definition",
+      "text": "A. Research definition | Exact research question, ML objective, Q1/Q2/Q3 decomposition, endpoint granularity, label source",
+      "maps_to": [
+        "A.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: B. Reference spike",
+      "text": "B. Reference spike | Prototype proving leakage/degree/confounding fixes work numerically",
+      "maps_to": [
+        "X.SPIKE"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: C. Engineering platform",
+      "text": "C. Engineering platform | Repo, GitFlow, worktree, stack, contracts, policy, CI, evidence store",
+      "maps_to": [
+        "6.1",
+        "6.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Dependencies as Code",
+      "text": "Dependencies as Code | `pyproject.toml` + `uv.lock` (hashed)",
+      "maps_to": [
+        "6.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Environment as Code",
+      "text": "Environment as Code | `Dockerfile`, `.devcontainer/`, HPC `environment.yml`",
+      "maps_to": [
+        "X.DEVC"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Infrastructure as Code",
+      "text": "Infrastructure as Code | Lightning AI job spec, Slurm `sbatch` templates",
+      "maps_to": [
+        "10.5",
+        "X.FAS"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Pipeline as Code",
+      "text": "Pipeline as Code | GitHub Actions: lint → contracts → policy → tests → audit",
+      "maps_to": [
+        "9.27"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Workflow as Code",
+      "text": "Workflow as Code | Experiment sweep DAG (Hydra multirun / Snakemake)",
+      "maps_to": [
+        "9.28"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Build as Code",
+      "text": "Build as Code | `docker builder prune -af` → `docker build --no-cache`",
+      "maps_to": [
+        "X.DOCKER",
+        "X.MAKE",
+        "F.15"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Schema as Code",
+      "text": "Schema as Code | Pydantic v2: `Edge`, `SafetyLabel`, `Split`, `GateVerdict`",
+      "maps_to": [
+        "9.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Data Contract as Code",
+      "text": "Data Contract as Code | Edge + label-tier producer/consumer guarantees",
+      "maps_to": [
+        "9.2",
+        "9.23"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Data Pipeline as Code",
+      "text": "Data Pipeline as Code | `data/ingest.py`",
+      "maps_to": [
+        "9.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Data Quality as Code",
+      "text": "Data Quality as Code | `audit/leakage.py`, `audit/degree.py`",
+      "maps_to": [
+        "9.5",
+        "9.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Lineage as Code/Data",
+      "text": "Lineage as Code/Data | OpenLineage events per pipeline stage",
+      "maps_to": [
+        "9.29"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Metrics as Code",
+      "text": "Metrics as Code | `eval/metrics.py`, `models/hierarchy.py`",
+      "maps_to": [
+        "9.12",
+        "9.7"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Tests as Code",
+      "text": "Tests as Code | 25 spike tests + acceptance layer",
+      "maps_to": [
+        "9.21"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Assertions as Code",
+      "text": "Assertions as Code | `raise_if_failed()` hard gates",
+      "maps_to": [
+        "9.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Acceptance Criteria as Code",
+      "text": "Acceptance Criteria as Code | `conf/config.yaml → gates:`",
+      "maps_to": [
+        "9.16"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: SLO as Code",
+      "text": "SLO as Code | `min_partial_rho`, `min_ap_lift`, `max_drop` as OpenSLO",
+      "maps_to": [
+        "9.16"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Policy as Code",
+      "text": "Policy as Code | OPA/Rego over verdict JSON — replaces Python `if`",
+      "maps_to": [
+        "9.13"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Compliance as Code",
+      "text": "Compliance as Code | MedDRA licence gate, OT data-use terms, Conftest",
+      "maps_to": [
+        "G.13"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Supply-Chain Policy as Code",
+      "text": "Supply-Chain Policy as Code | SBOM (Syft), sign (Cosign), SLSA provenance",
+      "maps_to": [
+        "F.9",
+        "F.10"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: ADR as Code",
+      "text": "ADR as Code | Stack decision, granularity decision, label-source decision",
+      "maps_to": [
+        "X.P5",
+        "A.1",
+        "A.2",
+        "6.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Docs as Code",
+      "text": "Docs as Code | This plan → `docs/architecture/PLAN.md`",
+      "maps_to": [
+        "G.14"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Diagram as Code",
+      "text": "Diagram as Code | Mermaid DAG of gates",
+      "maps_to": [
+        "8.9"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Evals as Code",
+      "text": "Evals as Code | Baseline ladder + Q1/Q2/Q3 ablations",
+      "maps_to": [
+        "9.24",
+        "9.25",
+        "9.10"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Model Config as Code",
+      "text": "Model Config as Code | `conf/model/{rgcn,hgt,sage,gat,complex}.yaml`",
+      "maps_to": [
+        "9.10"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Evidence as Data",
+      "text": "Evidence as Data | Audit metrics → `evidence/<run_id>/*.json`",
+      "maps_to": [
+        "9.18"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Verdict as Data",
+      "text": "Verdict as Data | `{rule, verdict, reason_code}` per gate",
+      "maps_to": [
+        "9.19"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Decision as Data",
+      "text": "Decision as Data | PROMOTE/REJECT + full chain",
+      "maps_to": [
+        "9.19"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Provenance as Data",
+      "text": "Provenance as Data | `ReleasePin.content_hash`, git SHA, seed",
+      "maps_to": [
+        "9.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Attestation as Data",
+      "text": "Attestation as Data | Signed model card",
+      "maps_to": [
+        "9.15"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Violations as Data",
+      "text": "Violations as Data | `findings[]` → structured records",
+      "maps_to": [
+        "G.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Audit Trail as Data",
+      "text": "Audit Trail as Data | Append-only run ledger (Parquet)",
+      "maps_to": [
+        "G.9"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: 0.1",
+      "text": "0.1 | Locate all git repos + linked worktrees under `~`",
+      "maps_to": [
+        "0.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: 0.2",
+      "text": "0.2 | Remotes, default branch, does `develop` exist",
+      "maps_to": [
+        "0.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: 0.3",
+      "text": "0.3 | `git fetch --prune` → per-branch ahead/behind",
+      "maps_to": [
+        "0.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: 0.4",
+      "text": "0.4 | Working tree / index / stash cleanliness",
+      "maps_to": [
+        "0.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: 0.5",
+      "text": "0.5 | `git worktree list` — collision check",
+      "maps_to": [
+        "0.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: 4.1",
+      "text": "4.1 | Python / uv / Node / Docker / git versions on this Mac",
+      "maps_to": [
+        "4.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: 4.2",
+      "text": "4.2 | Apple Silicon vs Intel — decides PyTorch/PyG wheel availability",
+      "maps_to": [
+        "4.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: 4.3",
+      "text": "4.3 | Lightning AI CLI present + authenticated + GPU quota",
+      "maps_to": [
+        "4.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: 4.4",
+      "text": "4.4 | FAS OnDemand reachable, Slurm partitions, module system",
+      "maps_to": [
+        "X.FAS"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: 4.5",
+      "text": "4.5 | Read `cs1090a-recsys` manifests** — what that stack actually is",
+      "maps_to": [
+        "4.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Relation-ablation harness (Q3)",
+      "text": "Relation-ablation harness (Q3) | This is the research question.* Relation-aware vs relation-agnostic on identical splits",
+      "maps_to": [
+        "9.10",
+        "11.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: No-graph tabular control (Q2)",
+      "text": "No-graph tabular control (Q2) | Without it, can't claim the graph adds anything",
+      "maps_to": [
+        "9.24",
+        "11.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Shallow KGE rung (ComplEx/RotatE)",
+      "text": "Shallow KGE rung (ComplEx/RotatE) | Separates embedding from message passing",
+      "maps_to": [
+        "9.25"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: `train/loop.py`",
+      "text": "`train/loop.py` | Spike has the model, no training loop",
+      "maps_to": [
+        "9.22"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: `cli.py`",
+      "text": "`cli.py` | `Makefile` calls `python -m otsafety.cli` — doesn't exist",
+      "maps_to": [
+        "9.30"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: `serve/api.py` + Cypher provenance",
+      "text": "`serve/api.py` + Cypher provenance | The evidence chain BIKG/Synaptix actually sell",
+      "maps_to": [
+        "9.14",
+        "X.API"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: `conf/model/*.yaml`, `conf/split/*.yaml`",
+      "text": "`conf/model/*.yaml`, `conf/split/*.yaml` | Dirs created empty",
+      "maps_to": [
+        "9.10",
+        "9.25",
+        "9.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7173: Secondary endpoint check",
+      "text": "Secondary endpoint check | Spec: \"important biomedical endpoints\" — method must be endpoint-agnostic",
+      "maps_to": [
+        "11.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7227: Layer",
+      "text": "Layer | Failure if unguarded",
+      "maps_to": [],
+      "not_a_plan_item": "a table header, not an item"
+    },
+    {
+      "source": "T1",
+      "ref": "line 7227: ②",
+      "text": "② | Degree bias · confounding by indication",
+      "maps_to": [
+        "9.6",
+        "9.8"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7227: ④",
+      "text": "④ | Label becomes f(degree)",
+      "maps_to": [
+        "9.8"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7227: ⑦",
+      "text": "⑦ | Interpolation split, extrapolation claim",
+      "maps_to": [
+        "9.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7227: ⑨",
+      "text": "⑨ | Score shipped where a decision was needed",
+      "maps_to": [
+        "9.19"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7227: Layer",
+      "text": "Layer | As Code",
+      "maps_to": [],
+      "not_a_plan_item": "a table header, not an item"
+    },
+    {
+      "source": "T1",
+      "ref": "line 7227: ② SELECTION",
+      "text": "② SELECTION | (unmodellable — declared in model card)",
+      "maps_to": [
+        "9.15"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7227: ③ EVIDENCE",
+      "text": "③ EVIDENCE | Schema as Code (`Edge` contract)",
+      "maps_to": [
+        "9.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7227: ④ ATTRIBUTION",
+      "text": "④ ATTRIBUTION | Transformation as Code (noisy-OR)",
+      "maps_to": [
+        "9.8"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7227: ⑤ LABELING RULE",
+      "text": "⑤ LABELING RULE | Policy as Code** — tier rules, `min_phase_for_negative`",
+      "maps_to": [
+        "9.9"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7227: ⑥ LABEL",
+      "text": "⑥ LABEL | Contract as Code — `SafetyLabel` + DAG",
+      "maps_to": [
+        "9.7",
+        "9.23"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7227: ⑦ SPLIT",
+      "text": "⑦ SPLIT | Acceptance Criteria as Code — cutoff, fractions",
+      "maps_to": [
+        "9.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7227: ⑧ MODEL",
+      "text": "⑧ MODEL | Model Config as Code — `conf/model/*.yaml`",
+      "maps_to": [
+        "9.10"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7227: ⑨ VERDICT",
+      "text": "⑨ VERDICT | SLO as Code** — `min_ap_lift`, `min_partial_rho`",
+      "maps_to": [
+        "9.16"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 7227: Layer",
+      "text": "Layer | Spike status",
+      "maps_to": [],
+      "not_a_plan_item": "a table header, not an item"
+    },
+    {
+      "source": "T1",
+      "ref": "line 15231: Layer",
+      "text": "Layer | Choice",
+      "maps_to": [],
+      "not_a_plan_item": "a table header, not an item"
+    },
+    {
+      "source": "T1",
+      "ref": "line 15231: Workspace",
+      "text": "Workspace | pnpm workspaces + uv workspace",
+      "maps_to": [
+        "X.PNPM"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 15231: Site",
+      "text": "Site | Astro + React islands",
+      "maps_to": [
+        "7.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 15231: Contracts",
+      "text": "Contracts | Pydantic v2 → JSON Schema → generated TS",
+      "maps_to": [
+        "G.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 15231: Backend",
+      "text": "Backend | Fastify, Phase 2 only",
+      "maps_to": [
+        "X.API"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 16185: `~/ltphongssvn/`",
+      "text": "`~/ltphongssvn/` | `~/code/ltphongssvn/`",
+      "maps_to": [],
+      "not_a_plan_item": "a note on where repositories live, not a deliverable"
+    },
+    {
+      "source": "T1",
+      "ref": "line 16185: `cs1090a-*`, `cscie103-*` — every entry ",
+      "text": "`cs1090a-*`, `cscie103-*` — every entry course-coded | FleetManagement, spark pipeline — neither is",
+      "maps_to": [],
+      "not_a_plan_item": "a note on where repositories live, not a deliverable"
+    },
+    {
+      "source": "T1",
+      "ref": "line 17221: `description`",
+      "text": "`description` | `cs1090a-recsys` → `otsafety-gnn`",
+      "maps_to": [],
+      "not_a_plan_item": "an edit made while porting the tooling, already done"
+    },
+    {
+      "source": "T1",
+      "ref": "line 17221: Banner line",
+      "text": "Banner line | the uv-0.12.11-vs-0.12.7 example cites FAS OnDemand — rewrite the example, keep the argument, which stands on its own",
+      "maps_to": [],
+      "not_a_plan_item": "an edit made while porting the tooling, already done"
+    },
+    {
+      "source": "T1",
+      "ref": "line 17221: `bun`",
+      "text": "`bun` | resolve at site time; `toolNames` is derived from the JSON, so removing or swapping a tool needs no edit here",
+      "maps_to": [],
+      "not_a_plan_item": "an edit made while porting the tooling, already done"
+    },
+    {
+      "source": "T1",
+      "ref": "line 18292: `test-tooling.yml`",
+      "text": "`test-tooling.yml` | the gates, through the tasks",
+      "maps_to": [
+        "6.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "line 18292: `zizmor.yml`",
+      "text": "`zizmor.yml` | Actions security audit — zizmor 1.29.0 is already installed",
+      "maps_to": [
+        "6.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: A. Research definition",
+      "text": "A. Research definition | Question, ML objective, Q1/Q2/Q3, endpoint granularity, label source",
+      "maps_to": [
+        "A.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: B. Reference spike",
+      "text": "B. Reference spike | Prototype proving the leakage/degree/confounding fixes work numerically",
+      "maps_to": [
+        "X.SPIKE"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: C. Engineering platform",
+      "text": "C. Engineering platform | Repo, GitFlow, toolchain, tasks, evidence, CI",
+      "maps_to": [
+        "6.1",
+        "6.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: D. Project site",
+      "text": "D. Project site | The proposal deliverable alongside the PDF",
+      "maps_to": [
+        "7.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: 6.1",
+      "text": "6.1 | `toolchain.json`, `flake.nix`, `flake.lock` — uv/bun/gh/mise, sha256-verified",
+      "maps_to": [
+        "6.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: 6.2",
+      "text": "6.2 | `tooling/` ported, `recsys_tooling` → `otsafety_tooling`, 340 tests",
+      "maps_to": [
+        "6.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: 6.3",
+      "text": "6.3 | `mise.toml` — 35 tasks, no raw `git`/`gh`",
+      "maps_to": [
+        "6.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: 6.4",
+      "text": "6.4 | Evidence root, run records with PTY live output",
+      "maps_to": [
+        "6.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: 6.5",
+      "text": "6.5 | `contracts/repository-settings.json`, `repo:check`/`configure`",
+      "maps_to": [
+        "6.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: 6.6",
+      "text": "6.6 | lefthook, `test-tooling.yml`, zizmor, Dependabot",
+      "maps_to": [
+        "6.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: 7.1",
+      "text": "7.1 | `apps/site` — Astro 7.3.3 + React islands + bun; `/`, `/architecture`",
+      "maps_to": [
+        "7.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: 7.2",
+      "text": "7.2 | `test-site.yml` — build + browser on Linux every PR",
+      "maps_to": [
+        "7.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: 7.3",
+      "text": "7.3 | `/evidence` — reads `run-record/v1` + settings verdicts at build",
+      "maps_to": [
+        "7.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: 7.4",
+      "text": "7.4 | `/method`, `/data`, `/stack` — ladder, licences, pins",
+      "maps_to": [
+        "7.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: 7.5",
+      "text": "7.5 | PR #6 + sync",
+      "maps_to": [
+        "7.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: 7.6",
+      "text": "7.6 | Publish — GitHub Pages workflow, live URL for the proposal",
+      "maps_to": [
+        "7.6",
+        "X.PAGES"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: 7.7",
+      "text": "7.7 | PDF on the site — downloadable, generated in CI",
+      "maps_to": [
+        "8.8"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: 7.8",
+      "text": "7.8 | `/thinking` — the nine layers' reasoning in long form",
+      "maps_to": [
+        "7.7"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: 8.1",
+      "text": "8.1 | Pydantic contracts — `Edge`, `SafetyLabel`, `Split`, `GateVerdict`",
+      "maps_to": [
+        "9.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: 8.2",
+      "text": "8.2 | `ingest.py` — pinned OT release, undated edges quarantined",
+      "maps_to": [
+        "9.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: 8.3",
+      "text": "8.3 | `splits.py` + `leakage.py` — DL1/DL2/DL3, raises not warns",
+      "maps_to": [
+        "9.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: 8.4",
+      "text": "8.4 | `degree.py` — null, stratified partial ρ, promotion gate",
+      "maps_to": [
+        "9.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: 8.5",
+      "text": "8.5 | `ontology.py` + `hierarchy.py` — multiaxial DAG, coherence",
+      "maps_to": [
+        "9.7"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: 8.6",
+      "text": "8.6 | `attribution.py` — Mantel–Haenszel, noisy-OR",
+      "maps_to": [
+        "9.8"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: 8.7",
+      "text": "8.7 | `labels.py` — three states, tiers never pooled",
+      "maps_to": [
+        "9.9"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: 8.8",
+      "text": "8.8 | Model factory — including Q2 and Q3 arms, which the spike lacks",
+      "maps_to": [
+        "9.10",
+        "9.24"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: 8.9",
+      "text": "8.9 | `pipeline.py` — gates emitting verdicts as data",
+      "maps_to": [
+        "9.11"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: Published site URL",
+      "text": "Published site URL | 7.6",
+      "maps_to": [
+        "7.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: PDF served from the site",
+      "text": "PDF served from the site | 7.7",
+      "maps_to": [
+        "8.8"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: Q3 relation ablation",
+      "text": "Q3 relation ablation | 8.8",
+      "maps_to": [
+        "9.10",
+        "11.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: Q2 non-graph control",
+      "text": "Q2 non-graph control | 8.8",
+      "maps_to": [
+        "9.24",
+        "11.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: `cli.py`",
+      "text": "`cli.py` | 8.9",
+      "maps_to": [
+        "9.30"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: Cypher provenance / evidence chain",
+      "text": "Cypher provenance / evidence chain | 8.9",
+      "maps_to": [
+        "9.14"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: Lightning AI verification",
+      "text": "Lightning AI verification | 9",
+      "maps_to": [
+        "10.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4035: MLflow `ml` extra",
+      "text": "MLflow `ml` extra | 8",
+      "maps_to": [
+        "D.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: A. Research definition",
+      "text": "A. Research definition | Question, ML objective, Q1/Q2/Q3, granularity, label source",
+      "maps_to": [
+        "A.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: B. Engineering platform",
+      "text": "B. Engineering platform | Repo, GitFlow, toolchain, tasks, evidence, CI",
+      "maps_to": [
+        "6.1",
+        "6.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: C. Deliverables",
+      "text": "C. Deliverables | Site + PDF, both in-repo, both CI-built",
+      "maps_to": [
+        "7.1",
+        "8.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: D. GNN package",
+      "text": "D. GNN package | The research code, written locally, RED-first",
+      "maps_to": [
+        "9.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: 7.1",
+      "text": "7.1 | Astro 7.3.3 + React + bun; `/`, `/architecture`",
+      "maps_to": [
+        "7.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: 7.2",
+      "text": "7.2 | `test-site.yml` — Linux browser tests",
+      "maps_to": [
+        "7.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: 7.3",
+      "text": "7.3 | `/evidence` — run records + verdicts at build",
+      "maps_to": [
+        "7.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: 7.4",
+      "text": "7.4 | `/method`, `/data`, `/stack`",
+      "maps_to": [
+        "7.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: 7.6",
+      "text": "7.6 | GitHub Pages workflow → live URL",
+      "maps_to": [
+        "7.6",
+        "X.PAGES"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: 7.7",
+      "text": "7.7 | `/thinking` — long-form reasoning",
+      "maps_to": [
+        "7.7"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: 8.1",
+      "text": "8.1 | `pdf` extra + `pdf:install` task — Playwright already installed, reuse it",
+      "maps_to": [
+        "8.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: 8.2",
+      "text": "8.2 | RED test: `test_onepager.py` asserts one page, required sections, no stale text",
+      "maps_to": [
+        "8.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: 8.3",
+      "text": "8.3 | `scripts/build_arch_onepager.py` — reads `apps/site/src/data/*.ts` so PDF and site share one source",
+      "maps_to": [
+        "8.5",
+        "X.PARSE"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: 8.4",
+      "text": "8.4 | `scripts/build_conceptual_onepager.py` — the ablation ladder sheet",
+      "maps_to": [
+        "8.7"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: 8.5",
+      "text": "8.5 | `pdf:build` task; CI builds and uploads as an artifact",
+      "maps_to": [
+        "8.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: 8.6",
+      "text": "8.6 | PDF served from the site, linked from `/`",
+      "maps_to": [
+        "8.8"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: 9.1",
+      "text": "9.1 | `python/otsafety` as a uv workspace member",
+      "maps_to": [
+        "9.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: 9.2",
+      "text": "9.2 | Pydantic contracts: `Edge`, `SafetyLabel`, `Split`, `GateVerdict`",
+      "maps_to": [
+        "9.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: 9.3",
+      "text": "9.3 | `ingest.py` — pinned OT release, undated edges quarantined",
+      "maps_to": [
+        "9.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: 9.4",
+      "text": "9.4 | `splits.py` + `leakage.py` — DL1/DL2/DL3, raises",
+      "maps_to": [
+        "9.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: 9.5",
+      "text": "9.5 | `degree.py` — null, **stratified** partial ρ, promotion gate",
+      "maps_to": [
+        "9.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: 9.6",
+      "text": "9.6 | `ontology.py` + `hierarchy.py` — multiaxial DAG, coherence",
+      "maps_to": [
+        "9.7"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: 9.7",
+      "text": "9.7 | `attribution.py` — Mantel–Haenszel, noisy-OR",
+      "maps_to": [
+        "9.8"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: 9.8",
+      "text": "9.8 | `labels.py` — three states, tiers never pooled",
+      "maps_to": [
+        "9.9"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: 9.9",
+      "text": "9.9 | Model factory — **including Q2 and Q3 arms",
+      "maps_to": [
+        "9.10",
+        "9.24"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: 9.10",
+      "text": "9.10 | `pipeline.py` — gates emitting `GateVerdict` to `.artifacts/`",
+      "maps_to": [
+        "9.11"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: PDF generated in-repo",
+      "text": "PDF generated in-repo | 8",
+      "maps_to": [
+        "8.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: PDF and site sharing one data source",
+      "text": "PDF and site sharing one data source | 8.3",
+      "maps_to": [
+        "8.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: Q3 relation ablation",
+      "text": "Q3 relation ablation | 9.9",
+      "maps_to": [
+        "9.10",
+        "11.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: Q2 non-graph control",
+      "text": "Q2 non-graph control | 9.9",
+      "maps_to": [
+        "9.24",
+        "11.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: Cypher provenance chain",
+      "text": "Cypher provenance chain | 9.10",
+      "maps_to": [
+        "9.14"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 4065: Lightning AI verification",
+      "text": "Lightning AI verification | 10",
+      "maps_to": [
+        "10.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 6042: Sandbox",
+      "text": "Sandbox | Local",
+      "maps_to": [
+        "X.PARSE"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 6042: `code=` / `data=` per layer → **As Code ",
+      "text": "`code=` / `data=` per layer → **As Code / As Data columns | dropped",
+      "maps_to": [
+        "X.PARSE"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 6042: `flow_svg()` — SVG boxes, arrows, dashed",
+      "text": "`flow_svg()` — SVG boxes, arrows, dashed back-edge | plain divs",
+      "maps_to": [
+        "X.PARSE"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 6042: `<b>`/`<i>` emphasis inside every string",
+      "text": "`<b>`/`<i>` emphasis inside every string | stripped by the TS round-trip",
+      "maps_to": [
+        "X.PARSE"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 6042: Its own CSS (~290 lines)",
+      "text": "Its own CSS (~290 lines) | different CSS",
+      "maps_to": [
+        "X.PARSE"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 10920: Adapter",
+      "text": "Adapter | `MlflowTracker`",
+      "maps_to": [],
+      "not_a_plan_item": "a table header, not an item"
+    },
+    {
+      "source": "T2",
+      "ref": "line 10920: Extra",
+      "text": "Extra | `ml`",
+      "maps_to": [],
+      "not_a_plan_item": "a table header, not an item"
+    },
+    {
+      "source": "T2",
+      "ref": "line 10920: Hermetic store",
+      "text": "Hermetic store | SQLite in evidence root",
+      "maps_to": [
+        "D.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 10920: Default composition",
+      "text": "Default composition | ✓",
+      "maps_to": [
+        "D.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "line 10920: CI",
+      "text": "CI | both extras installed, **neither test skips",
+      "maps_to": [
+        "D.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "Incidents as Data",
+      "text": "Structured incident objects; learning, MTTR analytics",
+      "maps_to": [
+        "F.14"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "Cost as Data",
+      "text": "Usage and allocation tags; FinOps",
+      "maps_to": [
+        "10.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "Drift as Data",
+      "text": "Statistical distance over time; model and data monitoring",
+      "maps_to": [
+        "11.7"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "Eval as Data",
+      "text": "Labeled examples, judge scores; AI quality gates",
+      "maps_to": [
+        "9.23",
+        "9.12"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "Context as Data",
+      "text": "Retrieved docs, tool traces, state; auditable behaviour",
+      "maps_to": [
+        "G.0"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "Five loops",
+      "text": "Every loop needs its code side and its data side",
+      "maps_to": [
+        "G.0"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SPINE",
+      "ref": "gates",
+      "text": "gates.min_partial_rho, gates.min_ap_lift, gates.max_drop",
+      "maps_to": [
+        "9.16"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SPINE",
+      "ref": "contracts",
+      "text": "contracts/*.py; Pydantic v2 models; edge schema, label tier",
+      "maps_to": [
+        "9.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SPINE",
+      "ref": "tests",
+      "text": "outside-in acceptance; 25 spike tests re-derived",
+      "maps_to": [
+        "9.21"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SPINE",
+      "ref": "pipeline.run",
+      "text": "pipeline.run()",
+      "maps_to": [
+        "9.11"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SPINE",
+      "ref": "audit_dl1_structural",
+      "text": "audit_dl1_structural(), audit_dl2_temporal()",
+      "maps_to": [
+        "9.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SPINE",
+      "ref": "degree_gate",
+      "text": "degree_gate()",
+      "maps_to": [
+        "9.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SPINE",
+      "ref": "negative_controls",
+      "text": "negative_controls()",
+      "maps_to": [
+        "9.17"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SPINE",
+      "ref": "evidence",
+      "text": "audit metrics JSON, degree strata table, MH crude/adjusted, noisy-OR q vector",
+      "maps_to": [
+        "9.18"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SPINE",
+      "ref": "verdict",
+      "text": "Verdict as Data {rule, verdict, reason}",
+      "maps_to": [
+        "9.19"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SPINE",
+      "ref": "decision",
+      "text": "Decision as Data PROMOTE / REJECT",
+      "maps_to": [
+        "9.19"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SPINE",
+      "ref": "enforcement",
+      "text": "Enforcement: CI red / model card refused",
+      "maps_to": [
+        "9.20"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "question",
+      "text": "The research question",
+      "maps_to": [
+        "A.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "data note",
+      "text": "DATA: Open Targets 26.03 datasets; MedDRA licensed",
+      "maps_to": [
+        "A.2",
+        "G.13"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "stack note",
+      "text": "STACK: pinned versions, typed by hand",
+      "maps_to": [
+        "7.9",
+        "8.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "goal",
+      "text": "Central goal",
+      "maps_to": [
+        "A.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "objective",
+      "text": "Multi-label prediction; temporal split at cutoff; target-disjoint cold-start split",
+      "maps_to": [
+        "9.5",
+        "9.10"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "layer 1",
+      "text": "REALITY: model-card limitation statement",
+      "maps_to": [
+        "9.15"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "layer 3",
+      "text": "EVIDENCE: quarantine at ingest; ReleasePin hash",
+      "maps_to": [
+        "9.4",
+        "9.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "layer 5",
+      "text": "LABELING RULE: tier and earned-negative rules",
+      "maps_to": [
+        "9.9"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "layer 8",
+      "text": "MODEL: degree offset, partial rho; metrics per seed, decile, level",
+      "maps_to": [
+        "9.10",
+        "9.12"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "layer 9",
+      "text": "VERDICT: conformal and card; min_ap_lift, min_partial_rho; signed model card",
+      "maps_to": [
+        "9.12",
+        "9.13",
+        "9.15"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "sweep",
+      "text": "Required model sweep: every rung on an identical protocol",
+      "maps_to": [
+        "9.24",
+        "9.25",
+        "9.10"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "sweep rule",
+      "text": "At least 5 seeds with bootstrap CIs",
+      "maps_to": [
+        "9.22"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "stage configuration",
+      "text": "conf/config.yaml plus pinned release hash",
+      "maps_to": [
+        "A.2",
+        "9.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "stage audit gate",
+      "text": "leakage DL1/2/3, degree null, negative controls -- HALT",
+      "maps_to": [
+        "9.5",
+        "9.6",
+        "9.17"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "stage training",
+      "text": "TRAINING, 5 SEEDS",
+      "maps_to": [
+        "9.22"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "stage promotion",
+      "text": "PROMOTION GATE: OPA/Rego, rung 5 against rung 4 -- REJECT",
+      "maps_to": [
+        "9.13"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "stage card",
+      "text": "SIGNED MODEL CARD",
+      "maps_to": [
+        "9.15"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "back-edge",
+      "text": "Every verdict is persisted",
+      "maps_to": [
+        "G.9",
+        "9.19"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "scope in",
+      "text": "Open Targets primary; Hetionet and PrimeKG for replication",
+      "maps_to": [
+        "A.2",
+        "11.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "scope BIKG",
+      "text": "BIKG architectural reference only",
+      "maps_to": [
+        "X.BIKG"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "scope secondary",
+      "text": "Secondary check on a non-safety endpoint",
+      "maps_to": [
+        "11.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "scope out",
+      "text": "Molecular structure prediction",
+      "maps_to": [
+        "X.MOL"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "scope out",
+      "text": "Compound-level toxicity from chemistry",
+      "maps_to": [
+        "X.TOX"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "scope out",
+      "text": "Clinical decision support",
+      "maps_to": [
+        "X.CDS"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "scope out",
+      "text": "Anything requiring non-public data",
+      "maps_to": [
+        "X.PRIV"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "phases band",
+      "text": "0 ground truth, 1 branch divergence, 2 GitFlow baseline, 3 worktree, 4 stack inventory, 6 toolchain, 7 site, 8 PDF",
+      "maps_to": [
+        "1.1",
+        "2.1",
+        "2.2",
+        "3.1",
+        "3.2",
+        "8.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "workstreams band",
+      "text": "Workstreams A-E",
+      "maps_to": [
+        "8.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "E1",
+      "text": "run-record/v1, unique name per run, redacted output pointer",
+      "maps_to": [
+        "6.4",
+        "G.10"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "E2",
+      "text": "Hash-chained ledger, verified by a gate",
+      "maps_to": [
+        "G.9"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "E3",
+      "text": "Published JSON Schemas, drift gate",
+      "maps_to": [
+        "G.8"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "E4",
+      "text": "Retention and redaction policy",
+      "maps_to": [
+        "G.10"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "E5",
+      "text": "OPA and Regal in toolchain.json",
+      "maps_to": [
+        "G.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "E6",
+      "text": "Policy as code, Rego",
+      "maps_to": [
+        "G.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "E7",
+      "text": "Remediation as code",
+      "maps_to": [
+        "G.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "E8",
+      "text": "Gate runner; hooks call the aggregate",
+      "maps_to": [
+        "6.7",
+        "G.7"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "E9",
+      "text": "One CI quality gate job",
+      "maps_to": [
+        "X.E9"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "E10",
+      "text": "Branch protection ruleset as data",
+      "maps_to": [
+        "X.E10"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "E11",
+      "text": "Secret, dependency and PII scanning; architecture boundaries",
+      "maps_to": [
+        "G.15",
+        "F.8",
+        "X.PII",
+        "9.0"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "F1",
+      "text": "SLSA provenance attestations",
+      "maps_to": [
+        "F.10"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "F2",
+      "text": "Signing and verification before deployment",
+      "maps_to": [
+        "F.11"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "F3",
+      "text": "SBOM",
+      "maps_to": [
+        "F.9"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "F4",
+      "text": "OpenTelemetry",
+      "maps_to": [
+        "10.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "F5",
+      "text": "Audit trail forwarded off-machine",
+      "maps_to": [
+        "G.17"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "G1",
+      "text": "FAS OnDemand bootstrap",
+      "maps_to": [
+        "X.FAS"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "G2",
+      "text": "Lightning AI, same tasks",
+      "maps_to": [
+        "10.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "G3",
+      "text": "Sync status of all copies as data",
+      "maps_to": [
+        "10.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "G4",
+      "text": "Machine cleanup",
+      "maps_to": [
+        "F.12"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "H1",
+      "text": "Workspace member; download with checksum",
+      "maps_to": [
+        "9.1",
+        "9.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "H7",
+      "text": "Model artifacts as data, with quality gates",
+      "maps_to": [
+        "9.15",
+        "9.13"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "I1-I4",
+      "text": "Backend, serving, frontend, database",
+      "maps_to": [
+        "X.APP"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "I5",
+      "text": "Deployment: environments, health and rollback",
+      "maps_to": [
+        "F.7",
+        "X.STAGING"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "J1",
+      "text": "Offline evaluation: accuracy, calibration, cold start",
+      "maps_to": [
+        "9.12",
+        "9.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "J2",
+      "text": "Off-policy evaluation",
+      "maps_to": [
+        "X.OPE"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "J3",
+      "text": "README; proposal update",
+      "maps_to": [
+        "6.8",
+        "11.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "C",
+      "text": "Git and GitHub workflow as tasks",
+      "maps_to": [
+        "2.1",
+        "2.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "D",
+      "text": "Branch and repository state as data",
+      "maps_to": [
+        "0.3",
+        "1.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "COMMITS",
+      "ref": "881542e",
+      "text": "Phase 5 is deliberately absent: it was 2026 research to ADR",
+      "maps_to": [
+        "X.P5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "COMMITS",
+      "ref": "16dee9a",
+      "text": "Deliberately excluded: README, LICENSE, workspace config, CI",
+      "maps_to": [
+        "6.8",
+        "6.9"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "COMMITS",
+      "ref": "16dee9a",
+      "text": "Three-part secret protection: hooks, .secrets.baseline, .gitignore",
+      "maps_to": [
+        "G.15",
+        "G.16"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "COMMITS",
+      "ref": "8e40558",
+      "text": "The entity must be declared, or an online run lands in a personal project",
+      "maps_to": [
+        "10.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "COMMITS",
+      "ref": "ab7e17e",
+      "text": "No experiment has run yet, so every rung shows not yet run",
+      "maps_to": [
+        "11.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "fonts",
+      "text": "Vendored static faces; missing glyphs; slack; pinned renderer; fonts.ready; CI render of record",
+      "maps_to": [
+        "8.3",
+        "8.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "font licence",
+      "text": "SIL OFL requires the licence to travel with the fonts",
+      "maps_to": [
+        "8.10"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "gates",
+      "text": "Every gate in one pass",
+      "maps_to": [
+        "6.7"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "results",
+      "text": "Results page from records; evidence-root isolation",
+      "maps_to": [
+        "7.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "publish",
+      "text": "Railway, Caddy, custom domain, smoke and verify",
+      "maps_to": [
+        "7.6",
+        "F.1",
+        "F.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "releases",
+      "text": "Releases cut from main; release tool isolated; v1.0.0; v1.0.1",
+      "maps_to": [
+        "F.3",
+        "F.4",
+        "F.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "required checks",
+      "text": "Merge waits for every promised check",
+      "maps_to": [
+        "G.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "contracts",
+      "text": "Pydantic to JSON Schema to Zod; evidence page fixed",
+      "maps_to": [
+        "G.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "python policy",
+      "text": "Raw parsing banned; models for every config; lefthook validates itself",
+      "maps_to": [
+        "G.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "typescript policy",
+      "text": "Casts and stray JSON.parse banned",
+      "maps_to": [
+        "G.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "policy release",
+      "text": "Policy released and deployed",
+      "maps_to": [
+        "G.12"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "deploy anomaly",
+      "text": "v1.0.1 printed no completion; the live version cannot be proven",
+      "maps_to": [
+        "F.6",
+        "F.14"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "rollback",
+      "text": "Rollback to the previous tag",
+      "maps_to": [
+        "F.7"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "nag and dns",
+      "text": "Railway upgrade prompt; Cloudflare records",
+      "maps_to": [
+        "F.12"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "cooldown",
+      "text": "exclude-newer declared rather than applied by hand",
+      "maps_to": [
+        "F.13"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "attestations",
+      "text": "PDF release asset attested",
+      "maps_to": [
+        "F.10",
+        "8.8"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "stack page",
+      "text": "Stack page missing MLflow and W&B versions",
+      "maps_to": [
+        "7.9"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "sheet status",
+      "text": "Sheet status typed and stale",
+      "maps_to": [
+        "8.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "site datasets",
+      "text": "research.ts repeats conf/config.yaml",
+      "maps_to": [
+        "7.8"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "siblings",
+      "text": "Required-checks fix for three sibling repositories",
+      "maps_to": [
+        "X.SIB"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "P16",
+      "text": "VIRTUAL_ENV leaked into the new worktree",
+      "maps_to": [
+        "G.22"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "plan",
+      "text": "The plan as data; status observed; rendered view",
+      "maps_to": [
+        "G.0",
+        "G.14"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "invariant",
+      "text": "Promotion sound only while develop contains main",
+      "maps_to": [
+        "G.18"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "trace",
+      "text": "Every plan item traced to its source",
+      "maps_to": [
+        "G.19"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "render",
+      "text": "Emulated render floors page sizes; CI is the record",
+      "maps_to": [
+        "X.RENDER"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "bot",
+      "text": "No GitHub App for promotion",
+      "maps_to": [
+        "X.BOT"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "rulesets",
+      "text": "No server-side rulesets, by the owner's decision",
+      "maps_to": [
+        "X.E10"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "pages",
+      "text": "Railway chosen over GitHub Pages",
+      "maps_to": [
+        "X.PAGES"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "tracking",
+      "text": "W&B first-class beside MLflow",
+      "maps_to": [
+        "D.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "generator lint",
+      "text": "Generator restored with lint rules scoped away",
+      "maps_to": [
+        "X.GENLINT"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "thinking",
+      "text": "The thinking page",
+      "maps_to": [
+        "7.7"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "conceptual",
+      "text": "The conceptual one-pager",
+      "maps_to": [
+        "8.7"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "gnn package",
+      "text": "The GNN package, red-first",
+      "maps_to": [
+        "9.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "lightning",
+      "text": "Lightning AI verification",
+      "maps_to": [
+        "10.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "ladder",
+      "text": "Q1 then Q2 then Q3 on real data, each run recorded",
+      "maps_to": [
+        "11.1",
+        "11.2",
+        "11.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "sheet from data",
+      "text": "Architecture tables in one source",
+      "maps_to": [
+        "8.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "drift",
+      "text": "Next Open Targets release",
+      "maps_to": [
+        "11.7"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "latest revised plan, phase 11",
+      "text": "Q1 -> Q2 -> Q3 on real Open Targets data, each run recorded, each verdict on /evidence",
+      "maps_to": [
+        "9.26",
+        "11.1",
+        "11.2",
+        "11.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CODE",
+      "ref": "mise.toml:35",
+      "text": "an online run with no entity lands in a personal project",
+      "maps_to": [
+        "10.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CODE",
+      "ref": "mise.toml:226",
+      "text": "wandb:check refuses online with no WANDB_ENTITY",
+      "maps_to": [
+        "10.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CODE",
+      "ref": "scripts/build_arch_onepager.py:246",
+      "text": "promotion gate is a flag, not a stop; hard-fail lands in Phase 8",
+      "maps_to": [
+        "9.20"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CODE",
+      "ref": "scripts/build_arch_onepager.py:554",
+      "text": "status line typed: 383 tests, 11 pull requests",
+      "maps_to": [
+        "8.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CODE",
+      "ref": "tooling/tests/test_onepager.py:23",
+      "text": "phases pinned as the revised plan states them, a second copy",
+      "maps_to": [
+        "8.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CODE",
+      "ref": "mise.toml:258",
+      "text": "e2e install once blocked the first red test",
+      "maps_to": [],
+      "not_a_plan_item": "a description of a defect already fixed, not a promise"
+    },
+    {
+      "source": "CODE",
+      "ref": "mise.toml:728",
+      "text": "pr blocks until merged",
+      "maps_to": [],
+      "not_a_plan_item": "a description of current behaviour"
+    },
+    {
+      "source": "CODE",
+      "ref": "scripts/bootstrap_toolchain.py:19",
+      "text": "a placeholder digest refused gh",
+      "maps_to": [],
+      "not_a_plan_item": "a description of a defect already fixed, not a promise"
+    },
+    {
+      "source": "CODE",
+      "ref": "tooling/tests/test_bootstrap.py:11",
+      "text": "a misread checksums file refused mise",
+      "maps_to": [],
+      "not_a_plan_item": "a description of a defect already fixed, not a promise"
+    },
+    {
+      "source": "CODE",
+      "ref": "tooling/src/otsafety_tooling/git/state.py:6",
+      "text": "awk parsing failed when a worktree held a branch",
+      "maps_to": [],
+      "not_a_plan_item": "a description of a defect already fixed, not a promise"
+    },
+    {
+      "source": "CONTEXT",
+      "ref": "audit backlog P1",
+      "text": "toolchain.json entries read as untyped dicts",
+      "maps_to": [
+        "G.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CONTEXT",
+      "ref": "audit backlog P2",
+      "text": "pr.required_checks reads workflow YAML by raw dict access",
+      "maps_to": [
+        "G.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CONTEXT",
+      "ref": "case study follow-up",
+      "text": "research.ts repeats the datasets conf/config.yaml declares",
+      "maps_to": [
+        "7.8"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CODE",
+      "ref": "docker/render.Dockerfile",
+      "text": "pip installs pypdf>=5,<7, a range, so the renderer image is not reproducible",
+      "maps_to": [
+        "F.15"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "Q2 contrast",
+      "text": "Tabular GBM / MLP on target annotations only: GTEx expression breadth, gnomAD pLI and LOEUF, protein family, subcellular localisation",
+      "maps_to": [
+        "9.31",
+        "9.24"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "layer 8 guard",
+      "text": "models/hetero_gnn.py -- degree offset, partial rho; relation-aware rung plus degree-offset head",
+      "maps_to": [
+        "9.10",
+        "9.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SITE",
+      "ref": "research.ts:26",
+      "text": "Q2 control on GTEx expression breadth, gnomAD pLI and LOEUF, protein family, localisation",
+      "maps_to": [
+        "9.31",
+        "11.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SITE",
+      "ref": "research.ts:32",
+      "text": "prior work: target features reached ROC-AUC around 0.71 on target-level safety attrition",
+      "maps_to": [
+        "11.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SITE",
+      "ref": "research.ts:64",
+      "text": "five datasets listed, where conf/config.yaml ingests about a dozen",
+      "maps_to": [
+        "7.8",
+        "A.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SITE",
+      "ref": "sheet against site: pillars",
+      "text": "the sheet states 21 as-code and as-data pillars; the site states none",
+      "maps_to": [
+        "7.10",
+        "8.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SITE",
+      "ref": "sheet against site: gates",
+      "text": "DL1-3, min_ap_lift and min_partial_rho on the sheet, absent from the site",
+      "maps_to": [
+        "7.10",
+        "9.16"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SITE",
+      "ref": "sheet against site: rungs",
+      "text": "the site's ladder has a prevalence rung the sheet's sweep lacks",
+      "maps_to": [
+        "8.5",
+        "9.28"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "SSOT directive",
+      "text": "the plan file, the one-page PDF and the project website as one source of truth",
+      "maps_to": [
+        "8.5",
+        "8.12",
+        "7.11",
+        "G.20",
+        "X.PARSE"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PRS",
+      "ref": "#1",
+      "text": "merged feature/toolchain-pins",
+      "maps_to": [
+        "4.1",
+        "6.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PRS",
+      "ref": "#2",
+      "text": "merged feature/project-site",
+      "maps_to": [
+        "7.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PRS",
+      "ref": "#3",
+      "text": "merged feature/reformat-bootstrap",
+      "maps_to": [
+        "6.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PRS",
+      "ref": "#4",
+      "text": "merged feature/site-evidence",
+      "maps_to": [
+        "7.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PRS",
+      "ref": "#5",
+      "text": "merged feature/ci-site",
+      "maps_to": [
+        "7.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PRS",
+      "ref": "#6",
+      "text": "merged feature/site-research-pages",
+      "maps_to": [
+        "7.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PRS",
+      "ref": "#7",
+      "text": "merged feature/pdf-generator",
+      "maps_to": [
+        "8.1",
+        "8.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PRS",
+      "ref": "#8",
+      "text": "merged feature/opentargets-2603",
+      "maps_to": [
+        "A.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PRS",
+      "ref": "#9",
+      "text": "merged feature/sheet-data-stack",
+      "maps_to": [
+        "8.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PRS",
+      "ref": "#10",
+      "text": "merged feature/site-data-2603",
+      "maps_to": [
+        "7.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PRS",
+      "ref": "#11",
+      "text": "merged feature/site-results",
+      "maps_to": [
+        "7.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PRS",
+      "ref": "#12",
+      "text": "merged feature/sheet-fonts-and-tracking",
+      "maps_to": [
+        "8.3",
+        "D.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PRS",
+      "ref": "#13",
+      "text": "merged feature/site-results",
+      "maps_to": [
+        "7.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PRS",
+      "ref": "#14",
+      "text": "merged feature/deploy-railway",
+      "maps_to": [
+        "7.6",
+        "F.1",
+        "F.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PRS",
+      "ref": "#15",
+      "text": "merged feature/release-from-main",
+      "maps_to": [
+        "F.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PRS",
+      "ref": "#16",
+      "text": "merged feature/isolate-release-tool",
+      "maps_to": [
+        "F.3",
+        "G.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PRS",
+      "ref": "#17",
+      "text": "merged develop, the first promotion",
+      "maps_to": [
+        "F.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PRS",
+      "ref": "#18",
+      "text": "merged feature/schema-first-contracts",
+      "maps_to": [
+        "G.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PRS",
+      "ref": "#19",
+      "text": "merged develop, the second promotion",
+      "maps_to": [
+        "F.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "first plan phase 1",
+      "text": "classify ahead, behind, diverged, gone; never force-push shared branches; exit when every branch reports 0 0",
+      "maps_to": [
+        "1.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "first plan phase 2",
+      "text": "confirm the integration branch; create develop from main if missing; exit on SHA equality",
+      "maps_to": [
+        "2.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "first plan phase 3",
+      "text": "worktree off the latest origin/develop; exit on SHA equality",
+      "maps_to": [
+        "3.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "first plan phase 5",
+      "text": "2026 research to docs/adr/0001-tech-stack.md; can the cs1090a-recsys stack be reused",
+      "maps_to": [
+        "X.P5",
+        "4.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "first plan phase 6",
+      "text": "Pydantic contracts, then DDD aggregates KnowledgeGraph, SafetyLabelSet, ExperimentRun with invariants, then a Rego skeleton",
+      "maps_to": [
+        "9.2",
+        "9.32",
+        "G.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "first plan phase 7",
+      "text": "outside-in: acceptance test red first; order contracts, leakage, degree, ontology, attribution, Q3",
+      "maps_to": [
+        "9.21",
+        "9.2",
+        "9.5",
+        "9.6",
+        "9.7",
+        "9.8",
+        "9.10"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "first plan phase 8",
+      "text": "every gate emits schema-conformant JSON to an append-only ledger; Rego consumes verdicts; signed model card",
+      "maps_to": [
+        "9.19",
+        "G.9",
+        "9.13",
+        "9.15"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "first plan phase 9",
+      "text": "lint, contract validation, Conftest, pytest, leakage audit, SBOM, sign; builds pruned and uncached",
+      "maps_to": [
+        "9.27",
+        "G.13",
+        "F.9",
+        "F.10",
+        "X.DOCKER"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "first plan phase 10",
+      "text": "Q1 against the degree null, Q2 against no-graph, Q3 relation types -- the literal research question",
+      "maps_to": [
+        "11.1",
+        "11.2",
+        "11.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "T1:7113 phase 2",
+      "text": "confirm develop equals origin/develop at the SHA level; fix naming convention",
+      "maps_to": [
+        "2.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "T1:7113 phase 4",
+      "text": "Lightning AI CLI auth, FAS OnDemand reachability, an actual read of cs1090a-recsys manifests",
+      "maps_to": [
+        "4.3",
+        "4.5",
+        "X.FAS"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "T1:7113 phase 5",
+      "text": "a committed architecture decision record; reuse-versus-replace judged against phase 4 facts",
+      "maps_to": [
+        "X.P5",
+        "4.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "T1:7113 phase 6",
+      "text": "Pydantic contracts, DDD aggregates and value objects with invariants, OPA and Conftest for rules that must hold in CI",
+      "maps_to": [
+        "9.2",
+        "9.32",
+        "G.5",
+        "G.13"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "T1:7113 phase 7",
+      "text": "no source before a failing test",
+      "maps_to": [],
+      "not_a_plan_item": "a working rule applied to every step, not a deliverable"
+    },
+    {
+      "source": "T1",
+      "ref": "T1:7173 phase 0 exit",
+      "text": "every branch's exact divergence and the repository's exact cleanliness stated without guessing",
+      "maps_to": [
+        "0.3",
+        "0.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "T1:7173 phase 4 exit",
+      "text": "a factual table of what exists, not what is assumed to exist",
+      "maps_to": [
+        "4.1",
+        "7.9"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "T2:4035 phase 4",
+      "text": "stack read from cs1090a-recsys and FleetManagement; environments fixed at three: MacBook Pro, GitHub, Lightning AI",
+      "maps_to": [
+        "4.5",
+        "X.FAS"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "T2:4035 phase 5",
+      "text": "ADR cancelled by rule; rationale lives in file banners and commit bodies instead",
+      "maps_to": [
+        "X.P5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "T2:4035 phase 9",
+      "text": "mise.ood.toml covers non-Nix; unverified on Lightning AI",
+      "maps_to": [
+        "10.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "T2:4035 phase 10",
+      "text": "Q1, Q2, Q3 on real Open Targets data",
+      "maps_to": [
+        "11.1",
+        "11.2",
+        "11.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "T1:18202 bullet",
+      "text": "CI workflow test-tooling.yml is a real gap",
+      "maps_to": [
+        "6.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "T2:1273 bullet",
+      "text": "no bun.lock: site:install needs a lock step",
+      "maps_to": [
+        "7.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "T2:489 bullet",
+      "text": "machine id distinguishes laptop runs from Lightning AI runs",
+      "maps_to": [
+        "6.4",
+        "10.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "T2:10723 bullet",
+      "text": "wandb offline writes to disk for later syncing",
+      "maps_to": [
+        "D.2",
+        "10.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "T2:10920 bullet",
+      "text": "three modes via WANDB_MODE: online, offline, disabled",
+      "maps_to": [
+        "D.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "T2:13223 bullet",
+      "text": "confirm W&B is offline in CI, so no run needs a key",
+      "maps_to": [
+        "D.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "T1:1214 bullets",
+      "text": "PyKEEN changelog: fft compatibility, MuRE diagonal constraint",
+      "maps_to": [],
+      "not_a_plan_item": "library release notes read during research, not a deliverable"
+    },
+    {
+      "source": "T1",
+      "ref": "T1:16215 bullets",
+      "text": "gh protocol ssh; workflow scope present",
+      "maps_to": [],
+      "not_a_plan_item": "debugging narrative from that session, not a deliverable"
+    },
+    {
+      "source": "T1",
+      "ref": "T1:16296 bullet",
+      "text": "init.defaultbranch must be main",
+      "maps_to": [],
+      "not_a_plan_item": "debugging narrative from that session, not a deliverable"
+    },
+    {
+      "source": "T1",
+      "ref": "T1:16326 bullet",
+      "text": "core.hookspath absent",
+      "maps_to": [],
+      "not_a_plan_item": "debugging narrative from that session, not a deliverable"
+    },
+    {
+      "source": "T1",
+      "ref": "T1:16400 bullet",
+      "text": "append only missing .gitignore rules",
+      "maps_to": [],
+      "not_a_plan_item": "debugging narrative from that session, not a deliverable"
+    },
+    {
+      "source": "T1",
+      "ref": "T1:16903 bullet",
+      "text": "bytecode ignore landed as its own later commit",
+      "maps_to": [],
+      "not_a_plan_item": "debugging narrative from that session, not a deliverable"
+    },
+    {
+      "source": "T1",
+      "ref": "T1:17221 bullet",
+      "text": "Nix not installed; nothing runs without it",
+      "maps_to": [],
+      "not_a_plan_item": "debugging narrative from that session, not a deliverable"
+    },
+    {
+      "source": "T1",
+      "ref": "T1:17311 bullet",
+      "text": "a copy failed silently despite cp exiting clean",
+      "maps_to": [],
+      "not_a_plan_item": "debugging narrative from that session, not a deliverable"
+    },
+    {
+      "source": "T1",
+      "ref": "T1:17461 bullet",
+      "text": "aarch64-darwin platform key lost in a rewrite",
+      "maps_to": [],
+      "not_a_plan_item": "debugging narrative from that session, not a deliverable"
+    },
+    {
+      "source": "T1",
+      "ref": "T1:17491 bullet",
+      "text": "untracked IDE files; .idea excluded in cs1090a-recsys",
+      "maps_to": [
+        "6.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "T1:18352 bullet",
+      "text": "collection completes; MLflow tests skip on the absent ml group",
+      "maps_to": [],
+      "not_a_plan_item": "debugging narrative from that session, not a deliverable"
+    },
+    {
+      "source": "T2",
+      "ref": "T2:1363 bullet",
+      "text": "bun lockfile flag behaved differently from its documentation",
+      "maps_to": [],
+      "not_a_plan_item": "debugging narrative from that session, not a deliverable"
+    },
+    {
+      "source": "T2",
+      "ref": "T2:6698 bullets",
+      "text": "generator source lines: phase band and SVG drawing",
+      "maps_to": [],
+      "not_a_plan_item": "source code quoted in a message, not a promise"
+    },
+    {
+      "source": "SHEET",
+      "ref": "outstanding: split configs",
+      "text": "layer 7: Acceptance Criteria as Code -- cutoff, fractions; temporal and target-disjoint cold-start splits",
+      "maps_to": [
+        "9.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "T1:7113 file writes",
+      "text": "file writes isolated in a single here-document; never cat > or cat >>",
+      "maps_to": [],
+      "not_a_plan_item": "a working rule for how commands are written, not a deliverable"
+    },
+    {
+      "source": "T1",
+      "ref": "T1:7113 file headers",
+      "text": "an inline comment on line 1 with the full path from the project root",
+      "maps_to": [
+        "G.21"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "T1:15231 task runner",
+      "text": "Turborepo, deferred; add only when CI exceeds about five minutes",
+      "maps_to": [
+        "X.TURBO"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "T1:18292 template workflows",
+      "text": "playwright.yml, test-backend.yml, test-docker-compose.yml, pre-commit.yml: template subjects that do not exist here",
+      "maps_to": [
+        "6.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "T1:18292 keep and leave",
+      "text": "column headers of the workflow cleanup table",
+      "maps_to": [],
+      "not_a_plan_item": "a table header, not an item"
+    },
+    {
+      "source": "T2",
+      "ref": "T2:4035 phase 0 row",
+      "text": "ground truth: repos located, gh auth, git 2.55, Nix 2.35, mise 2026.9.9",
+      "maps_to": [
+        "0.1",
+        "0.2",
+        "4.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "T2:4035 phase 1 row",
+      "text": "divergence: none; the repository was created empty",
+      "maps_to": [
+        "1.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "T2:4035 phase 2 row",
+      "text": "main and develop, default develop, branch report B001-B005 passing",
+      "maps_to": [
+        "2.1",
+        "0.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "T2:4035 phase 3 row",
+      "text": "start:here cuts every branch with --no-track",
+      "maps_to": [
+        "2.1",
+        "3.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "T2:6042 workstreams",
+      "text": "thread_rows(): the WORKSTREAMS footer column, dropped in the round-trip",
+      "maps_to": [
+        "X.PARSE",
+        "8.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T1",
+      "ref": "T1:16024 row",
+      "text": "docs/adr/ dropped",
+      "maps_to": [
+        "X.P5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "T2:11972 row",
+      "text": ".wandb.syncstate present, so wandb sync can push it later",
+      "maps_to": [
+        "10.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "T2",
+      "ref": "T2 scoreboard counts",
+      "text": "6 PRs, 11 commits, 340 + 9 tests green on macOS and Linux",
+      "maps_to": [],
+      "not_a_plan_item": "typed counts, the status this plan refuses to store; true once and false now"
+    },
+    {
+      "source": "T2",
+      "ref": "T2 scoreboard defect 1",
+      "text": "three failing tests on the .gitignore and gate coverage",
+      "maps_to": [],
+      "not_a_plan_item": "a defect caught by a gate and fixed where it was found, not a promise"
+    },
+    {
+      "source": "T2",
+      "ref": "T2 scoreboard defect 2",
+      "text": "commit refusing .python-version",
+      "maps_to": [],
+      "not_a_plan_item": "a defect caught by a gate and fixed where it was found, not a promise"
+    },
+    {
+      "source": "T2",
+      "ref": "T2 scoreboard defect 3",
+      "text": "repo:check finding GitHub's defaults",
+      "maps_to": [],
+      "not_a_plan_item": "a defect caught by a gate and fixed where it was found, not a promise"
+    },
+    {
+      "source": "T2",
+      "ref": "T2 scoreboard defect 4",
+      "text": "bun --frozen-lockfile writing no lockfile",
+      "maps_to": [],
+      "not_a_plan_item": "a defect caught by a gate and fixed where it was found, not a promise"
+    },
+    {
+      "source": "T2",
+      "ref": "T2 scoreboard defect 5",
+      "text": "CI catching the unformatted bootstrap",
+      "maps_to": [],
+      "not_a_plan_item": "a defect caught by a gate and fixed where it was found, not a promise"
+    },
+    {
+      "source": "T2",
+      "ref": "T2 scoreboard defect 6",
+      "text": "CI catching the mypy configuration gap",
+      "maps_to": [],
+      "not_a_plan_item": "a defect caught by a gate and fixed where it was found, not a promise"
+    },
+    {
+      "source": "T2",
+      "ref": "T2 scoreboard defect 7",
+      "text": "CI catching the evidence page's empty state",
+      "maps_to": [],
+      "not_a_plan_item": "a defect caught by a gate and fixed where it was found, not a promise"
+    },
+    {
+      "source": "T2",
+      "ref": "T2 scoreboard defect 8",
+      "text": "typos on RotatE",
+      "maps_to": [],
+      "not_a_plan_item": "a defect caught by a gate and fixed where it was found, not a promise"
+    },
+    {
+      "source": "SITE",
+      "ref": "data table: Open Targets",
+      "text": "primary substrate; target-safety widget; pinned by release version and content hash in the run record",
+      "maps_to": [
+        "A.2",
+        "9.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SITE",
+      "ref": "data table: Hetionet / PrimeKG",
+      "text": "secondary graphs replicate the Open Targets result on a different construction",
+      "maps_to": [
+        "9.33",
+        "11.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SITE",
+      "ref": "data table: FAERS",
+      "text": "indication-stratified disproportionality with noisy-OR deconvolution; crude and adjusted both reported",
+      "maps_to": [
+        "9.8",
+        "9.18"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SITE",
+      "ref": "data table: MedDRA",
+      "text": "proprietary MSSO licence; hierarchy and SMQs not redistributable",
+      "maps_to": [
+        "G.13",
+        "A.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SITE",
+      "ref": "endpoint hierarchy",
+      "text": "EFO, MONDO, HPO; a licensed hierarchy mountable; true-path closure; coherent before scoring",
+      "maps_to": [
+        "9.7"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SITE",
+      "ref": "stack table",
+      "text": "uv, bun, gh, mise with versions; Python 3.13.15, PyG, PyKEEN; ruff, strict mypy, pytest, typos, zizmor",
+      "maps_to": [
+        "6.1",
+        "6.2",
+        "9.1",
+        "7.9"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SITE",
+      "ref": "stack table: node",
+      "text": "no Node pinned, none needed",
+      "maps_to": [
+        "X.NODE"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SITE",
+      "ref": "reproducibility contract",
+      "text": "toolchain.json the one declaration; nix flake check asserts each reported version",
+      "maps_to": [
+        "6.1",
+        "8.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "dependency graph: sinks",
+      "text": "55 steps nothing depended on; 21 are producers whose consumer was never recorded",
+      "maps_to": [
+        "10.5",
+        "10.6",
+        "11.1",
+        "6.9",
+        "7.8",
+        "7.9",
+        "8.10",
+        "8.12",
+        "8.6",
+        "8.8",
+        "9.11",
+        "9.14",
+        "9.15",
+        "9.17",
+        "9.18",
+        "9.22",
+        "9.23",
+        "9.24",
+        "9.28",
+        "9.29",
+        "9.3",
+        "9.30",
+        "9.31",
+        "9.32",
+        "9.4",
+        "9.9",
+        "F.10",
+        "F.15",
+        "G.10",
+        "G.13",
+        "G.20",
+        "G.9"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "dependency graph: roots",
+      "text": "plan:status reads plan.yaml through the sanctioned YAML reader, which exists only once G.3 merges",
+      "maps_to": [
+        "G.0",
+        "G.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map: paused 1",
+      "text": "Policy as Code, TypeScript half, at the typescript-eslint peer-range check",
+      "maps_to": [
+        "G.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map: paused 2",
+      "text": "v1.0.1 deploy anomaly: no completion, and the live version unprovable",
+      "maps_to": [
+        "F.6",
+        "F.14"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map: paused 3",
+      "text": "sheet status derived, not typed; branch feature/sheet-derived-status",
+      "maps_to": [
+        "8.6",
+        "8.12"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map: 8.5 to 8.7",
+      "text": "status derived; conceptual one-pager; PDF on the site and as a release asset",
+      "maps_to": [
+        "8.6",
+        "8.7",
+        "8.8"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map: F.7",
+      "text": "Railway upgrade nag silenced; Cloudflare records as code",
+      "maps_to": [
+        "F.12"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map: F.5",
+      "text": "v1.0.0 and v1.0.1 cut and deployed from tags",
+      "maps_to": [
+        "F.4",
+        "F.5",
+        "F.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map: G.6",
+      "text": "PR, promote, release, deploy",
+      "maps_to": [
+        "G.12"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map: percentages",
+      "text": "C about 80%, F about 90%, G about 45%",
+      "maps_to": [],
+      "not_a_plan_item": "typed progress, the status this plan refuses to store; progress is computed from observed evidence"
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map outstanding: live version",
+      "text": "prove which version is live; the deploy printed no completion",
+      "maps_to": [
+        "F.6",
+        "F.14"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map outstanding: policy",
+      "text": "TypeScript policy, then Rego; the Python ban has no counterpart where the drift happened",
+      "maps_to": [
+        "G.4",
+        "G.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map outstanding: sheet status",
+      "text": "sheet status derived; the third typed number to drift",
+      "maps_to": [
+        "8.6",
+        "8.12"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map outstanding: site datasets",
+      "text": "research.ts datasets derived from conf/config.yaml, not kept equal by a test",
+      "maps_to": [
+        "7.8"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map outstanding: siblings",
+      "text": "port the required-checks fix to three sibling repositories",
+      "maps_to": [
+        "X.SIB"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map outstanding: Q3",
+      "text": "Q3 relation ablation, the research question itself",
+      "maps_to": [
+        "9.10",
+        "11.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map outstanding: Lightning",
+      "text": "Lightning AI verified; the third environment, never run",
+      "maps_to": [
+        "10.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: thread A",
+      "text": "research definition: question, objective, Q1/Q2/Q3, granularity, label source",
+      "maps_to": [
+        "A.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: thread B",
+      "text": "engineering platform: toolchain, tasks, evidence, CI, plus gate integrity",
+      "maps_to": [
+        "6.1",
+        "6.3",
+        "6.7",
+        "G.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: thread C",
+      "text": "deliverables: site and PDF",
+      "maps_to": [
+        "7.1",
+        "8.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: thread D",
+      "text": "experiment tracking: MLflow and W&B behind one port",
+      "maps_to": [
+        "D.1",
+        "D.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: thread E",
+      "text": "the GNN package, red-first",
+      "maps_to": [
+        "9.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: thread F",
+      "text": "release and deployment",
+      "maps_to": [
+        "F.1",
+        "F.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: thread G",
+      "text": "contracts and Policy as Code",
+      "maps_to": [
+        "G.2",
+        "G.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: phases 0-6",
+      "text": "foundation done; phase 5 ADR cancelled by rule; toolchain and tasks done",
+      "maps_to": [
+        "0.1",
+        "1.1",
+        "2.1",
+        "3.1",
+        "4.1",
+        "X.P5",
+        "6.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: 7.1-7.4",
+      "text": "Astro and React; home, architecture, method, data, stack, evidence",
+      "maps_to": [
+        "7.1",
+        "7.2",
+        "7.3",
+        "7.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: 7.5",
+      "text": "results computed from records, never typed; PR 13",
+      "maps_to": [
+        "7.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: 7.6",
+      "text": "published at otsafetygnn.thanhphongle.net; Railway and Cloudflare, not GitHub Pages",
+      "maps_to": [
+        "7.6",
+        "X.PAGES"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: 7.7",
+      "text": "the thinking page, nine layers in long form",
+      "maps_to": [
+        "7.7"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: 8.1-8.2",
+      "text": "Playwright extra; test_onepager.py",
+      "maps_to": [
+        "8.1",
+        "8.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: 8.3",
+      "text": "fonts vendored; renderer pinned by digest; CI the render of record",
+      "maps_to": [
+        "8.3",
+        "X.RENDER"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: 8.4",
+      "text": "pdf:render in CI, uploaded even on failure",
+      "maps_to": [
+        "8.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: F.1",
+      "text": "Railway CLI and Caddy image pinned, seven-day cooldown",
+      "maps_to": [
+        "F.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: F.2",
+      "text": "built where the evidence lives; smoke-tested before, verified after",
+      "maps_to": [
+        "F.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: F.3",
+      "text": "semantic-release on main, tag-only, in its own lock",
+      "maps_to": [
+        "F.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: F.4",
+      "text": "release:promote, skip-ci back-merge; deploy refuses anything but a tag on main",
+      "maps_to": [
+        "F.4",
+        "G.18"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: F.6",
+      "text": "deployed version verifiable",
+      "maps_to": [
+        "F.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: G.1",
+      "text": "pr.py waits for every check the workflows promise",
+      "maps_to": [
+        "G.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: G.2",
+      "text": "Pydantic to JSON Schema to Zod, drift-gated; evidence page fixed",
+      "maps_to": [
+        "G.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: G.3",
+      "text": "json, yaml and tomllib banned; three sanctioned readers; lefthook validates itself",
+      "maps_to": [
+        "G.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: G.4",
+      "text": "ESLint bans as casts and stray JSON.parse",
+      "maps_to": [
+        "G.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: G.5",
+      "text": "OPA and Regal pinned; Rego proves both bans exist",
+      "maps_to": [
+        "G.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: 9.1",
+      "text": "workspace member",
+      "maps_to": [
+        "9.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: 9.2",
+      "text": "contracts Edge, SafetyLabel, Split, GateVerdict",
+      "maps_to": [
+        "9.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: 9.3",
+      "text": "ingest",
+      "maps_to": [
+        "9.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: 9.4",
+      "text": "splits and leakage DL1-3",
+      "maps_to": [
+        "9.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: 9.5",
+      "text": "stratified degree gate",
+      "maps_to": [
+        "9.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: 9.6",
+      "text": "ontology DAG",
+      "maps_to": [
+        "9.7"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: 9.7",
+      "text": "attribution",
+      "maps_to": [
+        "9.8"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: 9.8",
+      "text": "labels",
+      "maps_to": [
+        "9.9"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: 9.9",
+      "text": "model factory with the Q2 and Q3 arms",
+      "maps_to": [
+        "9.10"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: 9.10",
+      "text": "pipeline emitting verdicts",
+      "maps_to": [
+        "9.11"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: phase 10",
+      "text": "Lightning AI",
+      "maps_to": [
+        "10.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "status map row: phase 11",
+      "text": "research execution Q1, Q2, Q3",
+      "maps_to": [
+        "11.1",
+        "11.2",
+        "11.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "A",
+      "text": "GitHub access on FAS OnDemand",
+      "maps_to": [
+        "X.FAS"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "B",
+      "text": "template, toolchain, Python 3.13.15, containers, CI cleanup",
+      "maps_to": [
+        "6.1",
+        "6.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "D1",
+      "text": "branch-report/v1 with rules B001-B005",
+      "maps_to": [
+        "0.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "D2",
+      "text": "shared evidence root; artifacts:path",
+      "maps_to": [
+        "6.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "D3",
+      "text": "repository-settings/v1; repo:check and repo:configure",
+      "maps_to": [
+        "6.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "D4",
+      "text": "pr safe to re-run",
+      "maps_to": [
+        "2.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "D5",
+      "text": "branch-prune/v1; branches:prune",
+      "maps_to": [
+        "1.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "D6",
+      "text": "sync and a fresh branch report",
+      "maps_to": [
+        "0.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "CS",
+      "ref": "D7",
+      "text": "delete its five stale branches",
+      "maps_to": [],
+      "not_a_plan_item": "specific to cs1090a-recsys's own repository, already done there; nothing here to carry over"
+    },
+    {
+      "source": "CS",
+      "ref": "D8",
+      "text": "merge its PR 8",
+      "maps_to": [],
+      "not_a_plan_item": "specific to cs1090a-recsys's own repository, already done there; nothing here to carry over"
+    },
+    {
+      "source": "CS",
+      "ref": "D9",
+      "text": "remove its branch-prune worktree",
+      "maps_to": [],
+      "not_a_plan_item": "specific to cs1090a-recsys's own repository, already done there; nothing here to carry over"
+    },
+    {
+      "source": "CS",
+      "ref": "H2",
+      "text": "Module A: data audit and EDA on MovieLens",
+      "maps_to": [],
+      "not_a_plan_item": "coursework modules for a MovieLens recommender; this project's research code is its own Phase 9"
+    },
+    {
+      "source": "CS",
+      "ref": "H3",
+      "text": "Modules B and C: regression ladder, probabilistic and low-rank",
+      "maps_to": [],
+      "not_a_plan_item": "coursework modules for a MovieLens recommender; this project's research code is its own Phase 9"
+    },
+    {
+      "source": "CS",
+      "ref": "H4",
+      "text": "Module D: Bayesian layer in PyMC",
+      "maps_to": [],
+      "not_a_plan_item": "coursework modules for a MovieLens recommender; this project's research code is its own Phase 9"
+    },
+    {
+      "source": "CS",
+      "ref": "H5",
+      "text": "Modules E and G: multi-task tower, gated mixture for cold start",
+      "maps_to": [],
+      "not_a_plan_item": "coursework modules for a MovieLens recommender; this project's research code is its own Phase 9"
+    },
+    {
+      "source": "CS",
+      "ref": "H6",
+      "text": "Module F: tree rerankers",
+      "maps_to": [],
+      "not_a_plan_item": "coursework modules for a MovieLens recommender; this project's research code is its own Phase 9"
+    },
+    {
+      "source": "SHEET",
+      "ref": "layer 1 row",
+      "text": "REALITY: on-target biology versus drug pharmacology; unresolvable, declared in the model card",
+      "maps_to": [
+        "9.15"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "layer 2 row",
+      "text": "SELECTION: study attention and confounding by indication; degree and attribution guards; study-bias thresholds; degree snapshot",
+      "maps_to": [
+        "9.6",
+        "9.8",
+        "9.16",
+        "9.18"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "layer 3 row",
+      "text": "EVIDENCE: undated or unprovenanced edges quarantined at ingest; Edge contract; ReleasePin hash",
+      "maps_to": [
+        "9.4",
+        "9.2",
+        "9.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "layer 4 row",
+      "text": "ATTRIBUTION: uniform propagation makes the label a function of degree; noisy-OR and Mantel-Haenszel; q vector, leak, crude and adjusted",
+      "maps_to": [
+        "9.8",
+        "9.18"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "layer 5 row",
+      "text": "LABELING RULE: three states, tiers never pooled; tier and earned-negative rules; per-target tier",
+      "maps_to": [
+        "9.9",
+        "A.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "layer 6 row",
+      "text": "DATASET LABEL: multiaxiality; SafetyLabel and the DAG; versioned label set",
+      "maps_to": [
+        "9.7",
+        "9.2",
+        "9.23"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "layer 7 row",
+      "text": "SPLIT: interpolation split behind an extrapolation claim; DL1-3; the cutoff; pass or fail with reason",
+      "maps_to": [
+        "9.5",
+        "9.19"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "layer 8 row",
+      "text": "MODEL: a popularity detector with an excellent AUROC; degree offset, partial rho; model configs; metrics per seed, decile, level",
+      "maps_to": [
+        "9.10",
+        "9.6",
+        "9.12"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "layer 9 row",
+      "text": "VERDICT: a score where a decision was required; conformal and card; min_ap_lift, min_partial_rho; signed model card",
+      "maps_to": [
+        "9.12",
+        "9.13",
+        "9.15",
+        "9.16"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Infrastructure as Code",
+      "text": "Infrastructure as Code: compute, networks, storage, cloud resources",
+      "maps_to": [
+        "10.5",
+        "F.12",
+        "F.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Configuration as Code",
+      "text": "Configuration as Code: application/system configuration",
+      "maps_to": [
+        "A.2",
+        "6.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Environment as Code",
+      "text": "Environment as Code: reproducible dev/test/prod environments",
+      "maps_to": [
+        "6.1",
+        "X.DEVC"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Build as Code",
+      "text": "Build as Code: compilation/build/package process",
+      "maps_to": [
+        "F.15",
+        "8.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Pipeline as Code",
+      "text": "Pipeline as Code: CI/CD pipelines",
+      "maps_to": [
+        "9.27",
+        "6.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Workflow as Code",
+      "text": "Workflow as Code: orchestration/workflows",
+      "maps_to": [
+        "9.28"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Deployment as Code",
+      "text": "Deployment as Code: deployment definitions and strategies",
+      "maps_to": [
+        "F.2",
+        "F.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Release as Code",
+      "text": "Release as Code: release/promotion/versioning procedures",
+      "maps_to": [
+        "F.3",
+        "F.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Dependencies as Code",
+      "text": "Dependencies as Code: dependency declarations and locks",
+      "maps_to": [
+        "6.2",
+        "F.13"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Data Pipeline as Code",
+      "text": "Data Pipeline as Code: ingestion/transformation/loading",
+      "maps_to": [
+        "9.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: DataOps as Code",
+      "text": "DataOps as Code: operational data lifecycle",
+      "maps_to": [
+        "9.3",
+        "9.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Schema as Code",
+      "text": "Schema as Code: schemas and contracts",
+      "maps_to": [
+        "9.2",
+        "G.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Data Contract as Code",
+      "text": "Data Contract as Code: producer/consumer guarantees",
+      "maps_to": [
+        "9.2",
+        "9.23"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Data Quality as Code",
+      "text": "Data Quality as Code: quality expectations",
+      "maps_to": [
+        "9.5",
+        "9.6",
+        "9.17"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Transformation as Code",
+      "text": "Transformation as Code: transformations",
+      "maps_to": [
+        "9.8"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Lineage as Code",
+      "text": "Lineage as Code: lineage declarations/relationships",
+      "maps_to": [
+        "9.29"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Catalog/Metadata as Code",
+      "text": "Catalog/Metadata as Code: metadata/catalog definitions",
+      "maps_to": [
+        "A.2",
+        "7.8"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Partitioning as Code",
+      "text": "Partitioning as Code: physical organization rules",
+      "maps_to": [
+        "9.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Retention/Lifecycle as Code",
+      "text": "Retention/Lifecycle as Code: retention/deletion rules",
+      "maps_to": [
+        "G.10"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Migration as Code",
+      "text": "Migration as Code: database/schema migrations",
+      "maps_to": [
+        "X.APP"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Metrics as Code",
+      "text": "Metrics as Code: reusable metric definitions",
+      "maps_to": [
+        "9.12"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Semantic Layer as Code",
+      "text": "Semantic Layer as Code: business semantic definitions",
+      "maps_to": [
+        "9.12",
+        "9.16"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Tests as Code",
+      "text": "Tests as Code: executable correctness checks",
+      "maps_to": [
+        "9.21"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Assertions as Code",
+      "text": "Assertions as Code: executable invariants",
+      "maps_to": [
+        "9.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Validation as Code",
+      "text": "Validation as Code: input/output validation",
+      "maps_to": [
+        "G.2",
+        "G.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Contract as Code",
+      "text": "Contract as Code: interface guarantees",
+      "maps_to": [
+        "9.2",
+        "G.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Acceptance Criteria as Code",
+      "text": "Acceptance Criteria as Code: executable acceptance conditions",
+      "maps_to": [
+        "9.5",
+        "9.16"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: SLO as Code",
+      "text": "SLO as Code: service-level objectives",
+      "maps_to": [
+        "9.16"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Reliability as Code",
+      "text": "Reliability as Code: reliability requirements",
+      "maps_to": [
+        "X.CHAOS",
+        "F.7"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Resilience as Code",
+      "text": "Resilience as Code: resilience requirements",
+      "maps_to": [
+        "X.CHAOS"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Chaos as Code",
+      "text": "Chaos as Code: reproducible fault injection",
+      "maps_to": [
+        "X.CHAOS"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Policy as Code",
+      "text": "Policy as Code: machine-enforceable rules",
+      "maps_to": [
+        "G.5",
+        "9.13"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Security as Code",
+      "text": "Security as Code: automated security controls",
+      "maps_to": [
+        "G.15",
+        "F.8"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Compliance as Code",
+      "text": "Compliance as Code: compliance requirements",
+      "maps_to": [
+        "G.13"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Governance as Code",
+      "text": "Governance as Code: governance controls",
+      "maps_to": [
+        "9.15",
+        "G.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Access Control as Code",
+      "text": "Access Control as Code: authorization definitions",
+      "maps_to": [
+        "X.IAM"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Authorization as Code",
+      "text": "Authorization as Code: access decisions",
+      "maps_to": [
+        "X.IAM"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: IAM as Code",
+      "text": "IAM as Code: identities/roles/permissions",
+      "maps_to": [
+        "X.IAM"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Network Policy as Code",
+      "text": "Network Policy as Code: network constraints",
+      "maps_to": [
+        "X.NETPOL"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Secrets Policy as Code",
+      "text": "Secrets Policy as Code: secret-management requirements",
+      "maps_to": [
+        "G.15",
+        "G.16"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Privacy as Code",
+      "text": "Privacy as Code: privacy controls",
+      "maps_to": [
+        "X.PII"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Data Governance as Code",
+      "text": "Data Governance as Code: data governance requirements",
+      "maps_to": [
+        "G.13",
+        "A.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: FinOps as Code",
+      "text": "FinOps as Code: cost/resource governance",
+      "maps_to": [
+        "10.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Supply-Chain Policy as Code",
+      "text": "Supply-Chain Policy as Code: build/provenance requirements",
+      "maps_to": [
+        "F.9",
+        "F.10",
+        "F.11"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Observability as Code",
+      "text": "Observability as Code: observability configuration",
+      "maps_to": [
+        "10.3",
+        "F.16"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Monitoring as Code",
+      "text": "Monitoring as Code: monitors/checks",
+      "maps_to": [
+        "F.16"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Alerting as Code",
+      "text": "Alerting as Code: alert definitions",
+      "maps_to": [
+        "F.16"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Logging as Code",
+      "text": "Logging as Code: logging configuration",
+      "maps_to": [
+        "6.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Tracing as Code",
+      "text": "Tracing as Code: tracing/instrumentation configuration",
+      "maps_to": [
+        "10.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Dashboard as Code",
+      "text": "Dashboard as Code: dashboards",
+      "maps_to": [
+        "7.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Runbook as Code",
+      "text": "Runbook as Code: executable operational procedures",
+      "maps_to": [
+        "6.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Incident Response as Code",
+      "text": "Incident Response as Code: automated response workflows",
+      "maps_to": [
+        "F.14",
+        "F.7"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Remediation as Code",
+      "text": "Remediation as Code: automated corrective actions",
+      "maps_to": [
+        "G.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Configuration as Data",
+      "text": "Configuration as Data: configuration represented as structured data",
+      "maps_to": [
+        "A.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Policy as Data",
+      "text": "Policy as Data: policy definitions/parameters represented as data",
+      "maps_to": [
+        "9.16"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Rules as Data",
+      "text": "Rules as Data: rules represented structurally",
+      "maps_to": [
+        "G.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Events as Data",
+      "text": "Events as Data: occurrences represented as structured events",
+      "maps_to": [
+        "9.29",
+        "6.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: State as Data",
+      "text": "State as Data: system state represented explicitly",
+      "maps_to": [
+        "0.3",
+        "10.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Metadata as Data",
+      "text": "Metadata as Data: metadata is queryable",
+      "maps_to": [
+        "G.8",
+        "A.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Lineage as Data",
+      "text": "Lineage as Data: lineage represented structurally",
+      "maps_to": [
+        "9.29"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Provenance as Data",
+      "text": "Provenance as Data: origins/history represented structurally",
+      "maps_to": [
+        "9.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Evidence as Data",
+      "text": "Evidence as Data: observations/proofs represented structurally",
+      "maps_to": [
+        "9.18",
+        "6.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Attestations as Data",
+      "text": "Attestations as Data: signed claims represented structurally",
+      "maps_to": [
+        "F.10"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Findings as Data",
+      "text": "Findings as Data: scanner/check findings represented structurally",
+      "maps_to": [
+        "G.6",
+        "G.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Violations as Data",
+      "text": "Violations as Data: policy violations represented structurally",
+      "maps_to": [
+        "G.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Decisions as Data",
+      "text": "Decisions as Data: machine decisions represented structurally",
+      "maps_to": [
+        "9.19"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Verdicts as Data",
+      "text": "Verdicts as Data: pass/fail/unknown etc. represented structurally",
+      "maps_to": [
+        "9.19",
+        "6.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Results as Data",
+      "text": "Results as Data: execution results represented structurally",
+      "maps_to": [
+        "7.5",
+        "9.18"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Metrics as Data",
+      "text": "Metrics as Data: measurements represented structurally",
+      "maps_to": [
+        "9.12"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Logs as Data",
+      "text": "Logs as Data: log events represented structurally",
+      "maps_to": [
+        "6.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Traces as Data",
+      "text": "Traces as Data: execution traces represented structurally",
+      "maps_to": [
+        "10.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Audit Trail as Data",
+      "text": "Audit Trail as Data: audit history represented structurally",
+      "maps_to": [
+        "G.9"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Risk as Data",
+      "text": "Risk as Data: risk assessments represented structurally",
+      "maps_to": [
+        "9.15"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Compliance State as Data",
+      "text": "Compliance State as Data: compliance status represented structurally",
+      "maps_to": [
+        "G.13"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar header: Code",
+      "text": "a column header of the pillar table",
+      "maps_to": [],
+      "not_a_plan_item": "a table header, not an item"
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar header: Data",
+      "text": "a column header of the pillar table",
+      "maps_to": [],
+      "not_a_plan_item": "a table header, not an item"
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Platform as Code",
+      "text": "Platform as Code: Internal developer platform / golden paths",
+      "maps_to": [
+        "6.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Network as Code",
+      "text": "Network as Code: Routing, firewalls, service mesh, DNS",
+      "maps_to": [
+        "F.12"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Storage as Code",
+      "text": "Storage as Code: Buckets, volumes, tiers, retention",
+      "maps_to": [
+        "6.4",
+        "G.10"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Secrets / credentials as Code",
+      "text": "Secrets / credentials as Code: References and rotation policy (not raw secrets in Git)",
+      "maps_to": [
+        "G.15"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: IAM / Access Control as Code",
+      "text": "IAM / Access Control as Code: Roles, bindings, authz models",
+      "maps_to": [
+        "X.IAM"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Pipeline / Workflow as Code",
+      "text": "Pipeline / Workflow as Code: CI/CD, GitOps, batch/stream jobs",
+      "maps_to": [
+        "9.27",
+        "9.28"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Build / Supply chain as Code",
+      "text": "Build / Supply chain as Code: Build graphs, SBOM generation, signing",
+      "maps_to": [
+        "F.15",
+        "F.9",
+        "F.10"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Orchestration as Code",
+      "text": "Orchestration as Code: Task graphs and dependency execution",
+      "maps_to": [
+        "9.28"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: GitOps as Code",
+      "text": "GitOps as Code: Desired cluster/app state reconciled from Git",
+      "maps_to": [
+        "F.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Architecture as Code",
+      "text": "Architecture as Code: Structure, constraints, fitness functions",
+      "maps_to": [
+        "9.0",
+        "8.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Diagrams as Code",
+      "text": "Diagrams as Code: Living architecture diagrams",
+      "maps_to": [
+        "8.9"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Docs as Code",
+      "text": "Docs as Code: Docs in the same review/deploy path as code",
+      "maps_to": [
+        "G.14",
+        "6.8"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: API / Contract as Code",
+      "text": "API / Contract as Code: Service interfaces",
+      "maps_to": [
+        "G.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Project / Scaffold as Code",
+      "text": "Project / Scaffold as Code: Golden templates",
+      "maps_to": [
+        "2.1",
+        "6.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Database as Code",
+      "text": "Database as Code: Migrations and DB config",
+      "maps_to": [
+        "X.APP"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Data as Code / DataOps as Code",
+      "text": "Data as Code / DataOps as Code: Pipelines, transforms, versioned datasets",
+      "maps_to": [
+        "9.3",
+        "9.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Data Contracts as Code",
+      "text": "Data Contracts as Code: Producer↔consumer guarantees (schema, SLA, ownership)",
+      "maps_to": [
+        "9.2",
+        "G.8"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Metrics / Semantic Layer as Code",
+      "text": "Metrics / Semantic Layer as Code: Canonical metric definitions",
+      "maps_to": [
+        "9.12"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Features as Code",
+      "text": "Features as Code: ML feature definitions vs ad-hoc notebooks",
+      "maps_to": [
+        "9.31"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Models as Code",
+      "text": "Models as Code: Training/eval/serving specs",
+      "maps_to": [
+        "9.10"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: prompt and tool definitions as code",
+      "text": "prompt and tool definitions versioned with the app",
+      "maps_to": [],
+      "not_a_plan_item": "the project has no language-model component to version"
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: FinOps / Cost as Code",
+      "text": "FinOps / Cost as Code: Budgets, quotas, rightsizing rules",
+      "maps_to": [
+        "10.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Dashboards as Code",
+      "text": "Dashboards as Code: Versioned dashboards",
+      "maps_to": [
+        "7.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Alerts as Code",
+      "text": "Alerts as Code: Alert rules, routing, silence policy",
+      "maps_to": [
+        "F.16"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Detection as Code",
+      "text": "Detection as Code: Detection rules and response playbooks",
+      "maps_to": [
+        "G.15",
+        "F.8"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Incident / Runbook as Code",
+      "text": "Incident / Runbook as Code: Response procedures executable or at least versioned",
+      "maps_to": [
+        "F.14",
+        "6.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Chaos / Resilience as Code",
+      "text": "Chaos / Resilience as Code: Failure experiments",
+      "maps_to": [
+        "X.CHAOS"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Access / Relationship as Data",
+      "text": "Access / Relationship as Data: Zanzibar-style relation tuples: `objectrelation@subject`",
+      "maps_to": [
+        "X.IAM"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Entitlements as Data",
+      "text": "Entitlements as Data: Who may do what on which asset, as records",
+      "maps_to": [
+        "X.IAM"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Identity as Data",
+      "text": "Identity as Data: Users, groups, devices, workloads as records",
+      "maps_to": [
+        "X.IAM"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Verdict as Data",
+      "text": "Verdict as Data: Allow/deny/pass/fail outcomes with reason codes",
+      "maps_to": [
+        "9.19"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Attestation as Data",
+      "text": "Attestation as Data: Provenance: who built what from which inputs",
+      "maps_to": [
+        "F.10"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: SBOM / inventory as Data",
+      "text": "SBOM / inventory as Data: Component graph of software and data/AI assets",
+      "maps_to": [
+        "F.9"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Audit log as Data",
+      "text": "Audit log as Data: Immutable event stream of actions",
+      "maps_to": [
+        "G.9"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Quality results as Data",
+      "text": "Quality results as Data: Check outcomes over time",
+      "maps_to": [
+        "9.18"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Features as Data",
+      "text": "Features as Data: Materialized feature values + keys + event time",
+      "maps_to": [
+        "9.31"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Schema registry as Data",
+      "text": "Schema registry as Data: Evolving schemas as versioned records",
+      "maps_to": [
+        "G.8"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Contracts as Data",
+      "text": "Contracts as Data: Published contract versions consumers bind to",
+      "maps_to": [
+        "G.8"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Knowledge as Data",
+      "text": "Knowledge as Data: Ontology / knowledge graph",
+      "maps_to": [
+        "9.7",
+        "9.32"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "PILLARS",
+      "ref": "pillar: Telemetry as Data",
+      "text": "Telemetry as Data: Traces, metrics, logs, profiles",
+      "maps_to": [
+        "10.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "COMMITS",
+      "ref": "4a04079",
+      "text": "the workflow model restores the on key, retiring the _triggers workaround and backlog item P2",
+      "maps_to": [
+        "G.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "COMMITS",
+      "ref": "eba67dd",
+      "text": "the audit backlog keeps what the session found but did not fix",
+      "maps_to": [
+        "G.3",
+        "7.8"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "COMMITS",
+      "ref": "eba67dd",
+      "text": "non-violations are listed so the rule is not later applied to internal shapes it exempts",
+      "maps_to": [],
+      "not_a_plan_item": "a description of existing design, not a promise"
+    },
+    {
+      "source": "COMMITS",
+      "ref": "ae28ac6",
+      "text": "GitGuardian alone is refused; the wait holds until all three workflows register",
+      "maps_to": [
+        "G.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "COMMITS",
+      "ref": "dc5710a",
+      "text": "semantic-release reads the commits since the last tag and creates the next tag",
+      "maps_to": [
+        "F.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "COMMITS",
+      "ref": "dc5710a",
+      "text": "the GitHub Release is the changelog of record: no commit, no changelog file",
+      "maps_to": [
+        "F.3"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "COMMITS",
+      "ref": "ab7e17e",
+      "text": "a rung with no records says not yet run, never a blank or a zero",
+      "maps_to": [
+        "7.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "COMMITS",
+      "ref": "b6d77fb",
+      "text": "the next local build would have shown a degree-null result from five seeds never run",
+      "maps_to": [],
+      "not_a_plan_item": "a description of a defect already fixed, not a promise"
+    },
+    {
+      "source": "COMMITS",
+      "ref": "b6d77fb",
+      "text": "Python resolves the main checkout's .artifacts, since worktree remove deletes a worktree's ignored files",
+      "maps_to": [
+        "6.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "COMMITS",
+      "ref": "e8a6cf0",
+      "text": "a comment claiming the wrong cause would send the next reader down the same path",
+      "maps_to": [],
+      "not_a_plan_item": "a description of a defect already fixed, not a promise"
+    },
+    {
+      "source": "COMMITS",
+      "ref": "04f3a38",
+      "text": "each gate remains its own task; check aggregates them rather than replacing them",
+      "maps_to": [
+        "6.7"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "COMMITS",
+      "ref": "be16d23",
+      "text": "pdf:build remains as a local preview",
+      "maps_to": [
+        "X.RENDER"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "COMMITS",
+      "ref": "be16d23",
+      "text": "the flake filters on whether an entry has artifacts, so the next non-binary pin does not repeat this",
+      "maps_to": [
+        "6.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "COMMITS",
+      "ref": "8e40558",
+      "text": "adding W&B later as a composition is how it stayed unimplemented",
+      "maps_to": [
+        "D.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "COMMITS",
+      "ref": "8e40558",
+      "text": "records logged as versioned artifacts, addressable as name:version by a later run",
+      "maps_to": [
+        "D.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "COMMITS",
+      "ref": "8e40558",
+      "text": "WANDB_ENTITY is deliberately not exported",
+      "maps_to": [
+        "10.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "COMMITS",
+      "ref": "881542e",
+      "text": "grepping the source failed on the banner explaining why the phase was removed",
+      "maps_to": [
+        "X.P5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "COMMITS",
+      "ref": "f9629c5",
+      "text": "site:install and the Playwright setup were one task, blocking the first test from running red",
+      "maps_to": [],
+      "not_a_plan_item": "a description of a defect already fixed, not a promise"
+    },
+    {
+      "source": "COMMITS",
+      "ref": "e560610",
+      "text": "nix flake check builds each tool, runs it and asserts the reported version",
+      "maps_to": [
+        "6.1"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "COMMITS",
+      "ref": "e560610",
+      "text": "Python deliberately does not come from Nix",
+      "maps_to": [
+        "X.PYNIX"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "sync: B001",
+      "text": "branch report failed: main 59 commits behind origin/main; sync advanced develop alone",
+      "maps_to": [
+        "G.11"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "sync: empty branch",
+      "text": "an empty never-pushed branch had no upstream to lose, so cleanup could never remove it",
+      "maps_to": [
+        "G.11"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "sync: false message",
+      "text": "a never-pushed branch was told its upstream still exists",
+      "maps_to": [
+        "G.11"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "sync: merge base",
+      "text": "merged was judged against local develop, which can be stale",
+      "maps_to": [
+        "G.11"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "sync: task wiring",
+      "text": "main() accepted --prune while the task never passed it; every test called main() directly",
+      "maps_to": [
+        "G.11"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "plan status: working tree",
+      "text": "the first probe read the working tree, so an uncommitted file made G.19 look done",
+      "maps_to": [
+        "G.0"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "plan status: empty branch",
+      "text": "the first probe trusted any branch that existed, so an empty one read as work in flight",
+      "maps_to": [
+        "G.0"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "sheet v status: status line",
+      "text": "Phase 8, 383 tests, 11 pull requests: typed and stale against 45 of 135 done and 23 merged",
+      "maps_to": [
+        "8.6",
+        "G.23"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "sheet v status: phase band",
+      "text": "phases 8F and 8G missing from the delivery band; the current position typed",
+      "maps_to": [
+        "8.6",
+        "8.12"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "sheet v status: workstreams",
+      "text": "threads F and G missing; A, B and D typed DONE against 2/8, 20/28 and 2/3",
+      "maps_to": [
+        "8.6",
+        "8.12"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "sheet v status: typed counts",
+      "text": "41 tasks and 22 tests on CI, recorded nowhere",
+      "maps_to": [
+        "8.6",
+        "8.13"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "sheet v status: stack line",
+      "text": "tool versions typed, where toolchain.json holds them",
+      "maps_to": [
+        "7.9",
+        "8.6"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "sheet v status: ladder",
+      "text": "the sheet's sweep has no prevalence rung; the plan's ladder does",
+      "maps_to": [
+        "8.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SHEET",
+      "ref": "sheet v status: provenance",
+      "text": "no ref, commit or time says which state the status reflects",
+      "maps_to": [
+        "G.23"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "2026 practice: rendered equals source",
+      "text": "every rendered value resolved from a record at build time and re-read by a gate",
+      "maps_to": [
+        "8.13",
+        "G.23"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "directive: enforce before coding",
+      "text": "the rule was restated twice and still violated; enforce it as policy before any more code",
+      "maps_to": [
+        "G.4",
+        "G.5",
+        "G.24",
+        "G.25",
+        "G.26",
+        "G.27"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "sizing: environment",
+      "text": "6 raw environment reads: 2 configuration, 4 building a child process's environment",
+      "maps_to": [
+        "G.24",
+        "G.26"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "sizing: Any",
+      "text": "38 Any in signatures across tooling and scripts",
+      "maps_to": [
+        "G.25"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "sizing: noqa",
+      "text": "43 inline noqa across 7 rules, none declared anywhere with a reason",
+      "maps_to": [
+        "G.26"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "sizing: TypeScript",
+      "text": "no real casts, no any, no hand-written Zod; two JSON.parse, one sanctioned and one reading our own schema",
+      "maps_to": [
+        "G.4",
+        "G.26"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "sizing: loose generated shapes",
+      "text": "two z.any() from 2020-12 prefixItems tuples",
+      "maps_to": [
+        "G.27",
+        "G.8"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "graph: 8.12 behind Phase 9",
+      "text": "8.12 depended on 7.10, which depends on 9.16, so the single-source sheet waited on the GNN package",
+      "maps_to": [
+        "8.12",
+        "7.10"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "directive: no Markdown",
+      "text": "no Markdown on disk: Git is the record of repository documentation",
+      "maps_to": [
+        "G.28",
+        "X.README",
+        "X.SECMD"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "directive: policy, permanently",
+      "text": "enforce the Markdown ban by policy so it cannot creep back",
+      "maps_to": [
+        "G.28",
+        "G.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "2026 practice: commit as the unit of knowledge",
+      "text": "decisions bound to the change that enacted them, queryable through trailers",
+      "maps_to": [
+        "G.29"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "finding: a message citing a missing document",
+      "text": "PR 24's message cited a context document that was never written",
+      "maps_to": [
+        "G.28",
+        "G.29"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "finding: validation in bash",
+      "text": "wandb:check enforced online-needs-an-entity-and-a-key in a shell script no model or test could see",
+      "maps_to": [
+        "G.24"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "finding: one variable, two languages",
+      "text": "OTSAFETY_ARTIFACTS read raw by Python and by the site, with no shared definition",
+      "maps_to": [
+        "G.24",
+        "G.2"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "finding: two ruff policies",
+      "text": "two ruff configurations kept one policy by hand; Ruff does not merge them, the closest wins",
+      "maps_to": [
+        "G.26"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "finding: inferred target",
+      "text": "the virtual workspace root has no requires-python, so Ruff fell back to 3.9 and re-sorted tomllib",
+      "maps_to": [
+        "G.26"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "finding: inferred first-party",
+      "text": "Ruff does not read uv workspace members, so from the root otsafety_tooling read as third-party",
+      "maps_to": [
+        "G.26"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "finding: exemptions made twice",
+      "text": "13 inline suppressions duplicated per-file ignores and suppressed nothing",
+      "maps_to": [
+        "G.26"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "finding: an ignore hiding our own type",
+      "text": "a type: ignore covered a client annotated object, so the MLflow call went unchecked",
+      "maps_to": [
+        "G.26"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "finding: reasons only in comments",
+      "text": "per-file ignores exempted whole directories with reasons no machine checked",
+      "maps_to": [
+        "G.26"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "finding: two mypy configurations",
+      "text": "two mypy configurations, both in use; the root's governs scripts/ and apps/site/tests/, and G.25's no-Any rule reached only tooling's",
+      "maps_to": [
+        "G.30"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "finding: every model an explicit Any",
+      "text": "without Pydantic's plugin set to type its constructor, disallow_any_explicit reported every model class, 157 times",
+      "maps_to": [
+        "G.25"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "finding: W&B is typed",
+      "text": "W&B ships py.typed; a Protocol written for an untyped library conflicted with its real types",
+      "maps_to": [
+        "G.25"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "finding: the site's types never checked",
+      "text": "no TypeScript is installed: Astro strips types, so every z.infer type is declared and never verified",
+      "maps_to": [
+        "G.31"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "finding: type-aware lint needs TypeScript",
+      "text": "strictTypeChecked and no-unsafe-type-assertion cannot run without TypeScript installed",
+      "maps_to": [
+        "G.4",
+        "G.31"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "registry: TypeScript 7",
+      "text": "TypeScript 7.0.2 is out; typescript-eslint and @astrojs/check both exclude it",
+      "maps_to": [
+        "X.TS7"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "correction: the root mypy configuration is read",
+      "text": "the claim that no task reads it came from a truncated grep; the types task's third command runs mypy under it",
+      "maps_to": [
+        "G.30"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "correction: exported content types",
+      "text": "a rule banning every exported object type forced schemas onto the site's own content, which the third trigger forbids; removed",
+      "maps_to": [
+        "G.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "finding: the boundary invariant",
+      "text": "raw JSON.parse and process.env allowed only as the direct argument of a generated schema's parse, so raw data is never held unvalidated",
+      "maps_to": [
+        "G.4"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "finding: an alias, not an exemption",
+      "text": "foreign key names such as ruleId and devDependencies map onto Python names through Field aliases rather than suppressions",
+      "maps_to": [
+        "G.26"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "gap: ESLint exemptions outside the register",
+      "text": "the register mirrors Ruff's per-file ignores but not ESLint's file-scoped exemption for the generator",
+      "maps_to": [
+        "G.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "finding: deprecated API in generated Zod",
+      "text": "json-schema-to-zod emits z.string().datetime(), deprecated in Zod 4",
+      "maps_to": [
+        "G.32"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "finding: bare binaries",
+      "text": "Regal ships bare binaries; toolchain.json, the flake and the bootstrap all assumed an archive with a folder",
+      "maps_to": [
+        "G.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "cooldown: conftest 0.70.1",
+      "text": "conftest 0.70.1 was three days old; the pin is 0.70.0, ten days old",
+      "maps_to": [
+        "G.5",
+        "F.13"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "finding: JsonValue lost in inlining",
+      "text": "Pydantic names a JsonValue field's definition; inlining erased the name and generated z.any()",
+      "maps_to": [
+        "G.27"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "finding: unchecked index access",
+      "text": "noUncheckedIndexedAccess was off; enabling it surfaced 19 latent undefined reads, 16 on the results page",
+      "maps_to": [
+        "G.31"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "finding: default_factory not exported",
+      "text": "a default_factory never reaches the JSON Schema, so generated Zod made those fields optional",
+      "maps_to": [
+        "G.8"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "finding: an off rule keeps its options",
+      "text": "ESLint reports a disabled rule with its options intact; enforcement is decided by severity alone",
+      "maps_to": [
+        "G.5"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "finding: provenance by configuration",
+      "text": "tasks run the pinned tools because task_config.shell enters the dev shell; nothing proves it in any mode",
+      "maps_to": [
+        "G.33"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "finding: zizmor at latest",
+      "text": "zizmor-action is pinned by SHA but its version input defaults to latest",
+      "maps_to": [
+        "G.33"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "reflection: hypotheses as findings",
+      "text": "a missing tool in a plain shell was reported as a dev-shell defect before the flake was read; the dev shell was complete",
+      "maps_to": [
+        "G.33"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "observed: T201 and a conditional stream",
+      "text": "ruff's T201 does not fire on print with a conditional file= argument; RUF100 correctly removed a suppression that suppressed nothing",
+      "maps_to": [
+        "G.26"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "observed: the scan read tracked files only",
+      "text": "the exemption scan disagreed with the working tree in both directions until it read untracked, unignored files too",
+      "maps_to": [
+        "G.26"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "refuted: a wrapped suppression",
+      "text": "an inferred mechanism -- a long line wrapped away from its suppression -- was refuted by a probe",
+      "maps_to": [
+        "G.33"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "inferred: mise self-update",
+      "text": "mise's warning recommends self-update, which would replace the pinned mise; not yet verified",
+      "maps_to": [
+        "G.33"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "observed: the bootstrap skipped on PATH",
+      "text": "CI logged 'gh: skip (2.101.0 already installed)': the bootstrap asked whatever gh was on PATH, the runner's own",
+      "maps_to": [
+        "G.33"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "observed: mise self-update and auto_update",
+      "text": "a standalone mise self-updates unless a pin notice sits beside its prefix; auto_update requires self-update to be available",
+      "maps_to": [
+        "G.33"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "refuted: auto_update in a project file",
+      "text": "mise ignores auto_update in non-global config for security reasons",
+      "maps_to": [
+        "G.33"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "observed: described suppressions",
+      "text": "23 suppressions carried a description duplicating the register; 10 still promised a register that already existed",
+      "maps_to": [
+        "G.26"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "directive: plan updated as issues surface",
+      "text": "every issue discovered, and every task it changes, goes into the plan as found, and the status is re-observed",
+      "maps_to": [
+        "G.0"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "directive: zero technical debt",
+      "text": "known issues fixed to zero before the paused task resumes; nothing deferred",
+      "maps_to": [
+        "G.34",
+        "G.35",
+        "G.30",
+        "G.32"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "observed: G.25 evidence mismatch",
+      "text": "plan:status reported G.25 unfinished: its evidence named a test never written under that name, and no claim of completion existed to check",
+      "maps_to": [
+        "G.25",
+        "G.36"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "observed: a fresh checkout fetched a tool",
+      "text": "setup did not install the site, and a test's bun x fetched astro@latest rather than failing",
+      "maps_to": [
+        "G.38",
+        "G.39"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "observed: an id is the join key",
+      "text": "the step, its trace candidate and its test path all hang off one id, and nothing checked that the test names it",
+      "maps_to": [
+        "G.41"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "observed: commands spoke in prose",
+      "text": "reading a command's result meant grepping it: presentation filtering, not evidence",
+      "maps_to": [
+        "G.42"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "observed: text anchors are unverifiable",
+      "text": "an empty deletion, a dollar-anchored pattern and a self-inspecting guard each wrote or skipped the wrong thing",
+      "maps_to": [
+        "G.43"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "observed: the plan had no writer",
+      "text": "every step was spliced in as hand-built YAML, and the quoting drifted from what a model-driven writer produces",
+      "maps_to": [
+        "G.44"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "observed: the gate ignored hints",
+      "text": "astro check's minimumFailingSeverity defaults to error, so seven deprecations passed as hints",
+      "maps_to": [
+        "G.32"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "observed: json-schema-to-zod abandoned",
+      "text": "the generator behind every generated contract stopped being maintained in March 2026",
+      "maps_to": [
+        "G.32"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "observed: the site warned and the build passed",
+      "text": "astro check reported an unused React integration and a Vite 8 deprecation, and nothing failed",
+      "maps_to": [
+        "G.37"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "observed: a refresh lost a commit",
+      "text": "after worktree:refresh, the branch's own commit was no longer reachable from its HEAD, while the command reported success",
+      "maps_to": [
+        "G.40"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "observed: the remote declares no ruleset",
+      "text": "the rulesets API returns an empty list, so develop and main are protected by a local hook and nothing else",
+      "maps_to": [
+        "G.40"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "observed: a worktree ran the wrong python",
+      "text": "a fresh worktree inherited VIRTUAL_ENV from the checkout that created it, and setup used that interpreter",
+      "maps_to": [
+        "G.22"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "observed: a module-wide exemption hid sixty-one sites",
+      "text": "tooling/pyproject.toml exempted tests.* from the ban on explicit Any, so nobody had examined what it permitted",
+      "maps_to": [
+        "G.45"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "observed: an exemption with no count hid sixty-one sites",
+      "text": "the tests were exempt module-wide from the ban on explicit Any, so nobody had to look at what it permitted",
+      "maps_to": [
+        "G.46"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "observed: Callable[..., X] is Any by another name",
+      "text": "two seams elided their parameters, which mypy's ban on explicit Any does not see",
+      "maps_to": [
+        "G.46"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "observed: a gate hung for forty-one minutes",
+      "text": "bun auto-installed eslint from the registry in a worktree with no node_modules, and check_all had no timeout, so the whole check sat silent",
+      "maps_to": [
+        "G.47"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "observed: the facts knew zero merged pull requests",
+      "text": "staged_facts at the index reported no merged PRs at all, so G.2 read as unmet and blocked G.20 though its evidence had merged sixty PRs ago",
+      "maps_to": [
+        "G.48"
+      ],
+      "not_a_plan_item": null
+    }
+  ]
+}
