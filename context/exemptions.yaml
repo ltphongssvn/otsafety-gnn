@@ -75,11 +75,11 @@ inline:
   reason: 'builds a child process''s environment by scrubbing the parent''s: plumbing, not configuration'
 - path: tooling/src/otsafety_tooling/git/ghcli.py
   rule: S603
-  count: 1
+  count: 2
   reason: a fixed argument list with no shell; the executable is pinned through toolchain.json
 - path: tooling/src/otsafety_tooling/git/ghcli.py
   rule: S607
-  count: 1
+  count: 2
   reason: a bare executable name resolved on the PATH that mise and the Nix shell provide; no shell
 - path: tooling/src/otsafety_tooling/git/pr.py
   rule: S603
