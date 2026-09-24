@@ -10,7 +10,6 @@ hostname and no local path: records are shared evidence.
 """
 
 from datetime import UTC, datetime, timedelta
-from typing import Any
 
 import pytest
 from pydantic import ValidationError
@@ -22,8 +21,8 @@ SHA = "c" * 40
 DIGEST = "d" * 64
 
 
-def _record(**overrides: Any) -> dict[str, Any]:
-    record: dict[str, Any] = {
+def _record(**overrides: object) -> dict[str, object]:
+    record: dict[str, object] = {
         "id": "0192f3ac9e7b",
         "task": "branches",
         "arguments": ["--apply"],

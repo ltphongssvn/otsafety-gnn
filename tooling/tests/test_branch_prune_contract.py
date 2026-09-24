@@ -8,7 +8,6 @@ deleted, a plan that claims deletions, a failure reported as a pass.
 """
 
 from datetime import UTC, datetime
-from typing import Any
 
 import pytest
 from pydantic import ValidationError
@@ -16,8 +15,8 @@ from pydantic import ValidationError
 from otsafety_tooling.contracts.branch_prune import PruneDecision, PruneRecord
 
 
-def _decision(**overrides: Any) -> dict[str, Any]:
-    decision: dict[str, Any] = {
+def _decision(**overrides: object) -> dict[str, object]:
+    decision: dict[str, object] = {
         "branch": "origin/feature/done",
         "decision": "delete",
         "reason_code": "DELETE_MERGED",
@@ -28,8 +27,8 @@ def _decision(**overrides: Any) -> dict[str, Any]:
     return decision
 
 
-def _record(**overrides: Any) -> dict[str, Any]:
-    record: dict[str, Any] = {
+def _record(**overrides: object) -> dict[str, object]:
+    record: dict[str, object] = {
         "generated_at": datetime(2026, 9, 17, tzinfo=UTC),
         "repository": "owner/repo",
         "source_report": "20260917T070050043911Z.json",

@@ -14,8 +14,8 @@ from __future__ import annotations
 import importlib.util
 import subprocess
 import sys
-from collections.abc import Callable
 from types import ModuleType
+from typing import Protocol
 
 import pytest
 from pydantic import JsonValue
@@ -50,9 +50,15 @@ def _envelope(out: str) -> CommandOutcome:
     return CommandOutcome.model_validate_json(lines[0])
 
 
-def _fake(
-    results: dict[str, int], envelopes: dict[str, str] | None = None
-) -> Callable[..., subprocess.CompletedProcess[str]]:
+class _Runner(Protocol):
+    """The subprocess seam, with the signature the stand-in actually has."""
+
+    def __call__(
+        self, command: list[str], **kwargs: object
+    ) -> subprocess.CompletedProcess[str]: ...
+
+
+def _fake(results: dict[str, int], envelopes: dict[str, str] | None = None) -> _Runner:
     def run(command: list[str], **_: object) -> subprocess.CompletedProcess[str]:
         name = command[-1]
         return subprocess.CompletedProcess(

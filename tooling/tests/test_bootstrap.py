@@ -16,14 +16,53 @@ tests fix in place.
 import importlib.util
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Protocol
 
 import pytest
 
 from otsafety_tooling.paths import REPO_ROOT
 
 
-def _load_bootstrap() -> Any:
+class _Plan(Protocol):
+    """The plan bootstrap_toolchain makes for one tool."""
+
+    @property
+    def tool(self) -> str: ...
+
+    @property
+    def action(self) -> str: ...
+
+    @property
+    def reason(self) -> str: ...
+
+    @property
+    def url(self) -> str: ...
+
+    @property
+    def sha256(self) -> str: ...
+
+
+class _Bootstrap(Protocol):
+    """What these tests call on the script they load by path."""
+
+    def platform_key(self, system: str, machine: str) -> str: ...
+
+    def digest_of(self, path: Path) -> str: ...
+
+    def installed_version(self, destination: Path, entry: object) -> str | None: ...
+
+    def plan_tool(self, name: str, entry: object, key: str, installed: str | None) -> _Plan: ...
+
+    def plan_all(
+        self, toolchain: object, key: str, installed: dict[str, str | None]
+    ) -> list[_Plan]: ...
+
+    def install(self, plan: _Plan, entry: object, key: str, destination: Path) -> list[Path]: ...
+
+    def verify(self, path: Path, expected: str) -> None: ...
+
+
+def _load_bootstrap() -> _Bootstrap:
     """Load the standalone script by path; it is not an installed module."""
     location = REPO_ROOT / "scripts" / "bootstrap_toolchain.py"
     spec = importlib.util.spec_from_file_location("bootstrap_toolchain", location)
@@ -31,12 +70,13 @@ def _load_bootstrap() -> Any:
     module = importlib.util.module_from_spec(spec)
     sys.modules["bootstrap_toolchain"] = module
     spec.loader.exec_module(module)
-    return module
+    loaded: _Bootstrap = module
+    return loaded
 
 
 bootstrap = _load_bootstrap()
 
-TOOLCHAIN: dict[str, Any] = {
+TOOLCHAIN: dict[str, object] = {
     "uv": {
         "version": "0.12.7",
         "artifacts": {

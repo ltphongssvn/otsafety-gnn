@@ -15,7 +15,6 @@ which is how an invented step would show itself.
 from __future__ import annotations
 
 import copy
-from typing import Any
 
 import pytest
 from pydantic import ValidationError
@@ -56,7 +55,7 @@ def _plan() -> ProjectPlan:
     )
 
 
-def _trace() -> dict[str, Any]:
+def _trace() -> dict[str, object]:
     return {
         "contract": "plan-trace/v1",
         "sources": [{"id": "T1", "title": "First transcript", "locator": "session one"}],
@@ -89,17 +88,25 @@ def test_a_complete_trace_leaves_nothing_untraced() -> None:
     ],
 )
 def test_each_malformed_candidate_is_refused(
-    mutation: str, index: int, change: dict[str, Any]
+    mutation: str, index: int, change: dict[str, object]
 ) -> None:
     trace = copy.deepcopy(_trace())
-    trace["candidates"][index].update(change)
+    candidates = trace["candidates"]
+    assert isinstance(candidates, list)
+    candidate = candidates[index]
+    assert isinstance(candidate, dict)
+    candidate.update(change)
     with pytest.raises(ValidationError):
         PlanTrace.model_validate(trace)
 
 
 def test_a_candidate_pointing_at_no_plan_item_is_reported() -> None:
     trace = copy.deepcopy(_trace())
-    trace["candidates"][0]["maps_to"] = ["F.9"]
+    candidates = trace["candidates"]
+    assert isinstance(candidates, list)
+    first = candidates[0]
+    assert isinstance(first, dict)
+    first["maps_to"] = ["F.9"]
     problems = untraced(PlanTrace.model_validate(trace), _plan())
     assert any("F.9" in p for p in problems)
 
@@ -107,6 +114,8 @@ def test_a_candidate_pointing_at_no_plan_item_is_reported() -> None:
 def test_a_plan_item_no_source_asked_for_is_reported() -> None:
     """How an invented step shows itself."""
     trace = copy.deepcopy(_trace())
-    del trace["candidates"][1]
+    candidates = trace["candidates"]
+    assert isinstance(candidates, list)
+    del candidates[1]
     problems = untraced(PlanTrace.model_validate(trace), _plan())
     assert any("F.2" in p for p in problems)

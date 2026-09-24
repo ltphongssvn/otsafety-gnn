@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import subprocess
 from pathlib import Path
-from typing import Any
 
 import pytest
 from pydantic import ValidationError
@@ -108,8 +107,8 @@ def test_ruff_refuses_a_raw_environment_read() -> None:
 
 def test_the_site_reads_the_same_contract() -> None:
     assert "project-settings/v1" in schemas.EXPORTED
-    schema: dict[str, Any] = schemas.json_schema("project-settings/v1")
-    assert "OTSAFETY_ARTIFACTS" in schema["properties"]
+    schema = schemas.json_schema("project-settings/v1")
+    assert "OTSAFETY_ARTIFACTS" in schemas.at(schema, "properties")
 
 
 def test_the_wandb_check_task_asks_the_model() -> None:

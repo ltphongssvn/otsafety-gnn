@@ -137,6 +137,22 @@ def _prepare(schema: dict[str, JsonValue], *, authored: bool) -> dict[str, JsonV
     return _object(walk(schema, frozenset()), "the schema")
 
 
+def at(node: JsonValue, *path: str) -> dict[str, JsonValue]:
+    """The mapping a schema document holds at PATH, refusing anything else.
+
+    A caller that indexes a schema three levels deep is reading a union, and an
+    annotation of dict[str, Any] made those reads look checked while checking
+    none of them. This names the path that failed instead.
+    """
+    for key in path:
+        if not isinstance(node, dict):
+            raise KeyError(f"{'.'.join(path)}: {key} does not address a mapping")
+        node = node[key]
+    if not isinstance(node, dict):
+        raise KeyError(f"{'.'.join(path)} is not a mapping")
+    return node
+
+
 def json_schema(contract: str) -> dict[str, JsonValue]:
     model = EXPORTED[contract]
     return _prepare(model.model_json_schema(mode="validation"), authored=is_authored(contract))

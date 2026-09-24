@@ -10,14 +10,14 @@ only when it holds commits beyond develop.
 
 from __future__ import annotations
 
-from typing import Any
-
 from otsafety_tooling.contracts.plan import ProjectPlan
 from otsafety_tooling.planning.status import Facts, PlanStatus, derive
 
 
 def _plan() -> ProjectPlan:
-    def step(i: str, deps: list[str], ev: list[dict[str, Any]], **kw: Any) -> dict[str, Any]:
+    def step(
+        i: str, deps: list[str], ev: list[dict[str, object]], **kw: object
+    ) -> dict[str, object]:
         return {
             "id": i,
             "title": i,
@@ -49,17 +49,18 @@ def _plan() -> ProjectPlan:
     )
 
 
-def _facts(**overrides: Any) -> Facts:
-    base: dict[str, Any] = {
-        "ref": "origin/develop",
-        "paths": frozenset(),
-        "tasks": frozenset(),
-        "merged_prs": frozenset(),
-        "tags": frozenset(),
-        "branches_with_work": frozenset(),
-    }
-    base.update(overrides)
-    return Facts(**base)
+def _facts(**overrides: object) -> Facts:
+    base = Facts(
+        ref="origin/develop",
+        paths=frozenset(),
+        tasks=frozenset(),
+        merged_prs=frozenset(),
+        tags=frozenset(),
+        branches_with_work=frozenset(),
+    )
+    unknown = set(overrides) - set(Facts.model_fields)
+    assert not unknown, f"no such fact: {sorted(unknown)}"
+    return base.model_copy(update=overrides)
 
 
 def _state(status: PlanStatus, step_id: str) -> str:

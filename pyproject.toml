@@ -67,17 +67,6 @@ module = ["playwright.*", "pytest_playwright.*", "pypdf.*", "mlflow.*", "wandb.*
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
-# FORTY-THREE SITES, MEASURED, AND G.45 REMOVES THE REST. Eighteen went with the
-# wandb seam: its doubles implement the adapter's protocols rather than wrapping
-# an untyped library, which is the treatment MLflow's adapter already had. The tooling package exempted
-# tests.* module-wide, which permitted whatever anyone wrote; unifying the
-# configuration made the real number visible for the first time. The wandb seam
-# now has a protocol this repository owns, as MLflow's already did, and the doubles
-# implement it in G.45. Until then this is a named debt, not a silent allowance.
-module = ["tests.*"]
-disallow_any_explicit = false
-
-[[tool.mypy.overrides]]
 # THE ONE-PAGER GENERATOR IS PRESERVED VERBATIM. Its STAGES entries mix str and
 # None for the gate badge, so mypy infers dict[str, object] and refuses to index
 # them. Annotating the tables would mean editing the file, which is what already

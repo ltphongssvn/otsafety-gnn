@@ -7,7 +7,6 @@ context, or leaks a local path.
 """
 
 from datetime import UTC, datetime
-from typing import Any
 
 import pytest
 from pydantic import ValidationError
@@ -17,8 +16,8 @@ from otsafety_tooling.contracts.branch_report import BranchFact, BranchReport, D
 SHA = "a" * 40
 
 
-def _fact(**overrides: Any) -> dict[str, Any]:
-    fact: dict[str, Any] = {
+def _fact(**overrides: object) -> dict[str, object]:
+    fact: dict[str, object] = {
         "name": "develop",
         "kind": "local",
         "commit": SHA,
@@ -32,8 +31,8 @@ def _fact(**overrides: Any) -> dict[str, Any]:
     return fact
 
 
-def _finding(**overrides: Any) -> dict[str, Any]:
-    finding: dict[str, Any] = {
+def _finding(**overrides: object) -> dict[str, object]:
+    finding: dict[str, object] = {
         "rule_id": "B001",
         "reason_code": "PROTECTED_BRANCH_BEHIND",
         "message": "develop is 1 commit behind origin/develop",
@@ -43,8 +42,8 @@ def _finding(**overrides: Any) -> dict[str, Any]:
     return finding
 
 
-def _report(**overrides: Any) -> dict[str, Any]:
-    report: dict[str, Any] = {
+def _report(**overrides: object) -> dict[str, object]:
+    report: dict[str, object] = {
         "generated_at": datetime(2026, 9, 17, tzinfo=UTC),
         "repository": "otsafety-gnn",
         "head": SHA,
@@ -123,7 +122,7 @@ def test_timestamps_carry_a_time_zone() -> None:
         {"branch": ""},
     ],
 )
-def test_findings_use_known_rules_and_queryable_codes(overrides: dict[str, Any]) -> None:
+def test_findings_use_known_rules_and_queryable_codes(overrides: dict[str, object]) -> None:
     with pytest.raises(ValidationError):
         Finding.model_validate(_finding(**overrides))
 
