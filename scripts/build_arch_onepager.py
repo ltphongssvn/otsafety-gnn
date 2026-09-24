@@ -15,8 +15,10 @@ from __future__ import annotations
 import base64
 import hashlib
 import html
+import json
 import sys
 from pathlib import Path
+from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -631,11 +633,38 @@ def build_html() -> str:
 </body></html>"""
 
 
+CONTRACT = "command-outcome/v1"
+
+
+def note(text: str) -> None:
+    """Human-facing progress: stderr, never the payload channel."""
+    sys.stderr.write(f"{text}\n")
+
+
+def emit(command: str, outcome: str, code: str, message: str, data: dict[str, Any]) -> int:
+    """The envelope on stdout, and the exit code the outcome carries.
+
+    BUILT AS PLAIN DATA: this renders inside a pinned image carrying the renderer
+    and the standard library, not this repository's contracts. A test validates
+    the shape through the contract model, so a drift fails there, not in a caller.
+    """
+    envelope = {
+        "contract": CONTRACT,
+        "command": command,
+        "outcome": outcome,
+        "code": code,
+        "message": message,
+        "data": data,
+    }
+    sys.stdout.write(json.dumps(envelope) + "\n")
+    return {"success": 0, "failed": 1, "refused": 2}[outcome]
+
+
 def main() -> int:
     html_path = OUT / "project-architecture.html"
     pdf_path = OUT / "project-architecture.pdf"
     html_path.write_text(build_html(), encoding="utf-8")
-    print(f"WROTE_HTML {html_path} bytes={html_path.stat().st_size}")
+    note(f"WROTE_HTML {html_path} bytes={html_path.stat().st_size}")
 
     from playwright.sync_api import sync_playwright
 
@@ -653,12 +682,12 @@ def main() -> int:
         applied = pg.evaluate("() => document.fonts.status")
         if applied != "loaded":
             raise SystemExit(f"REFUSED: fonts are {applied}, not loaded")
-        print(f"FONTS {applied} ({pg.evaluate('() => document.fonts.size')} faces)")
+        note(f"FONTS {applied} ({pg.evaluate('() => document.fonts.size')} faces)")
         pg.pdf(path=str(pdf_path), width="420mm", height="297mm",
                print_background=True, prefer_css_page_size=False,
                margin={"top": "8mm", "bottom": "8mm", "left": "9mm", "right": "9mm"})
         b.close()
-    print(f"WROTE_PDF {pdf_path} bytes={pdf_path.stat().st_size}")
+    note(f"WROTE_PDF {pdf_path} bytes={pdf_path.stat().st_size}")
 
     from pypdf import PdfReader
 
@@ -669,8 +698,24 @@ def main() -> int:
     # flex container pinned by min-height and scrollHeight reports the viewport.
     # A number that does not move when the layout does is worse than none.
     n = len(PdfReader(str(pdf_path)).pages)
-    print(f"PAGE_COUNT {n}")
-    return 0 if n == 1 else 2
+    note(f"PAGE_COUNT {n}")
+    sheet = {
+        "html": str(html_path),
+        "pdf": str(pdf_path),
+        "bytes": pdf_path.stat().st_size,
+        "pages": n,
+    }
+    if n != 1:
+        # THE SHEET IS ONE PAGE OR IT IS NOT THE SHEET: a second page means the
+        # content outgrew the design, which is a refusal, not a rendering error.
+        return emit(
+            "pdf:render", "refused", "sheet_not_one_page",
+            f"the sheet rendered {n} pages; it is a one-page sheet", sheet,
+        )
+    return emit(
+        "pdf:render", "success", "sheet_rendered",
+        f"one page, {pdf_path.stat().st_size} bytes", sheet,
+    )
 
 
 if __name__ == "__main__":

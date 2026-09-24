@@ -16,9 +16,11 @@ evidence pages; a page with no verdicts means exactly that happened.
 
 from __future__ import annotations
 
+import json
 import sys
 import urllib.error
 import urllib.request
+from typing import Any
 
 EXPECTED = [
     ("/", 200),
@@ -43,28 +45,80 @@ def status(url: str) -> tuple[int, str]:
         return error.code, error.headers.get("Location", "") or ""
 
 
-def main() -> int:
-    if len(sys.argv) != 2:
-        print("usage: check_site.py BASE_URL", file=sys.stderr)
-        return 2
-    base = sys.argv[1].rstrip("/")
-    failures = 0
+CONTRACT = "command-outcome/v1"
+
+
+def note(text: str) -> None:
+    """Human-facing progress: stderr, never the payload channel."""
+    sys.stderr.write(f"{text}\n")
+
+
+def emit(command: str, outcome: str, code: str, message: str, data: dict[str, Any]) -> int:
+    """The envelope on stdout, and the exit code the outcome carries.
+
+    BUILT AS PLAIN DATA: this runs where the contract model may not be installed,
+    so it uses only the standard library. A test validates the shape through the
+    model, so a drift fails there rather than in a caller.
+    """
+    envelope = {
+        "contract": CONTRACT,
+        "command": command,
+        "outcome": outcome,
+        "code": code,
+        "message": message,
+        "data": data,
+    }
+    sys.stdout.write(json.dumps(envelope) + "\n")
+    return {"success": 0, "failed": 1, "refused": 2}[outcome]
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = sys.argv[1:] if argv is None else argv
+    if len(args) != 1:
+        return emit(
+            "site:check", "refused", "usage", "usage: check_site.py BASE_URL", {"arguments": args}
+        )
+    base = args[0].rstrip("/")
+    checks: list[dict[str, Any]] = []
+
     for path, expected in EXPECTED:
         got, _ = status(base + path)
         ok = got == expected
-        failures += not ok
-        print(f"{'PASS' if ok else 'FAIL'} {got} {path} (expected {expected})")
+        checks.append({"check": path, "passed": ok, "detail": f"{got} (expected {expected})"})
+        note(f"{'PASS' if ok else 'FAIL'} {got} {path} (expected {expected})")
 
     got, location = status(base + "/results")
     canonical = location in (base + "/results/", "/results/")
-    failures += not (got == 308 and canonical)
-    print(f"{'PASS' if got == 308 and canonical else 'FAIL'} {got} /results -> {location}")
+    redirects = got == 308 and canonical
+    checks.append(
+        {"check": "/results redirect", "passed": redirects, "detail": f"{got} -> {location}"}
+    )
+    note(f"{'PASS' if redirects else 'FAIL'} {got} /results -> {location}")
 
     _, body = status(base + "/evidence/")
     verdicts = body.count("data-verdict=")
-    failures += verdicts == 0
-    print(f"{'PASS' if verdicts else 'FAIL'} evidence page carries {verdicts} verdicts")
-    return 1 if failures else 0
+    checks.append(
+        {"check": "evidence verdicts", "passed": bool(verdicts), "detail": f"{verdicts} verdicts"}
+    )
+    note(f"{'PASS' if verdicts else 'FAIL'} evidence page carries {verdicts} verdicts")
+
+    failed = [check["check"] for check in checks if not check["passed"]]
+    if failed:
+        return emit(
+            "site:check",
+            "refused",
+            "site_assertions_failed",
+            f"{len(failed)} of {len(checks)} assertions failed: "
+            + ", ".join(str(f) for f in failed),
+            {"base": base, "checks": checks, "failed": failed},
+        )
+    return emit(
+        "site:check",
+        "success",
+        "site_serves_what_it_promises",
+        f"all {len(checks)} assertions passed against {base}",
+        {"base": base, "checks": checks, "failed": []},
+    )
 
 
 if __name__ == "__main__":
