@@ -17,9 +17,11 @@ from __future__ import annotations
 import re
 import shutil
 import subprocess
-import sys
 from pathlib import Path
 
+from pydantic import BaseModel, ConfigDict
+
+from otsafety_tooling.cli import note, result
 from otsafety_tooling.contracts.files import read_json
 from otsafety_tooling.contracts.toolchain import BinaryTool, Toolchain
 from otsafety_tooling.paths import REPO_ROOT
@@ -64,14 +66,37 @@ def problems(
     return found
 
 
+class ToolchainChecked(BaseModel):
+    """Which tools were checked, and anything that was not the pinned binary."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    tools: list[str]
+    problems: list[str]
+
+
 def main() -> int:
     chain = read_json(REPO_ROOT / "toolchain.json", Toolchain)
     found = problems(chain)
-    report = (
-        "\n".join(found) if found else f"every task resolves the pinned {len(pinned(chain))} tools"
+    names = sorted(pinned(chain))
+    payload = ToolchainChecked(tools=names, problems=found)
+    if found:
+        for line in found:
+            note(line)
+        return result(
+            "toolchain:verify",
+            "refused",
+            "tool_not_pinned",
+            "; ".join(found),
+            payload,
+        )
+    return result(
+        "toolchain:verify",
+        "success",
+        "tools_pinned",
+        f"every task resolves the pinned {len(names)} tools",
+        payload,
     )
-    print(report, file=sys.stderr if found else sys.stdout)
-    return 1 if found else 0
 
 
 if __name__ == "__main__":
