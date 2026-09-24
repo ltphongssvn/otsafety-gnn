@@ -1,0 +1,17 @@
+# apps/site/bunfig.toml
+# G.47: no gate reaches the network, and every gate is bounded in time.
+# NO AUTO-INSTALL, AND NO NETWORK AT CHECK TIME.
+#
+# eslint-effective.ts imports eslint. With no node_modules -- which is every
+# fresh worktree, since setup has not run yet -- bun resolved that import by
+# AUTO-INSTALLING from the registry. It hung there for forty-one minutes with an
+# HTTP client thread open, holding check_all and returning no prompt, because a
+# network fetch has no time bound and the gate had none either.
+#
+# A missing dependency is a missing dependency: it must say so at once. auto =
+# "disable" makes an unresolvable import an error, and offline refuses the
+# registry outright, so a gate can fail in a second rather than hang.
+[install]
+auto = "disable"
+offline = true
+frozenLockfile = true

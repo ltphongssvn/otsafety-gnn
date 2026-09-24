@@ -16,6 +16,7 @@ from pathlib import Path
 
 import pytest
 
+from otsafety_tooling.contracts.bunfig import BunfigFile
 from otsafety_tooling.contracts.files import read_json, read_toml
 from otsafety_tooling.contracts.mise_config import MiseConfig
 from otsafety_tooling.contracts.site_package import SitePackage
@@ -94,3 +95,21 @@ def test_the_site_declares_its_own_jsx_element_type() -> None:
     text = declaration.read_text(encoding="utf-8")
     assert 'import "astro/astro-jsx"' in text
     assert "type Element = HTMLElement" in text
+
+
+def test_the_site_never_reaches_the_registry_at_check_time() -> None:
+    """A GATE THAT CAN HANG IS NOT A GATE. eslint-effective.ts imports eslint, and
+    in a worktree where setup has not run there is no node_modules -- so bun
+    resolved that import by AUTO-INSTALLING from the registry and sat there for
+    forty-one minutes with an HTTP client thread open, holding check_all and
+    returning no prompt. A network fetch has no time bound.
+
+    Bun's own documentation gives the lever: offline means a dependency that is
+    not cached is an error, and disabling auto-install makes an unresolvable
+    import fail at once. It now says `Cannot find package 'eslint'` in under a
+    second, which is what a missing install should look like.
+    """
+    settings = read_toml(REPO_ROOT / "apps" / "site" / "bunfig.toml", BunfigFile).install
+    assert settings.auto == "disable", "auto-install turns a missing dependency into a fetch"
+    assert settings.offline is True, "the registry is not reachable from a gate"
+    assert settings.frozen_lockfile is True, "a stale lockfile fails rather than resolving anew"

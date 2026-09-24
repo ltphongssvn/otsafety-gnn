@@ -1687,6 +1687,28 @@ steps:
       - {loop: constrain, side: code}
     done_when:
       - {kind: path, path: tooling/tests/test_wandb_tracker.py}
+  - id: G.46
+    title: The ban on Any cannot be reopened, and the implicit forms are caught too
+    thread: G
+    phase: 8G
+    depends_on: [G.45]
+    source: sixty-one explicit sites accumulated behind a module-wide exemption with no count; disallow_any_explicit never
+      sees Callable[..., X] or a bare container, and ANN401 checks only a function argument
+    serves:
+      - {loop: constrain, side: code}
+    done_when:
+      - {kind: path, path: tooling/tests/test_implicit_any.py}
+  - id: G.47
+    title: No gate reaches the network, and every gate is bounded in time
+    thread: G
+    phase: 8G
+    depends_on: [G.42]
+    source: eslint-effective.ts imported eslint with no node_modules, so bun auto-installed from the registry and held check_all
+      for forty-one minutes printing nothing, because subprocess.run carried no timeout
+    serves:
+      - {loop: constrain, side: code}
+    done_when:
+      - {kind: path, path: tooling/tests/test_gates_are_bounded.py}
 decisions:
   - {id: X.SPIKE, title: 'Reference spike, the original thread B', state: superseded, reason: 'thread B dissolved by the rule
       change moving all execution local: the sandbox prototype became reference reading only and every line is re-derived

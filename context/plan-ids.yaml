@@ -602,3 +602,9 @@ issued:
   first_title: 'The tooling''s tests hold no explicit Any: every double implements a protocol this repository owns, and every
     builder names its shape'
   retired: false
+- id: G.46
+  first_title: The ban on Any cannot be reopened, and the implicit forms are caught too
+  retired: false
+- id: G.47
+  first_title: No gate reaches the network, and every gate is bounded in time
+  retired: false

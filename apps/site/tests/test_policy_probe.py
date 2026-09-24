@@ -12,6 +12,8 @@ import shutil
 import subprocess
 from pathlib import Path
 
+import tomlkit
+
 from otsafety_tooling.contracts.files import read_json
 from otsafety_tooling.contracts.policy_inputs import PolicyInput, PolicyInputs
 
@@ -89,8 +91,19 @@ def test_the_real_configuration_passes(tmp_path: Path) -> None:
 
 
 def test_removing_a_ban_is_denied(tmp_path: Path) -> None:
+    """THE PROBE REMOVES A RULE, NOT A SUBSTRING. It matched the literal text
+    ', "RUF100", "ANN401"]', which stopped matching the moment the annotation
+    family was added after ANN401 -- an anchor that breaks when the configuration
+    it guards is edited nearby. The rule is dropped from the parsed list instead,
+    so the probe survives any reordering of what it does not name."""
     world = _world(tmp_path)
-    _remove(world, "pyproject.toml", ', "RUF100", "ANN401"]', ', "RUF100"]')
+    path = world / "pyproject.toml"
+    document = tomlkit.parse(path.read_text(encoding="utf-8"))
+    select = document["tool"]["ruff"]["lint"]["select"]
+    assert "ANN401" in select, "the probe removes a rule the configuration declares"
+    select.remove("ANN401")
+    path.write_text(tomlkit.dumps(document), encoding="utf-8")
+
     run = _prove(world)
     assert run.returncode != 0 and "ruff must select ANN401" in run.stdout, run.stdout
 
