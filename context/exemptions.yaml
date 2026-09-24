@@ -29,8 +29,14 @@ scoped:
   - C408
   - E501
   - N806
-  reason: 'style rules only, on a generator preserved verbatim: a rewrite to the house style once silently dropped
-    five of the sheet''s nine sections'
+  - TID251
+  reason: >-
+    Style rules on a generator preserved verbatim: a rewrite to the house style once
+    silently dropped five of the sheet's nine sections. TID251 is not a style rule and is
+    declared for its own reason: json.loads is banned in favour of model_validate_json, and
+    this renderer runs inside an image carrying Playwright and pypdf alone, so it cannot
+    import the contract. The facts it reads are collected and validated against
+    sheet-facts/v1 by the tooling before they are written.
 - glob: tooling/tests/**
   rules:
   - S101

@@ -217,29 +217,11 @@ LAYERS = [
          code="SLO as Code — min_ap_lift, min_partial_rho", data="Attestation as Data — signed model card"),
 ]
 
-PHASES = [
-    ("0", "Ground truth", "done"), ("1", "Branch divergence", "done"),
-    ("2", "GitFlow baseline", "done"), ("3", "Worktree", "done"),
-    ("4", "Stack inventory", "done"), ("6", "Toolchain and tasks", "done"),
-    ("7", "The site", "done"), ("8", "The PDF", "now"),
-    ("9", "The GNN package", "todo"), ("10", "Lightning AI", "todo"),
-    ("11", "Research execution", "todo"),
-]
+# PHASES AND THREADS ARE OBSERVED, NOT TYPED, for the reason the status line is.
+# What was here claimed thread A and B and D complete, C at 70 per cent, "41 tasks"
+# and "22 tests", and omitted threads F and G entirely -- G being the largest in
+# the plan at 42 of 53. Every figure was true when written.
 
-# Workstream B was the sandbox spike. It is gone, not paused: every line is
-# re-derived red-first in this repository, so there is nothing left to port.
-THREADS = [
-    ("A", "Research definition", 100, "done",
-     "Question, ML objective, Q1/Q2/Q3, granularity, label source"),
-    ("B", "Engineering platform", 100, "done",
-     "Toolchain pinned, 41 tasks, evidence, policy, CI on macOS and Linux"),
-    ("C", "Deliverables", 70, "active",
-     "Site: architecture, method, data, stack, evidence. Sheet: fonts vendored"),
-    ("D", "Experiment tracking", 100, "done",
-     "MLflow + W&B behind one port, in the default composition, 22 tests on CI"),
-    ("E", "The GNN package", 0, "todo",
-     "Contracts, ingest, splits, leakage, degree null, attribution, the ladder"),
-]
 
 # Execution spine. Each stage names the As-Code artifact that DEFINES it and the
 # As-Data artifact it EMITS -- the two halves of every loop in the platform.
@@ -270,6 +252,67 @@ BACKEDGE = (
     "degree gate is a loop-breaker, not a metric &mdash; and every verdict is persisted, "
     "because a feedback loop you did not log cannot be audited."
 )
+
+
+def _facts() -> Mapping[str, object]:
+    """The figures the sheet states, collected before it renders.
+
+    THE RENDERER DOES NOT COLLECT. This runs inside a pinned image carrying
+    Playwright and pypdf: no git, no PyYAML, not this repository's package. Every
+    attempt to read the plan, count merges or inspect the tree failed there for a
+    different missing tool, and each fix was a tool-shaped patch on a design
+    mistake. 2026 practice for a generated document separates collection from
+    rendering -- the collector runs where the tooling is, and this transforms the
+    document it is handed. mise run sheet:facts writes it.
+    """
+    export = REPO_ROOT / "apps" / "site" / "src" / "content" / "sheet-facts.json"
+    if not export.is_file():
+        raise SystemExit(f"REFUSED: no facts at {export}; run mise run sheet:facts")
+    loaded = json.loads(export.read_text(encoding="utf-8"))
+    if not isinstance(loaded, dict):
+        raise SystemExit(f"REFUSED: {export} is not an object")
+    return loaded
+
+
+def status_line() -> str:
+    """The status, in words, from the collected facts."""
+    seen = _facts()
+    return (
+        f"{seen['steps_done']} of {seen['steps']} plan steps &middot; "
+        f"{seen['ids']} requirement ids &middot; {seen['test_functions']} test functions, "
+        f"{seen['merged_prs']} pull requests"
+    )
+
+
+def observed_status() -> Mapping[str, object]:
+    """The collected facts, for anything that needs a figure rather than a line."""
+    return _facts()
+
+
+def phase_chips_data() -> list[tuple[str, str, str]]:
+    """Each phase, as collected."""
+    phases = _facts().get("phases")
+    rows = phases if isinstance(phases, list) else []
+    return [
+        (str(r["id"]), str(r["title"]), str(r["state"])) for r in rows if isinstance(r, dict)
+    ]
+
+
+def thread_rows_data() -> list[tuple[str, str, int, str, str]]:
+    """Each workstream, as collected."""
+    threads = _facts().get("threads")
+    rows = threads if isinstance(threads, list) else []
+    return [
+        (
+            str(r["id"]),
+            str(r["title"]),
+            int(str(r["percent"])),
+            str(r["state"]),
+            f"{r['done']} of {r['total']} steps",
+        )
+        for r in rows
+        if isinstance(r, dict)
+    ]
 
 
 def e(s: str) -> str:
@@ -312,7 +355,7 @@ def sweep_rows() -> str:
 def phase_chips() -> str:
     return "".join(
         f'<div class="chip {st}"><span class="pn">{e(n)}</span>'
-        f'<span class="pl">{e(nm)}</span></div>' for n, nm, st in PHASES
+        f'<span class="pl">{e(nm)}</span></div>' for n, nm, st in phase_chips_data()
     )
 
 
@@ -323,7 +366,7 @@ def thread_rows() -> str:
           <span class="st {st}">{e(st)}</span></div>
         <div class="bar"><div class="fill {st}" style="width:{p}%"></div></div>
         <div class="th-note">{e(note)}</div>
-      </div>""" for k, nm, p, st, note in THREADS)
+      </div>""" for k, nm, p, st, note in thread_rows_data())
 
 
 def flow_svg() -> str:
@@ -553,7 +596,7 @@ def build_html() -> str:
 
 <header>
   <h1>Project Architecture &mdash; Target-Safety GNN on a Biomedical Knowledge Graph</h1>
-  <div class="hstat"><b>Status</b> Phase 8 &middot; 383 tests, 11 pull requests &middot; both trackers verified on Linux</div>
+  <div class="hstat"><b>Status</b> {status_line()} &middot; both trackers verified on Linux</div>
 </header>
 
 <div class="qband">

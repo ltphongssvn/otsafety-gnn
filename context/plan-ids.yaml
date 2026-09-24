@@ -624,3 +624,6 @@ issued:
 - id: G.52
   first_title: The committed Zod is what the generator produces, proved by regenerating and comparing
   retired: false
+- id: G.53
+  first_title: The sheet's status is observed at render time, never typed into its markup
+  retired: false

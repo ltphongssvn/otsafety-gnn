@@ -112,7 +112,7 @@ select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "N", "T20", "BLE", "TID251",
 # equal this table exactly; policy:exemptions and test_exemptions.py check it.
 "apps/site/tests/**" = ["S101", "S603", "S607", "S310", "BLE001", "E402"]
 "scripts/**" = ["T201", "S603", "S310", "S202"]
-"scripts/build_arch_onepager.py" = ["C408", "E501", "N806"]
+"scripts/build_arch_onepager.py" = ["C408", "E501", "N806", "TID251"]
 "tooling/tests/**" = ["S101", "S603", "S607", "ANN401"]
 "tooling/src/otsafety_tooling/git/*.py" = ["T201"]
 

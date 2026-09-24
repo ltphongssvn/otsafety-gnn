@@ -6523,6 +6523,15 @@
         "G.52"
       ],
       "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "observed: the sheet's own status had drifted by a factor of six",
+      "text": "the rendered architecture sheet states 383 tests and 11 pull requests against 774 tests and 72 merges, because the line is a literal in the generator's markup",
+      "maps_to": [
+        "G.53"
+      ],
+      "not_a_plan_item": null
     }
   ]
 }

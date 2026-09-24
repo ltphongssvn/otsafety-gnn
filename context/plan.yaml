@@ -1756,6 +1756,17 @@ steps:
       - {loop: promise, side: data}
     done_when:
       - {kind: path, path: tooling/tests/test_generated_zod_is_committed.py}
+  - id: G.53
+    title: The sheet's status is observed at render time, never typed into its markup
+    thread: G
+    phase: 8G
+    depends_on: [G.23]
+    source: the sheet claims 383 tests and 11 pull requests while the repository has 774 and 72; the figure was true when
+      typed and has drifted ever since, which is the drift plan-as-data exists to end
+    serves:
+      - {loop: promise, side: data}
+    done_when:
+      - {kind: path, path: tooling/tests/test_onepager_status_is_observed.py}
 decisions:
   - {id: X.SPIKE, title: 'Reference spike, the original thread B', state: superseded, reason: 'thread B dissolved by the rule
       change moving all execution local: the sandbox prototype became reference reading only and every line is re-derived

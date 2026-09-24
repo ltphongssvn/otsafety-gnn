@@ -278,6 +278,9 @@ uv run --no-sync python -m otsafety_tooling.contracts.zod
 # THE DATA, BESIDE THE SHAPES: each context and conf file validated by its model
 # and written as JSON the site loads as a content collection.
 uv run --no-sync python -m otsafety_tooling.contracts.data
+# THE SHEET'S FIGURES: collected where the tooling is, because the renderer
+# cannot collect -- it has no git, no PyYAML and not this package.
+uv run --no-sync python -m otsafety_tooling.planning.sheet
 """
 
 [tasks."site:lock"]
