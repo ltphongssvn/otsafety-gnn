@@ -1,4 +1,5 @@
 # conf/config.yaml
+# A.2: proves this step of the plan.
 # THE INGESTION CONTRACT: which Open Targets release, and which datasets in it.
 #
 # EVERY DATASET NAME HERE WAS READ OFF THE SERVER, not remembered. Listing

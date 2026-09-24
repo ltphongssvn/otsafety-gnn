@@ -1,4 +1,5 @@
 # tooling/src/otsafety_tooling/tracking_mlflow.py
+# D.1: proves this step of the plan.
 """MLflow, as an adapter behind the tracking port.
 
 NOTHING IMPORTS THIS EXCEPT THE COMPOSITION ROOT. An experiment depends on the

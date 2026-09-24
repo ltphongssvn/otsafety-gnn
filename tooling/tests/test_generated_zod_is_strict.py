@@ -17,6 +17,8 @@ import pytest
 
 from otsafety_tooling.paths import REPO_ROOT
 
+pytestmark = pytest.mark.requirement("G.27")
+
 GENERATED = sorted((REPO_ROOT / "apps" / "site" / "src" / "contracts").glob("*.gen.ts"))
 
 

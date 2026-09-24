@@ -1,4 +1,5 @@
 # tooling/src/otsafety_tooling/contracts/run_record.py
+# 6.4: proves this step of the plan.
 """run-record/v1: one task execution, recorded as data.
 
 SHAPED BY THE OPEN TELEMETRY CONVENTIONS for an operation with a duration and a

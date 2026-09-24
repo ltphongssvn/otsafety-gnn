@@ -3853,3 +3853,9 @@ candidates:
     compares generated output with what is committed
   maps_to:
   - G.52
+- source: SESSION
+  ref: 'observed: half the matrix was unconfirmed for two different reasons'
+  text: of ninety-nine unconfirmed rows, seventy-two were steps not yet built and twenty-seven were completed steps whose
+    evidence no marker could ever confirm
+  maps_to:
+  - G.54

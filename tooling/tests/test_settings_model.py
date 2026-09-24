@@ -27,6 +27,8 @@ from otsafety_tooling.contracts.mise_config import MiseConfig
 from otsafety_tooling.contracts.settings import settings
 from otsafety_tooling.paths import REPO_ROOT
 
+pytestmark = pytest.mark.requirement("G.24")
+
 VARIABLES = (
     "WANDB_MODE",
     "WANDB_ENTITY",

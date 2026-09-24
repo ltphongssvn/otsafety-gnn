@@ -1,4 +1,5 @@
 # tooling/src/otsafety_tooling/tracking_wandb.py
+# D.2: proves this step of the plan.
 """Weights & Biases, as an adapter behind the tracking port -- beside MLflow.
 
 FIRST-CLASS FROM DAY ONE. cs1090a-recsys reserved a slot for W&B and never

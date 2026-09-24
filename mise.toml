@@ -1,4 +1,5 @@
 # mise.toml
+# 6.3: proves this step of the plan.
 # TASKS. Tool versions live in toolchain.json (executables, installed by
 # flake.nix) and uv.lock (Python packages, including every linter, test runner
 # and git hook); this file owns neither.

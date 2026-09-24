@@ -624,3 +624,6 @@ issued:
 - id: G.52
   first_title: The committed Zod is what the generator produces, proved by regenerating and comparing
   retired: false
+- id: G.54
+  first_title: Evidence declares how it is verified, so a file that cannot carry a marker is still confirmable
+  retired: false

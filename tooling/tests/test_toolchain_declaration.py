@@ -17,6 +17,8 @@ from otsafety_tooling.contracts.mise_config import MiseConfig
 from otsafety_tooling.contracts.toolchain import BinaryTool, Toolchain
 from otsafety_tooling.paths import REPO_ROOT
 
+pytestmark = pytest.mark.requirement("6.1")
+
 PLATFORMS = ("x86_64-linux", "aarch64-darwin")
 MISE_LINUX_DIGEST = "e4767e4854af5daeff2191b2bbdc94f834742a23efad591dbd33187861d41604"
 

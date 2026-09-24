@@ -44,7 +44,7 @@ wandb = pytest.importorskip("wandb", reason="the wandb extra is not installed")
 from otsafety_tooling import tracking_wandb  # noqa: E402
 from otsafety_tooling.tracking_wandb import RECORD_FILENAME, WandbTracker, _Artifact  # noqa: E402
 
-pytestmark = pytest.mark.requirement("G.45")
+pytestmark = pytest.mark.requirement("D.2")
 
 START = datetime(2026, 9, 19, 5, 30, tzinfo=UTC)
 COMMIT = "a" * 40

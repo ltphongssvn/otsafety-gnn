@@ -1,4 +1,5 @@
 # lefthook.yml
+# 6.6: proves this step of the plan.
 # Git hooks, committed so they belong to the repository rather than to one
 # machine. lefthook itself is pinned in uv.lock; `mise run setup` installs the
 # hooks on the laptop, Lightning AI and FAS OnDemand alike.
