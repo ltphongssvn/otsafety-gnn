@@ -112,4 +112,4 @@ def test_the_release_tool_never_shares_the_projects_lock() -> None:
     tool_lock = (REPO_ROOT / "tools" / "release" / "uv.lock").read_text()
     assert 'name = "python-semantic-release"' in tool_lock
     for task in ("release:preview", "release:version"):
-        assert "uv run --project tools/release semantic-release" in _task(task)
+        assert "uv run --no-sync --project tools/release semantic-release" in _task(task)

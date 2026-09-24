@@ -58,6 +58,14 @@ jobs:
         run: mise trust
 
       # PROVENANCE, NOT ONLY PINS: every tool this job runs is the pinned binary.
+      # THE ENVIRONMENT IS BUILT ONCE, DELIBERATELY. Every task runs uv frozen, so
+      # nothing installs the project on the way past any more -- which is the point:
+      # a task must not change what is installed merely by starting. uv sync
+      # installs the project and its workspace members as editable packages, and
+      # --frozen holds the committed lockfile exactly.
+      - name: Install the Python environment from uv.lock
+        run: uv sync --frozen
+
       - name: Prove the toolchain
         run: mise run toolchain:verify
 

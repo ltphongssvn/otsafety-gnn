@@ -135,17 +135,17 @@ def test_no_task_script_opens_a_tera_comment() -> None:
 
 def test_the_branches_task_records_the_branch_report() -> None:
     """Every operation is a task, so the report never needs a raw interpreter call."""
-    assert _script("branches") == "uv run python -m otsafety_tooling.git.branches"
+    assert _script("branches") == "uv run --no-sync python -m otsafety_tooling.git.branches"
 
 
 def test_the_artifacts_path_task_prints_the_shared_evidence_root() -> None:
     """Shell commands in any worktree write logs where worktree removal cannot reach."""
-    assert _script("artifacts:path") == "uv run python -m otsafety_tooling.artifacts"
+    assert _script("artifacts:path") == "uv run --no-sync python -m otsafety_tooling.artifacts"
 
 
 def test_repository_settings_are_checked_and_applied_through_tasks() -> None:
     """contracts/repository-settings.json is enforced by commands, never by clicks."""
-    module = "uv run python -m otsafety_tooling.github.settings"
+    module = "uv run --no-sync python -m otsafety_tooling.github.settings"
     assert _script("repo:check") == f"{module} check"
     assert _script("repo:configure") == f"{module} configure"
 
@@ -154,7 +154,7 @@ def test_pruning_plans_unless_explicitly_told_to_apply() -> None:
     """Deleting shared branches needs a deliberate flag; the default is a plan."""
     assert 'flag "--apply"' in _usage("branches:prune")
     script = _script("branches:prune")
-    assert "uv run python -m otsafety_tooling.git.prune --apply" in script
+    assert "uv run --no-sync python -m otsafety_tooling.git.prune --apply" in script
     assert 'if [ "${usage_apply-}" = "true" ]; then' in script
 
 
@@ -163,7 +163,7 @@ def test_any_task_can_be_run_with_its_execution_recorded() -> None:
     usage = _usage("run")
     assert 'arg "<task>"' in usage
     assert 'arg "[arguments]..."' in usage
-    assert "uv run python -m otsafety_tooling.runs" in _script("run")
+    assert "uv run --no-sync python -m otsafety_tooling.runs" in _script("run")
 
 
 def test_returning_to_an_existing_branch_is_a_task() -> None:
