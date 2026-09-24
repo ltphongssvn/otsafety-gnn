@@ -12,10 +12,12 @@ as containing the very comments it looks for.
 from __future__ import annotations
 
 import re
-import sys
 from collections import Counter
 from pathlib import Path
 
+from pydantic import BaseModel, ConfigDict
+
+from otsafety_tooling.cli import note, result
 from otsafety_tooling.contracts.exemptions import ExemptionRegister
 from otsafety_tooling.contracts.files import read_toml, read_yaml
 from otsafety_tooling.contracts.pyproject_config import WorkspacePyproject
@@ -121,15 +123,32 @@ def problems(root: Path, register: ExemptionRegister) -> list[str]:
     return out
 
 
+class ExemptionsChecked(BaseModel):
+    """What the register and the code disagree about, if anything."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    problems: list[str]
+
+
 def main() -> int:
     found = problems(REPO_ROOT, read_yaml(REPO_ROOT / REGISTER, ExemptionRegister))
     if found:
-        message = f"refusing: every exemption needs its entry in {REGISTER}:\n  " + "\n  ".join(
-            found
+        note(f"refusing: every exemption needs its entry in {REGISTER}:\n  " + "\n  ".join(found))
+        return result(
+            "policy:exemptions",
+            "refused",
+            "exemption_undeclared",
+            f"refusing: every exemption needs its entry in {REGISTER}: " + "; ".join(found),
+            ExemptionsChecked(problems=found),
         )
-        print(message, file=sys.stderr)  # noqa: T201
-        return 1
-    return 0
+    return result(
+        "policy:exemptions",
+        "success",
+        "exemptions_declared",
+        f"every exemption is declared in {REGISTER}, and every entry is live",
+        ExemptionsChecked(problems=[]),
+    )
 
 
 if __name__ == "__main__":
