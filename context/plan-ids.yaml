@@ -608,3 +608,6 @@ issued:
 - id: G.47
   first_title: No gate reaches the network, and every gate is bounded in time
   retired: false
+- id: G.48
+  first_title: An observation that cannot see an evidence kind says so, rather than reporting it unmet
+  retired: false

@@ -3828,3 +3828,9 @@ candidates:
     whole check sat silent
   maps_to:
   - G.47
+- source: SESSION
+  ref: 'observed: the facts knew zero merged pull requests'
+  text: staged_facts at the index reported no merged PRs at all, so G.2 read as unmet and blocked G.20 though its evidence
+    had merged sixty PRs ago
+  maps_to:
+  - G.48
