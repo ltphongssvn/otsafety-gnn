@@ -3953,3 +3953,15 @@ candidates:
     nor the as-data column; the names agree and nothing compares the rest
   maps_to:
   - '8.5'
+- source: USER
+  ref: 'asked: verify the nine layers'' chain of accountability'
+  text: each layer produces a record and the records form an evidence chain from the model-card limitation statement through
+    to the signed model card; verify it is in the plan, the ledger and the matrix
+  maps_to:
+  - G.63
+- source: SESSION
+  ref: 'measured: every layer has an owner and no link is declared'
+  text: matching a layer's as-data record to a plan step by keyword found owners for six and missed three that exist -- 9.6,
+    9.3 and 9.9 -- which is the argument that a guess is not a chain
+  maps_to:
+  - G.63

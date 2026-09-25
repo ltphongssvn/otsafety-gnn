@@ -1065,6 +1065,11 @@
       "id": "G.62",
       "first_title": "The README is generated from the plan and the toolchain, and drift-gated; the ban narrows to hand-written Markdown",
       "retired": false
+    },
+    {
+      "id": "G.63",
+      "first_title": "Every layer names the step that produces its record, and a gate walks the chain",
+      "retired": false
     }
   ]
 }

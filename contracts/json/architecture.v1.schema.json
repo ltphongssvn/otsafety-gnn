@@ -59,6 +59,14 @@
             "minLength": 3,
             "title": "As Data",
             "type": "string"
+          },
+          "produced_by": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Produced By",
+            "type": "array"
           }
         },
         "required": [
@@ -70,7 +78,8 @@
           "failure",
           "guard",
           "as_code",
-          "as_data"
+          "as_data",
+          "produced_by"
         ],
         "title": "Layer",
         "type": "object"

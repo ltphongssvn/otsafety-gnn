@@ -21,10 +21,10 @@ rather than the raw score.
 ## Status
 
 Observed when this file was generated, never typed: **89 of
-178 plan steps complete**, 22 ready and 67
-blocked, across 213 issued requirement ids and 212 matrix
-rows with 0 orphan observations. 692 test
-functions, 79 merged pull requests, 65 tasks,
+179 plan steps complete**, 23 ready and 67
+blocked, across 214 issued requirement ids and 213 matrix
+rows with 0 orphan observations. 697 test
+functions, 80 merged pull requests, 65 tasks,
 22 contracts.
 
 | Thread | | Done | |
@@ -35,7 +35,7 @@ functions, 79 merged pull requests, 65 tasks,
 | D | Experiment tracking | 2 of 3 | 67% |
 | E | The GNN package | 1 of 36 | 3% |
 | F | Release, deployment and supply chain | 3 of 16 | 19% |
-| G | Contracts, policy and evidence | 46 of 57 | 81% |
+| G | Contracts, policy and evidence | 46 of 58 | 79% |
 
 ## How it is kept honest
 
