@@ -1823,6 +1823,17 @@ steps:
       - {loop: declare, side: code}
     done_when:
       - {kind: path, path: tooling/tests/test_sheet_typefaces.py}
+  - id: G.59
+    title: The execution spine is legible in print, and fills the space it has
+    thread: C
+    phase: '8'
+    depends_on: ['8.1']
+    source: its labels render at 6.1 to 6.6 point, the floor below which print needs a magnifier, while the column below it
+      sits empty; 2026 print guidance puts comfortable secondary text at 8 point with leading a fifth greater again
+    serves:
+      - {loop: declare, side: code}
+    done_when:
+      - {kind: path, path: tooling/tests/test_flow_is_legible.py}
 decisions:
   - {id: X.SPIKE, title: 'Reference spike, the original thread B', state: superseded, reason: 'thread B dissolved by the rule
       change moving all execution local: the sandbox prototype became reference reading only and every line is re-derived

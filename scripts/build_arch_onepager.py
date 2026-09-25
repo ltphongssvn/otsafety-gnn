@@ -390,11 +390,11 @@ def flow_svg() -> str:
     Render the execution spine as SVG. Geometry is computed, not hand-placed, so
     adding a stage to STAGES re-lays-out the whole diagram -- Diagram as Code.
     """
-    BX, BW, BH, GAP, TOP = 30, 356, 29, 5, 16
+    BX, BW, BH, GAP, TOP = 26, 364, 35, 6, 18
     W = 400
     n = len(STAGES)
     last_bottom = TOP + n * BH + (n - 1) * GAP
-    H = last_bottom + 38
+    H = last_bottom + 34
 
     INK, MUT = "#14171a", "#5b6672"
     IND, GRN, RED, LINE = "#2f3f8f", "#1d6b45", "#a5312b", "#c9d2da"
@@ -409,11 +409,11 @@ def flow_svg() -> str:
          '</defs>']
 
     # column legend
-    o.append(f'<rect x="{BX}" y="6" width="7" height="7" rx="1.5" fill="{IND}"/>'
-             f'<text x="{BX+11}" y="12.5" font-size="6.6" fill="{MUT}">'
+    o.append(f'<rect x="{BX}" y="4" width="9" height="9" rx="1.5" fill="{IND}"/>'
+             f'<text x="{BX+11}" y="12" font-size="7.8" fill="{MUT}">'
              f'AS CODE \u2014 what the system SHOULD do</text>')
-    o.append(f'<rect x="{BX+190}" y="6" width="7" height="7" rx="1.5" fill="{GRN}"/>'
-             f'<text x="{BX+201}" y="12.5" font-size="6.6" fill="{MUT}">'
+    o.append(f'<rect x="{BX+190}" y="4" width="9" height="9" rx="1.5" fill="{GRN}"/>'
+             f'<text x="{BX+201}" y="12" font-size="7.8" fill="{MUT}">'
              f'AS DATA \u2014 what it DID / DECIDED</text>')
 
     for i, S in enumerate(STAGES):
@@ -423,19 +423,19 @@ def flow_svg() -> str:
         fill = "#fdf4f3" if gate else "#ffffff"
         o.append(f'<rect x="{BX}" y="{y}" width="{BW}" height="{BH}" rx="3.5" '
                  f'fill="{fill}" stroke="{stroke}" stroke-width="{sw}"/>')
-        o.append(f'<text x="{BX+10}" y="{y+11.5}" font-size="8.4" font-weight="700" '
+        o.append(f'<text x="{BX+10}" y="{y+11.5}" font-size="9.6" font-weight="700" '
                  f'fill="{RED if gate else INK}">{S["t"]}</text>')
         if gate:
             bw_ = 31 if gate == "HALT" else 40
-            o.append(f'<rect x="{BX+BW-9-bw_}" y="{y+3.5}" width="{bw_}" height="10" '
+            o.append(f'<rect x="{BX+BW-9-bw_}" y="{y+3.5}" width="{bw_}" height="12" '
                      f'rx="2" fill="{RED}"/>'
-                     f'<text x="{BX+BW-9-bw_/2}" y="{y+10.8}" font-size="5.9" '
+                     f'<text x="{BX+BW-9-bw_/2}" y="{y+11.4}" font-size="7.4" '
                      f'font-weight="700" fill="#fff" text-anchor="middle">{gate}</text>')
-        o.append(f'<text x="{BX+10}" y="{y+20.5}" font-size="6.4" fill="{MUT}" '
+        o.append(f'<text x="{BX+10}" y="{y+21}" font-size="7.5" fill="{MUT}" '
                  f'font-family="DejaVuSansMono,monospace">{S["s"]}</text>')
-        o.append(f'<text x="{BX+10}" y="{y+26.5}" font-size="6.1" fill="{IND}" '
+        o.append(f'<text x="{BX+10}" y="{y+30.5}" font-size="7.5" fill="{IND}" '
                  f'font-weight="700">\u2023 {S["c"]}</text>')
-        o.append(f'<text x="{BX+190}" y="{y+26.5}" font-size="6.1" fill="{GRN}" '
+        o.append(f'<text x="{BX+190}" y="{y+30.5}" font-size="7.5" fill="{GRN}" '
                  f'font-weight="700">\u2023 {S["d"]}</text>')
 
         if i < len(STAGES) - 1:
@@ -445,13 +445,13 @@ def flow_svg() -> str:
 
     # back-edge: the loop that makes this not a pipeline
     my = TOP + BH / 2
-    o.append(f'<path d="M {BX+BW/2} {last_bottom} L {BX+BW/2} {last_bottom+16} '
-             f'L 11 {last_bottom+16} L 11 {my} L {BX-4} {my}" fill="none" '
+    o.append(f'<path d="M {BX+BW/2} {last_bottom} L {BX+BW/2} {last_bottom+13} '
+             f'L 11 {last_bottom+13} L 11 {my} L {BX-4} {my}" fill="none" '
              f'stroke="{RED}" stroke-width="1.3" stroke-dasharray="4,2.6" '
              f'marker-end="url(#arb)"/>')
-    o.append(f'<text x="22" y="{last_bottom+28}" font-size="6.6" font-weight="700" '
+    o.append(f'<text x="22" y="{last_bottom+26}" font-size="7.9" font-weight="700" '
              f'fill="{RED}">BACK-EDGE \u2014 this is a loop, not a pipeline</text>')
-    o.append(f'<text x="22" y="{last_bottom+36.5}" font-size="6.2" fill="{MUT}">'
+    o.append(f'<text x="22" y="{last_bottom+34}" font-size="7.6" fill="{MUT}">'
              f'deployment \u2192 layer 2 SELECTION \u2192 degree rises \u2192 '
              f'model re-ranks</text>')
     o.append("</svg>")
@@ -509,8 +509,8 @@ h1{font-size:15pt;margin:0;letter-spacing:-.35px;font-weight:700;}
 .hstat{font-size:7pt;color:var(--muted);text-align:right;}
 .hstat b{color:var(--ink);}
 
-.qband{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5mm;margin-bottom:2.5mm;}
-.qcell{border:1px solid var(--line);border-radius:3px;padding:6px 8px;
+.qband{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4mm;margin-bottom:1.6mm;}
+.qcell{border:1px solid var(--line);border-radius:3px;padding:4px 7px;
   display:flex;flex-direction:column;}
 .qcell.hero{background:#f5f8f9;border-color:#a9c3c9;border-left:3px solid var(--teal);}
 .qcell h2{font-size:7.2pt;text-transform:uppercase;letter-spacing:.9px;margin:0 0 5px;
@@ -520,7 +520,7 @@ h1{font-size:15pt;margin:0;letter-spacing:-.35px;font-weight:700;}
 .qnote{font-size:7.1pt;color:var(--muted);margin-top:auto;padding-top:5px;
   border-top:1px solid var(--hair);}
 
-.grid{flex:1 1 auto;display:grid;grid-template-columns:1fr 96mm;gap:6mm;align-items:start;}
+.grid{flex:1 1 auto;display:grid;grid-template-columns:1fr 100mm;gap:5mm;align-items:start;}
 
 table{border-collapse:collapse;width:100%;}
 thead th{font-size:6.5pt;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);
@@ -540,7 +540,7 @@ td.guard{width:42mm;color:var(--teal);}
 td.ac{width:36mm;color:var(--indigo);}
 td.ad{width:36mm;color:var(--green);}
 
-.panel{border:1px solid var(--line);border-radius:3px;padding:4px 8px;margin-bottom:1.8mm;}
+.panel{border:1px solid var(--line);border-radius:3px;padding:3px 7px;margin-bottom:1.2mm;}
 .panel h2{font-size:7pt;text-transform:uppercase;letter-spacing:.9px;margin:0 0 6px;
   color:var(--muted);font-weight:700;}
 
@@ -563,7 +563,7 @@ td.ad{width:36mm;color:var(--green);}
 
 .panel.flow{background:#fcfdfd;}
 .panel.flow svg{display:block;width:100%;height:auto;}
-.flownote{font-size:6.8pt;color:var(--muted);margin-top:5px;padding-top:5px;
+.flownote{font-size:7.2pt;color:var(--muted);margin-top:3px;padding-top:3px;
   border-top:1px solid var(--hair);}
 .flownote b{color:var(--red);}
 

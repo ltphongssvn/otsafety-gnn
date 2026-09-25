@@ -3891,3 +3891,8 @@ candidates:
     Mono
   maps_to:
   - G.58
+- source: USER
+  ref: 'asked: the execution spine is cluttered and squeezed'
+  text: the HOW IT RUNS panel's font size and spacing make it cluttered while empty space sits below it
+  maps_to:
+  - G.59

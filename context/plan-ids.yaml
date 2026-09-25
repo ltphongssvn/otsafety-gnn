@@ -642,3 +642,6 @@ issued:
 - id: G.58
   first_title: The sheet's typefaces are Liberation Sans and DejaVu Sans Mono, vendored and pinned
   retired: false
+- id: G.59
+  first_title: The execution spine is legible in print, and fills the space it has
+  retired: false
