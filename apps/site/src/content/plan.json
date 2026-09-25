@@ -4258,6 +4258,29 @@
           "path": "tooling/tests/test_onepager_status_is_observed.py"
         }
       ]
+    },
+    {
+      "id": "G.55",
+      "title": "A dependency bot's commit is exempt from the trailer rule, and from nothing else",
+      "thread": "G",
+      "phase": "8G",
+      "depends_on": [
+        "G.29"
+      ],
+      "branch": null,
+      "source": "a Dependabot bump reached develop with no Plan-Step trailer and failed CI on a branch that did not create it; a bot cannot name a plan step, so the gate could never pass -- the deterministic consequence of two correct components meeting",
+      "serves": [
+        {
+          "loop": "constrain",
+          "side": "code"
+        }
+      ],
+      "done_when": [
+        {
+          "kind": "path",
+          "path": "tooling/tests/test_commit_trailers.py"
+        }
+      ]
     }
   ],
   "decisions": [

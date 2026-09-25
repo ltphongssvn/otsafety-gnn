@@ -1,11 +1,11 @@
 {
   "contract": "sheet-facts/v1",
-  "steps": 166,
-  "steps_done": 80,
-  "ids": 201,
-  "requirements": 200,
-  "unconfirmed": 99,
-  "test_functions": 655,
+  "steps": 167,
+  "steps_done": 81,
+  "ids": 202,
+  "requirements": 201,
+  "unconfirmed": 100,
+  "test_functions": 658,
   "merged_prs": 73,
   "tasks": 63,
   "phases": [
@@ -75,8 +75,8 @@
     {
       "id": "8G",
       "title": "Contracts, policy and evidence",
-      "done": 43,
-      "total": 53,
+      "done": 44,
+      "total": 54,
       "state": "todo"
     },
     {
@@ -153,8 +153,8 @@
     {
       "id": "G",
       "title": "Contracts, policy and evidence",
-      "done": 43,
-      "total": 53,
+      "done": 44,
+      "total": 54,
       "percent": 81,
       "state": "active"
     }

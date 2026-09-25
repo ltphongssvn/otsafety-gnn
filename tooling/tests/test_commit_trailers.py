@@ -63,8 +63,8 @@ def test_every_commit_since_the_cutoff_names_its_plan_steps() -> None:
     assert checked, f"no commits found since {CUTOFF}; the gate would pass vacuously"
     failures = {
         sha[:9]: p
-        for sha, message, is_merge in checked
-        if (p := problems(message, plan_steps(REPO_ROOT, sha), is_merge=is_merge))
+        for sha, message, is_merge, author in checked
+        if (p := problems(message, plan_steps(REPO_ROOT, sha), is_merge=is_merge, author=author))
     }
     assert failures == {}
 
@@ -73,3 +73,41 @@ def test_the_floor_runs_the_same_rule() -> None:
     hook = read_yaml(REPO_ROOT / "lefthook.yml", LefthookConfig).commit_msg
     assert hook is not None
     assert any(job.run.startswith("mise run policy:trailers") for job in hook.jobs)
+
+
+# --- a dependency bot cannot name a plan step (G.55) --------------------------
+# Dependabot bumped actions/upload-artifact with no Plan-Step trailer, and every
+# branch merging develop afterwards failed CI on a commit it did not create. A
+# version bump serves no plan step and has no human to name one, so the gate
+# could never pass -- the deterministic consequence of two correct components
+# meeting, not a flake and not something a rerun fixes.
+#
+# EXEMPT FROM THE TRAILER RULE AND FROM NOTHING ELSE. 2026 practice matches the
+# bot by its full address, anchored at both ends, so a crafted local part such as
+# evil+dependabot[bot]@... is still judged. It is a hygiene guard rather than a
+# security boundary: an author field is free text, and what actually stops a
+# forged one is review before merge.
+
+DEPENDABOT = "49699333+dependabot[bot]@users.noreply.github.com"
+
+
+def test_a_dependency_bots_commit_needs_no_trailer() -> None:
+    from otsafety_tooling.policy.trailers import problems
+
+    assert (
+        problems("⬆ Bump actions/upload-artifact\n", frozenset({"G.29"}), author=DEPENDABOT) == []
+    )
+
+
+def test_a_human_commit_still_needs_one() -> None:
+    from otsafety_tooling.policy.trailers import problems
+
+    assert problems("fix: something\n", frozenset({"G.29"}), author="someone@example.com") != []
+
+
+def test_an_address_merely_containing_the_bots_name_is_still_judged() -> None:
+    """Anchored at both ends: a crafted local part does not grant the exemption."""
+    from otsafety_tooling.policy.trailers import problems
+
+    forged = "evil+49699333+dependabot[bot]@users.noreply.github.com"
+    assert problems("⬆ Bump something\n", frozenset({"G.29"}), author=forged) != []

@@ -84,15 +84,21 @@ def claimed_done(message: str) -> list[str]:
     return [value for key, value in _trailers(_as_stored(message)) if key.lower() == DONE.lower()]
 
 
+DEPENDENCY_BOTS = frozenset({"49699333+dependabot[bot]@users.noreply.github.com"})
+
+
 def problems(
     message: str,
     ids: frozenset[str],
     *,
     is_merge: bool = False,
+    author: str | None = None,
     holds: Callable[[str], str | None] | None = None,
 ) -> list[str]:
     """Plan-Step references a step; Plan-Done claims it complete, and must be proved."""
     if is_merge:
+        return []
+    if author is not None and author.strip() in DEPENDENCY_BOTS:
         return []
     pairs = _trailers(_as_stored(message))
     named = [value for key, value in pairs if key.lower() == KEY.lower()]
@@ -127,18 +133,18 @@ def plan_steps(root: Path, ref: str) -> frozenset[str]:
     return frozenset(s.id for s in plan.steps) | frozenset(d.id for d in plan.decisions)
 
 
-def commits_since_cutoff(root: Path) -> list[tuple[str, str, bool]]:
-    """(sha, message, is_merge) for every commit from the cutoff to HEAD, inclusive."""
-    shown = git("log", "--format=%H%x00%P%x00%B%x1e", f"{CUTOFF}^..HEAD", cwd=root)
+def commits_since_cutoff(root: Path) -> list[tuple[str, str, bool, str]]:
+    """(sha, message, is_merge, author) for every commit from the cutoff to HEAD."""
+    shown = git("log", "--format=%H%x00%P%x00%ae%x00%B%x1e", f"{CUTOFF}^..HEAD", cwd=root)
     if shown.returncode != 0:
         raise SystemExit(f"cannot read history since {CUTOFF}: {shown.stderr.strip()}")
-    out: list[tuple[str, str, bool]] = []
+    out: list[tuple[str, str, bool, str]] = []
     for record in shown.stdout.split("\x1e"):
         record = record.strip("\n")
         if not record:
             continue
-        sha, parents, message = record.split("\x00", 2)
-        out.append((sha, message, len(parents.split()) > 1))
+        sha, parents, author, message = record.split("\x00", 3)
+        out.append((sha, message, len(parents.split()) > 1, author))
     return out
 
 

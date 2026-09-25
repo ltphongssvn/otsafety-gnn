@@ -3859,3 +3859,9 @@ candidates:
     line is a literal in the generator's markup
   maps_to:
   - G.53
+- source: SESSION
+  ref: 'observed: a bot commit could never satisfy the trailer gate'
+  text: Dependabot bumped actions/upload-artifact with no Plan-Step trailer, and CI refused every branch merging develop thereafter;
+    a version bump serves no plan step and has no human to name one
+  maps_to:
+  - G.55

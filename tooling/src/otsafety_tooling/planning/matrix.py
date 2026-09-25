@@ -141,7 +141,7 @@ def build(root: Path = REPO_ROOT, ref: str = "HEAD") -> RequirementMatrix:
     # NOT `referenced`: that name is the imported reader of a message's trailers.
     references: dict[str, list[str]] = {}
     claimed: dict[str, list[str]] = {}
-    for sha, message, _ in commits_since_cutoff(root):
+    for sha, message, _, _author in commits_since_cutoff(root):
         for identifier in referenced(message):
             references.setdefault(identifier, []).append(sha[:9])
         for identifier in claimed_done(message):
