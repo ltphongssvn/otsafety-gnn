@@ -1070,6 +1070,11 @@
       "id": "G.63",
       "first_title": "Every layer names the step that produces its record, and a gate walks the chain",
       "retired": false
+    },
+    {
+      "id": "G.64",
+      "first_title": "The README stores no figure its own commit changes: live signals, not counts",
+      "retired": false
     }
   ]
 }

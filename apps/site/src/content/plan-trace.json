@@ -6695,6 +6695,24 @@
         "G.63"
       ],
       "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "observed: the README goes stale in the commit that carries it",
+      "text": "the drift gate refused three pushes in one day, each because the commit completed a step the README counts; a stored figure that counts its own commit cannot be right when committed",
+      "maps_to": [
+        "G.64"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "REVIEW2026",
+      "ref": "live signals instead of stale numbers",
+      "text": "hard-coded counts are removed from READMEs in favour of badges resolving at view time or a pointer to the command that measures, after counts bumped across four pull requests conflicted on every rebase and static badges were found reading a fixed value whatever the real standing",
+      "maps_to": [
+        "G.64"
+      ],
+      "not_a_plan_item": null
     }
   ]
 }

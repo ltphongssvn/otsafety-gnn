@@ -3,39 +3,42 @@
 
 # otsafety-gnn
 
+[![Tooling](https://github.com/ltphongssvn/otsafety-gnn/actions/workflows/test-tooling.yml/badge.svg)](https://github.com/ltphongssvn/otsafety-gnn/actions/workflows/test-tooling.yml)
+[![Site](https://github.com/ltphongssvn/otsafety-gnn/actions/workflows/test-site.yml/badge.svg)](https://github.com/ltphongssvn/otsafety-gnn/actions/workflows/test-site.yml)
+
 Do the typed **relationships** in a public, open-source biomedical knowledge graph carry information that predicts drug-safety endpoints for protein targets -- over and above what is predictable from the graph's bare connectivity statistics, and from target-level features that require no graph at all?
 
-The deliverable is a defensible answer plus its evidence, **in either direction**.
-A negative result -- that the knowledge graph encodes study attention rather than
-safety biology -- is a real finding this project is built to report.
+The deliverable is a defensible answer plus its evidence, **in either
+direction**. A negative result -- that the knowledge graph encodes study
+attention rather than safety biology -- is a real finding this project is built
+to report.
 
 ## What is being controlled for
 
 A graph model can score well on a biomedical knowledge graph by learning which
 nodes are popular. Targets that have been studied more carry more edges and more
 recorded adverse events, so **degree predicts the label** before any biology is
-considered. Every rung of the model ladder is therefore run on an identical
-protocol against a degree-only null, and the gate is the lift over that null
-rather than the raw score.
+considered. Every rung of the model ladder runs on an identical protocol against
+a degree-only null, and the gate is the lift over that null rather than the raw
+score.
 
-## Status
+## The chain of accountability
 
-Observed when this file was generated, never typed: **89 of
-179 plan steps complete**, 23 ready and 67
-blocked, across 214 issued requirement ids and 213 matrix
-rows with 0 orphan observations. 697 test
-functions, 80 merged pull requests, 65 tasks,
-22 contracts.
+Nine layers, each answering one question, each leaving one record. Every layer
+names the plan steps that produce its record, and a gate walks the chain: a link
+pointing at a step that does not exist, or at an id never issued, fails.
 
-| Thread | | Done | |
+| # | Layer | Failure if unguarded | The record it leaves |
 |---|---|---|---|
-| A | Research definition | 2 of 8 | 25% |
-| B | Engineering platform | 20 of 28 | 71% |
-| C | Deliverables: the site and the sheet | 15 of 30 | 50% |
-| D | Experiment tracking | 2 of 3 | 67% |
-| E | The GNN package | 1 of 36 | 3% |
-| F | Release, deployment and supply chain | 3 of 16 | 19% |
-| G | Contracts, policy and evidence | 46 of 58 | 79% |
+| 1 | REALITY | On-target biology conflated with drug pharmacology. | Model-card limitation statement |
+| 2 | SELECTION | Study attention, who got dosed, indication and reporting bias. | Degree distribution snapshot |
+| 3 | EVIDENCE | Undated or unprovenanced edges admitted, making temporal claims unverifiable. | Provenance as Data -- ReleasePin hash |
+| 4 | ATTRIBUTION | Uniform propagation makes the LABEL a function of target degree -- re-importing the exact confound removed at layer 8. | Evidence as Data -- q vector, leak, crude/adj |
+| 5 | LABELING RULE | Unlabelled silently treated as negative; evidence tiers pooled so the label's meaning cannot be stated. | Decisions as Data -- per-target tier |
+| 6 | DATASET LABEL | Multiaxiality corrupts the label matrix; a PT annotation becomes a false negative at ancestor level. | Contracts as Data -- versioned label set |
+| 7 | SPLIT | Interpolation split behind an extrapolation claim. | Verdict as Data -- pass/fail + reason |
+| 8 | MODEL | A popularity detector with an excellent AUROC. | Metrics as Data -- per-seed, decile, level |
+| 9 | VERDICT | A score shipped where a decision was required; no bound on what the model misses. | Attestation as Data -- signed model card |
 
 ## How it is kept honest
 
@@ -46,8 +49,11 @@ the architecture sheet rendered in a pinned image, and the Nix flake.
 
 Each requirement carries an id issued once and never reused, the observation
 that justifies it, the file that proves it, and the commits that claim it.
-Status is derived from that evidence rather than declared, and nothing here
-types a number it could measure -- including this page.
+
+**Nothing here states a number that the next commit would change.** Status is
+derived, not stored: `mise run plan:status` observes it, and `mise run
+plan:report` prints every step in every phase -- its state, what it waits on,
+what proves it, and for an open step exactly what is missing.
 
 ## Data
 
@@ -67,4 +73,5 @@ version every tool reports.
 mise run setup          # the environment, from the lockfiles, frozen
 mise run check          # every gate, all failures reported in one pass
 mise run plan:status    # what is done, observed rather than claimed
+mise run plan:report    # every step in every phase, as a one-page sheet
 ```

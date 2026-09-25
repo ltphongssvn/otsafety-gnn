@@ -1919,6 +1919,18 @@ steps:
       - {loop: constrain, side: code}
     done_when:
       - {kind: path, path: tooling/tests/test_evidence_chain_is_unbroken.py}
+  - id: G.64
+    title: 'The README stores no figure its own commit changes: live signals, not counts'
+    thread: C
+    phase: 8G
+    depends_on: [G.62]
+    source: it states completed steps, so the commit completing one makes the copy it carries stale before it lands -- three
+      pushes refused in one day; 2026 practice removes hard-coded counts from a README in favour of signals that resolve when
+      a reader looks, after the same numbers were bumped across four pull requests and conflicted on every rebase
+    serves:
+      - {loop: constrain, side: data}
+    done_when:
+      - {kind: path, path: tooling/tests/test_readme_holds_no_moving_figure.py}
 decisions:
   - {id: X.SPIKE, title: 'Reference spike, the original thread B', state: superseded, reason: 'thread B dissolved by the rule
       change moving all execution local: the sandbox prototype became reference reading only and every line is re-derived

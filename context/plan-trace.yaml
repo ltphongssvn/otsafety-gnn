@@ -3965,3 +3965,16 @@ candidates:
     9.3 and 9.9 -- which is the argument that a guess is not a chain
   maps_to:
   - G.63
+- source: SESSION
+  ref: 'observed: the README goes stale in the commit that carries it'
+  text: the drift gate refused three pushes in one day, each because the commit completed a step the README counts; a stored
+    figure that counts its own commit cannot be right when committed
+  maps_to:
+  - G.64
+- source: REVIEW2026
+  ref: live signals instead of stale numbers
+  text: hard-coded counts are removed from READMEs in favour of badges resolving at view time or a pointer to the command
+    that measures, after counts bumped across four pull requests conflicted on every rebase and static badges were found reading
+    a fixed value whatever the real standing
+  maps_to:
+  - G.64
