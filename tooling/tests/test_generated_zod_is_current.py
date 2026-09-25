@@ -99,3 +99,19 @@ def test_an_unknown_format_is_refused_by_name() -> None:
 @pytest.mark.parametrize("path", GENERATED, ids=lambda p: p.name)
 def test_no_generated_contract_uses_a_deprecated_api(path: Path) -> None:
     assert not DEPRECATED.search(path.read_text(encoding="utf-8")), path.name
+
+
+def test_an_upper_bound_generates_its_zod() -> None:
+    """maximum and exclusiveMaximum, which no contract used until the model card.
+
+    THE GENERATOR REFUSED RATHER THAN APPROXIMATED, which is its contract: a
+    construct it cannot express fails the export instead of degrading to
+    something loose. average_precision is a probability, so Field(ge=0, le=1)
+    emits maximum, and the refusal named the exact path.
+    """
+    assert expression({"type": "number", "maximum": 1.0}) == "z.number().lte(1.0)"
+    assert expression({"type": "number", "exclusiveMaximum": 1.0}) == "z.number().lt(1.0)"
+    assert (
+        expression({"type": "number", "minimum": 0.0, "maximum": 1.0})
+        == "z.number().gte(0.0).lte(1.0)"
+    )

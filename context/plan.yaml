@@ -855,7 +855,7 @@ steps:
     title: Signed model card with its limitation statement, and its ML-BOM
     thread: E
     phase: '9'
-    depends_on: ['9.13', F.10, '9.18', '9.14']
+    depends_on: ['9.13', F.10, '9.18', '9.14', E.36]
     source: 2026 ML-BOM practice
     serves:
       - {loop: promise, side: data}
@@ -1851,7 +1851,7 @@ steps:
     title: Every run records what it cost to compute, and the model card reports it
     thread: E
     phase: '9'
-    depends_on: [D.1]
+    depends_on: [D.1, E.36]
     source: 2026 reproducibility checklists name computational-resource reporting beside leakage-aware validation and simpler
       baselines; a rung that took a hundred GPU-hours and one that took two are not comparable on accuracy alone, and nothing
       here records either
@@ -1881,6 +1881,19 @@ steps:
       - {loop: constrain, side: code}
     done_when:
       - {kind: path, path: tooling/tests/test_exemptions_writer.py}
+  - id: E.36
+    title: 'The model card is a contract: identity, evidence, interpretation and what it may not claim'
+    thread: E
+    phase: '9'
+    depends_on: [G.2]
+    source: three steps depend on a model card -- 9.15 writes it, 9.20 refuses it, E.35 feeds it -- and no contract says what
+      it must contain; 2026 governance practice is blunt that structural presence is not substantive content, so the schema
+      forces disaggregated slices and refuses boilerplate
+    serves:
+      - {loop: promise, side: code}
+      - {loop: constrain, side: data}
+    done_when:
+      - {kind: path, path: tooling/tests/test_model_card_contract.py}
 decisions:
   - {id: X.SPIKE, title: 'Reference spike, the original thread B', state: superseded, reason: 'thread B dissolved by the rule
       change moving all execution local: the sandbox prototype became reference reading only and every line is re-derived

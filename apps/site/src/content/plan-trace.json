@@ -6632,6 +6632,24 @@
         "G.61"
       ],
       "not_a_plan_item": null
+    },
+    {
+      "source": "USER",
+      "ref": "asked: specify a complete model-card schema",
+      "text": "the trained model is not the complete scientific result; it must travel with what is needed to interpret its claims and limitations -- an identity card, an evidence report and a limitation statement, part of the accountability mechanism rather than documentation written afterwards",
+      "maps_to": [
+        "E.36"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "REVIEW2026",
+      "ref": "structural presence is not substantive content",
+      "text": "a card reporting aggregate accuracy with no subgroup breakdown and an undisclosed test set is technically a model card and gives none of the protection; at least two disaggregated evaluation slices, and minimum lengths on free text, are what make the format enforceable",
+      "maps_to": [
+        "E.36"
+      ],
+      "not_a_plan_item": null
     }
   ]
 }
