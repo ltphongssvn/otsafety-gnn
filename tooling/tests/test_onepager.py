@@ -49,23 +49,32 @@ def _generator_source() -> str:
 
 
 def test_the_generator_exists_and_declares_every_phase() -> None:
-    src = _generator_source()
+    """The phases the sheet renders, checked where they now live.
+
+    THEY ARE NO LONGER TYPED INTO THE GENERATOR. A hand-written band claimed
+    phase 8 current and three threads complete while the plan said otherwise, so
+    the band is collected from the plan and this reads the collection. The
+    property is unchanged: every phase the plan states must reach the sheet.
+    """
+    from otsafety_tooling.planning.sheet import collect
+
+    titles = {phase.title for phase in collect().phases}
     for phase in EXPECTED_PHASES:
-        assert phase in src, f"the delivery band does not name the phase {phase!r}"
+        assert phase in titles, f"the delivery band does not name the phase {phase!r}"
 
 
 def test_the_generator_names_no_cancelled_practice() -> None:
     """A band advertising a phase that was cancelled is worse than no band.
 
-    SCOPED TO THE PHASE DECLARATION, NOT THE WHOLE FILE. Grepping the source
-    failed on the banner explaining why phase 5 is absent, which is the note a
-    later reader most needs. What must not contain a cancelled practice is the
-    band that is rendered, so that is what this reads.
+    Phase 5 is deliberately absent: the rule against architecture decision
+    records removed it. Collected from the plan, the band can only name what the
+    plan names -- so this reads the collection rather than a literal block.
     """
-    src = _generator_source()
-    block = src.split("PHASES = [", 1)[1].split("]", 1)[0]
+    from otsafety_tooling.planning.sheet import collect
+
+    band = " ".join(f"{phase.id} {phase.title}" for phase in collect().phases)
     for term in FORBIDDEN:
-        assert term not in block, f"the rendered phase band still names {term!r}"
+        assert term not in band, f"the rendered phase band still names {term!r}"
 
 
 def test_the_generator_declares_every_section_the_sheet_renders() -> None:
@@ -75,12 +84,17 @@ def test_the_generator_declares_every_section_the_sheet_renders() -> None:
     An earlier version read these tables from apps/site/src/data for a single
     source of truth. The round trip through a plain-string parser silently
     dropped the inline emphasis, the As Code and As Data columns, the SVG
-    execution spine and the workstream band, and the sheet rendered four of
-    nine sections. Declaring them here and asserting the RENDERED pdf below is
-    the trade that keeps the sheet whole.
+    execution spine and the workstream band, and the sheet rendered four of nine
+    sections. Declaring them here and asserting the RENDERED pdf below is the
+    trade that keeps the sheet whole.
+
+    PHASES AND THREADS LEFT THIS LIST DELIBERATELY. They are not prose the
+    generator owns but state the plan owns, and typing them here is what let the
+    band claim three threads complete while the plan showed 25 and 40 per cent.
+    They are collected now, and the two tests above read the collection.
     """
     src = _generator_source()
-    for table in ("LAYERS", "NESTED", "SWEEP", "STAGES", "SCOPE_IN", "THREADS"):
+    for table in ("LAYERS", "NESTED", "SWEEP", "STAGES", "SCOPE_IN"):
         assert f"{table} = [" in src, f"the generator does not declare {table}"
     for fn in ("flow_svg", "thread_rows", "layer_rows"):
         assert f"def {fn}" in src, f"the generator does not render {fn}"
@@ -227,7 +241,7 @@ def test_the_research_question_note_is_gone() -> None:
 # THE FIX IS toolchain.json's: stop depending on what a machine happens to
 # provide. The fonts are vendored, pinned by digest and embedded in the page.
 
-VENDORED_FONTS = ("Inter", "JetBrainsMono")
+VENDORED_FONTS = ("LiberationSans", "DejaVuSansMono")
 
 # Faces that mean a machine's own fonts were used instead of the vendored ones.
 SYSTEM_FONTS = (
@@ -235,9 +249,6 @@ SYSTEM_FONTS = (
     "Helvetica",
     "Menlo",
     "LucidaGrande",
-    "Arial",
-    "DejaVu",
-    "Liberation",
     "Nimbus",
 )
 

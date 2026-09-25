@@ -13,6 +13,7 @@ regenerate. Docs-as-Code and Diagram-as-Code.
 from __future__ import annotations
 
 import base64
+import datetime
 import hashlib
 import html
 import json
@@ -38,18 +39,18 @@ FONT_DIR = REPO_ROOT / "assets" / "fonts"
 # embedded first time through the same code path. Each weight is its own file.
 # (family, weight, style) -> (filename, sha256)
 FONTS = {
-    ("Inter", "400", "normal"): (
-        "Inter-Regular.woff2",
-        "e06f6b1bc553aaea4e4668023ed0ab0a147129c3107f511bc7d03d361b0ae085"),
-    ("Inter", "700", "normal"): (
-        "Inter-Bold.woff2",
-        "fa888127b6da015b65569f0351f3b5c391ad928904951f1c20e9f8462a8d95ea"),
-    ("Inter", "400", "italic"): (
-        "Inter-Italic.woff2",
-        "2d078cb3bc8f934740d53b39dd23b0678f2f97477e49ec785dd9d8acd8b96bfc"),
-    ("JetBrainsMono", "400", "normal"): (
-        "JetBrainsMono-Regular.woff2",
-        "a9cb1cd82332b23a47e3a1239d25d13c86d16c4220695e34b243effa999f45f2"),
+    ("LiberationSans", "400", "normal"): (
+        "LiberationSans-Regular.woff2",
+        "9de870801991c75e55b73ba76706dd24ec8dff975cbe58b83cab5d3ac68e3f9c"),
+    ("LiberationSans", "700", "normal"): (
+        "LiberationSans-Bold.woff2",
+        "c874fe2ce184d944192d07c5428213467ed52150c35d5da0391bd997fc56f503"),
+    ("LiberationSans", "400", "italic"): (
+        "LiberationSans-Italic.woff2",
+        "45a4261dbab25243d6745c47842a4353f7272005bf96830f89c7f66f414fdb1e"),
+    ("DejaVuSansMono", "400", "normal"): (
+        "DejaVuSansMono.woff2",
+        "9018d420ea4696690263c140d7181a7c9f33af35e5364fb006280faf4189d1cf"),
 }
 OUT = REPO_ROOT / "build" / "onepager"
 OUT.mkdir(parents=True, exist_ok=True)
@@ -217,29 +218,11 @@ LAYERS = [
          code="SLO as Code — min_ap_lift, min_partial_rho", data="Attestation as Data — signed model card"),
 ]
 
-PHASES = [
-    ("0", "Ground truth", "done"), ("1", "Branch divergence", "done"),
-    ("2", "GitFlow baseline", "done"), ("3", "Worktree", "done"),
-    ("4", "Stack inventory", "done"), ("6", "Toolchain and tasks", "done"),
-    ("7", "The site", "done"), ("8", "The PDF", "now"),
-    ("9", "The GNN package", "todo"), ("10", "Lightning AI", "todo"),
-    ("11", "Research execution", "todo"),
-]
+# PHASES AND THREADS ARE OBSERVED, NOT TYPED, for the reason the status line is.
+# What was here claimed thread A and B and D complete, C at 70 per cent, "41 tasks"
+# and "22 tests", and omitted threads F and G entirely -- G being the largest in
+# the plan at 42 of 53. Every figure was true when written.
 
-# Workstream B was the sandbox spike. It is gone, not paused: every line is
-# re-derived red-first in this repository, so there is nothing left to port.
-THREADS = [
-    ("A", "Research definition", 100, "done",
-     "Question, ML objective, Q1/Q2/Q3, granularity, label source"),
-    ("B", "Engineering platform", 100, "done",
-     "Toolchain pinned, 41 tasks, evidence, policy, CI on macOS and Linux"),
-    ("C", "Deliverables", 70, "active",
-     "Site: architecture, method, data, stack, evidence. Sheet: fonts vendored"),
-    ("D", "Experiment tracking", 100, "done",
-     "MLflow + W&B behind one port, in the default composition, 22 tests on CI"),
-    ("E", "The GNN package", 0, "todo",
-     "Contracts, ingest, splits, leakage, degree null, attribution, the ladder"),
-]
 
 # Execution spine. Each stage names the As-Code artifact that DEFINES it and the
 # As-Data artifact it EMITS -- the two halves of every loop in the platform.
@@ -270,6 +253,82 @@ BACKEDGE = (
     "degree gate is a loop-breaker, not a metric &mdash; and every verdict is persisted, "
     "because a feedback loop you did not log cannot be audited."
 )
+
+
+def _facts() -> Mapping[str, object]:
+    """The figures the sheet states, collected before it renders.
+
+    THE RENDERER DOES NOT COLLECT. This runs inside a pinned image carrying
+    Playwright and pypdf: no git, no PyYAML, not this repository's package. Every
+    attempt to read the plan, count merges or inspect the tree failed there for a
+    different missing tool, and each fix was a tool-shaped patch on a design
+    mistake. 2026 practice for a generated document separates collection from
+    rendering -- the collector runs where the tooling is, and this transforms the
+    document it is handed. mise run sheet:facts writes it.
+    """
+    export = OUT / "sheet-facts.json"
+    if not export.is_file():
+        raise SystemExit(f"REFUSED: no facts at {export}; run mise run sheet:facts")
+    loaded = json.loads(export.read_text(encoding="utf-8"))
+    if not isinstance(loaded, dict):
+        raise SystemExit(f"REFUSED: {export} is not an object")
+    return loaded
+
+
+def status_line() -> str:
+    """The status, in words, from the collected facts."""
+    seen = _facts()
+    return (
+        f"{seen['steps_done']} of {seen['steps']} plan steps &middot; "
+        f"{seen['ids']} requirement ids &middot; {seen['test_functions']} test functions, "
+        f"{seen['merged_prs']} pull requests"
+    )
+
+
+def observed_status() -> Mapping[str, object]:
+    """The collected facts, for anything that needs a figure rather than a line."""
+    return _facts()
+
+
+def phase_chips_data() -> list[tuple[str, str, str]]:
+    """Each phase, as collected."""
+    phases = _facts().get("phases")
+    rows = phases if isinstance(phases, list) else []
+    return [
+        (str(r["id"]), str(r["title"]), str(r["state"])) for r in rows if isinstance(r, dict)
+    ]
+
+
+def thread_rows_data() -> list[tuple[str, str, int, str, str]]:
+    """Each workstream, as collected."""
+    threads = _facts().get("threads")
+    rows = threads if isinstance(threads, list) else []
+    return [
+        (
+            str(r["id"]),
+            str(r["title"]),
+            int(str(r["percent"])),
+            str(r["state"]),
+            f"{r['done']} of {r['total']} steps",
+        )
+        for r in rows
+        if isinstance(r, dict)
+    ]
+
+
+def stamped_name() -> str:
+    """The name this render is kept under: the sheet, and when it was made.
+
+    EACH RENDER OVERWROTE THE LAST, so two versions could never be compared and a
+    layout that regressed left no trace of what it replaced. This sheet has
+    already had one divergence that showed up only as a page count, with nothing
+    to diff against.
+
+    UTC, SECONDS, SORTABLE. A local stamp reorders itself across a timezone
+    change, and a coarser one collides within a single working session.
+    """
+    when = datetime.datetime.now(datetime.UTC)
+    return f"project-architecture-{when:%Y%m%dT%H%M%SZ}.pdf"
 
 
 def e(s: str) -> str:
@@ -312,7 +371,7 @@ def sweep_rows() -> str:
 def phase_chips() -> str:
     return "".join(
         f'<div class="chip {st}"><span class="pn">{e(n)}</span>'
-        f'<span class="pl">{e(nm)}</span></div>' for n, nm, st in PHASES
+        f'<span class="pl">{e(nm)}</span></div>' for n, nm, st in phase_chips_data()
     )
 
 
@@ -323,7 +382,7 @@ def thread_rows() -> str:
           <span class="st {st}">{e(st)}</span></div>
         <div class="bar"><div class="fill {st}" style="width:{p}%"></div></div>
         <div class="th-note">{e(note)}</div>
-      </div>""" for k, nm, p, st, note in THREADS)
+      </div>""" for k, nm, p, st, note in thread_rows_data())
 
 
 def flow_svg() -> str:
@@ -341,7 +400,7 @@ def flow_svg() -> str:
     IND, GRN, RED, LINE = "#2f3f8f", "#1d6b45", "#a5312b", "#c9d2da"
 
     o = [f'<svg viewBox="0 0 {W} {H}" width="100%" '
-         f'xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">',
+         f'xmlns="http://www.w3.org/2000/svg" font-family="LiberationSans,Arial,sans-serif">',
          '<defs>'
          '<marker id="ar" markerWidth="7" markerHeight="7" refX="5.4" refY="2.6" '
          f'orient="auto"><path d="M0,0 L5.4,2.6 L0,5.2 z" fill="{INK}"/></marker>'
@@ -373,7 +432,7 @@ def flow_svg() -> str:
                      f'<text x="{BX+BW-9-bw_/2}" y="{y+10.8}" font-size="5.9" '
                      f'font-weight="700" fill="#fff" text-anchor="middle">{gate}</text>')
         o.append(f'<text x="{BX+10}" y="{y+20.5}" font-size="6.4" fill="{MUT}" '
-                 f'font-family="JetBrainsMono,monospace">{S["s"]}</text>')
+                 f'font-family="DejaVuSansMono,monospace">{S["s"]}</text>')
         o.append(f'<text x="{BX+10}" y="{y+26.5}" font-size="6.1" fill="{IND}" '
                  f'font-weight="700">\u2023 {S["c"]}</text>')
         o.append(f'<text x="{BX+190}" y="{y+26.5}" font-size="6.1" fill="{GRN}" '
@@ -439,10 +498,10 @@ CSS = """
   --addbg:#fff9ef; --addln:#e8c88a;
 }
 html,body{margin:0;padding:0;height:100%;}
-body{font-family:'Inter',sans-serif;color:var(--ink);
+body{font-family:'LiberationSans',Arial,sans-serif;color:var(--ink);
   font-size:8.1pt;line-height:1.24;-webkit-print-color-adjust:exact;print-color-adjust:exact;
   display:flex;flex-direction:column;min-height:100%;}
-.mono{font-family:'JetBrainsMono',monospace;font-size:7pt;}
+.mono{font-family:'DejaVuSansMono',monospace;font-size:7pt;}
 
 header{border-bottom:2.2px solid var(--ink);padding-bottom:4px;margin-bottom:5px;
   display:flex;align-items:baseline;justify-content:space-between;gap:12px;}
@@ -509,7 +568,7 @@ td.ad{width:36mm;color:var(--green);}
 .flownote b{color:var(--red);}
 
 footer{margin-top:auto;border-top:1.6px solid var(--ink);padding-top:4px;
-  display:grid;grid-template-columns:1fr 82mm 80mm;gap:5mm;}
+  display:grid;grid-template-columns:1fr 70mm 92mm;gap:4mm;}
 .ftitle{font-size:6.5pt;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);
   font-weight:700;margin-bottom:4px;}
 .scope{display:grid;grid-template-columns:1fr 46mm;gap:5mm;}
@@ -527,7 +586,7 @@ footer{margin-top:auto;border-top:1.6px solid var(--ink);padding-top:4px;
 .chip .pl{font-size:6.6pt;}
 .chip.now{background:var(--ink);border-color:var(--ink);}
 .chip.now .pn,.chip.now .pl{color:#fff;font-weight:700;}
-.threads{display:grid;grid-template-columns:1fr 1fr;gap:1px 4mm;}
+.threads{display:grid;grid-template-columns:repeat(auto-fill,minmax(34mm,1fr));gap:0 3mm;align-content:start;}
 .thread{margin-bottom:2px;}
 .th-head{font-size:6.6pt;}
 .th-head b{color:var(--indigo);}
@@ -553,7 +612,7 @@ def build_html() -> str:
 
 <header>
   <h1>Project Architecture &mdash; Target-Safety GNN on a Biomedical Knowledge Graph</h1>
-  <div class="hstat"><b>Status</b> Phase 8 &middot; 383 tests, 11 pull requests &middot; both trackers verified on Linux</div>
+  <div class="hstat"><b>Status</b> {status_line()} &middot; both trackers verified on Linux</div>
 </header>
 
 <div class="qband">
@@ -695,6 +754,10 @@ def main() -> int:
         b.close()
     note(f"WROTE_PDF {pdf_path} bytes={pdf_path.stat().st_size}")
 
+    kept = OUT / stamped_name()
+    kept.write_bytes(pdf_path.read_bytes())
+    note(f"KEPT {kept}")
+
     from pypdf import PdfReader
 
     # PAGE_COUNT IS THE MEASURE, AND THE ONLY ONE THAT PROVED HONEST. Two
@@ -708,6 +771,7 @@ def main() -> int:
     sheet = {
         "html": str(html_path),
         "pdf": str(pdf_path),
+        "kept": str(kept),
         "bytes": pdf_path.stat().st_size,
         "pages": n,
     }

@@ -37,6 +37,9 @@ sources:
 - id: PRS
   title: Every merged pull request
   locator: git log origin/develop --merges
+- id: USER
+  title: Asked for directly by the owner, in session
+  locator: asked in session, this working session
 candidates:
 - source: T1
   ref: 'line 4920: Q1'
@@ -3859,3 +3862,32 @@ candidates:
     evidence no marker could ever confirm
   maps_to:
   - G.54
+- source: SESSION
+  ref: 'observed: the sheet''s own status had drifted by a factor of six'
+  text: the rendered architecture sheet states 383 tests and 11 pull requests against 774 tests and 72 merges, because the
+    line is a literal in the generator's markup
+  maps_to:
+  - G.53
+- source: SESSION
+  ref: 'observed: a bot commit could never satisfy the trailer gate'
+  text: Dependabot bumped actions/upload-artifact with no Plan-Step trailer, and CI refused every branch merging develop thereafter;
+    a version bump serves no plan step and has no human to name one
+  maps_to:
+  - G.55
+- source: SESSION
+  ref: 'observed: one page here, two on the runner, from the same bytes'
+  text: the same 610558-byte document rendered as one page locally and two in CI through the same digest-pinned image, after
+    the footer grew from five workstreams to seven
+  maps_to:
+  - G.56
+- source: USER
+  ref: 'asked: keep every version of the sheet'
+  text: each re-render overwrote the previous file, so no two versions could be compared
+  maps_to:
+  - G.57
+- source: USER
+  ref: 'asked: use the sandbox sheet''s typefaces'
+  text: the sandbox pdf embeds Liberation Sans and DejaVu Sans Mono and reads better than the vendored Inter and JetBrains
+    Mono
+  maps_to:
+  - G.58

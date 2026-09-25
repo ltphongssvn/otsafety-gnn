@@ -67,8 +67,8 @@ def test_every_commit_since_the_cutoff_names_its_plan_steps() -> None:
     assert checked, f"no commits found since {CUTOFF}; the gate would pass vacuously"
     failures = {
         sha[:9]: p
-        for sha, message, is_merge in checked
-        if (p := problems(message, plan_steps(REPO_ROOT, sha), is_merge=is_merge))
+        for sha, message, is_merge, author in checked
+        if (p := problems(message, plan_steps(REPO_ROOT, sha), is_merge=is_merge, author=author))
     }
     assert failures == {}
 

@@ -159,3 +159,37 @@ def test_a_gate_that_exceeds_its_bound_is_reported_not_raised(
     reported = {gate["name"]: gate["passed"] for gate in _gates(envelope)}
     assert reported["lint"] is False, "the gate that hung is the one reported failing"
     assert reported["types"] is True, "the others keep their verdicts"
+
+
+def test_a_composed_task_reports_its_own_verdict_not_its_first_step() -> None:
+    """THE LAST ENVELOPE IS THE TASK'S OWN.
+
+    pdf:render collects the sheet's facts before rendering, so its output carries
+    the collector's envelope and then its own. Reading the FIRST match reported
+    facts_collected where the gate had rendered a sheet -- the wrong step's
+    verdict, and it would have reported success for a step that had not run yet.
+
+    2026 convention for a stream of envelopes is a terminal line: zero or more
+    records followed by exactly one summary. The task's own result is what it
+    ends with.
+    """
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "check_all", REPO_ROOT / "scripts" / "check_all.py"
+    )
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    composed = (
+        '{"contract": "command-outcome/v1", "command": "sheet:facts", '
+        '"outcome": "success", "code": "facts_collected"}\n'
+        "WROTE_PDF something\n"
+        '{"contract": "command-outcome/v1", "command": "pdf:render", '
+        '"outcome": "success", "code": "sheet_rendered"}\n'
+    )
+    assert module.inner_outcome(composed) == {
+        "outcome": "success",
+        "code": "sheet_rendered",
+    }

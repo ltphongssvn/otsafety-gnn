@@ -1,0 +1,151 @@
+{
+  "additionalProperties": false,
+  "description": "Every number the sheet states, as observed when it was collected.",
+  "properties": {
+    "contract": {
+      "const": "sheet-facts/v1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "steps": {
+      "title": "Steps",
+      "type": "integer"
+    },
+    "steps_done": {
+      "title": "Steps Done",
+      "type": "integer"
+    },
+    "ids": {
+      "title": "Ids",
+      "type": "integer"
+    },
+    "requirements": {
+      "title": "Requirements",
+      "type": "integer"
+    },
+    "unconfirmed": {
+      "title": "Unconfirmed",
+      "type": "integer"
+    },
+    "test_functions": {
+      "title": "Test Functions",
+      "type": "integer"
+    },
+    "merged_prs": {
+      "title": "Merged Prs",
+      "type": "integer"
+    },
+    "tasks": {
+      "title": "Tasks",
+      "type": "integer"
+    },
+    "phases": {
+      "items": {
+        "additionalProperties": false,
+        "description": "One delivery phase and how far its steps have got.",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "done": {
+            "title": "Done",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          },
+          "state": {
+            "enum": [
+              "done",
+              "now",
+              "todo"
+            ],
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "done",
+          "total",
+          "state"
+        ],
+        "title": "PhaseFact",
+        "type": "object"
+      },
+      "title": "Phases",
+      "type": "array"
+    },
+    "threads": {
+      "items": {
+        "additionalProperties": false,
+        "description": "One workstream, with the share of its steps the plan shows complete.",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "done": {
+            "title": "Done",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          },
+          "percent": {
+            "title": "Percent",
+            "type": "integer"
+          },
+          "state": {
+            "enum": [
+              "done",
+              "active",
+              "todo"
+            ],
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "done",
+          "total",
+          "percent",
+          "state"
+        ],
+        "title": "ThreadFact",
+        "type": "object"
+      },
+      "title": "Threads",
+      "type": "array"
+    }
+  },
+  "required": [
+    "contract",
+    "steps",
+    "steps_done",
+    "ids",
+    "requirements",
+    "unconfirmed",
+    "test_functions",
+    "merged_prs",
+    "tasks",
+    "phases",
+    "threads"
+  ],
+  "title": "SheetFacts",
+  "type": "object"
+}

@@ -279,6 +279,7 @@ uv run --no-sync python -m otsafety_tooling.contracts.zod
 # THE DATA, BESIDE THE SHAPES: each context and conf file validated by its model
 # and written as JSON the site loads as a content collection.
 uv run --no-sync python -m otsafety_tooling.contracts.data
+mise run -q sheet:facts
 """
 
 [tasks."site:lock"]
@@ -463,6 +464,7 @@ set -euo pipefail
 # same as the task using the file.
 docker build --platform linux/amd64 \
   -f docker/render.Dockerfile -t otsafety-render:pinned docker/
+mise run -q sheet:facts
 docker run --rm --platform linux/amd64 \
   -v "{{config_root}}:/repo" -w /repo \
   otsafety-render:pinned \
@@ -781,6 +783,14 @@ run = "uv run --no-sync python -m otsafety_tooling.policy.inputs"
 [tasks."policy:exemptions"]
 description = "Refuse any exemption from a rule that context/exemptions.yaml does not declare, and any entry gone stale"
 run = "uv run --no-sync python -m otsafety_tooling.policy.exemptions"
+
+[tasks."sheet:facts"]
+description = "Collect what the architecture sheet reports, where the tooling is"
+# THE RENDERER CANNOT COLLECT: its image carries Playwright and pypdf, no git, no
+# PyYAML and not this package. So the figures are gathered here into build/,
+# which the render mounts, and never committed -- a stored derived file drifts,
+# and this one counts the very commit that carries it.
+run = "uv run --no-sync python -m otsafety_tooling.planning.sheet"
 
 [tasks."secrets:staged"]
 description = "Scan what is staged, before it becomes a commit"

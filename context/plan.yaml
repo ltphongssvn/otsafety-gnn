@@ -1767,6 +1767,62 @@ steps:
       - {loop: promise, side: data}
     done_when:
       - {kind: path, path: tooling/tests/test_evidence_names_its_method.py}
+  - id: G.53
+    title: The sheet's status is observed at render time, never typed into its markup
+    thread: G
+    phase: 8G
+    depends_on: [G.23]
+    source: the sheet claims 383 tests and 11 pull requests while the repository has 774 and 72; the figure was true when
+      typed and has drifted ever since, which is the drift plan-as-data exists to end
+    serves:
+      - {loop: promise, side: data}
+    done_when:
+      - {kind: path, path: tooling/tests/test_onepager_status_is_observed.py}
+  - id: G.55
+    title: A dependency bot's commit is exempt from the trailer rule, and from nothing else
+    thread: G
+    phase: 8G
+    depends_on: [G.29]
+    source: a Dependabot bump reached develop with no Plan-Step trailer and failed CI on a branch that did not create it;
+      a bot cannot name a plan step, so the gate could never pass -- the deterministic consequence of two correct components
+      meeting
+    serves:
+      - {loop: constrain, side: code}
+    done_when:
+      - {kind: path, path: tooling/tests/test_bot_commits_need_no_trailer.py}
+  - id: G.56
+    title: The sheet fits on one page with room to spare, on every machine that renders it
+    thread: C
+    phase: '8'
+    depends_on: [G.53]
+    source: 'byte-identical HTML rendered one page on arm64 and two on an x86-64 runner, in the same pinned image: the layout
+      fits with too little headroom, so a sub-pixel difference decides the page count'
+    serves:
+      - {loop: constrain, side: code}
+    done_when:
+      - {kind: path, path: tooling/tests/test_sheet_has_headroom.py}
+  - id: G.57
+    title: Every render of the sheet is kept, stamped with when it was made
+    thread: C
+    phase: '8'
+    depends_on: ['8.1']
+    source: each render overwrote the last, so two versions could never be compared and a regression in the layout left no
+      trace of what it replaced
+    serves:
+      - {loop: promise, side: data}
+    done_when:
+      - {kind: path, path: tooling/tests/test_sheet_versions_are_kept.py}
+  - id: G.58
+    title: The sheet's typefaces are Liberation Sans and DejaVu Sans Mono, vendored and pinned
+    thread: C
+    phase: '8'
+    depends_on: ['8.4']
+    source: the sandbox sheet read better because its renderer substituted the system Liberation Sans and DejaVu Sans Mono;
+      vendoring them keeps that look without depending on a machine's font folder
+    serves:
+      - {loop: declare, side: code}
+    done_when:
+      - {kind: path, path: tooling/tests/test_sheet_typefaces.py}
 decisions:
   - {id: X.SPIKE, title: 'Reference spike, the original thread B', state: superseded, reason: 'thread B dissolved by the rule
       change moving all execution local: the sandbox prototype became reference reading only and every line is re-derived

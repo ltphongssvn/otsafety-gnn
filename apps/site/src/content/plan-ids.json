@@ -1005,6 +1005,31 @@
       "id": "G.54",
       "first_title": "Evidence declares how it is verified, so a file that cannot carry a marker is still confirmable",
       "retired": false
+    },
+    {
+      "id": "G.53",
+      "first_title": "The sheet's status is observed at render time, never typed into its markup",
+      "retired": false
+    },
+    {
+      "id": "G.55",
+      "first_title": "A dependency bot's commit is exempt from the trailer rule, and from nothing else",
+      "retired": false
+    },
+    {
+      "id": "G.56",
+      "first_title": "The sheet fits on one page with room to spare, on every machine that renders it",
+      "retired": false
+    },
+    {
+      "id": "G.57",
+      "first_title": "Every render of the sheet is kept, stamped with when it was made",
+      "retired": false
+    },
+    {
+      "id": "G.58",
+      "first_title": "The sheet's typefaces are Liberation Sans and DejaVu Sans Mono, vendored and pinned",
+      "retired": false
     }
   ]
 }

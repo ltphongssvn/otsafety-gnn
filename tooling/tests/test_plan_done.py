@@ -106,7 +106,7 @@ def test_every_step_claimed_done_still_holds() -> None:
     facts = gather_facts(REPO_ROOT, "HEAD", merged_prs=frozenset)
     failures = {
         f"{sha[:9]} {step}": gaps
-        for sha, message, _ in commits_since_cutoff(REPO_ROOT)
+        for sha, message, _, _author in commits_since_cutoff(REPO_ROOT)
         for step in claimed_done(message)
         if (gaps := unmet(plan, facts, step))
     }
