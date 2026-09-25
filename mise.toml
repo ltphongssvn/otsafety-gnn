@@ -784,17 +784,26 @@ run = "uv run --no-sync python -m otsafety_tooling.policy.inputs"
 description = "Refuse any exemption from a rule that context/exemptions.yaml does not declare, and any entry gone stale"
 run = "uv run --no-sync python -m otsafety_tooling.policy.exemptions"
 
+[tasks."plan:sheet"]
+description = "Print the collected plan report as a one-page A3 sheet"
+# READS WHAT plan:report COLLECTED. The renderer runs inside the pinned image,
+# which carries neither git nor this package, so it is handed the document
+# rather than asked to gather one.
+run = """
+mise run -q plan:report
+docker run --rm --platform linux/amd64 \\
+  -v "{{config_root}}:/repo" -w /repo \\
+  otsafety-render:pinned \\
+  python scripts/build_plan_report.py
+"""
+
 [tasks."plan:report"]
-description = "The step-level plan report: collect it, then print it as a one-page sheet"
+description = "Every step in every phase, with its state, dependencies, evidence and what is unmet"
 # COLLECTED WHERE THE TOOLING IS, PRINTED WHERE THE RENDERER IS. The image has
 # neither git nor this package, so it is handed a document rather than asked to
 # gather one -- the separation the architecture sheet already makes.
 run = """
 uv run --no-sync python -m otsafety_tooling.planning.report
-docker run --rm --platform linux/amd64 \\
-  -v "{{config_root}}:/repo" -w /repo \\
-  otsafety-render:pinned \\
-  python scripts/build_plan_report.py
 """
 
 [tasks."sheet:facts"]

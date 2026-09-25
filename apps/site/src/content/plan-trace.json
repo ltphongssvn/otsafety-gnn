@@ -6767,6 +6767,24 @@
         "E.39"
       ],
       "not_a_plan_item": null
+    },
+    {
+      "source": "USER",
+      "ref": "asked: a task that prints every step in every phase",
+      "text": "the totals, the seven threads with their ratios, then every phase in order with each step's state, thread, dependencies, evidence, observation count, and for open steps exactly what is unmet, printed in one go",
+      "maps_to": [
+        "G.65"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "REVIEW2026",
+      "ref": "dual renderer over one internal object",
+      "text": "the same internal object produces a human-readable terminal view and a machine-readable payload with stable keys, and human output goes to stderr so the payload channel is never polluted",
+      "maps_to": [
+        "G.65"
+      ],
+      "not_a_plan_item": null
     }
   ]
 }
