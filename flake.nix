@@ -1,4 +1,5 @@
 # flake.nix
+# 4.2: proves this step of the plan.
 # THE LAPTOP AND CI TOOLCHAIN, TAKEN FROM toolchain.json.
 #
 # WHY NOT pkgs.uv / pkgs.bun / pkgs.gh: nixpkgs builds its own copies and

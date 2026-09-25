@@ -24,6 +24,8 @@ mlflow = pytest.importorskip("mlflow", reason="the ml group is not installed")
 
 from otsafety_tooling.tracking_mlflow import MlflowTracker, tracking_uri  # noqa: E402
 
+pytestmark = pytest.mark.requirement("D.1")
+
 START = datetime(2026, 9, 19, 5, 30, tzinfo=UTC)
 COMMIT = "a" * 40
 DIGEST = "b" * 64

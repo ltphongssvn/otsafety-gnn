@@ -1,4 +1,5 @@
 // apps/site/src/data/research.ts
+// A.1: proves this step of the plan.
 // THE LADDER, THE DATA AND THE STACK, AS TYPED DATA.
 // Rungs carry the model that occupies them, because "we compare several
 // baselines" is not a falsifiable method: the first rung that is NOT beaten is

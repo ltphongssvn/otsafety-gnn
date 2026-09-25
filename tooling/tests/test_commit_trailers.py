@@ -16,10 +16,14 @@ are exempt. Ids resolve against the plan in the commit's own tree.
 
 from __future__ import annotations
 
+import pytest
+
 from otsafety_tooling.contracts.files import read_yaml
 from otsafety_tooling.contracts.lefthook_config import LefthookConfig
 from otsafety_tooling.paths import REPO_ROOT
 from otsafety_tooling.policy.trailers import CUTOFF, commits_since_cutoff, plan_steps, problems
+
+pytestmark = pytest.mark.requirement("G.29")
 
 IDS = frozenset({"G.28", "G.29", "X.README"})
 

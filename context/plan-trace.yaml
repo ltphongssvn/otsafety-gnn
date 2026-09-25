@@ -3854,6 +3854,12 @@ candidates:
   maps_to:
   - G.52
 - source: SESSION
+  ref: 'observed: half the matrix was unconfirmed for two different reasons'
+  text: of ninety-nine unconfirmed rows, seventy-two were steps not yet built and twenty-seven were completed steps whose
+    evidence no marker could ever confirm
+  maps_to:
+  - G.54
+- source: SESSION
   ref: 'observed: the sheet''s own status had drifted by a factor of six'
   text: the rendered architecture sheet states 383 tests and 11 pull requests against 774 tests and 72 merges, because the
     line is a literal in the generator's markup

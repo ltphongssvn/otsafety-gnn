@@ -1,4 +1,5 @@
 # context/exemptions.yaml
+# G.26: proves this step of the plan.
 # Every exemption from a lint or type rule, with its reason. Checked both ways by
 # policy:exemptions in the pre-commit hook and by test_exemptions.py in CI: a
 # suppression with no entry fails, and so does an entry whose suppression is gone.

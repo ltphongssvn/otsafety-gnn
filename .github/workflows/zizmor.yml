@@ -1,4 +1,5 @@
 # .github/workflows/zizmor.yml
+# 6.6: proves this step of the plan.
 name: Zizmor
 
 on:

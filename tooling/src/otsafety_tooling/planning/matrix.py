@@ -107,7 +107,9 @@ def unconfirmed(
         if not path.is_file():
             out.append(item)
             continue
-        if value.endswith(".py"):
+        name = Path(value).name
+        is_test = name.startswith("test_") and name.endswith(".py")
+        if is_test:
             if identifier not in claims(path):
                 out.append(item)
             continue

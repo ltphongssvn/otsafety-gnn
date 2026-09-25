@@ -1,4 +1,5 @@
 # tooling/src/otsafety_tooling/git/worktree.py
+# 4.5: proves this step of the plan.
 """Manage linked worktrees: add, list, refresh, remove.
 
 WHY A MODULE AND NOT `git worktree add` TYPED BY HAND

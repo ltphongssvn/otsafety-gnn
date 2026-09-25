@@ -18,6 +18,8 @@ import pytest
 
 from otsafety_tooling.paths import REPO_ROOT
 
+pytestmark = pytest.mark.requirement("8.2")
+
 GENERATOR = REPO_ROOT / "scripts" / "build_arch_onepager.py"
 
 # Phases as the revised plan states them. Phase 5 is deliberately absent: the

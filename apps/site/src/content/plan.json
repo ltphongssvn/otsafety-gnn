@@ -451,7 +451,7 @@
       "done_when": [
         {
           "kind": "path",
-          "path": "flake.lock"
+          "path": "tooling/tests/test_toolchain_declaration.py"
         }
       ]
     },
@@ -1669,11 +1669,7 @@
       "done_when": [
         {
           "kind": "path",
-          "path": "contracts/json/branch-report.v1.schema.json"
-        },
-        {
-          "kind": "path",
-          "path": "contracts/json/plan-status.v1.schema.json"
+          "path": "tooling/tests/test_contract_export.py"
         }
       ]
     },
@@ -4094,7 +4090,7 @@
       "done_when": [
         {
           "kind": "path",
-          "path": "tooling/tests/test_wandb_tracker.py"
+          "path": "tooling/tests/test_tooling_tests_hold_no_any.py"
         }
       ]
     },
@@ -4233,6 +4229,29 @@
         {
           "kind": "path",
           "path": "tooling/tests/test_generated_zod_is_committed.py"
+        }
+      ]
+    },
+    {
+      "id": "G.54",
+      "title": "Evidence declares how it is verified, so a file that cannot carry a marker is still confirmable",
+      "thread": "G",
+      "phase": "8G",
+      "depends_on": [
+        "G.41"
+      ],
+      "branch": null,
+      "source": "the matrix confirms a path only through pytest.mark.requirement and reads only .py files, so twenty-seven completed steps proved by flake.nix, mise.toml, lefthook.yml or TypeScript are unconfirmable by construction; 2026 practice names inspection and analysis beside test execution",
+      "serves": [
+        {
+          "loop": "promise",
+          "side": "data"
+        }
+      ],
+      "done_when": [
+        {
+          "kind": "path",
+          "path": "tooling/tests/test_evidence_names_its_method.py"
         }
       ]
     },

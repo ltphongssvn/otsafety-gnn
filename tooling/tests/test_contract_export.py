@@ -20,11 +20,14 @@ import json
 import pkgutil
 import typing
 
+import pytest
 from pydantic import BaseModel
 
 import otsafety_tooling.contracts as contracts_pkg
 from otsafety_tooling.contracts import schemas
 from otsafety_tooling.paths import REPO_ROOT
+
+pytestmark = pytest.mark.requirement("G.8")
 
 
 def _declared() -> set[str]:
