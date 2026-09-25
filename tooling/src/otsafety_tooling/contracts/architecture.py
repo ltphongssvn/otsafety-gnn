@@ -37,6 +37,7 @@ class Layer(BaseModel):
     guard: str = Field(min_length=3)
     as_code: str = Field(min_length=1)
     as_data: str = Field(min_length=3)
+    produced_by: tuple[str, ...] = Field(min_length=1)
 
 
 class Stage(BaseModel):

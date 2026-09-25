@@ -67,9 +67,25 @@ def test_the_readme_states_what_the_project_is_and_what_it_refuses() -> None:
 
 
 def test_the_readme_carries_no_typed_number() -> None:
-    """Its figures come from the facts, as the sheet's status does."""
-    from otsafety_tooling.planning.sheet import collect
+    """Its content is derived, and from the document everything else reads.
+
+    THIS TEST ONCE DEMANDED THE OPPOSITE. Written with G.62, it asserted the
+    README states the observed step count -- and that figure is exactly what
+    G.64 removed, because the commit carrying the page completes steps the page
+    counts, so the copy is stale before it lands. Three pushes were refused for
+    it in one day.
+
+    WHAT SURVIVES IS THE PRINCIPLE, not the mechanism: nothing on the page is
+    typed. The layers come from context/architecture.yaml, the stack from
+    toolchain.json, and the figures that move are not stated at all -- the page
+    names the command that measures them instead.
+    """
+    from otsafety_tooling.contracts.architecture import Architecture
+    from otsafety_tooling.contracts.files import read_yaml
     from otsafety_tooling.readme import render
 
-    seen = collect()
-    assert str(seen.steps) in render(), "the step count is not the one observed"
+    text = render()
+    architecture = read_yaml(REPO_ROOT / "context" / "architecture.yaml", Architecture)
+    for layer in architecture.layers:
+        assert layer.name in text, f"the README omits layer {layer.n}, {layer.name}"
+        assert layer.as_data in text, f"the README omits what layer {layer.n} records"

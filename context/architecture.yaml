@@ -12,6 +12,9 @@ layers:
   as_code: --
   as_data: Model-card limitation statement
   id: '1'
+  produced_by:
+  - '9.15'
+  - E.36
 - n: '2'
   name: SELECTION
   origin: added
@@ -22,6 +25,8 @@ layers:
   as_code: Policy as Code -- study-bias thresholds
   as_data: Degree distribution snapshot
   id: '2'
+  produced_by:
+  - '9.6'
 - n: '3'
   name: EVIDENCE
   origin: spec
@@ -31,6 +36,9 @@ layers:
   as_code: Schema as Code -- Edge contract
   as_data: Provenance as Data -- ReleasePin hash
   id: '3'
+  produced_by:
+  - '9.3'
+  - '9.4'
 - n: '4'
   name: ATTRIBUTION
   origin: added
@@ -41,6 +49,9 @@ layers:
   as_code: Transformation as Code
   as_data: Evidence as Data -- q vector, leak, crude/adj
   id: '4'
+  produced_by:
+  - '9.8'
+  - '9.18'
 - n: '5'
   name: LABELING RULE
   origin: spec
@@ -51,6 +62,8 @@ layers:
   as_code: Policy as Code -- tier + earned-negative rules
   as_data: Decisions as Data -- per-target tier
   id: '5'
+  produced_by:
+  - '9.9'
 - n: '6'
   name: DATASET LABEL
   origin: spec
@@ -61,6 +74,8 @@ layers:
   as_code: Contract as Code -- SafetyLabel + DAG
   as_data: Contracts as Data -- versioned label set
   id: '6'
+  produced_by:
+  - '9.23'
 - n: '7'
   name: SPLIT
   origin: added
@@ -71,6 +86,9 @@ layers:
   as_code: Acceptance Criteria as Code -- cutoff
   as_data: Verdict as Data -- pass/fail + reason
   id: '7'
+  produced_by:
+  - '9.5'
+  - '9.19'
 - n: '8'
   name: MODEL
   origin: spec
@@ -80,6 +98,8 @@ layers:
   as_code: Model Config as Code -- conf/model/*.yaml
   as_data: Metrics as Data -- per-seed, decile, level
   id: '8'
+  produced_by:
+  - '9.12'
 - n: '9'
   name: VERDICT
   origin: added
@@ -89,6 +109,9 @@ layers:
   as_code: SLO as Code -- min_ap_lift, min_partial_rho
   as_data: Attestation as Data -- signed model card
   id: '9'
+  produced_by:
+  - '9.15'
+  - '9.19'
 stages:
 - title: CONFIGURATION
   source: conf/config.yaml + pinned OT release hash

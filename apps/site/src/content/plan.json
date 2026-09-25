@@ -4543,6 +4543,57 @@
           "path": "tooling/tests/test_readme_is_generated.py"
         }
       ]
+    },
+    {
+      "id": "G.63",
+      "title": "Every layer names the step that produces its record, and a gate walks the chain",
+      "thread": "G",
+      "phase": "8G",
+      "depends_on": [
+        "8.5",
+        "G.41"
+      ],
+      "branch": null,
+      "source": "all nine layers have an owner in the plan and not one of those links is recorded: the binding is inferable by a person reading two documents and by nothing else, so a step could be removed, renamed or retargeted and no gate would notice; 2026 provenance practice binds each stage to the next so a link cannot be reordered, removed or inserted undetectably",
+      "serves": [
+        {
+          "loop": "promise",
+          "side": "data"
+        },
+        {
+          "loop": "constrain",
+          "side": "code"
+        }
+      ],
+      "done_when": [
+        {
+          "kind": "path",
+          "path": "tooling/tests/test_evidence_chain_is_unbroken.py"
+        }
+      ]
+    },
+    {
+      "id": "G.64",
+      "title": "The README stores no figure its own commit changes: live signals, not counts",
+      "thread": "C",
+      "phase": "8G",
+      "depends_on": [
+        "G.62"
+      ],
+      "branch": null,
+      "source": "it states completed steps, so the commit completing one makes the copy it carries stale before it lands -- three pushes refused in one day; 2026 practice removes hard-coded counts from a README in favour of signals that resolve when a reader looks, after the same numbers were bumped across four pull requests and conflicted on every rebase",
+      "serves": [
+        {
+          "loop": "constrain",
+          "side": "data"
+        }
+      ],
+      "done_when": [
+        {
+          "kind": "path",
+          "path": "tooling/tests/test_readme_holds_no_moving_figure.py"
+        }
+      ]
     }
   ],
   "decisions": [
