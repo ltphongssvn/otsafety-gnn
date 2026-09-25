@@ -6614,6 +6614,24 @@
         "E.35"
       ],
       "not_a_plan_item": null
+    },
+    {
+      "source": "USER",
+      "ref": "asked: a one-page PDF of the step-level report",
+      "text": "every specific and concrete step in every phase, with state, dependencies and evidence, as a printable sheet",
+      "maps_to": [
+        "G.60"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "observed: a hand-edited register broke four gates",
+      "text": "safe_dump over the register dropped the comments carrying its path header and the id G.26 is confirmed by, and the entry landed in scoped where inline was required",
+      "maps_to": [
+        "G.61"
+      ],
+      "not_a_plan_item": null
     }
   ]
 }

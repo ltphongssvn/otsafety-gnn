@@ -1,0 +1,150 @@
+{
+  "additionalProperties": false,
+  "description": "The whole plan, as the sheet prints it.",
+  "properties": {
+    "contract": {
+      "const": "plan-report/v1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "steps": {
+      "title": "Steps",
+      "type": "integer"
+    },
+    "steps_done": {
+      "title": "Steps Done",
+      "type": "integer"
+    },
+    "ready": {
+      "title": "Ready",
+      "type": "integer"
+    },
+    "blocked": {
+      "title": "Blocked",
+      "type": "integer"
+    },
+    "ids": {
+      "title": "Ids",
+      "type": "integer"
+    },
+    "requirements": {
+      "title": "Requirements",
+      "type": "integer"
+    },
+    "orphans": {
+      "title": "Orphans",
+      "type": "integer"
+    },
+    "phases": {
+      "items": {
+        "additionalProperties": false,
+        "description": "One phase and its steps, in plan order.",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "done": {
+            "title": "Done",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          },
+          "steps": {
+            "items": {
+              "additionalProperties": false,
+              "description": "One step, as a reader needs it: what it is, where it stands, what blocks it.",
+              "properties": {
+                "id": {
+                  "title": "Id",
+                  "type": "string"
+                },
+                "title": {
+                  "title": "Title",
+                  "type": "string"
+                },
+                "thread": {
+                  "title": "Thread",
+                  "type": "string"
+                },
+                "state": {
+                  "enum": [
+                    "DONE",
+                    "READY",
+                    "BLOCK"
+                  ],
+                  "title": "State",
+                  "type": "string"
+                },
+                "after": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "title": "After",
+                  "type": "array"
+                },
+                "evidence": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "title": "Evidence",
+                  "type": "array"
+                },
+                "unmet": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "title": "Unmet",
+                  "type": "array"
+                }
+              },
+              "required": [
+                "id",
+                "title",
+                "thread",
+                "state",
+                "after",
+                "evidence",
+                "unmet"
+              ],
+              "title": "StepRow",
+              "type": "object"
+            },
+            "title": "Steps",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "done",
+          "total",
+          "steps"
+        ],
+        "title": "PhaseRows",
+        "type": "object"
+      },
+      "title": "Phases",
+      "type": "array"
+    }
+  },
+  "required": [
+    "contract",
+    "steps",
+    "steps_done",
+    "ready",
+    "blocked",
+    "ids",
+    "requirements",
+    "orphans",
+    "phases"
+  ],
+  "title": "PlanReport",
+  "type": "object"
+}

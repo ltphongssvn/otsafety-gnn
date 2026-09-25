@@ -1045,6 +1045,16 @@
       "id": "E.35",
       "first_title": "Every run records what it cost to compute, and the model card reports it",
       "retired": false
+    },
+    {
+      "id": "G.60",
+      "first_title": "The step-level plan report as a one-page sheet, collected from the plan and filling its page",
+      "retired": false
+    },
+    {
+      "id": "G.61",
+      "first_title": "The exemption register has one writer, as the plan, the trace and the ledger each do",
+      "retired": false
     }
   ]
 }
