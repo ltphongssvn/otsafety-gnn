@@ -40,6 +40,9 @@ sources:
 - id: USER
   title: Asked for directly by the owner, in session
   locator: asked in session, this working session
+- id: REVIEW2026
+  title: 2026 reviews of biomedical KG and graph learning practice
+  locator: the target-identification review and the graph-based DDI systematic review, read while verifying the sheet
 candidates:
 - source: T1
   ref: 'line 4920: Q1'
@@ -3896,3 +3899,15 @@ candidates:
   text: the HOW IT RUNS panel's font size and spacing make it cluttered while empty space sits below it
   maps_to:
   - G.59
+- source: REVIEW2026
+  ref: negative sampling must be type-constrained and reported
+  text: evaluation should respect entity and relation ontologies, avoid impossible combinations, and report the positive-to-negative
+    ratio, resampling strategy, and whether different models use the same negative set
+  maps_to:
+  - E.34
+- source: REVIEW2026
+  ref: added complexity is credible only when resource use is reported
+  text: added complexity is credible only when graph provenance, simpler baselines, component ablations, leakage-aware validation
+    and resource use are reported; computational-resource reporting was found limited across the studies surveyed
+  maps_to:
+  - E.35
