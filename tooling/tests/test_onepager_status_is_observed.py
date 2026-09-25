@@ -14,6 +14,8 @@ refuses a digit typed into the template.
 from __future__ import annotations
 
 import re
+from collections.abc import Mapping
+from typing import Protocol, cast
 
 import pytest
 
@@ -21,17 +23,45 @@ from otsafety_tooling.paths import REPO_ROOT
 
 pytestmark = pytest.mark.requirement("G.53")
 
+
+class _Sheet(Protocol):
+    """The two things these tests ask of the generator module."""
+
+    def status_line(self) -> str: ...
+
+    def observed_status(self) -> Mapping[str, object]: ...
+
+
 GENERATOR = REPO_ROOT / "scripts" / "build_arch_onepager.py"
 
 
-def test_the_status_line_is_built_from_observation() -> None:
-    """The generator computes its status rather than quoting one."""
+def _with_facts() -> _Sheet:
+    """The generator module, with the facts it reads collected first.
+
+    THE FACTS ARE A BUILD ARTIFACT AND THESE TESTS READ THEM. They passed here
+    because build/ was populated and failed on a runner that had only run the
+    tests -- exactly the "it worked on my machine" the aggregate gate exists to
+    end. Collecting is cheap and available wherever the tooling is, so the tests
+    produce what they read.
+    """
     from importlib import util
+
+    from otsafety_tooling.planning.sheet import TARGET, export
+
+    target = REPO_ROOT / TARGET
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(export(), encoding="utf-8")
 
     spec = util.spec_from_file_location("build_arch_onepager", GENERATOR)
     assert spec is not None and spec.loader is not None
     module = util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    return cast("_Sheet", module)
+
+
+def test_the_status_line_is_built_from_observation() -> None:
+    """The generator computes its status rather than quoting one."""
+    module = _with_facts()
     status = module.status_line()
     assert status, "the sheet reports no status at all"
     for named in ("plan steps", "requirement ids", "test functions", "pull requests"):
@@ -47,23 +77,11 @@ def test_no_count_is_typed_into_the_markup() -> None:
 
 
 def test_the_reported_counts_match_the_repository() -> None:
-    """The point of collecting: the number is right because it was measured.
-
-    THE FIELDS ARE THE CONTRACT'S. observed_status returns sheet-facts/v1 now,
-    collected by the tooling rather than gathered by the renderer, so the names
-    are the contract's own -- test_functions, not tests.
-    """
-    from importlib import util
-
+    """The point of collecting: the number is right because it was measured."""
     from otsafety_tooling.planning.edit import load
     from otsafety_tooling.planning.ledger import load_ledger
 
-    spec = util.spec_from_file_location("build_arch_onepager", GENERATOR)
-    assert spec is not None and spec.loader is not None
-    module = util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    observed = module.observed_status()
-
+    observed = _with_facts().observed_status()
     assert observed["steps"] == len(load().steps)
     assert observed["ids"] == len(load_ledger().issued)
     assert int(str(observed["test_functions"])) > 500
