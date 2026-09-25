@@ -980,11 +980,7 @@
       "done_when": [
         {
           "kind": "path",
-          "path": "context/architecture.yaml"
-        },
-        {
-          "kind": "path",
-          "path": "contracts/json/architecture.v1.schema.json"
+          "path": "tooling/tests/test_architecture_is_one_source.py"
         }
       ]
     },
@@ -4516,6 +4512,35 @@
         {
           "kind": "path",
           "path": "tooling/tests/test_model_card_contract.py"
+        }
+      ]
+    },
+    {
+      "id": "G.62",
+      "title": "The README is generated from the plan and the toolchain, and drift-gated; the ban narrows to hand-written Markdown",
+      "thread": "G",
+      "phase": "8G",
+      "depends_on": [
+        "G.28",
+        "G.53",
+        "8.5"
+      ],
+      "branch": null,
+      "source": "the repository has no front page, and G.28 forbids every Markdown file by suffix -- but its reasoning is that nothing checks prose against the code it describes, which a generated file answers; 2026 practice reversed exactly this rule, making the README a derived copy with a drift gate",
+      "serves": [
+        {
+          "loop": "promise",
+          "side": "data"
+        },
+        {
+          "loop": "constrain",
+          "side": "code"
+        }
+      ],
+      "done_when": [
+        {
+          "kind": "path",
+          "path": "tooling/tests/test_readme_is_generated.py"
         }
       ]
     }

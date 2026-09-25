@@ -1,7 +1,14 @@
 ---
 // apps/site/src/pages/index.astro
+import { getCollection } from "astro:content";
+// THE COLLECTIONS, TYPED FROM THE SAME CONTRACT. A declared collection schema
+// would validate the id the loader needs, which the generated Zod refuses as
+// an extra key -- it is strict by G.27. So the type is applied here instead,
+// inferred from architectureV1Schema, and the document is already validated
+// once by Python and once by the parser.
+const QUESTIONS = (await getCollection("questions")).map((entry) => entry.data);
 import Base from "../layouts/Base.astro";
-import { QUESTIONS } from "../data/architecture";
+
 ---
 <Base
   title="Target-Safety GNN on a Biomedical Knowledge Graph"
@@ -15,7 +22,7 @@ import { QUESTIONS } from "../data/architecture";
     can return one.
   </p>
   <ul>
-    {QUESTIONS.map((q) => <li><strong>{q.id}</strong> — {q.question}</li>)}
+    {QUESTIONS.map((q) => <li><strong>{q.id}</strong> — {q.title}</li>)}
   </ul>
   <p><a href="/architecture/">The nine layers, and what fails at each →</a></p>
 </Base>

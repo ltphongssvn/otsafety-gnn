@@ -1,0 +1,259 @@
+{
+  "additionalProperties": false,
+  "description": "The architecture, stated once and read by the sheet, the site and the README.",
+  "properties": {
+    "contract": {
+      "const": "architecture/v1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "layers": {
+      "items": {
+        "additionalProperties": false,
+        "description": "One layer of the model: what it answers, what fails, what guards it.",
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          },
+          "n": {
+            "pattern": "^[1-9]$",
+            "title": "N",
+            "type": "string"
+          },
+          "name": {
+            "minLength": 3,
+            "title": "Name",
+            "type": "string"
+          },
+          "origin": {
+            "enum": [
+              "spec",
+              "added"
+            ],
+            "title": "Origin",
+            "type": "string"
+          },
+          "question": {
+            "minLength": 20,
+            "title": "Question",
+            "type": "string"
+          },
+          "failure": {
+            "minLength": 40,
+            "title": "Failure",
+            "type": "string"
+          },
+          "guard": {
+            "minLength": 3,
+            "title": "Guard",
+            "type": "string"
+          },
+          "as_code": {
+            "minLength": 1,
+            "title": "As Code",
+            "type": "string"
+          },
+          "as_data": {
+            "minLength": 3,
+            "title": "As Data",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "n",
+          "name",
+          "origin",
+          "question",
+          "failure",
+          "guard",
+          "as_code",
+          "as_data"
+        ],
+        "title": "Layer",
+        "type": "object"
+      },
+      "maxItems": 9,
+      "minItems": 9,
+      "title": "Layers",
+      "type": "array"
+    },
+    "stages": {
+      "items": {
+        "additionalProperties": false,
+        "description": "One stage of the execution spine, and the gate it carries.",
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "minLength": 3,
+            "title": "Title",
+            "type": "string"
+          },
+          "source": {
+            "minLength": 3,
+            "title": "Source",
+            "type": "string"
+          },
+          "as_code": {
+            "minLength": 3,
+            "title": "As Code",
+            "type": "string"
+          },
+          "as_data": {
+            "minLength": 3,
+            "title": "As Data",
+            "type": "string"
+          },
+          "gate": {
+            "anyOf": [
+              {
+                "enum": [
+                  "HALT",
+                  "REJECT"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gate"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "source",
+          "as_code",
+          "as_data",
+          "gate"
+        ],
+        "title": "Stage",
+        "type": "object"
+      },
+      "minItems": 1,
+      "title": "Stages",
+      "type": "array"
+    },
+    "questions": {
+      "items": {
+        "additionalProperties": false,
+        "description": "One of the three nested questions, its contrast, and its null result.",
+        "properties": {
+          "id": {
+            "enum": [
+              "Q1",
+              "Q2",
+              "Q3"
+            ],
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "minLength": 10,
+            "title": "Title",
+            "type": "string"
+          },
+          "contrast": {
+            "minLength": 20,
+            "title": "Contrast",
+            "type": "string"
+          },
+          "if_it_ties": {
+            "minLength": 30,
+            "title": "If It Ties",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "contrast",
+          "if_it_ties"
+        ],
+        "title": "Question",
+        "type": "object"
+      },
+      "maxItems": 3,
+      "minItems": 3,
+      "title": "Questions",
+      "type": "array"
+    },
+    "rungs": {
+      "items": {
+        "additionalProperties": false,
+        "description": "One rung of the ladder, and which question it answers.",
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "minLength": 3,
+            "title": "Name",
+            "type": "string"
+          },
+          "question": {
+            "enum": [
+              "Q1",
+              "Q2",
+              "Q3"
+            ],
+            "title": "Question",
+            "type": "string"
+          },
+          "detail": {
+            "minLength": 10,
+            "title": "Detail",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "question",
+          "detail"
+        ],
+        "title": "Rung",
+        "type": "object"
+      },
+      "minItems": 1,
+      "title": "Rungs",
+      "type": "array"
+    },
+    "scope_in": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Scope In",
+      "type": "array"
+    },
+    "scope_out": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Scope Out",
+      "type": "array"
+    }
+  },
+  "required": [
+    "contract",
+    "layers",
+    "stages",
+    "questions",
+    "rungs",
+    "scope_in",
+    "scope_out"
+  ],
+  "title": "Architecture",
+  "type": "object"
+}

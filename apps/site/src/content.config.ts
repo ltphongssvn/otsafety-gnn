@@ -19,6 +19,7 @@ import { projectPlanV1Schema } from "./contracts/project-plan.v1.gen";
 import { planTraceV1Schema } from "./contracts/plan-trace.v1.gen";
 import { idLedgerV1Schema } from "./contracts/id-ledger.v1.gen";
 import { exemptionRegisterV1Schema } from "./contracts/exemption-register.v1.gen";
+import { architectureV1Schema } from "./contracts/architecture.v1.gen";
 
 const PLAN = "src/content/plan.json";
 
@@ -68,4 +69,52 @@ const exemptions = defineCollection({
   }),
 });
 
-export const collections = { threads, phases, steps, decisions, candidates, issued, exemptions };
+const ARCHITECTURE = "src/content/architecture.json";
+
+const layers = defineCollection({
+  schema: architectureV1Schema.shape.layers.element,
+  loader: file(ARCHITECTURE, {
+    parser: (text) =>
+      architectureV1Schema.parse(JSON.parse(text)).layers,
+  }),
+});
+
+const questions = defineCollection({
+  schema: architectureV1Schema.shape.questions.element,
+  loader: file(ARCHITECTURE, {
+    parser: (text) =>
+      architectureV1Schema.parse(JSON.parse(text)).questions,
+  }),
+});
+
+const rungs = defineCollection({
+  schema: architectureV1Schema.shape.rungs.element,
+  loader: file(ARCHITECTURE, {
+    parser: (text) =>
+      architectureV1Schema.parse(JSON.parse(text)).rungs,
+  }),
+});
+
+const stages = defineCollection({
+  schema: architectureV1Schema.shape.stages.element,
+  loader: file(ARCHITECTURE, {
+    parser: (text) =>
+      architectureV1Schema
+        .parse(JSON.parse(text))
+        .stages,
+  }),
+});
+
+export const collections = {
+  threads,
+  phases,
+  steps,
+  decisions,
+  candidates,
+  issued,
+  exemptions,
+  layers,
+  questions,
+  rungs,
+  stages,
+};

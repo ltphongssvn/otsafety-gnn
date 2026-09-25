@@ -6650,6 +6650,33 @@
         "E.36"
       ],
       "not_a_plan_item": null
+    },
+    {
+      "source": "USER",
+      "ref": "asked: the repo has no README",
+      "text": "a visitor to the repository sees a bare file list and nothing saying what this is",
+      "maps_to": [
+        "G.62"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "REVIEW2026",
+      "ref": "generate, never hand-edit; make drift a failure",
+      "text": "a project reversed its own minimal-hand-written-unmanaged README rule, making the file a derived copy written by the generator and gated so a version bump cannot ship with stale docs",
+      "maps_to": [
+        "G.62"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "measured: the sheet and the site state the layers differently",
+      "text": "REALITY's failure reads two sentences in the generator and one on the site, and the site carries neither the as-code nor the as-data column; the names agree and nothing compares the rest",
+      "maps_to": [
+        "8.5"
+      ],
+      "not_a_plan_item": null
     }
   ]
 }

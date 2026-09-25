@@ -78,24 +78,39 @@ def test_the_generator_names_no_cancelled_practice() -> None:
 
 
 def test_the_generator_declares_every_section_the_sheet_renders() -> None:
-    """The sheet carries nine sections, and a generator missing one renders a
-    page that looks complete and is not.
+    """The sheet carries nine sections, and one missing renders a page that
+    looks complete and is not.
 
-    An earlier version read these tables from apps/site/src/data for a single
-    source of truth. The round trip through a plain-string parser silently
-    dropped the inline emphasis, the As Code and As Data columns, the SVG
-    execution spine and the workstream band, and the sheet rendered four of nine
-    sections. Declaring them here and asserting the RENDERED pdf below is the
-    trade that keeps the sheet whole.
+    THE TABLES MOVED, THE PROPERTY DID NOT. An earlier version read them from
+    apps/site/src/data and a plain-string parser silently dropped the inline
+    emphasis, both as-code columns, the SVG spine and the workstream band --
+    four of nine sections rendered. They come from a CONTRACT now: architecture/v1
+    requires as_code and as_data on every layer, so a round trip cannot lose them
+    without failing validation.
 
-    PHASES AND THREADS LEFT THIS LIST DELIBERATELY. They are not prose the
-    generator owns but state the plan owns, and typing them here is what let the
-    band claim three threads complete while the plan showed 25 and 40 per cent.
-    They are collected now, and the two tests above read the collection.
+    IT PRODUCES WHAT IT READS, rather than skipping when it is absent. The split
+    this repository already follows: the rendered pdf is skipped, because it needs
+    Docker and a browser; the facts are collected, because that is pure Python
+    over the plan and available wherever the tooling is. A test that returns green
+    when its fixture is missing asserts nothing, and this repository has been
+    caught by that once already -- seven tracking tests skipped for a whole
+    session while the summary read green.
     """
+    from importlib import util
+
+    from otsafety_tooling.planning.sheet import TARGET, export
+
+    facts = REPO_ROOT / TARGET
+    facts.parent.mkdir(parents=True, exist_ok=True)
+    facts.write_text(export(), encoding="utf-8")
+
+    spec = util.spec_from_file_location("build_arch_onepager", GENERATOR)
+    assert spec is not None and spec.loader is not None
+    module = util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    for name in ("layer_rows", "nested_blocks", "sweep_rows", "flow_svg", "thread_rows"):
+        assert getattr(module, name)(), f"{name} renders nothing"
     src = _generator_source()
-    for table in ("LAYERS", "NESTED", "SWEEP", "STAGES", "SCOPE_IN"):
-        assert f"{table} = [" in src, f"the generator does not declare {table}"
     for fn in ("flow_svg", "thread_rows", "layer_rows"):
         assert f"def {fn}" in src, f"the generator does not render {fn}"
 
