@@ -213,6 +213,12 @@
       "rule": "S603",
       "count": 1,
       "reason": "runs the tool it has just located in a pinned directory, by absolute path, with its declared probe"
+    },
+    {
+      "path": "scripts/build_plan_report.py",
+      "rule": "TID251",
+      "count": 1,
+      "reason": "The plan report's renderer runs inside the pinned image, which carries Playwright and pypdf and not this package, so it cannot call model_validate_json. The collector validates the document against plan-report/v1 before writing it."
     }
   ],
   "eslint": []

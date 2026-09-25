@@ -1,8 +1,5 @@
 # context/exemptions.yaml
 # G.26: proves this step of the plan.
-# Every exemption from a lint or type rule, with its reason. Checked both ways by
-# policy:exemptions in the pre-commit hook and by test_exemptions.py in CI: a
-# suppression with no entry fails, and so does an entry whose suppression is gone.
 contract: exemption-register/v1
 scoped:
 - glob: apps/site/tests/**
@@ -13,40 +10,37 @@ scoped:
   - S310
   - BLE001
   - E402
-  reason: S101 is pytest's assert; S603/S607 launch the site's build and preview through bun by a fixed argument
-    list; S310 opens a hard-coded localhost URL; BLE001 catches whatever a not-yet-listening socket raises while
-    polling; E402 imports playwright after importorskip
+  reason: S101 is pytest's assert; S603/S607 launch the site's build and preview through bun by a fixed argument list; S310
+    opens a hard-coded localhost URL; BLE001 catches whatever a not-yet-listening socket raises while polling; E402 imports
+    playwright after importorskip
 - glob: scripts/**
   rules:
   - T201
   - S603
   - S310
   - S202
-  reason: T201 bootstrap CLIs print what they install; S603 runs a just-installed binary's --version by fixed argument
-    list; S310 downloads a URL from toolchain.json and the next line verifies its sha256; S202 extracts inside a
-    temporary directory an archive whose sha256 was verified first
+  reason: T201 bootstrap CLIs print what they install; S603 runs a just-installed binary's --version by fixed argument list;
+    S310 downloads a URL from toolchain.json and the next line verifies its sha256; S202 extracts inside a temporary directory
+    an archive whose sha256 was verified first
 - glob: scripts/build_arch_onepager.py
   rules:
   - C408
   - E501
   - N806
   - TID251
-  reason: >-
-    Style rules on a generator preserved verbatim: a rewrite to the house style once
-    silently dropped five of the sheet's nine sections. TID251 is not a style rule and is
-    declared for its own reason: json.loads is banned in favour of model_validate_json, and
-    this renderer runs inside an image carrying Playwright and pypdf alone, so it cannot
-    import the contract. The facts it reads are collected and validated against
-    sheet-facts/v1 by the tooling before they are written.
+  reason: 'Style rules on a generator preserved verbatim: a rewrite to the house style once silently dropped five of the sheet''s
+    nine sections. TID251 is not a style rule and is declared for its own reason: json.loads is banned in favour of model_validate_json,
+    and this renderer runs inside an image carrying Playwright and pypdf alone, so it cannot import the contract. The facts
+    it reads are collected and validated against sheet-facts/v1 by the tooling before they are written.'
 - glob: tooling/tests/**
   rules:
   - S101
   - S603
   - S607
   - ANN401
-  reason: S101 is pytest's assert; S603/S607 run pinned tools by fixed argument list with no shell; ANN401
-    test spies and payload builders record whatever an untyped library is handed, and typing them would restate
-    that library's untyped surface in the test
+  reason: S101 is pytest's assert; S603/S607 run pinned tools by fixed argument list with no shell; ANN401 test spies and
+    payload builders record whatever an untyped library is handed, and typing them would restate that library's untyped surface
+    in the test
 - glob: tooling/src/otsafety_tooling/git/*.py
   rules:
   - T201
@@ -160,3 +154,9 @@ inline:
   rule: S603
   count: 1
   reason: runs the tool it has just located in a pinned directory, by absolute path, with its declared probe
+- path: scripts/build_plan_report.py
+  rule: TID251
+  count: 1
+  reason: The plan report's renderer runs inside the pinned image, which carries Playwright and pypdf and not this package,
+    so it cannot call model_validate_json. The collector validates the document against plan-report/v1 before writing it.
+eslint: []
