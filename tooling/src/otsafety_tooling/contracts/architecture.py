@@ -14,9 +14,9 @@ row, and half a row renders as a complete one.
 
 from __future__ import annotations
 
-from typing import ClassVar, Literal
+from typing import ClassVar, Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class Layer(BaseModel):
@@ -38,6 +38,24 @@ class Layer(BaseModel):
     as_code: str = Field(min_length=1)
     as_data: str = Field(min_length=3)
     produced_by: tuple[str, ...] = Field(min_length=1)
+    # What the layer is about, and what actually produces its observations. Where
+    # these differ, the layer carries a gap; layer 1's is the project's largest.
+    asks: str = Field(min_length=3)
+    evidence_from: str = Field(min_length=3)
+    # RESOLVABLE SEPARATES WORK FROM LIMITATION. A gap that engineering can close
+    # is a step not yet done; one it cannot is a limitation that must travel with
+    # every claim the model makes, which is why the card refuses without it.
+    resolvable: bool
+
+    @model_validator(mode="after")
+    def _a_gap_between_a_thing_and_itself_is_no_gap(self) -> Self:
+        """If the subject and its evidence agree, there is nothing to resolve."""
+        if self.asks == self.evidence_from and not self.resolvable:
+            raise ValueError(
+                f"layer {self.n} calls its gap unresolvable while asking about "
+                f"{self.asks} and drawing evidence from the same thing"
+            )
+        return self
 
 
 class Stage(BaseModel):

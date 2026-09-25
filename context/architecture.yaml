@@ -15,6 +15,9 @@ layers:
   produced_by:
   - '9.15'
   - E.36
+  asks: on-target-biology
+  evidence_from: drug-pharmacology
+  resolvable: false
 - n: '2'
   name: SELECTION
   origin: added
@@ -27,6 +30,9 @@ layers:
   id: '2'
   produced_by:
   - '9.6'
+  asks: truths-that-could-be-observed
+  evidence_from: study-attention
+  resolvable: true
 - n: '3'
   name: EVIDENCE
   origin: spec
@@ -39,6 +45,9 @@ layers:
   produced_by:
   - '9.3'
   - '9.4'
+  asks: what-was-observed
+  evidence_from: curated-edges
+  resolvable: true
 - n: '4'
   name: ATTRIBUTION
   origin: added
@@ -52,6 +61,9 @@ layers:
   produced_by:
   - '9.8'
   - '9.18'
+  asks: target-level-claim
+  evidence_from: drug-level-observation
+  resolvable: true
 - n: '5'
   name: LABELING RULE
   origin: spec
@@ -64,6 +76,9 @@ layers:
   id: '5'
   produced_by:
   - '9.9'
+  asks: what-the-evidence-means
+  evidence_from: evidence-tiers
+  resolvable: true
 - n: '6'
   name: DATASET LABEL
   origin: spec
@@ -76,6 +91,9 @@ layers:
   id: '6'
   produced_by:
   - '9.23'
+  asks: the-label
+  evidence_from: endpoint-hierarchy
+  resolvable: true
 - n: '7'
   name: SPLIT
   origin: added
@@ -89,6 +107,9 @@ layers:
   produced_by:
   - '9.5'
   - '9.19'
+  asks: what-the-model-is-tested-on
+  evidence_from: the-split
+  resolvable: true
 - n: '8'
   name: MODEL
   origin: spec
@@ -100,6 +121,9 @@ layers:
   id: '8'
   produced_by:
   - '9.12'
+  asks: what-the-graph-supports
+  evidence_from: model-output
+  resolvable: true
 - n: '9'
   name: VERDICT
   origin: added
@@ -112,6 +136,9 @@ layers:
   produced_by:
   - '9.15'
   - '9.19'
+  asks: promote-or-reject
+  evidence_from: the-audited-evidence
+  resolvable: true
 stages:
 - title: CONFIGURATION
   source: conf/config.yaml + pinned OT release hash

@@ -14,7 +14,10 @@
       "produced_by": [
         "9.15",
         "E.36"
-      ]
+      ],
+      "asks": "on-target-biology",
+      "evidence_from": "drug-pharmacology",
+      "resolvable": false
     },
     {
       "id": "2",
@@ -28,7 +31,10 @@
       "as_data": "Degree distribution snapshot",
       "produced_by": [
         "9.6"
-      ]
+      ],
+      "asks": "truths-that-could-be-observed",
+      "evidence_from": "study-attention",
+      "resolvable": true
     },
     {
       "id": "3",
@@ -43,7 +49,10 @@
       "produced_by": [
         "9.3",
         "9.4"
-      ]
+      ],
+      "asks": "what-was-observed",
+      "evidence_from": "curated-edges",
+      "resolvable": true
     },
     {
       "id": "4",
@@ -58,7 +67,10 @@
       "produced_by": [
         "9.8",
         "9.18"
-      ]
+      ],
+      "asks": "target-level-claim",
+      "evidence_from": "drug-level-observation",
+      "resolvable": true
     },
     {
       "id": "5",
@@ -72,7 +84,10 @@
       "as_data": "Decisions as Data -- per-target tier",
       "produced_by": [
         "9.9"
-      ]
+      ],
+      "asks": "what-the-evidence-means",
+      "evidence_from": "evidence-tiers",
+      "resolvable": true
     },
     {
       "id": "6",
@@ -86,7 +101,10 @@
       "as_data": "Contracts as Data -- versioned label set",
       "produced_by": [
         "9.23"
-      ]
+      ],
+      "asks": "the-label",
+      "evidence_from": "endpoint-hierarchy",
+      "resolvable": true
     },
     {
       "id": "7",
@@ -101,7 +119,10 @@
       "produced_by": [
         "9.5",
         "9.19"
-      ]
+      ],
+      "asks": "what-the-model-is-tested-on",
+      "evidence_from": "the-split",
+      "resolvable": true
     },
     {
       "id": "8",
@@ -115,7 +136,10 @@
       "as_data": "Metrics as Data -- per-seed, decile, level",
       "produced_by": [
         "9.12"
-      ]
+      ],
+      "asks": "what-the-graph-supports",
+      "evidence_from": "model-output",
+      "resolvable": true
     },
     {
       "id": "9",
@@ -130,7 +154,10 @@
       "produced_by": [
         "9.15",
         "9.19"
-      ]
+      ],
+      "asks": "promote-or-reject",
+      "evidence_from": "the-audited-evidence",
+      "resolvable": true
     }
   ],
   "stages": [
