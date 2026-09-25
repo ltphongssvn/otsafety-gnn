@@ -84,22 +84,32 @@ def test_the_generator_declares_every_section_the_sheet_renders() -> None:
     THE TABLES MOVED, THE PROPERTY DID NOT. An earlier version read them from
     apps/site/src/data and a plain-string parser silently dropped the inline
     emphasis, both as-code columns, the SVG spine and the workstream band --
-    four of nine sections rendered. They are read from a CONTRACT now, which is
-    the difference: architecture/v1 requires as_code and as_data on every layer,
-    so the round trip cannot lose them without failing validation.
+    four of nine sections rendered. They come from a CONTRACT now: architecture/v1
+    requires as_code and as_data on every layer, so a round trip cannot lose them
+    without failing validation.
 
-    WHAT IS ASSERTED IS THE RENDERER, not a literal table. Each function must
-    produce content, and the rendered pdf below is checked section by section.
+    IT PRODUCES WHAT IT READS, rather than skipping when it is absent. The split
+    this repository already follows: the rendered pdf is skipped, because it needs
+    Docker and a browser; the facts are collected, because that is pure Python
+    over the plan and available wherever the tooling is. A test that returns green
+    when its fixture is missing asserts nothing, and this repository has been
+    caught by that once already -- seven tracking tests skipped for a whole
+    session while the summary read green.
     """
     from importlib import util
+
+    from otsafety_tooling.planning.sheet import TARGET, export
+
+    facts = REPO_ROOT / TARGET
+    facts.parent.mkdir(parents=True, exist_ok=True)
+    facts.write_text(export(), encoding="utf-8")
 
     spec = util.spec_from_file_location("build_arch_onepager", GENERATOR)
     assert spec is not None and spec.loader is not None
     module = util.module_from_spec(spec)
     spec.loader.exec_module(module)
     for name in ("layer_rows", "nested_blocks", "sweep_rows", "flow_svg", "thread_rows"):
-        rendered = getattr(module, name)()
-        assert rendered, f"{name} renders nothing"
+        assert getattr(module, name)(), f"{name} renders nothing"
     src = _generator_source()
     for fn in ("flow_svg", "thread_rows", "layer_rows"):
         assert f"def {fn}" in src, f"the generator does not render {fn}"
