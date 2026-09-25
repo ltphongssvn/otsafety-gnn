@@ -20,8 +20,8 @@ rather than the raw score.
 
 ## Status
 
-Observed when this file was generated, never typed: **87 of
-178 plan steps complete**, 22 ready and 69
+Observed when this file was generated, never typed: **89 of
+178 plan steps complete**, 22 ready and 67
 blocked, across 213 issued requirement ids and 212 matrix
 rows with 0 orphan observations. 692 test
 functions, 79 merged pull requests, 65 tasks,
@@ -31,11 +31,11 @@ functions, 79 merged pull requests, 65 tasks,
 |---|---|---|---|
 | A | Research definition | 2 of 8 | 25% |
 | B | Engineering platform | 20 of 28 | 71% |
-| C | Deliverables: the site and the sheet | 14 of 30 | 47% |
+| C | Deliverables: the site and the sheet | 15 of 30 | 50% |
 | D | Experiment tracking | 2 of 3 | 67% |
 | E | The GNN package | 1 of 36 | 3% |
 | F | Release, deployment and supply chain | 3 of 16 | 19% |
-| G | Contracts, policy and evidence | 45 of 57 | 79% |
+| G | Contracts, policy and evidence | 46 of 57 | 81% |
 
 ## How it is kept honest
 

@@ -980,11 +980,7 @@
       "done_when": [
         {
           "kind": "path",
-          "path": "context/architecture.yaml"
-        },
-        {
-          "kind": "path",
-          "path": "contracts/json/architecture.v1.schema.json"
+          "path": "tooling/tests/test_architecture_is_one_source.py"
         }
       ]
     },
