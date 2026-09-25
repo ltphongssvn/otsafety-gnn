@@ -23,6 +23,7 @@ from pathlib import Path
 
 from pydantic import BaseModel
 
+from otsafety_tooling.contracts.architecture import Architecture
 from otsafety_tooling.contracts.exemptions import ExemptionRegister
 from otsafety_tooling.contracts.files import read_yaml
 from otsafety_tooling.contracts.opentargets_config import OpenTargetsConfig
@@ -46,6 +47,7 @@ class Source:
 SOURCES: tuple[Source, ...] = (
     Source("plan", REPO_ROOT / "context" / "plan.yaml", ProjectPlan),
     Source("plan-trace", REPO_ROOT / "context" / "plan-trace.yaml", PlanTrace),
+    Source("architecture", REPO_ROOT / "context" / "architecture.yaml", Architecture),
     Source("plan-ids", REPO_ROOT / "context" / "plan-ids.yaml", IdLedger),
     Source("exemptions", REPO_ROOT / "context" / "exemptions.yaml", ExemptionRegister),
     Source("config", REPO_ROOT / "conf" / "config.yaml", OpenTargetsConfig),

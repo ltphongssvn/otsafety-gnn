@@ -24,7 +24,7 @@ pytestmark = pytest.mark.requirement("G.20")
 
 def test_every_context_and_conf_yaml_is_exported() -> None:
     exported = {source.name for source in data.SOURCES}
-    assert exported == {"plan", "plan-trace", "plan-ids", "exemptions", "config"}
+    assert exported == {"plan", "plan-trace", "plan-ids", "exemptions", "config", "architecture"}
 
 
 def test_each_export_names_the_model_that_validates_it() -> None:

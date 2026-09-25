@@ -78,24 +78,29 @@ def test_the_generator_names_no_cancelled_practice() -> None:
 
 
 def test_the_generator_declares_every_section_the_sheet_renders() -> None:
-    """The sheet carries nine sections, and a generator missing one renders a
-    page that looks complete and is not.
+    """The sheet carries nine sections, and one missing renders a page that
+    looks complete and is not.
 
-    An earlier version read these tables from apps/site/src/data for a single
-    source of truth. The round trip through a plain-string parser silently
-    dropped the inline emphasis, the As Code and As Data columns, the SVG
-    execution spine and the workstream band, and the sheet rendered four of nine
-    sections. Declaring them here and asserting the RENDERED pdf below is the
-    trade that keeps the sheet whole.
+    THE TABLES MOVED, THE PROPERTY DID NOT. An earlier version read them from
+    apps/site/src/data and a plain-string parser silently dropped the inline
+    emphasis, both as-code columns, the SVG spine and the workstream band --
+    four of nine sections rendered. They are read from a CONTRACT now, which is
+    the difference: architecture/v1 requires as_code and as_data on every layer,
+    so the round trip cannot lose them without failing validation.
 
-    PHASES AND THREADS LEFT THIS LIST DELIBERATELY. They are not prose the
-    generator owns but state the plan owns, and typing them here is what let the
-    band claim three threads complete while the plan showed 25 and 40 per cent.
-    They are collected now, and the two tests above read the collection.
+    WHAT IS ASSERTED IS THE RENDERER, not a literal table. Each function must
+    produce content, and the rendered pdf below is checked section by section.
     """
+    from importlib import util
+
+    spec = util.spec_from_file_location("build_arch_onepager", GENERATOR)
+    assert spec is not None and spec.loader is not None
+    module = util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    for name in ("layer_rows", "nested_blocks", "sweep_rows", "flow_svg", "thread_rows"):
+        rendered = getattr(module, name)()
+        assert rendered, f"{name} renders nothing"
     src = _generator_source()
-    for table in ("LAYERS", "NESTED", "SWEEP", "STAGES", "SCOPE_IN"):
-        assert f"{table} = [" in src, f"the generator does not declare {table}"
     for fn in ("flow_svg", "thread_rows", "layer_rows"):
         assert f"def {fn}" in src, f"the generator does not render {fn}"
 

@@ -24,10 +24,16 @@ from otsafety_tooling.paths import REPO_ROOT
 
 FORBIDDEN_SUFFIXES: tuple[str, ...] = (".md", ".markdown", ".mdx")
 
+GENERATED: frozenset[str] = frozenset({"README.md"})
+
 
 def forbidden(paths: Iterable[str]) -> list[str]:
     """Every path that is Markdown, whatever its case or depth."""
-    return [path for path in paths if path.lower().endswith(FORBIDDEN_SUFFIXES)]
+    return [
+        path
+        for path in paths
+        if path.lower().endswith(FORBIDDEN_SUFFIXES) and path not in GENERATED
+    ]
 
 
 def _listed(root: Path, *args: str) -> list[str]:

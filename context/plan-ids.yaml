@@ -660,3 +660,6 @@ issued:
 - id: E.36
   first_title: 'The model card is a contract: identity, evidence, interpretation and what it may not claim'
   retired: false
+- id: G.62
+  first_title: The README is generated from the plan and the toolchain, and drift-gated; the ban narrows to hand-written Markdown
+  retired: false

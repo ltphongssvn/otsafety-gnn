@@ -3,8 +3,16 @@
 // apps/site/src/pages/architecture.astro
 // The nine layers and the three nested questions, rendered from typed data so
 // this page and the one-page PDF cannot disagree about what the project is.
+import { getCollection } from "astro:content";
+// THE COLLECTIONS, TYPED FROM THE SAME CONTRACT. A declared collection schema
+// would validate the id the loader needs, which the generated Zod refuses as
+// an extra key -- it is strict by G.27. So the type is applied here instead,
+// inferred from architectureV1Schema, and the document is already validated
+// once by Python and once by the parser.
+const LAYERS = (await getCollection("layers")).map((entry) => entry.data);
+const QUESTIONS = (await getCollection("questions")).map((entry) => entry.data);
 import Base from "../layouts/Base.astro";
-import { LAYERS, QUESTIONS } from "../data/architecture";
+
 ---
 <Base
   title="Architecture"
@@ -18,11 +26,11 @@ import { LAYERS, QUESTIONS } from "../data/architecture";
     </thead>
     <tbody>
       {LAYERS.map((l) => (
-        <tr class={l.added ? "added" : ""}>
+        <tr class={l.origin === "added" ? "added" : ""}>
           <td class="n">{l.n}</td>
           <td>
             <strong>{l.name}</strong>
-            {l.added && <span class="tag">added</span>}
+            {l.origin === "added" && <span class="tag">added</span>}
             <div class="q">{l.question}</div>
           </td>
           <td class="fail">{l.failure}</td>
@@ -39,9 +47,9 @@ import { LAYERS, QUESTIONS } from "../data/architecture";
   </p>
   {QUESTIONS.map((q) => (
     <section class="nq">
-      <h3><span class="badge">{q.id}</span> {q.question}</h3>
+      <h3><span class="badge">{q.id}</span> {q.title}</h3>
       <p><strong>Contrast:</strong> {q.contrast}</p>
-      <p class="tied"><strong>If the contrast ties:</strong> {q.whenTied}</p>
+      <p class="tied"><strong>If the contrast ties:</strong> {q.if_it_ties}</p>
     </section>
   ))}
 
