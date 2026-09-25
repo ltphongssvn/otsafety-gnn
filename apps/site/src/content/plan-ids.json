@@ -1035,6 +1035,16 @@
       "id": "G.59",
       "first_title": "The execution spine is legible in print, and fills the space it has",
       "retired": false
+    },
+    {
+      "id": "E.34",
+      "first_title": "Negatives are type-constrained, and the sheet states their ratio, resampling and sharing",
+      "retired": false
+    },
+    {
+      "id": "E.35",
+      "first_title": "Every run records what it cost to compute, and the model card reports it",
+      "retired": false
     }
   ]
 }

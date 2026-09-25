@@ -4392,6 +4392,56 @@
           "path": "tooling/tests/test_flow_is_legible.py"
         }
       ]
+    },
+    {
+      "id": "E.34",
+      "title": "Negatives are type-constrained, and the sheet states their ratio, resampling and sharing",
+      "thread": "E",
+      "phase": "9",
+      "depends_on": [
+        "7.7"
+      ],
+      "branch": null,
+      "source": "2026 reviews of biomedical KG link prediction require type-constrained sampling that avoids impossible combinations, and reporting the positive-to-negative ratio, the resampling strategy, and whether models share one negative set; the sheet says identical negatives, which is the sharing alone",
+      "serves": [
+        {
+          "loop": "declare",
+          "side": "code"
+        },
+        {
+          "loop": "promise",
+          "side": "data"
+        }
+      ],
+      "done_when": [
+        {
+          "kind": "path",
+          "path": "tooling/tests/test_negatives_are_specified.py"
+        }
+      ]
+    },
+    {
+      "id": "E.35",
+      "title": "Every run records what it cost to compute, and the model card reports it",
+      "thread": "E",
+      "phase": "9",
+      "depends_on": [
+        "D.1"
+      ],
+      "branch": null,
+      "source": "2026 reproducibility checklists name computational-resource reporting beside leakage-aware validation and simpler baselines; a rung that took a hundred GPU-hours and one that took two are not comparable on accuracy alone, and nothing here records either",
+      "serves": [
+        {
+          "loop": "promise",
+          "side": "data"
+        }
+      ],
+      "done_when": [
+        {
+          "kind": "path",
+          "path": "tooling/tests/test_runs_record_their_cost.py"
+        }
+      ]
     }
   ],
   "decisions": [
