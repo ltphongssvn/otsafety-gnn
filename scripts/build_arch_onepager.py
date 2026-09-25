@@ -13,6 +13,7 @@ regenerate. Docs-as-Code and Diagram-as-Code.
 from __future__ import annotations
 
 import base64
+import datetime
 import hashlib
 import html
 import json
@@ -38,18 +39,18 @@ FONT_DIR = REPO_ROOT / "assets" / "fonts"
 # embedded first time through the same code path. Each weight is its own file.
 # (family, weight, style) -> (filename, sha256)
 FONTS = {
-    ("Inter", "400", "normal"): (
-        "Inter-Regular.woff2",
-        "e06f6b1bc553aaea4e4668023ed0ab0a147129c3107f511bc7d03d361b0ae085"),
-    ("Inter", "700", "normal"): (
-        "Inter-Bold.woff2",
-        "fa888127b6da015b65569f0351f3b5c391ad928904951f1c20e9f8462a8d95ea"),
-    ("Inter", "400", "italic"): (
-        "Inter-Italic.woff2",
-        "2d078cb3bc8f934740d53b39dd23b0678f2f97477e49ec785dd9d8acd8b96bfc"),
-    ("JetBrainsMono", "400", "normal"): (
-        "JetBrainsMono-Regular.woff2",
-        "a9cb1cd82332b23a47e3a1239d25d13c86d16c4220695e34b243effa999f45f2"),
+    ("LiberationSans", "400", "normal"): (
+        "LiberationSans-Regular.woff2",
+        "9de870801991c75e55b73ba76706dd24ec8dff975cbe58b83cab5d3ac68e3f9c"),
+    ("LiberationSans", "700", "normal"): (
+        "LiberationSans-Bold.woff2",
+        "c874fe2ce184d944192d07c5428213467ed52150c35d5da0391bd997fc56f503"),
+    ("LiberationSans", "400", "italic"): (
+        "LiberationSans-Italic.woff2",
+        "45a4261dbab25243d6745c47842a4353f7272005bf96830f89c7f66f414fdb1e"),
+    ("DejaVuSansMono", "400", "normal"): (
+        "DejaVuSansMono.woff2",
+        "9018d420ea4696690263c140d7181a7c9f33af35e5364fb006280faf4189d1cf"),
 }
 OUT = REPO_ROOT / "build" / "onepager"
 OUT.mkdir(parents=True, exist_ok=True)
@@ -315,6 +316,21 @@ def thread_rows_data() -> list[tuple[str, str, int, str, str]]:
     ]
 
 
+def stamped_name() -> str:
+    """The name this render is kept under: the sheet, and when it was made.
+
+    EACH RENDER OVERWROTE THE LAST, so two versions could never be compared and a
+    layout that regressed left no trace of what it replaced. This sheet has
+    already had one divergence that showed up only as a page count, with nothing
+    to diff against.
+
+    UTC, SECONDS, SORTABLE. A local stamp reorders itself across a timezone
+    change, and a coarser one collides within a single working session.
+    """
+    when = datetime.datetime.now(datetime.UTC)
+    return f"project-architecture-{when:%Y%m%dT%H%M%SZ}.pdf"
+
+
 def e(s: str) -> str:
     return html.escape(str(s))
 
@@ -384,7 +400,7 @@ def flow_svg() -> str:
     IND, GRN, RED, LINE = "#2f3f8f", "#1d6b45", "#a5312b", "#c9d2da"
 
     o = [f'<svg viewBox="0 0 {W} {H}" width="100%" '
-         f'xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">',
+         f'xmlns="http://www.w3.org/2000/svg" font-family="LiberationSans,Arial,sans-serif">',
          '<defs>'
          '<marker id="ar" markerWidth="7" markerHeight="7" refX="5.4" refY="2.6" '
          f'orient="auto"><path d="M0,0 L5.4,2.6 L0,5.2 z" fill="{INK}"/></marker>'
@@ -416,7 +432,7 @@ def flow_svg() -> str:
                      f'<text x="{BX+BW-9-bw_/2}" y="{y+10.8}" font-size="5.9" '
                      f'font-weight="700" fill="#fff" text-anchor="middle">{gate}</text>')
         o.append(f'<text x="{BX+10}" y="{y+20.5}" font-size="6.4" fill="{MUT}" '
-                 f'font-family="JetBrainsMono,monospace">{S["s"]}</text>')
+                 f'font-family="DejaVuSansMono,monospace">{S["s"]}</text>')
         o.append(f'<text x="{BX+10}" y="{y+26.5}" font-size="6.1" fill="{IND}" '
                  f'font-weight="700">\u2023 {S["c"]}</text>')
         o.append(f'<text x="{BX+190}" y="{y+26.5}" font-size="6.1" fill="{GRN}" '
@@ -482,10 +498,10 @@ CSS = """
   --addbg:#fff9ef; --addln:#e8c88a;
 }
 html,body{margin:0;padding:0;height:100%;}
-body{font-family:'Inter',sans-serif;color:var(--ink);
+body{font-family:'LiberationSans',Arial,sans-serif;color:var(--ink);
   font-size:8.1pt;line-height:1.24;-webkit-print-color-adjust:exact;print-color-adjust:exact;
   display:flex;flex-direction:column;min-height:100%;}
-.mono{font-family:'JetBrainsMono',monospace;font-size:7pt;}
+.mono{font-family:'DejaVuSansMono',monospace;font-size:7pt;}
 
 header{border-bottom:2.2px solid var(--ink);padding-bottom:4px;margin-bottom:5px;
   display:flex;align-items:baseline;justify-content:space-between;gap:12px;}
@@ -552,7 +568,7 @@ td.ad{width:36mm;color:var(--green);}
 .flownote b{color:var(--red);}
 
 footer{margin-top:auto;border-top:1.6px solid var(--ink);padding-top:4px;
-  display:grid;grid-template-columns:1fr 82mm 80mm;gap:5mm;}
+  display:grid;grid-template-columns:1fr 70mm 92mm;gap:4mm;}
 .ftitle{font-size:6.5pt;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);
   font-weight:700;margin-bottom:4px;}
 .scope{display:grid;grid-template-columns:1fr 46mm;gap:5mm;}
@@ -570,7 +586,7 @@ footer{margin-top:auto;border-top:1.6px solid var(--ink);padding-top:4px;
 .chip .pl{font-size:6.6pt;}
 .chip.now{background:var(--ink);border-color:var(--ink);}
 .chip.now .pn,.chip.now .pl{color:#fff;font-weight:700;}
-.threads{display:grid;grid-template-columns:1fr 1fr;gap:1px 4mm;}
+.threads{display:grid;grid-template-columns:repeat(auto-fill,minmax(34mm,1fr));gap:0 3mm;align-content:start;}
 .thread{margin-bottom:2px;}
 .th-head{font-size:6.6pt;}
 .th-head b{color:var(--indigo);}
@@ -738,6 +754,10 @@ def main() -> int:
         b.close()
     note(f"WROTE_PDF {pdf_path} bytes={pdf_path.stat().st_size}")
 
+    kept = OUT / stamped_name()
+    kept.write_bytes(pdf_path.read_bytes())
+    note(f"KEPT {kept}")
+
     from pypdf import PdfReader
 
     # PAGE_COUNT IS THE MEASURE, AND THE ONLY ONE THAT PROVED HONEST. Two
@@ -751,6 +771,7 @@ def main() -> int:
     sheet = {
         "html": str(html_path),
         "pdf": str(pdf_path),
+        "kept": str(kept),
         "bytes": pdf_path.stat().st_size,
         "pages": n,
     }

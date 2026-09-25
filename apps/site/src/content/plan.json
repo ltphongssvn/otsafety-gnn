@@ -4300,6 +4300,75 @@
           "path": "tooling/tests/test_bot_commits_need_no_trailer.py"
         }
       ]
+    },
+    {
+      "id": "G.56",
+      "title": "The sheet fits on one page with room to spare, on every machine that renders it",
+      "thread": "C",
+      "phase": "8",
+      "depends_on": [
+        "G.53"
+      ],
+      "branch": null,
+      "source": "byte-identical HTML rendered one page on arm64 and two on an x86-64 runner, in the same pinned image: the layout fits with too little headroom, so a sub-pixel difference decides the page count",
+      "serves": [
+        {
+          "loop": "constrain",
+          "side": "code"
+        }
+      ],
+      "done_when": [
+        {
+          "kind": "path",
+          "path": "tooling/tests/test_sheet_has_headroom.py"
+        }
+      ]
+    },
+    {
+      "id": "G.57",
+      "title": "Every render of the sheet is kept, stamped with when it was made",
+      "thread": "C",
+      "phase": "8",
+      "depends_on": [
+        "8.1"
+      ],
+      "branch": null,
+      "source": "each render overwrote the last, so two versions could never be compared and a regression in the layout left no trace of what it replaced",
+      "serves": [
+        {
+          "loop": "promise",
+          "side": "data"
+        }
+      ],
+      "done_when": [
+        {
+          "kind": "path",
+          "path": "tooling/tests/test_sheet_versions_are_kept.py"
+        }
+      ]
+    },
+    {
+      "id": "G.58",
+      "title": "The sheet's typefaces are Liberation Sans and DejaVu Sans Mono, vendored and pinned",
+      "thread": "C",
+      "phase": "8",
+      "depends_on": [
+        "8.4"
+      ],
+      "branch": null,
+      "source": "the sandbox sheet read better because its renderer substituted the system Liberation Sans and DejaVu Sans Mono; vendoring them keeps that look without depending on a machine's font folder",
+      "serves": [
+        {
+          "loop": "declare",
+          "side": "code"
+        }
+      ],
+      "done_when": [
+        {
+          "kind": "path",
+          "path": "tooling/tests/test_sheet_typefaces.py"
+        }
+      ]
     }
   ],
   "decisions": [

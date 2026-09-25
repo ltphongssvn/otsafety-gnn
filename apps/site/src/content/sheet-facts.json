@@ -1,11 +1,11 @@
 {
   "contract": "sheet-facts/v1",
-  "steps": 167,
-  "steps_done": 81,
-  "ids": 202,
-  "requirements": 201,
-  "unconfirmed": 99,
-  "test_functions": 658,
+  "steps": 171,
+  "steps_done": 82,
+  "ids": 206,
+  "requirements": 205,
+  "unconfirmed": 73,
+  "test_functions": 666,
   "merged_prs": 73,
   "tasks": 63,
   "phases": [
@@ -62,7 +62,7 @@
       "id": "8",
       "title": "The PDF",
       "done": 6,
-      "total": 14,
+      "total": 17,
       "state": "todo"
     },
     {
@@ -75,8 +75,8 @@
     {
       "id": "8G",
       "title": "Contracts, policy and evidence",
-      "done": 44,
-      "total": 54,
+      "done": 45,
+      "total": 55,
       "state": "todo"
     },
     {
@@ -122,8 +122,8 @@
       "id": "C",
       "title": "Deliverables: the site and the sheet",
       "done": 10,
-      "total": 25,
-      "percent": 40,
+      "total": 28,
+      "percent": 36,
       "state": "active"
     },
     {
@@ -153,9 +153,9 @@
     {
       "id": "G",
       "title": "Contracts, policy and evidence",
-      "done": 44,
-      "total": 54,
-      "percent": 81,
+      "done": 45,
+      "total": 55,
+      "percent": 82,
       "state": "active"
     }
   ]

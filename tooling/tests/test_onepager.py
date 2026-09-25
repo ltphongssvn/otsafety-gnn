@@ -241,7 +241,7 @@ def test_the_research_question_note_is_gone() -> None:
 # THE FIX IS toolchain.json's: stop depending on what a machine happens to
 # provide. The fonts are vendored, pinned by digest and embedded in the page.
 
-VENDORED_FONTS = ("Inter", "JetBrainsMono")
+VENDORED_FONTS = ("LiberationSans", "DejaVuSansMono")
 
 # Faces that mean a machine's own fonts were used instead of the vendored ones.
 SYSTEM_FONTS = (
@@ -249,9 +249,6 @@ SYSTEM_FONTS = (
     "Helvetica",
     "Menlo",
     "LucidaGrande",
-    "Arial",
-    "DejaVu",
-    "Liberation",
     "Nimbus",
 )
 
