@@ -1,0 +1,6 @@
+// apps/site/src/contracts/dsse-envelope.v1.gen.ts
+// GENERATED from contracts/json/dsse-envelope.v1.schema.json by otsafety_tooling.contracts.zod.
+// Do not edit: change the Pydantic model and run mise run contracts:generate.
+import { z } from "zod";
+
+export const dsseEnvelopeV1Schema = z.strictObject({ "payloadType": z.literal("application/vnd.in-toto+json"), "payload": z.string().min(16), "signatures": z.array(z.strictObject({ "sig": z.string().min(64), "cert": z.string().regex(new RegExp("^-----BEGIN CERTIFICATE-----")) }).describe("One signature, and the identity that made it.\n\nTHE CERTIFICATE IS REQUIRED. Keyless signing binds an ephemeral key to an\nOIDC identity through a short-lived certificate; a bare signature says\nsomething was signed without saying by whom.")).min(1), "transparency": z.strictObject({ "log": z.string().min(3), "entry": z.int().gt(0), "logged_at": z.string().regex(new RegExp("^\\d{4}-\\d{2}-\\d{2}T")) }).describe("Where the signature was logged, and when.\n\nA SIGNATURE NOBODY LOGGED CANNOT BE TOLD FROM ONE BACKDATED LATER, which is\nthe attack a transparency log exists to close.") }).describe("The signed thing: bytes, their type, and who vouched for them.");

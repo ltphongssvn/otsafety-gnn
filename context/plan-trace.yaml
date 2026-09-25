@@ -3978,3 +3978,19 @@ candidates:
     a fixed value whatever the real standing
   maps_to:
   - G.64
+- source: USER
+  ref: 'asked: the sheet says signed but never says how'
+  text: the table says signed model card without specifying whether that is a cryptographic signature, an artifact signing
+    system, Git signing or something else; the purpose is a document cryptographically locked so test scores cannot be altered
+    and safety warnings cannot be erased later, whose hash and signature make the decision auditable when the selection loop
+    tries to rewrite history
+  maps_to:
+  - E.37
+- source: REVIEW2026
+  ref: signing is the action, not a second step
+  text: a DSSE envelope pins the exact bytes signed and wraps an in-toto statement whose subjects are file-path and digest
+    pairs under a predicate type; sigstore's model-transparency project stores model card information in those predicates,
+    and keyless signing binds a short-lived certificate to an OIDC identity with the signature recorded in a transparency
+    log
+  maps_to:
+  - E.37

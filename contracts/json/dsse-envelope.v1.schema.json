@@ -1,0 +1,79 @@
+{
+  "additionalProperties": false,
+  "description": "The signed thing: bytes, their type, and who vouched for them.",
+  "properties": {
+    "payloadType": {
+      "const": "application/vnd.in-toto+json",
+      "title": "Payloadtype",
+      "type": "string"
+    },
+    "payload": {
+      "minLength": 16,
+      "title": "Payload",
+      "type": "string"
+    },
+    "signatures": {
+      "items": {
+        "additionalProperties": false,
+        "description": "One signature, and the identity that made it.\n\nTHE CERTIFICATE IS REQUIRED. Keyless signing binds an ephemeral key to an\nOIDC identity through a short-lived certificate; a bare signature says\nsomething was signed without saying by whom.",
+        "properties": {
+          "sig": {
+            "minLength": 64,
+            "title": "Sig",
+            "type": "string"
+          },
+          "cert": {
+            "pattern": "^-----BEGIN CERTIFICATE-----",
+            "title": "Cert",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sig",
+          "cert"
+        ],
+        "title": "Signature",
+        "type": "object"
+      },
+      "minItems": 1,
+      "title": "Signatures",
+      "type": "array"
+    },
+    "transparency": {
+      "additionalProperties": false,
+      "description": "Where the signature was logged, and when.\n\nA SIGNATURE NOBODY LOGGED CANNOT BE TOLD FROM ONE BACKDATED LATER, which is\nthe attack a transparency log exists to close.",
+      "properties": {
+        "log": {
+          "minLength": 3,
+          "title": "Log",
+          "type": "string"
+        },
+        "entry": {
+          "exclusiveMinimum": 0,
+          "title": "Entry",
+          "type": "integer"
+        },
+        "logged_at": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T",
+          "title": "Logged At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "log",
+        "entry",
+        "logged_at"
+      ],
+      "title": "TransparencyEntry",
+      "type": "object"
+    }
+  },
+  "required": [
+    "payloadType",
+    "payload",
+    "signatures",
+    "transparency"
+  ],
+  "title": "DsseEnvelope",
+  "type": "object"
+}

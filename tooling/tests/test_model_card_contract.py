@@ -73,7 +73,21 @@ def _card(**overrides: object) -> object:
             },
         ),
         "verdict": "promote",
-        "attested_by": "0" * 64,
+        "attestation": {
+            "payloadType": "application/vnd.in-toto+json",
+            "payload": "eyJfdHlwZSI6ICJodHRwczovL2luLXRvdG8uaW8vU3RhdGVtZW50L3YxIn0=",
+            "signatures": (
+                {
+                    "sig": "MEUCIQD" + "A" * 57,
+                    "cert": "-----BEGIN CERTIFICATE-----\\nMIIC\\n-----END CERTIFICATE-----",
+                },
+            ),
+            "transparency": {
+                "log": "rekor.sigstore.dev",
+                "entry": 148392017,
+                "logged_at": "2026-09-25T10:00:00Z",
+            },
+        },
     }
     base.update(overrides)
     return ModelCard.model_validate(base)

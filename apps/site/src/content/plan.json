@@ -1358,7 +1358,8 @@
       "phase": "8F",
       "depends_on": [
         "F.9",
-        "F.15"
+        "F.15",
+        "E.37"
       ],
       "branch": null,
       "source": "cs1090a-recsys F1",
@@ -1385,7 +1386,8 @@
       "thread": "F",
       "phase": "8F",
       "depends_on": [
-        "F.10"
+        "F.10",
+        "E.37"
       ],
       "branch": null,
       "source": "cs1090a-recsys F2",
@@ -2198,7 +2200,8 @@
         "F.10",
         "9.18",
         "9.14",
-        "E.36"
+        "E.36",
+        "E.37"
       ],
       "branch": null,
       "source": "2026 ML-BOM practice",
@@ -3163,7 +3166,8 @@
       "phase": "8G",
       "depends_on": [
         "G.9",
-        "F.10"
+        "F.10",
+        "E.37"
       ],
       "branch": null,
       "source": "cs1090a-recsys F5: a local chain cannot detect its own truncation",
@@ -4592,6 +4596,33 @@
         {
           "kind": "path",
           "path": "tooling/tests/test_readme_holds_no_moving_figure.py"
+        }
+      ]
+    },
+    {
+      "id": "E.37",
+      "title": "Signed means a DSSE envelope over an in-toto statement, logged for transparency",
+      "thread": "E",
+      "phase": "9",
+      "depends_on": [
+        "E.36"
+      ],
+      "branch": null,
+      "source": "five steps promise a signature or an attestation and not one names a mechanism; the card's attested_by is a bare digest, which is a number anyone can type -- 2026 practice is that a predicate document without a signature is a file anyone could have written, and that policies must consume the attestation predicate rather than the signature alone",
+      "serves": [
+        {
+          "loop": "promise",
+          "side": "code"
+        },
+        {
+          "loop": "constrain",
+          "side": "data"
+        }
+      ],
+      "done_when": [
+        {
+          "kind": "path",
+          "path": "tooling/tests/test_attestation_contract.py"
         }
       ]
     }
