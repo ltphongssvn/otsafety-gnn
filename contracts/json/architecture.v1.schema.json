@@ -67,6 +67,20 @@
             "minItems": 1,
             "title": "Produced By",
             "type": "array"
+          },
+          "asks": {
+            "minLength": 3,
+            "title": "Asks",
+            "type": "string"
+          },
+          "evidence_from": {
+            "minLength": 3,
+            "title": "Evidence From",
+            "type": "string"
+          },
+          "resolvable": {
+            "title": "Resolvable",
+            "type": "boolean"
           }
         },
         "required": [
@@ -79,7 +93,10 @@
           "guard",
           "as_code",
           "as_data",
-          "produced_by"
+          "produced_by",
+          "asks",
+          "evidence_from",
+          "resolvable"
         ],
         "title": "Layer",
         "type": "object"

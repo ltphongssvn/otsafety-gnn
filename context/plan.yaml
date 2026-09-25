@@ -1944,6 +1944,19 @@ steps:
       - {loop: constrain, side: data}
     done_when:
       - {kind: path, path: tooling/tests/test_attestation_contract.py}
+  - id: E.38
+    title: A layer states what it asks about, what generates its evidence, and whether that gap can be closed
+    thread: E
+    phase: '9'
+    depends_on: ['8.5', E.36]
+    source: 'the nine layers are modelled and gate-walked, but the conflation at layer 1 lives only inside an English sentence:
+      nothing typed says the question is about on-target biology while every observation comes from drug pharmacology, or
+      that no engineering closes it'
+    serves:
+      - {loop: declare, side: code}
+      - {loop: constrain, side: data}
+    done_when:
+      - {kind: path, path: tooling/tests/test_layer_semantics.py}
 decisions:
   - {id: X.SPIKE, title: 'Reference spike, the original thread B', state: superseded, reason: 'thread B dissolved by the rule
       change moving all execution local: the sandbox prototype became reference reading only and every line is re-derived

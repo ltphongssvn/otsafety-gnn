@@ -1080,6 +1080,11 @@
       "id": "E.37",
       "first_title": "Signed means a DSSE envelope over an in-toto statement, logged for transparency",
       "retired": false
+    },
+    {
+      "id": "E.38",
+      "first_title": "A layer states what it asks about, what generates its evidence, and whether that gap can be closed",
+      "retired": false
     }
   ]
 }
