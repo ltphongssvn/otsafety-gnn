@@ -1085,6 +1085,11 @@
       "id": "E.38",
       "first_title": "A layer states what it asks about, what generates its evidence, and whether that gap can be closed",
       "retired": false
+    },
+    {
+      "id": "E.39",
+      "first_title": "A card declaring an unresolvable layer must declare it as unresolvable, checked against the architecture",
+      "retired": false
     }
   ]
 }

@@ -1957,6 +1957,19 @@ steps:
       - {loop: constrain, side: data}
     done_when:
       - {kind: path, path: tooling/tests/test_layer_semantics.py}
+  - id: E.39
+    title: A card declaring an unresolvable layer must declare it as unresolvable, checked against the architecture
+    thread: E
+    phase: '9'
+    depends_on: [E.36, E.38]
+    source: 'a card can name layer 1, call the conflation known, state that the pipeline handles it adequately, and validate:
+      the declaration is a formality because nothing compares it with the architecture, where layer 1 is the only layer whose
+      gap no engineering closes'
+    serves:
+      - {loop: constrain, side: code}
+      - {loop: promise, side: data}
+    done_when:
+      - {kind: path, path: tooling/tests/test_limitation_is_not_a_formality.py}
 decisions:
   - {id: X.SPIKE, title: 'Reference spike, the original thread B', state: superseded, reason: 'thread B dissolved by the rule
       change moving all execution local: the sandbox prototype became reference reading only and every line is re-derived

@@ -6740,6 +6740,33 @@
         "E.38"
       ],
       "not_a_plan_item": null
+    },
+    {
+      "source": "USER",
+      "ref": "asked: the pipeline must structurally embed the conflation",
+      "text": "the unresolvable biological conflation must be recorded as data for the final model card, and a pipeline that does not acknowledge it must abort rather than proceed",
+      "maps_to": [
+        "E.39"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "measured: a card may call the unresolvable gap known and pass",
+      "text": "validating a card whose layer-1 limitation reads kind known with a statement that the pipeline handles it adequately was accepted, so the requirement to declare layer 1 checked only that a number appeared",
+      "maps_to": [
+        "E.39"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "REVIEW2026",
+      "ref": "a stored boolean is a rubber stamp, not a control",
+      "text": "tests that set an acknowledgement flag and assert only that the boolean is stored assert nothing; what matters is whether the write fails, and granular mandatory content replaces one giant I-agree checkbox",
+      "maps_to": [
+        "E.39"
+      ],
+      "not_a_plan_item": null
     }
   ]
 }
