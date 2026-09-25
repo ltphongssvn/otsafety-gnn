@@ -669,3 +669,6 @@ issued:
 - id: G.64
   first_title: 'The README stores no figure its own commit changes: live signals, not counts'
   retired: false
+- id: E.37
+  first_title: Signed means a DSSE envelope over an in-toto statement, logged for transparency
+  retired: false

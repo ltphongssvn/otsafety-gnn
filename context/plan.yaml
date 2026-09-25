@@ -520,7 +520,7 @@ steps:
     title: Build provenance attested for sheet, image and SBOM
     thread: F
     phase: 8F
-    depends_on: [F.9, F.15]
+    depends_on: [F.9, F.15, E.37]
     source: cs1090a-recsys F1
     serves:
       - {loop: promise, side: code}
@@ -531,7 +531,7 @@ steps:
     title: Deploy refuses an artifact whose attestation fails
     thread: F
     phase: 8F
-    depends_on: [F.10]
+    depends_on: [F.10, E.37]
     source: cs1090a-recsys F2
     serves:
       - {loop: constrain, side: code}
@@ -854,7 +854,7 @@ steps:
     title: Signed model card with its limitation statement, and its ML-BOM
     thread: E
     phase: '9'
-    depends_on: ['9.13', F.10, '9.18', '9.14', E.36]
+    depends_on: ['9.13', F.10, '9.18', '9.14', E.36, E.37]
     source: 2026 ML-BOM practice
     serves:
       - {loop: promise, side: data}
@@ -1253,7 +1253,7 @@ steps:
     title: The ledger head anchored off-machine with each release
     thread: G
     phase: 8G
-    depends_on: [G.9, F.10]
+    depends_on: [G.9, F.10, E.37]
     source: 'cs1090a-recsys F5: a local chain cannot detect its own truncation'
     serves:
       - {loop: promise, side: data}
@@ -1931,6 +1931,19 @@ steps:
       - {loop: constrain, side: data}
     done_when:
       - {kind: path, path: tooling/tests/test_readme_holds_no_moving_figure.py}
+  - id: E.37
+    title: Signed means a DSSE envelope over an in-toto statement, logged for transparency
+    thread: E
+    phase: '9'
+    depends_on: [E.36]
+    source: five steps promise a signature or an attestation and not one names a mechanism; the card's attested_by is a bare
+      digest, which is a number anyone can type -- 2026 practice is that a predicate document without a signature is a file
+      anyone could have written, and that policies must consume the attestation predicate rather than the signature alone
+    serves:
+      - {loop: promise, side: code}
+      - {loop: constrain, side: data}
+    done_when:
+      - {kind: path, path: tooling/tests/test_attestation_contract.py}
 decisions:
   - {id: X.SPIKE, title: 'Reference spike, the original thread B', state: superseded, reason: 'thread B dissolved by the rule
       change moving all execution local: the sandbox prototype became reference reading only and every line is re-derived

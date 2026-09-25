@@ -27,6 +27,8 @@ from typing import ClassVar, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from otsafety_tooling.contracts.attestation import DsseEnvelope
+
 # THE LENGTH FLOORS ARE CRUDE AND EFFECTIVE, which is exactly how 2026 practice
 # describes them: they do not make prose good, they make one-line boilerplate
 # fail. "Predicts target safety." is the card this refuses.
@@ -127,7 +129,7 @@ class ModelCard(BaseModel):
     contrasts: tuple[Contrast, ...]
     limitations: tuple[Limitation, ...] = Field(min_length=1)
     verdict: Literal["promote", "reject"]
-    attested_by: str = Field(pattern=r"^[0-9a-f]{64}$")
+    attestation: DsseEnvelope
 
     @model_validator(mode="after")
     def _layer_one_is_declared(self) -> Self:

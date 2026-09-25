@@ -1,0 +1,70 @@
+{
+  "additionalProperties": false,
+  "description": "The claim: these artifacts, this predicate type, this content.",
+  "properties": {
+    "_type": {
+      "const": "https://in-toto.io/Statement/v1",
+      "title": "Type",
+      "type": "string"
+    },
+    "subject": {
+      "items": {
+        "additionalProperties": false,
+        "description": "One artifact this attestation is about.",
+        "properties": {
+          "name": {
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "digest": {
+            "additionalProperties": false,
+            "description": "How a subject is bound: by content, not by name.\n\nSHA-256 IS REQUIRED AND NOT MERELY ALLOWED. An empty digest map validates\nagainst a looser schema and binds the attestation to nothing at all.",
+            "properties": {
+              "sha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "title": "Sha256",
+                "type": "string"
+              }
+            },
+            "required": [
+              "sha256"
+            ],
+            "title": "Digest",
+            "type": "object"
+          }
+        },
+        "required": [
+          "name",
+          "digest"
+        ],
+        "title": "Subject",
+        "type": "object"
+      },
+      "minItems": 1,
+      "title": "Subject",
+      "type": "array"
+    },
+    "predicateType": {
+      "pattern": "^https://\\S+$",
+      "title": "Predicatetype",
+      "type": "string"
+    },
+    "predicate": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "minProperties": 1,
+      "title": "Predicate",
+      "type": "object"
+    }
+  },
+  "required": [
+    "_type",
+    "subject",
+    "predicateType",
+    "predicate"
+  ],
+  "title": "InTotoStatement",
+  "type": "object"
+}
