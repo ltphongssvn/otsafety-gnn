@@ -32,6 +32,8 @@ KNOWN = frozenset(
         "pattern",
         "minimum",
         "exclusiveMinimum",
+        "maximum",
+        "exclusiveMaximum",
         "items",
         "minItems",
         "maxItems",
@@ -121,6 +123,10 @@ def _base(schema: dict[str, JsonValue], where: str) -> str:
             code += f".gte({_literal(schema['minimum'])})"
         if "exclusiveMinimum" in schema:
             code += f".gt({_literal(schema['exclusiveMinimum'])})"
+        if "maximum" in schema:
+            code += f".lte({_literal(schema['maximum'])})"
+        if "exclusiveMaximum" in schema:
+            code += f".lt({_literal(schema['exclusiveMaximum'])})"
         return code
     if kind == "boolean":
         return "z.boolean()"

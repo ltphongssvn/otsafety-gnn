@@ -1,0 +1,245 @@
+{
+  "additionalProperties": false,
+  "description": "The card a model travels with, or it does not travel.",
+  "properties": {
+    "contract": {
+      "const": "model-card/v1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "model": {
+      "additionalProperties": false,
+      "description": "Which model, trained from what, answering which question.",
+      "properties": {
+        "name": {
+          "minLength": 3,
+          "title": "Name",
+          "type": "string"
+        },
+        "rung": {
+          "enum": [
+            "no-graph-control",
+            "degree-only-null",
+            "graph-topology-gbm",
+            "shallow-kge",
+            "relation-agnostic-gnn",
+            "relation-aware-gnn"
+          ],
+          "title": "Rung",
+          "type": "string"
+        },
+        "question": {
+          "enum": [
+            "Q1",
+            "Q2",
+            "Q3",
+            "secondary"
+          ],
+          "title": "Question",
+          "type": "string"
+        },
+        "commit": {
+          "pattern": "^[0-9a-f]{40}$",
+          "title": "Commit",
+          "type": "string"
+        },
+        "release_pin": {
+          "minLength": 3,
+          "title": "Release Pin",
+          "type": "string"
+        },
+        "seeds": {
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 5,
+          "title": "Seeds",
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "rung",
+        "question",
+        "commit",
+        "release_pin",
+        "seeds"
+      ],
+      "title": "ModelIdentity",
+      "type": "object"
+    },
+    "intended_use": {
+      "minLength": 120,
+      "title": "Intended Use",
+      "type": "string"
+    },
+    "out_of_scope_use": {
+      "minLength": 120,
+      "title": "Out Of Scope Use",
+      "type": "string"
+    },
+    "slices": {
+      "items": {
+        "additionalProperties": false,
+        "description": "One disaggregated result: a stratum, its size, and its score.",
+        "properties": {
+          "name": {
+            "minLength": 3,
+            "title": "Name",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "degree",
+              "endpoint-level",
+              "seed",
+              "cold-start",
+              "temporal"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "n": {
+            "exclusiveMinimum": 0,
+            "title": "N",
+            "type": "integer"
+          },
+          "average_precision": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Average Precision",
+            "type": "number"
+          }
+        },
+        "required": [
+          "name",
+          "kind",
+          "n",
+          "average_precision"
+        ],
+        "title": "Slice",
+        "type": "object"
+      },
+      "minItems": 2,
+      "title": "Slices",
+      "type": "array"
+    },
+    "contrasts": {
+      "items": {
+        "additionalProperties": false,
+        "description": "What this model was measured against, and by how much it differed.\n\nAN INTERVAL, NOT A POINT. A lift reported without one cannot be told from\nnoise, and the ladder's whole purpose is deciding whether a difference is\nreal.",
+        "properties": {
+          "against": {
+            "enum": [
+              "no-graph-control",
+              "degree-only-null",
+              "graph-topology-gbm",
+              "shallow-kge",
+              "relation-agnostic-gnn",
+              "relation-aware-gnn"
+            ],
+            "title": "Against",
+            "type": "string"
+          },
+          "question": {
+            "enum": [
+              "Q1",
+              "Q2",
+              "Q3",
+              "secondary"
+            ],
+            "title": "Question",
+            "type": "string"
+          },
+          "ap_lift": {
+            "title": "Ap Lift",
+            "type": "number"
+          },
+          "ci_low": {
+            "title": "Ci Low",
+            "type": "number"
+          },
+          "ci_high": {
+            "title": "Ci High",
+            "type": "number"
+          }
+        },
+        "required": [
+          "against",
+          "question",
+          "ap_lift",
+          "ci_low",
+          "ci_high"
+        ],
+        "title": "Contrast",
+        "type": "object"
+      },
+      "title": "Contrasts",
+      "type": "array"
+    },
+    "limitations": {
+      "items": {
+        "additionalProperties": false,
+        "description": "Something the card declares it cannot claim past.\n\nKIND SEPARATES WHAT CAN BE FIXED FROM WHAT CANNOT. Layer 1's conflation of\non-target biology with drug pharmacology is unresolvable by any amount of\nengineering: the project asks about the target and every observation comes\nfrom a compound. Declaring it is the only honest treatment.",
+        "properties": {
+          "layer": {
+            "maximum": 9,
+            "minimum": 1,
+            "title": "Layer",
+            "type": "integer"
+          },
+          "kind": {
+            "enum": [
+              "unresolvable",
+              "known",
+              "untested"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "statement": {
+            "minLength": 80,
+            "title": "Statement",
+            "type": "string"
+          }
+        },
+        "required": [
+          "layer",
+          "kind",
+          "statement"
+        ],
+        "title": "Limitation",
+        "type": "object"
+      },
+      "minItems": 1,
+      "title": "Limitations",
+      "type": "array"
+    },
+    "verdict": {
+      "enum": [
+        "promote",
+        "reject"
+      ],
+      "title": "Verdict",
+      "type": "string"
+    },
+    "attested_by": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Attested By",
+      "type": "string"
+    }
+  },
+  "required": [
+    "contract",
+    "model",
+    "intended_use",
+    "out_of_scope_use",
+    "slices",
+    "contrasts",
+    "limitations",
+    "verdict",
+    "attested_by"
+  ],
+  "title": "ModelCard",
+  "type": "object"
+}
