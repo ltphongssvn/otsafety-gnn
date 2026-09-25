@@ -132,6 +132,32 @@ class ModelCard(BaseModel):
     attestation: DsseEnvelope
 
     @model_validator(mode="after")
+    def _an_unresolvable_layer_is_declared_as_unresolvable(self) -> Self:
+        """A declared limitation must agree with the architecture about its kind."""
+        from otsafety_tooling.contracts.architecture import Architecture
+        from otsafety_tooling.contracts.files import read_yaml
+        from otsafety_tooling.paths import REPO_ROOT
+
+        source = REPO_ROOT / "context" / "architecture.yaml"
+        if not source.is_file():
+            return self
+        closed = {
+            int(layer.n) for layer in read_yaml(source, Architecture).layers if not layer.resolvable
+        }
+        misdeclared = sorted(
+            item.layer
+            for item in self.limitations
+            if item.layer in closed and item.kind != "unresolvable"
+        )
+        if misdeclared:
+            raise ValueError(
+                f"layers {misdeclared} are unresolvable in the architecture and this card "
+                f"declares them otherwise: no engineering closes them, so saying known or "
+                f"untested is a reclassification rather than a declaration"
+            )
+        return self
+
+    @model_validator(mode="after")
     def _layer_one_is_declared(self) -> Self:
         """The unresolvable gap is stated, or this is not this project's card."""
         if not any(item.layer == 1 for item in self.limitations):
