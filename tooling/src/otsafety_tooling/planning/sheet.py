@@ -24,7 +24,7 @@ from otsafety_tooling.planning.ledger import load_ledger
 from otsafety_tooling.planning.matrix import build as build_matrix
 from otsafety_tooling.planning.status import staged_facts, unmet
 
-TARGET = Path("apps/site/src/content/sheet-facts.json")
+TARGET = Path("build/onepager/sheet-facts.json")
 
 DEFINITION = re.compile(r"^def test_", re.MULTILINE)
 

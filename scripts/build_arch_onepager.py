@@ -266,7 +266,7 @@ def _facts() -> Mapping[str, object]:
     rendering -- the collector runs where the tooling is, and this transforms the
     document it is handed. mise run sheet:facts writes it.
     """
-    export = REPO_ROOT / "apps" / "site" / "src" / "content" / "sheet-facts.json"
+    export = OUT / "sheet-facts.json"
     if not export.is_file():
         raise SystemExit(f"REFUSED: no facts at {export}; run mise run sheet:facts")
     loaded = json.loads(export.read_text(encoding="utf-8"))

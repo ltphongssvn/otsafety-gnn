@@ -71,13 +71,30 @@ def test_the_reported_counts_match_the_repository() -> None:
 
 
 def test_the_committed_facts_are_what_the_repository_holds() -> None:
-    """THE DRIFT GATE, for the reason the typed status needed replacing.
+    """NOTHING STORED CAN DRIFT (G.53).
 
-    A collected figure goes stale the moment the plan changes, exactly as a typed
-    one does; the only difference is that this one can be regenerated and
-    compared. A hand-edited or forgotten sheet-facts.json fails here.
+    The facts were committed and went stale three times in one session, each
+    time because the commit carrying them completed a step they count. A figure
+    counting completed steps cannot be correct in the same commit as the work it
+    counts -- structural, not a mistake, and a drift gate on a committed copy
+    only reports it.
+
+    This repository already answers this for requirement-matrix.json: derived
+    from the plan, needed by a gate, written to a build directory and never
+    committed. The sheet's facts are the same kind of artifact.
     """
-    from otsafety_tooling.planning.sheet import TARGET, export
+    from otsafety_tooling.git.env import git
+    from otsafety_tooling.planning.sheet import TARGET
 
-    committed = (REPO_ROOT / TARGET).read_text(encoding="utf-8")
-    assert committed == export(), "sheet-facts.json differs; run mise run contracts:generate"
+    tracked = git("ls-files", str(TARGET)).stdout.strip()
+    assert tracked == "", f"{TARGET} is committed; a derived file that is stored can drift"
+
+
+def test_the_render_collects_the_facts_before_it_needs_them() -> None:
+    """The renderer is handed a document it cannot produce itself."""
+    from otsafety_tooling.contracts.files import read_toml
+    from otsafety_tooling.contracts.mise_config import MiseConfig
+
+    task = read_toml(REPO_ROOT / "mise.toml", MiseConfig).tasks["pdf:render"]
+    body = task.run if isinstance(task.run, str) else "\n".join(task.run)
+    assert "sheet:facts" in body, "pdf:render does not collect the facts it renders"

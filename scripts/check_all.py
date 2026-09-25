@@ -100,11 +100,12 @@ def inner_outcome(text: str) -> dict[str, str] | None:
     # NO RAW PARSING, EVEN HERE. scripts/ imports only the standard library, so it
     # cannot use the contract model; it reads the two fields it needs from the line
     # with a pattern that either matches the shape or does not, and never guesses.
+    verdict: dict[str, str] | None = None
     for line in text.splitlines():
         found = ENVELOPE.search(line.strip())
         if found:
-            return {"outcome": found["outcome"], "code": found["code"]}
-    return None
+            verdict = {"outcome": found["outcome"], "code": found["code"]}
+    return verdict
 
 
 def main(argv_in: list[str] | None = None) -> int:
