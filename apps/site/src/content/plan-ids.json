@@ -1090,6 +1090,11 @@
       "id": "E.39",
       "first_title": "A card declaring an unresolvable layer must declare it as unresolvable, checked against the architecture",
       "retired": false
+    },
+    {
+      "id": "G.65",
+      "first_title": "One collector, two renderings: the plan report reads aloud as well as it prints",
+      "retired": false
     }
   ]
 }
