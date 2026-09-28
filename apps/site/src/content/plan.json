@@ -5075,6 +5075,81 @@
           "path": "tooling/tests/test_every_edge_states_why.py"
         }
       ]
+    },
+    {
+      "id": "G.75",
+      "title": "The project's claim is stated once: question, goal and objective in the document, not in two renderers",
+      "thread": "C",
+      "phase": "7",
+      "depends_on": [
+        "8.5",
+        "G.66"
+      ],
+      "branch": null,
+      "source": "the research question, the central goal and the machine-learning objective are each typed in the sheet's generator and again in the site's TypeScript -- the third instance of the copy that 8.5 closed for the layers and G.66 for the ladder, and the one that states what the project is for",
+      "serves": [
+        {
+          "loop": "promise",
+          "side": "code"
+        },
+        {
+          "loop": "constrain",
+          "side": "data"
+        }
+      ],
+      "done_when": [
+        {
+          "kind": "path",
+          "path": "tooling/tests/test_the_claim_is_stated_once.py"
+        }
+      ]
+    },
+    {
+      "id": "G.76",
+      "title": "No prose is typed twice: a gate compares the renderers against the document",
+      "thread": "G",
+      "phase": "8G",
+      "depends_on": [
+        "G.75"
+      ],
+      "branch": null,
+      "source": "three separate copies were found by asking, not by a gate -- the layers, the ladder, then the question itself -- so a fourth would last until someone happened to look; 2026 research-infrastructure practice keeps one spine and renders from it",
+      "serves": [
+        {
+          "loop": "constrain",
+          "side": "code"
+        }
+      ],
+      "done_when": [
+        {
+          "kind": "path",
+          "path": "tooling/tests/test_no_prose_is_typed_twice.py"
+        }
+      ]
+    },
+    {
+      "id": "G.77",
+      "title": "Evidence names the test that verifies a step, not the file that contains it",
+      "thread": "G",
+      "phase": "8G",
+      "depends_on": [
+        "G.54",
+        "G.36"
+      ],
+      "branch": null,
+      "source": "G.76's evidence named a file written before the gate existed and never created, because the gate belongs beside the tests it shares a helper with; a path cannot say which test proves the rule, so a file can satisfy the matrix while the rule inside it is gone",
+      "serves": [
+        {
+          "loop": "constrain",
+          "side": "data"
+        }
+      ],
+      "done_when": [
+        {
+          "kind": "path",
+          "path": "tooling/tests/test_evidence_names_a_test.py"
+        }
+      ]
     }
   ],
   "decisions": [

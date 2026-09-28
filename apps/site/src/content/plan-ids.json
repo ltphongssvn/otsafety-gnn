@@ -1140,6 +1140,21 @@
       "id": "G.74",
       "first_title": "The fifty-seven inherited edges are justified from the commits that created them",
       "retired": false
+    },
+    {
+      "id": "G.75",
+      "first_title": "The project's claim is stated once: question, goal and objective in the document, not in two renderers",
+      "retired": false
+    },
+    {
+      "id": "G.76",
+      "first_title": "No prose is typed twice: a gate compares the renderers against the document",
+      "retired": false
+    },
+    {
+      "id": "G.77",
+      "first_title": "Evidence names the test that verifies a step, not the file that contains it",
+      "retired": false
     }
   ]
 }

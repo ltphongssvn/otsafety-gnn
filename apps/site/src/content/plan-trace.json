@@ -6917,6 +6917,52 @@
         "G.74"
       ],
       "not_a_plan_item": null
+    },
+    {
+      "source": "RECSYS",
+      "ref": "context/proposal.yaml: the deliverable as data",
+      "text": "the sibling keeps its milestone proposal as a contract-validated document with problem, background, datasets, scope and methods, and concerns and limitations, typeset as one page and proved",
+      "maps_to": [
+        "G.75"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "measured: the question, goal and objective are typed twice",
+      "text": "RESEARCH_QUESTION, CENTRAL_GOAL and ML_OBJECTIVE each appear in scripts/build_arch_onepager.py and in apps/site/src/data/architecture.ts",
+      "maps_to": [
+        "G.75",
+        "G.76"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "REVIEW2026",
+      "ref": "a research spine decomposes the direction into questions with falsification conditions",
+      "text": "each research question carries a hypothesis, a falsification condition, a method sketch and a metric specification, and a closed-negative status is a first-class outcome rather than a failure",
+      "maps_to": [
+        "G.75"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "RECSYS",
+      "ref": "the proof evidence kind names a test node id",
+      "text": "the sibling records evidence as a proof naming a test by node id rather than a path, after finding thirty-four of thirty-eight constraining steps proved only by a file existing, which shows the artefact and never that the rule refuses anything",
+      "maps_to": [
+        "G.77"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "REVIEW2026",
+      "ref": "a requirement is verified by a certain test artefact",
+      "text": "traceability links every requirement to its origin, its implementation and its verification evidence, and verification relationships are captured to show a requirement is verified by a certain test artefact",
+      "maps_to": [
+        "G.77"
+      ],
+      "not_a_plan_item": null
     }
   ]
 }

@@ -310,6 +310,21 @@
       "if_not_beaten": "The difference between this rung and rung 4 IS the research answer. If it is near zero, connectivity matters and relation types do not."
     }
   ],
+  "claim": {
+    "question": "Do the typed relationships in a public, open-source biomedical knowledge graph carry information that predicts drug-safety endpoints for protein targets -- over and above what is predictable from the graph's bare connectivity statistics, and from target-level features that require no graph at all?",
+    "goal": "Establish, under a leakage- and confound-controlled protocol, whether relation-aware graph learning over a public biomedical KG yields a usable target-safety prioritisation signal -- and quantify how much of any observed performance is attributable to the relationships, as opposed to node popularity or non-graph target biology. The deliverable is a defensible answer plus its evidence, in either direction.",
+    "objective": "Let the KG be a heterogeneous graph G = (V, E, R) with typed nodes and typed edges. Let T be the protein targets and S the safety endpoints (organ classes / adverse-event terms).Task: learn f : T x S -> [0,1], the probability that modulating target t is associated with endpoint s.This is multi-label prediction over the target x endpoint slice, not binary \"is this target risky\". The brief says endpoints -- plural -- and organ-class structure is the clinically meaningful unit; a single collapsed risky/not-risky label answers a different question.Evaluation: held-out target-endpoint pairs under a temporal split (train on the graph as of cutoff tau, predict associations that became knowable after tau), plus a target-disjoint cold-start split.",
+    "data_note": "DATA -- Open Targets 26.03, open Parquet: target (safety nested inside), drug_warning (Tier 1 labels), evidence_clinical_precedence (earns a negative), drug_mechanism_of_action, openfda_significant_adverse_drug_reactions (Tier 3). Hetionet / PrimeKG for replication. Endpoint DAG from EFO / MONDO / HPO; MedDRA is licensed and not redistributed.",
+    "scope_note": "The brief says \"important biomedical endpoints, with a particular focus on drug safety\". That phrasing requires the method to be endpoint-agnostic, so the same pipeline is run once on a non-safety endpoint (target-disease association) to test whether any success is method-general or safety-specific.",
+    "emphasise": [
+      "relationships",
+      "in either direction",
+      "G = (V, E, R)",
+      "f : T x S -> [0,1]",
+      "multi-label prediction over the target x endpoint slice",
+      "endpoints"
+    ]
+  },
   "ladder_rule": {
     "id": "ladder",
     "rule": "Every rung runs on the same split, the same negatives, the same endpoints, and at least five seeds with bootstrap confidence intervals. One seed cannot resolve a 0.02 difference in average precision, and most reported wins on biomedical knowledge graphs sit inside that band."

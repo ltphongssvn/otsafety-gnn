@@ -279,6 +279,55 @@
       "title": "Rungs",
       "type": "array"
     },
+    "claim": {
+      "additionalProperties": false,
+      "description": "What this project asks, why it asks it, and what answering means.",
+      "properties": {
+        "question": {
+          "minLength": 80,
+          "title": "Question",
+          "type": "string"
+        },
+        "goal": {
+          "minLength": 80,
+          "title": "Goal",
+          "type": "string"
+        },
+        "objective": {
+          "minLength": 80,
+          "title": "Objective",
+          "type": "string"
+        },
+        "data_note": {
+          "minLength": 40,
+          "title": "Data Note",
+          "type": "string"
+        },
+        "scope_note": {
+          "minLength": 40,
+          "title": "Scope Note",
+          "type": "string"
+        },
+        "emphasise": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Emphasise",
+          "type": "array"
+        }
+      },
+      "required": [
+        "question",
+        "goal",
+        "objective",
+        "data_note",
+        "scope_note",
+        "emphasise"
+      ],
+      "title": "Claim",
+      "type": "object"
+    },
     "ladder_rule": {
       "additionalProperties": false,
       "description": "What makes the ladder a comparison rather than a list of runs.\n\nA MODEL, NOT A STRING, because the site reads it as a collection entry and\nthe loader requires an id on every entry -- the same reason a layer carries\none. The contract describes what both sides consume.",
@@ -324,6 +373,7 @@
     "stages",
     "questions",
     "rungs",
+    "claim",
     "ladder_rule",
     "scope_in",
     "scope_out"
