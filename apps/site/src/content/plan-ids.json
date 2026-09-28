@@ -1130,6 +1130,16 @@
       "id": "G.72",
       "first_title": "Setup installs before it uses, and the order is proved rather than the presence",
       "retired": false
+    },
+    {
+      "id": "G.73",
+      "first_title": "Every dependency states why it exists, and the report shows the chain to a goal",
+      "retired": false
+    },
+    {
+      "id": "G.74",
+      "first_title": "The fifty-seven inherited edges are justified from the commits that created them",
+      "retired": false
     }
   ]
 }
