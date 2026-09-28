@@ -519,6 +519,15 @@ run = "uv run --no-sync python -m otsafety_tooling.github.settings configure"
 
 # --- Workflow -----------------------------------------------------------------
 
+[tasks.tour]
+description = "Every command this repository offers, grouped, with what only reads and where to start"
+# THE ONE COMMAND TO RUN FIRST. mise tasks prints sixty-six rows alphabetically,
+# which is honest and unusable cold. This groups them by namespace, marks what
+# changes anything outside the checkout, and names three places to start --
+# derived from this file, so a task added tomorrow appears without anyone
+# remembering to list it.
+run = "uv run --no-sync python -m otsafety_tooling.tour"
+
 [tasks.status]
 description = "Show branch, working tree, and how it relates to develop"
 run = '''

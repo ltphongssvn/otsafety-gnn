@@ -2167,6 +2167,19 @@ steps:
       - {loop: constrain, side: data}
     done_when:
       - {kind: path, path: tooling/tests/test_evidence_names_a_test.py}
+  - id: G.78
+    title: 'One command shows the repository: tasks grouped, the safe ones marked, and where to start'
+    thread: B
+    phase: '6'
+    depends_on: ['6.3', G.67]
+    source: 'mise tasks prints sixty-six rows alphabetically, which is a wall rather than a menu: nothing says which three
+      to run first, which only read, and which deploy or tag; 2026 practice groups by namespace and puts the content in the
+      output, because a pointer to documentation was followed none of eight times'
+    serves:
+      - {loop: instrument, side: code}
+    done_when:
+      - {kind: path, path: tooling/tests/test_the_tour_shows_the_repository.py}
+      - {kind: task, name: tour}
 decisions:
   - {id: X.SPIKE, title: 'Reference spike, the original thread B', state: superseded, reason: 'thread B dissolved by the rule
       change moving all execution local: the sandbox prototype became reference reading only and every line is re-derived

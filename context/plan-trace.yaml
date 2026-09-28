@@ -4146,3 +4146,15 @@ candidates:
     relationships are captured to show a requirement is verified by a certain test artefact
   maps_to:
   - G.77
+- source: USER
+  ref: 'asked: one command that discloses every command worth knowing'
+  text: a way to reach everything the project can show without having to remember any specific command first
+  maps_to:
+  - G.78
+- source: REVIEW2026
+  ref: a flat wall of tasks is grouped by namespace, and the entry point is one command
+  text: bare listings printed a flat wall with no structure and were regrouped by the segment before the first colon; a pointer
+    telling a reader to consult documentation first was followed none of eight times, so the description must be in the output
+    itself
+  maps_to:
+  - G.78
