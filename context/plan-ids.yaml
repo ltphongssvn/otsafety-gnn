@@ -681,3 +681,6 @@ issued:
 - id: G.65
   first_title: 'One collector, two renderings: the plan report reads aloud as well as it prints'
   retired: false
+- id: G.66
+  first_title: 'The ladder is stated once: the site reads the rungs rather than typing a seventh'
+  retired: false

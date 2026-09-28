@@ -88,9 +88,31 @@ class Rung(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     id: str = Field(min_length=1)
+    # The rung's position on the ladder: "0" through "5", with "2b" for the
+    # topology variant that sits beside the tabular control.
+    n: str = Field(pattern=r"^[0-9][a-z]?$")
     name: str = Field(min_length=3)
-    question: Literal["Q1", "Q2", "Q3"]
-    detail: str = Field(min_length=10)
+    experiment: str = Field(min_length=3)
+    asks: str = Field(min_length=10)
+    models: str = Field(min_length=20)
+    answers: Literal["Q1", "Q2", "Q3", "none"]
+    # WHAT FOLLOWS IF NOTHING ABOVE BEATS IT. The rung's whole purpose: a
+    # contrast that ties is a finding, and this is the finding it would be.
+    if_not_beaten: str = Field(min_length=20)
+
+
+class LadderRule(BaseModel):
+    """What makes the ladder a comparison rather than a list of runs.
+
+    A MODEL, NOT A STRING, because the site reads it as a collection entry and
+    the loader requires an id on every entry -- the same reason a layer carries
+    one. The contract describes what both sides consume.
+    """
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    id: str = Field(min_length=1)
+    rule: str = Field(min_length=40)
 
 
 class Architecture(BaseModel):
@@ -105,5 +127,8 @@ class Architecture(BaseModel):
     stages: tuple[Stage, ...] = Field(min_length=1)
     questions: tuple[Question, ...] = Field(min_length=3, max_length=3)
     rungs: tuple[Rung, ...] = Field(min_length=1)
+    # WHAT MAKES THE LADDER A COMPARISON rather than a list of runs: identical
+    # protocol on every rung, and enough seeds to resolve the difference claimed.
+    ladder_rule: LadderRule
     scope_in: tuple[str, ...] = Field(min_length=1)
     scope_out: tuple[str, ...] = Field(min_length=1)

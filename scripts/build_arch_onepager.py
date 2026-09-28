@@ -261,7 +261,7 @@ def nested_blocks() -> str:
 def sweep_rows() -> str:
     return "".join(
         f'<tr><td class="sw1">{e(a)}</td><td class="sw2">{e(b)}</td>'
-        f'<td class="sw3 mono">{c}</td></tr>' for a, b, c in ((r["name"], r["question"], r["detail"]) for r in _rows("rungs"))
+        f'<td class="sw3 mono">{c}</td></tr>' for a, b, c in ((r["name"], r["answers"], r["models"]) for r in _rows("rungs"))
     )
 
 

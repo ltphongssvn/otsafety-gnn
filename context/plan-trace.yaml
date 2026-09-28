@@ -4030,3 +4030,14 @@ candidates:
     and human output goes to stderr so the payload channel is never polluted
   maps_to:
   - G.65
+- source: USER
+  ref: 'asked: verify the site is in sync with the plan, ledger and matrix'
+  text: check whether the project website reflects the current plan, ledger and matrix
+  maps_to:
+  - G.66
+- source: SESSION
+  ref: 'measured: the site''s ladder and the sheet''s disagree'
+  text: six rungs in context/architecture.yaml against seven in apps/site/src/data/research.ts, the site carrying a prevalence
+    base rate the sheet omits and naming the no-graph control differently, with uv and bun versions typed beside toolchain.json
+  maps_to:
+  - G.66
