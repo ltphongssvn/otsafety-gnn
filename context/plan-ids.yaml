@@ -696,3 +696,6 @@ issued:
 - id: G.70
   first_title: A conflicted plan is resolved by id, and a merge is abandoned by task
   retired: false
+- id: G.71
+  first_title: 'The push survives its own gate: a keepalive shipped with the repository, not with one operator'
+  retired: false

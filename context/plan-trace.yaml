@@ -4071,3 +4071,16 @@ candidates:
   text: counting this repository's tasks against the steps that name them found 46 orphans, including every gate
   maps_to:
   - G.67
+- source: SESSION
+  ref: 'observed: two pushes lost after the gate passed'
+  text: the aggregate passed in 372 seconds and the push died with connection closed by remote host, twice in a row, with
+    ssh authenticating and the token live
+  maps_to:
+  - G.71
+- source: REVIEW2026
+  ref: a long pre-push outlives GitHub's ssh idle limit
+  text: git opens the receive-pack connection before running pre-push and sends the packfile only after the hook returns,
+    so the socket idles for the whole gate; a keepalive set inside the hook cannot save a transport already open, and one
+    left in an operator's uncommitted config does not travel to other clones or worktrees
+  maps_to:
+  - G.71

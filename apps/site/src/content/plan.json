@@ -4974,6 +4974,34 @@
           "path": "tooling/tests/test_a_conflicted_plan_resolves_by_id.py"
         }
       ]
+    },
+    {
+      "id": "G.71",
+      "title": "The push survives its own gate: a keepalive shipped with the repository, not with one operator",
+      "thread": "B",
+      "phase": "6",
+      "depends_on": [
+        "G.7",
+        "6.3"
+      ],
+      "branch": null,
+      "source": "git opens the connection before pre-push and sends the packfile only after it returns, so a 372-second gate leaves the socket idle past the point GitHub hangs it up; the push is then lost after paying the full gate, and nothing says whether it was declined or dropped",
+      "serves": [
+        {
+          "loop": "constrain",
+          "side": "code"
+        },
+        {
+          "loop": "instrument",
+          "side": "data"
+        }
+      ],
+      "done_when": [
+        {
+          "kind": "path",
+          "path": "tooling/tests/test_push_survives_its_gate.py"
+        }
+      ]
     }
   ],
   "decisions": [
