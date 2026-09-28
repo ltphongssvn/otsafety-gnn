@@ -1,0 +1,37 @@
+{
+  "description": "A workspace member's own pyproject.",
+  "properties": {
+    "project": {
+      "description": "What a member says about itself.",
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "version": {
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        },
+        "requires-python": {
+          "minLength": 2,
+          "title": "Requires-Python",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version",
+        "requires-python"
+      ],
+      "title": "MemberMetadata",
+      "type": "object"
+    }
+  },
+  "required": [
+    "project"
+  ],
+  "title": "MemberProject",
+  "type": "object"
+}

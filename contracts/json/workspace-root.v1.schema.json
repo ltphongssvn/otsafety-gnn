@@ -1,0 +1,67 @@
+{
+  "description": "The virtual root: members and the settings they share.",
+  "properties": {
+    "tool": {
+      "description": "The tool table of the workspace root.",
+      "properties": {
+        "uv": {
+          "description": "The uv table, of which only the workspace is read here.",
+          "properties": {
+            "workspace": {
+              "description": "Which directories uv resolves as local editable packages.",
+              "properties": {
+                "members": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "minItems": 1,
+                  "title": "Members",
+                  "type": "array"
+                }
+              },
+              "required": [
+                "members"
+              ],
+              "title": "Workspace",
+              "type": "object"
+            }
+          },
+          "required": [
+            "workspace"
+          ],
+          "title": "UvSettings",
+          "type": "object"
+        },
+        "ruff": {
+          "description": "Ruff's first-party source roots.\n\nA MEMBER MISSING FROM src READS AS THIRD PARTY, so its own imports sort\ninto the wrong block and the formatter rewrites them on every run.",
+          "properties": {
+            "src": {
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "title": "Src",
+              "type": "array"
+            }
+          },
+          "required": [
+            "src"
+          ],
+          "title": "RuffSettings",
+          "type": "object"
+        }
+      },
+      "required": [
+        "uv",
+        "ruff"
+      ],
+      "title": "RootTools",
+      "type": "object"
+    }
+  },
+  "required": [
+    "tool"
+  ],
+  "title": "RootProject",
+  "type": "object"
+}

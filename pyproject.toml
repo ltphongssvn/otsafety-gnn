@@ -30,7 +30,10 @@ required-environments = [
 ]
 
 [tool.uv.workspace]
-members = ["tooling"]
+# THE RESEARCH PACKAGE JOINS THE TOOLING ONE. uv resolves a member as a local
+# editable package, so a change is visible without reinstalling and one lockfile
+# covers the whole repository.
+members = ["tooling", "python/otsafety"]
 
 # RUFF FOR EVERY PYTHON FILE OUTSIDE THE TOOLING PACKAGE. Without this section
 # apps/site/tests resolved against no configuration at all: ruff ran with its
@@ -88,7 +91,7 @@ target-version = "py313"
 # a src/ beneath it, and it does not read uv workspace members, so from here it took
 # otsafety_tooling for third-party. This is the union of the two old defaults, and
 # test_python_version.py fails if a workspace member is ever missing from it.
-src = [".", "tooling", "tooling/src"]
+src = [".", "tooling", "tooling/src", "python/otsafety", "python/otsafety/src"]
 
 [tool.ruff.format]
 # THE FORMATTER IS NOT CONFIGURABLE PER FILE, only excludable. This generator is
