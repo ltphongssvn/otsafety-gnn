@@ -1,5 +1,6 @@
 # policy/licences.rego
 # Every source declares its terms, and a closed one names what must not ship.
+# G.13: proves this step of the plan.
 package policy
 
 sources := doc("context/sources.yaml").sources
