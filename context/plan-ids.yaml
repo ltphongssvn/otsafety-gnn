@@ -699,3 +699,6 @@ issued:
 - id: G.71
   first_title: 'The push survives its own gate: a keepalive shipped with the repository, not with one operator'
   retired: false
+- id: G.72
+  first_title: Setup installs before it uses, and the order is proved rather than the presence
+  retired: false

@@ -88,11 +88,6 @@ description = "One-command onboarding: dependencies and git hooks"
 run = '''
 set -euo pipefail
 
-# THE PUSH MUST SURVIVE ITS OWN GATE. git opens the connection before pre-push
-# runs and sends the packfile only after it returns, so the socket idles for the
-# whole gate and GitHub hangs up. Setting this inside the hook would be too late.
-uv run --no-sync python -m otsafety_tooling.git.keepalive
-
 hooks_path="$(git config --get core.hooksPath || true)"
 if [ -n "$hooks_path" ]; then
   echo "refusing: core.hooksPath is set to '$hooks_path'." >&2
@@ -103,6 +98,13 @@ if [ -n "$hooks_path" ]; then
 fi
 
 uv sync --locked --all-packages --all-groups
+
+# THE PUSH MUST SURVIVE ITS OWN GATE, and this runs AFTER the sync above because
+# it calls this repository's own package. git opens the connection before
+# pre-push runs and sends the packfile only after it returns, so the socket
+# idles for the whole gate and GitHub hangs up; setting it inside the hook would
+# be too late, the transport is already open.
+uv run --no-sync python -m otsafety_tooling.git.keepalive
 
 # THE SITE TOO: a checkout without it fails site:types, site:lint, policy and
 # test:e2e with 'command not found', and a package runner would fetch the tool.
