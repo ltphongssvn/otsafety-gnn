@@ -88,6 +88,11 @@ description = "One-command onboarding: dependencies and git hooks"
 run = '''
 set -euo pipefail
 
+# THE PUSH MUST SURVIVE ITS OWN GATE. git opens the connection before pre-push
+# runs and sends the packfile only after it returns, so the socket idles for the
+# whole gate and GitHub hangs up. Setting this inside the hook would be too late.
+uv run --no-sync python -m otsafety_tooling.git.keepalive
+
 hooks_path="$(git config --get core.hooksPath || true)"
 if [ -n "$hooks_path" ]; then
   echo "refusing: core.hooksPath is set to '$hooks_path'." >&2
