@@ -196,30 +196,71 @@ questions:
     the brief -- if a relation-agnostic GNN matches a relation-aware one, the answer to "can relationships
     be used to predict" is no, only connectivity can.
 rungs:
-- name: No-graph control
-  question: Q2
-  detail: sklearn HistGradientBoostingClassifier + tabular MLP -- target annotations only
-  id: No-graph control
-- name: Degree-only null
-  question: Q1
-  detail: sklearn LogisticRegression on log1p(per-relation degree)
-  id: Degree-only null
-- name: Graph-topology GBM
-  question: Q1
-  detail: sklearn HistGradientBoostingClassifier on PPR / betweenness / k-core / clustering
-  id: Graph-topology GBM
-- name: Shallow KGE
-  question: Q3
-  detail: PyKEEN ComplEx, PyKEEN RotatE -- relation-typed, no message passing
-  id: Shallow KGE
-- name: Relation-agnostic GNN
-  question: Q3
-  detail: PyG GraphSAGE (SAGEConv), PyG GAT (GATConv) on data.to_homogeneous()
-  id: Relation-agnostic GNN
-- name: Relation-aware GNN
-  question: Q3
-  detail: PyG R-GCN (RGCNConv), CompGCN, PyG HGT (HGTConv) + degree-offset head
-  id: Relation-aware GNN
+- id: Base rate
+  n: '0'
+  name: Base rate
+  experiment: prevalence
+  asks: What does guessing the prior achieve?
+  models: A prevalence constant, equivalent to sklearn DummyClassifier(strategy="prior")
+  answers: none
+  if_not_beaten: Anchors average precision. Anything not beating it is noise.
+- id: Degree-only null
+  n: '1'
+  name: Degree-only null
+  experiment: degree-null
+  asks: Does simple popularity explain performance?
+  models: sklearn LogisticRegression on log1p(per-relation degree). No biology, no relations, no message
+    passing.
+  answers: Q1
+  if_not_beaten: The graph encodes study attention, not safety biology. The project returns a negative
+    result, and that is a real finding.
+- id: Non-graph model
+  n: '2'
+  name: Non-graph model
+  experiment: tabular
+  asks: Do target features alone explain performance?
+  models: 'sklearn HistGradientBoostingClassifier and a tabular MLP on target annotations only: GTEx expression
+    breadth, gnomAD pLI and LOEUF, protein family, subcellular localisation. Zero graph structure.'
+  answers: Q2
+  if_not_beaten: The graph adds nothing. Ship the cheaper tabular model and close the project.
+- id: Graph-topology GBM
+  n: 2b
+  name: Graph-topology GBM
+  experiment: topology-gbm
+  asks: Do hand-computed graph statistics suffice?
+  models: sklearn HistGradientBoostingClassifier on personalised PageRank to known-risky targets, betweenness,
+    k-core, clustering, degree. Graph-derived, but no learned representation.
+  answers: Q2
+  if_not_beaten: A published comparator of this family reached ROC-AUC around 0.71 on target-level safety
+    attrition. That is the bar a GNN must clear.
+- id: Shallow KGE
+  n: '3'
+  name: Shallow KGE
+  experiment: shallow-kge
+  asks: Does embedding entities suffice, without message passing?
+  models: 'PyKEEN ComplEx and PyKEEN RotatE: relation-typed scoring functions with no neighbourhood aggregation.'
+  answers: Q3
+  if_not_beaten: Relation-typed embedding is what helps; aggregation is not.
+- id: Relation-agnostic GNN
+  n: '4'
+  name: Relation-agnostic GNN
+  experiment: relation-agnostic
+  asks: Does connectivity alone help?
+  models: PyG GraphSAGE (SAGEConv) and PyG GAT (GATConv) over a collapsed single adjacency, with edge
+    types deliberately discarded.
+  answers: Q3
+  if_not_beaten: The control that isolates relation types. Without it, no claim about relationships can
+    be made at all.
+- id: Relation-aware GNN
+  n: '5'
+  name: Relation-aware GNN
+  experiment: relation-aware
+  asks: Do relation TYPES add information?
+  models: PyG R-GCN (RGCNConv), CompGCN and PyG HGT (HGTConv), with a degree-offset head and a gradient-reversal
+    adversary.
+  answers: Q3
+  if_not_beaten: The difference between this rung and rung 4 IS the research answer. If it is near zero,
+    connectivity matters and relation types do not.
 scope_in:
 - Public, open-source KGs only. Open Targets is primary -- it carries the target-safety widget (ToxCast,
   AOPWiki, ClinPGx).
@@ -230,3 +271,8 @@ scope_out:
 - Compound-level toxicity from chemistry
 - Clinical decision support
 - Anything requiring non-public data
+ladder_rule:
+  id: ladder
+  rule: Every rung runs on the same split, the same negatives, the same endpoints, and at least five seeds
+    with bootstrap confidence intervals. One seed cannot resolve a 0.02 difference in average precision,
+    and most reported wins on biomedical knowledge graphs sit inside that band.

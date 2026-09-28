@@ -87,6 +87,15 @@ const questions = defineCollection({
   }),
 });
 
+const ladder = defineCollection({
+  schema: architectureV1Schema.shape.ladder_rule,
+  loader: file(ARCHITECTURE, {
+    parser: (text) => [
+      architectureV1Schema.parse(JSON.parse(text)).ladder_rule,
+    ],
+  }),
+});
+
 const rungs = defineCollection({
   schema: architectureV1Schema.shape.rungs.element,
   loader: file(ARCHITECTURE, {
@@ -116,5 +125,6 @@ export const collections = {
   layers,
   questions,
   rungs,
+  ladder,
   stages,
 };

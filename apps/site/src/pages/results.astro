@@ -2,8 +2,14 @@
 // apps/site/src/pages/results.astro
 // What was measured, and nothing that was not. Every number is computed from
 // experiment-run/v1 records at build time; none is typed into this file.
+import { getCollection } from "astro:content";
+// THE LADDER FROM THE ONE SOURCE. It was typed here and in the sheet, and the
+// two had diverged: seven rungs against six, a prevalence base rate the sheet
+// omitted, and the no-graph control under a second name.
+const RUNGS = (await getCollection("rungs")).map((entry) => entry.data);
+
 import Base from "../layouts/Base.astro";
-import { RUNGS } from "../data/research";
+
 import { summarise, PRIMARY_METRIC, REQUIRED_SEEDS } from "../data/results";
 
 const { summaries, reference } = summarise(RUNGS.map((r) => r.experiment));

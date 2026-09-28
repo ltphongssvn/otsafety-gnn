@@ -1,7 +1,14 @@
 ---
 // apps/site/src/pages/method.astro
+import { getCollection } from "astro:content";
+// THE LADDER FROM THE ONE SOURCE. It was typed here and in the sheet, and the
+// two had diverged: seven rungs against six, a prevalence base rate the sheet
+// omitted, and the no-graph control under a second name.
+const RUNGS = (await getCollection("rungs")).map((entry) => entry.data);
+const LADDER_RULE = (await getCollection("ladder")).map((entry) => entry.data.rule).join("");
+
 import Base from "../layouts/Base.astro";
-import { RUNGS, LADDER_RULE } from "../data/research";
+
 ---
 <Base
   title="Method"
@@ -15,7 +22,7 @@ import { RUNGS, LADDER_RULE } from "../data/research";
       <h2><span class="n">{r.n}</span> {r.name} <span class="q">{r.answers}</span></h2>
       <p class="asks">{r.asks}</p>
       <p class="models">{r.models}</p>
-      <p class="not"><strong>If this rung is not beaten:</strong> {r.ifNotBeaten}</p>
+      <p class="not"><strong>If this rung is not beaten:</strong> {r.if_not_beaten}</p>
     </section>
   ))}
   <style>

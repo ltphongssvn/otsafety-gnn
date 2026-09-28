@@ -221,31 +221,56 @@
             "title": "Id",
             "type": "string"
           },
+          "n": {
+            "pattern": "^[0-9][a-z]?$",
+            "title": "N",
+            "type": "string"
+          },
           "name": {
             "minLength": 3,
             "title": "Name",
             "type": "string"
           },
-          "question": {
+          "experiment": {
+            "minLength": 3,
+            "title": "Experiment",
+            "type": "string"
+          },
+          "asks": {
+            "minLength": 10,
+            "title": "Asks",
+            "type": "string"
+          },
+          "models": {
+            "minLength": 20,
+            "title": "Models",
+            "type": "string"
+          },
+          "answers": {
             "enum": [
               "Q1",
               "Q2",
-              "Q3"
+              "Q3",
+              "none"
             ],
-            "title": "Question",
+            "title": "Answers",
             "type": "string"
           },
-          "detail": {
-            "minLength": 10,
-            "title": "Detail",
+          "if_not_beaten": {
+            "minLength": 20,
+            "title": "If Not Beaten",
             "type": "string"
           }
         },
         "required": [
           "id",
+          "n",
           "name",
-          "question",
-          "detail"
+          "experiment",
+          "asks",
+          "models",
+          "answers",
+          "if_not_beaten"
         ],
         "title": "Rung",
         "type": "object"
@@ -253,6 +278,28 @@
       "minItems": 1,
       "title": "Rungs",
       "type": "array"
+    },
+    "ladder_rule": {
+      "additionalProperties": false,
+      "description": "What makes the ladder a comparison rather than a list of runs.\n\nA MODEL, NOT A STRING, because the site reads it as a collection entry and\nthe loader requires an id on every entry -- the same reason a layer carries\none. The contract describes what both sides consume.",
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "rule": {
+          "minLength": 40,
+          "title": "Rule",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "rule"
+      ],
+      "title": "LadderRule",
+      "type": "object"
     },
     "scope_in": {
       "items": {
@@ -277,6 +324,7 @@
     "stages",
     "questions",
     "rungs",
+    "ladder_rule",
     "scope_in",
     "scope_out"
   ],
