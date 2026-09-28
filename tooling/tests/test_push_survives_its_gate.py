@@ -27,13 +27,30 @@ from otsafety_tooling.paths import REPO_ROOT
 pytestmark = pytest.mark.requirement("G.71")
 
 
-def test_the_clone_carries_a_keepalive() -> None:
-    """Not the operator's ~/.ssh/config: this repository's own configuration."""
-    from otsafety_tooling.git.keepalive import configured
+def test_stamping_a_clone_gives_it_the_keepalive() -> None:
+    """The mechanism, exercised -- not the state of whichever clone runs this.
 
-    assert configured(REPO_ROOT), (
-        "core.sshCommand carries no keepalive; a push will idle through the gate"
-    )
+    THE FIRST VERSION ASSERTED THIS CLONE CARRIES IT, and failed on every
+    runner. actions/checkout unsets core.sshCommand as part of its setup --
+    visible in its own logs, and in six other projects' -- so a test reading
+    that setting can never pass on CI. It was testing the machine rather than
+    the capability, which is the "works on my machine" failure inverted.
+
+    A FRESH REPOSITORY IS THE HONEST FIXTURE: stamp it, read it back, and the
+    test says the same thing on a laptop and on a runner.
+    """
+    import tempfile
+    from pathlib import Path
+
+    from otsafety_tooling.git.env import git
+    from otsafety_tooling.git.keepalive import configured, stamp
+
+    with tempfile.TemporaryDirectory() as folder:
+        clone = Path(folder)
+        git("init", "--quiet", cwd=clone)
+        assert not configured(clone), "a fresh repository already carries one"
+        stamp(clone)
+        assert configured(clone), "stamping left no keepalive behind"
 
 
 def test_the_interval_outlives_the_gate() -> None:
