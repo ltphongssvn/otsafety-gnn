@@ -6890,6 +6890,33 @@
         "G.72"
       ],
       "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "measured: the first data fetch is four steps behind a release tag",
+      "text": "9.3 waits on 9.1 which waits on G.12 which waits on G.6; 9.1 creates a Python package and G.12 tags a policy release, and 9.1 records no reason for the edge",
+      "maps_to": [
+        "G.73"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "REVIEW2026",
+      "ref": "an edge is added for data, ordering or a side effect -- never adjacency",
+      "text": "do not add an edge merely because jobs were historically adjacent; unnecessary edges lengthen the critical path, dependencies go stale, and a chain should be reviewed periodically to remove links that no longer reflect reality",
+      "maps_to": [
+        "G.73"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "measured: fifty-seven edges carry no reason",
+      "text": "every step that waits on another was counted against whether it records a source, and fifty-seven do not, including 0.5, 1.1, 2.1 and 11.1",
+      "maps_to": [
+        "G.74"
+      ],
+      "not_a_plan_item": null
     }
   ]
 }

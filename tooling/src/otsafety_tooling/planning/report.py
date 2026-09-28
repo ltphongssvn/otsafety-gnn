@@ -92,6 +92,36 @@ def collect(root: Path = REPO_ROOT) -> PlanReport:
     )
 
 
+def chain_to(goal: str, root: Path = REPO_ROOT) -> list[tuple[str, str]]:
+    """The path from a goal back to whatever is ready, depth first.
+
+    EACH ENTRY IS A STEP AND WHY IT IS THERE: the ids it waits on, or READY when
+    it waits on nothing outstanding. Reading it top to bottom is reading the
+    critical path, which is what makes a stale edge reviewable.
+    """
+    from otsafety_tooling.planning.status import staged_facts, unmet
+
+    plan = load()
+    facts = staged_facts(root)
+    done = {step.id for step in plan.steps if not unmet(plan, facts, step.id)}
+    by_id = {step.id: step for step in plan.steps}
+
+    path: list[tuple[str, str]] = []
+    seen: set[str] = set()
+
+    def walk(current: str) -> None:
+        if current in seen or current not in by_id:
+            return
+        seen.add(current)
+        waiting = [d for d in by_id[current].depends_on if d not in done]
+        path.append((current, "READY" if not waiting else "waits on " + ", ".join(waiting)))
+        for dependency in waiting:
+            walk(dependency)
+
+    walk(goal)
+    return path
+
+
 def render_text(report: PlanReport, threads: tuple[ThreadRatio, ...] = ()) -> str:
     """The whole plan, for a reader: totals, threads, then every step in order."""
     out: list[str] = []

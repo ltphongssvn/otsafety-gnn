@@ -739,7 +739,9 @@ steps:
     title: python/otsafety as a uv workspace member
     thread: E
     phase: '9'
-    depends_on: [G.12]
+    depends_on: []
+    source: 'the package is the first thing every later step imports, and it consumes nothing from the release path: it waited
+      on G.12 by historical adjacency, which put four steps between this project and its first byte of data'
     serves:
       - {loop: declare, side: code}
     done_when:
@@ -2102,6 +2104,31 @@ steps:
       - {loop: constrain, side: code}
     done_when:
       - {kind: path, path: tooling/tests/test_setup_installs_before_it_uses.py}
+  - id: G.73
+    title: Every dependency states why it exists, and the report shows the chain to a goal
+    thread: G
+    phase: 8G
+    depends_on: [G.65, G.44]
+    source: 9.1 waited on G.12 -- a Python workspace member on a policy release tag -- with no recorded reason, and that edge
+      alone put four steps between this project and its first byte of data; an edge nothing justifies cannot be reviewed,
+      and nothing showed the chain to a goal so it was invisible until someone asked
+    serves:
+      - {loop: constrain, side: data}
+      - {loop: promise, side: data}
+    done_when:
+      - {kind: path, path: tooling/tests/test_a_dependency_states_why.py}
+  - id: G.74
+    title: The fifty-seven inherited edges are justified from the commits that created them
+    thread: G
+    phase: 8G
+    depends_on: [G.73]
+    source: fifty-seven steps wait on something and record no reason, so none of those edges can be reviewed; each reason
+      is recoverable from the commit that added the edge, which is slower than inventing one and is the only way the result
+      means anything
+    serves:
+      - {loop: promise, side: data}
+    done_when:
+      - {kind: path, path: tooling/tests/test_every_edge_states_why.py}
 decisions:
   - {id: X.SPIKE, title: 'Reference spike, the original thread B', state: superseded, reason: 'thread B dissolved by the rule
       change moving all execution local: the sandbox prototype became reference reading only and every line is re-derived
