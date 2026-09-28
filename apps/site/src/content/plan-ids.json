@@ -1155,6 +1155,11 @@
       "id": "G.77",
       "first_title": "Evidence names the test that verifies a step, not the file that contains it",
       "retired": false
+    },
+    {
+      "id": "G.78",
+      "first_title": "One command shows the repository: tasks grouped, the safe ones marked, and where to start",
+      "retired": false
     }
   ]
 }
