@@ -2090,6 +2090,18 @@ steps:
       - {loop: instrument, side: data}
     done_when:
       - {kind: path, path: tooling/tests/test_push_survives_its_gate.py}
+  - id: G.72
+    title: Setup installs before it uses, and the order is proved rather than the presence
+    thread: B
+    phase: '6'
+    depends_on: [G.71, G.38]
+    source: the keepalive was put at the top of setup, above the sync that installs the package it calls, so every new worktree
+      failed halfway and its retry was refused by the directory the failure left behind; the test asserted the line was present,
+      which passes wherever it sits
+    serves:
+      - {loop: constrain, side: code}
+    done_when:
+      - {kind: path, path: tooling/tests/test_setup_installs_before_it_uses.py}
 decisions:
   - {id: X.SPIKE, title: 'Reference spike, the original thread B', state: superseded, reason: 'thread B dissolved by the rule
       change moving all execution local: the sandbox prototype became reference reading only and every line is re-derived

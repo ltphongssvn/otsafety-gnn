@@ -6872,6 +6872,24 @@
         "G.71"
       ],
       "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "observed: a new worktree failed setup and refused its own retry",
+      "text": "worktree:add created the directory, setup died on its first line calling a package not yet installed, and the second attempt refused because the directory existed",
+      "maps_to": [
+        "G.72"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "REVIEW2026",
+      "ref": "a step cannot use what a later step installs",
+      "text": "dependencies are not on disk when a preinstall step runs, so it cannot import any package; work needing them belongs after the install -- and an ordering test that checks presence rather than position passes when the install step is absent entirely",
+      "maps_to": [
+        "G.72"
+      ],
+      "not_a_plan_item": null
     }
   ]
 }
