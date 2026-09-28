@@ -1,0 +1,50 @@
+# context/sources.yaml
+# G.13: proves this step of the plan.
+# EVERY SOURCE, ITS TERMS, AND WHAT MAY NOT SHIP. The MedDRA constraint lived
+# as a comment in conf/config.yaml, where no gate could read it. The terms are
+# recorded here as written; withheld names the artefacts the terms themselves
+# say cannot be redistributed, as patterns whose absence is observable.
+contract: data-sources/v1
+sources:
+- id: open-targets-platform
+  name: Open Targets Platform
+  role: 'The substrate, ingested as Parquet rather than through the GraphQL API: the vendor''s own documentation
+    says GraphQL serves a single target, disease, drug or association and directs systematic queries to
+    the downloads. Jointly maintained by EMBL-EBI, the Sanger Institute and industry partners.'
+  licence: Open, redistributable. Pinned to 26.03 in conf/config.yaml; every dataset name below was read
+    off the release listing, because post-25.03 the paths became snake_case and singular and the older
+    camelCase names download nothing.
+  open: true
+  withheld: []
+  release: '26.03'
+- id: hetionet-primekg
+  name: Hetionet / PrimeKG
+  role: Secondary graphs, used to replicate whatever result Open Targets gives on a different construction
+    of the same biology.
+  licence: Open, redistributable.
+  open: true
+  withheld: []
+  release: null
+- id: meddra
+  name: MedDRA
+  role: The adverse-event terminology. FAERS reaction fields carry MedDRA preferred-term strings, and
+    its hierarchy is what groups them into organ classes.
+  licence: Proprietary, distributed under MSSO licence. The hierarchy and the Standardised MedDRA Queries
+    CANNOT be redistributed, so this repository ships neither. The endpoint DAG is loaded from EFO, MONDO
+    and HPO instead, and a licensed hierarchy can be mounted by a subscriber without any other change.
+  open: false
+  withheld:
+  - '**/meddra/**'
+  - '**/*meddra*.asc'
+  - '**/smq_*.asc'
+  - '**/*meddra*.parquet'
+  release: null
+- id: faers
+  name: FAERS
+  role: Spontaneous adverse-event reports, used only through indication-stratified disproportionality
+    with a noisy-OR deconvolution onto targets.
+  licence: Public. Confounded by indication by construction, which is why the crude and adjusted estimates
+    are both reported.
+  open: true
+  withheld: []
+  release: null

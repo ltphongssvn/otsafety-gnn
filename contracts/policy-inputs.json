@@ -30,6 +30,14 @@
       "why": "every declared exemption, checked both ways"
     },
     {
+      "path": "context/sources.yaml",
+      "why": "every data source, its terms, and the artefacts a closed one withholds"
+    },
+    {
+      "path": "conf/config.yaml",
+      "why": "the ingestion contract, whose MedDRA slot stays empty"
+    },
+    {
       "path": "context/plan-ids.yaml",
       "why": "the ledger: every id ever issued, never reused"
     },

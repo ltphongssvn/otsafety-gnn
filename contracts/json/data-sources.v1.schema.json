@@ -1,0 +1,81 @@
+{
+  "additionalProperties": false,
+  "description": "Every source this project reads, with its terms.",
+  "properties": {
+    "contract": {
+      "pattern": "^data-sources/v1$",
+      "title": "Contract",
+      "type": "string"
+    },
+    "sources": {
+      "items": {
+        "additionalProperties": false,
+        "description": "One data source and the terms under which this project may use it.",
+        "properties": {
+          "id": {
+            "pattern": "^[a-z][a-z0-9-]*$",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "minLength": 2,
+            "title": "Name",
+            "type": "string"
+          },
+          "role": {
+            "minLength": 40,
+            "title": "Role",
+            "type": "string"
+          },
+          "licence": {
+            "minLength": 20,
+            "title": "Licence",
+            "type": "string"
+          },
+          "open": {
+            "title": "Open",
+            "type": "boolean"
+          },
+          "withheld": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Withheld",
+            "type": "array"
+          },
+          "release": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Release"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "role",
+          "licence",
+          "open",
+          "withheld",
+          "release"
+        ],
+        "title": "Source",
+        "type": "object"
+      },
+      "minItems": 1,
+      "title": "Sources",
+      "type": "array"
+    }
+  },
+  "required": [
+    "contract",
+    "sources"
+  ],
+  "title": "DataSources",
+  "type": "object"
+}
