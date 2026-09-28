@@ -43,6 +43,9 @@ sources:
 - id: REVIEW2026
   title: 2026 reviews of biomedical KG and graph learning practice
   locator: the target-identification review and the graph-based DDI systematic review, read while verifying the sheet
+- id: RECSYS
+  title: cs1090a-recsys, the sibling repository
+  locator: /Users/thanhphongle/ltphongssvn/cs1090a-recsys, 176 commits read in full
 candidates:
 - source: T1
   ref: 'line 4920: Q1'
@@ -4041,3 +4044,30 @@ candidates:
     base rate the sheet omits and naming the no-graph control differently, with uv and bun versions typed beside toolchain.json
   maps_to:
   - G.66
+- source: RECSYS
+  ref: 'e709353: every operation is claimed by a step'
+  text: nineteen of thirty-eight tasks existed that no step named, including lint, test, fmt and pr; that is what an orphan
+    is, and it is how pr:merge stayed invisible for weeks while four dependency updates sat unmerged
+  maps_to:
+  - G.67
+  - G.68
+- source: RECSYS
+  ref: '02409de: dependency updates merge themselves'
+  text: dependency updates merge themselves and new work waits for what is already open
+  maps_to:
+  - G.68
+- source: RECSYS
+  ref: '98a61da: undo a merged pull request by reverting it'
+  text: a merged pull request is undone by reverting, never by rewriting lineage
+  maps_to:
+  - G.69
+- source: RECSYS
+  ref: '6423b9e: a conflicted plan is resolved by id'
+  text: a conflicted plan is resolved by id and a merge is abandoned by task
+  maps_to:
+  - G.70
+- source: SESSION
+  ref: 'measured: 46 of 66 tasks are claimed by no step'
+  text: counting this repository's tasks against the steps that name them found 46 orphans, including every gate
+  maps_to:
+  - G.67

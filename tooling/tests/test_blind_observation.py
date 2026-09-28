@@ -52,12 +52,22 @@ def test_a_kind_that_was_observed_is_not_blind() -> None:
 
 def test_a_requirement_is_not_reported_unmet_on_evidence_nobody_could_see() -> None:
     """THE BUG: G.2's evidence is PR 18. At the index that is invisible, and it
-    read as unmet -- which blocked G.20 for a reason that was never true."""
+    read as unmet -- which blocked G.20 for a reason that was never true.
+
+    THE FIXTURE SEES WHAT THE INDEX SEES. An earlier version passed empty tasks,
+    which is not an index view at all: mise.toml is tracked, so a staged
+    observation reads every task in it. That only stayed hidden while G.2's
+    evidence was a pull request alone; adopting its two tasks under G.67 exposed
+    it, because the blind set names pr and tag -- the kinds that cannot exist at
+    the index -- and nothing else.
+    """
+    from otsafety_tooling.policy.tasks import declared
+
     plan = load()
     blind = Facts(
         ref="the index",
         paths=frozenset(),
-        tasks=frozenset(),
+        tasks=frozenset(declared(REPO_ROOT)),
         merged_prs=frozenset(),
         tags=frozenset(),
         branches_with_work=frozenset(),

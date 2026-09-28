@@ -1100,6 +1100,26 @@
       "id": "G.66",
       "first_title": "The ladder is stated once: the site reads the rungs rather than typing a seventh",
       "retired": false
+    },
+    {
+      "id": "G.67",
+      "first_title": "Every task this repository offers is claimed by a step, and an orphan fails the gate",
+      "retired": false
+    },
+    {
+      "id": "G.68",
+      "first_title": "A dependency update merges itself, and new work waits for what is already open",
+      "retired": false
+    },
+    {
+      "id": "G.69",
+      "first_title": "A merged pull request is undone by reverting it, never by rewriting lineage",
+      "retired": false
+    },
+    {
+      "id": "G.70",
+      "first_title": "A conflicted plan is resolved by id, and a merge is abandoned by task",
+      "retired": false
     }
   ]
 }

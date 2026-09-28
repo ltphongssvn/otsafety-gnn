@@ -293,6 +293,14 @@
         {
           "kind": "task",
           "name": "pr"
+        },
+        {
+          "kind": "task",
+          "name": "pr:logs"
+        },
+        {
+          "kind": "task",
+          "name": "pr-status"
         }
       ]
     },
@@ -479,6 +487,14 @@
         {
           "kind": "path",
           "path": "uv.lock"
+        },
+        {
+          "kind": "task",
+          "name": "deps:lock"
+        },
+        {
+          "kind": "task",
+          "name": "ml:install"
         }
       ]
     },
@@ -502,6 +518,30 @@
         {
           "kind": "path",
           "path": "mise.toml"
+        },
+        {
+          "kind": "task",
+          "name": "artifacts:path"
+        },
+        {
+          "kind": "task",
+          "name": "commit:unstage"
+        },
+        {
+          "kind": "task",
+          "name": "nix:shell"
+        },
+        {
+          "kind": "task",
+          "name": "nix:flake-check"
+        },
+        {
+          "kind": "task",
+          "name": "start:check"
+        },
+        {
+          "kind": "task",
+          "name": "start:switch"
         }
       ]
     },
@@ -693,6 +733,30 @@
         {
           "kind": "path",
           "path": "apps/site/src/pages/architecture.astro"
+        },
+        {
+          "kind": "task",
+          "name": "site:build"
+        },
+        {
+          "kind": "task",
+          "name": "site:dev"
+        },
+        {
+          "kind": "task",
+          "name": "site:install"
+        },
+        {
+          "kind": "task",
+          "name": "site:lock"
+        },
+        {
+          "kind": "task",
+          "name": "site:stage"
+        },
+        {
+          "kind": "task",
+          "name": "site:sync"
         }
       ]
     },
@@ -716,6 +780,18 @@
         {
           "kind": "path",
           "path": ".github/workflows/test-site.yml"
+        },
+        {
+          "kind": "task",
+          "name": "site:smoke"
+        },
+        {
+          "kind": "task",
+          "name": "test:e2e"
+        },
+        {
+          "kind": "task",
+          "name": "e2e:install"
         }
       ]
     },
@@ -884,6 +960,10 @@
         {
           "kind": "path",
           "path": "scripts/build_arch_onepager.py"
+        },
+        {
+          "kind": "task",
+          "name": "pdf:build"
         }
       ]
     },
@@ -1111,6 +1191,18 @@
         {
           "kind": "path",
           "path": "tooling/tests/test_wandb_tracker.py"
+        },
+        {
+          "kind": "task",
+          "name": "wandb:check"
+        },
+        {
+          "kind": "task",
+          "name": "wandb:install"
+        },
+        {
+          "kind": "task",
+          "name": "wandb:sync"
         }
       ]
     },
@@ -1134,6 +1226,10 @@
         {
           "kind": "pr",
           "number": 14
+        },
+        {
+          "kind": "task",
+          "name": "deploy:site"
         }
       ]
     },
@@ -1196,6 +1292,18 @@
         {
           "kind": "pr",
           "number": 16
+        },
+        {
+          "kind": "task",
+          "name": "release:preview"
+        },
+        {
+          "kind": "task",
+          "name": "release:promote"
+        },
+        {
+          "kind": "task",
+          "name": "release:version"
         }
       ]
     },
@@ -1518,6 +1626,14 @@
         {
           "kind": "pr",
           "number": 18
+        },
+        {
+          "kind": "task",
+          "name": "contracts:generate"
+        },
+        {
+          "kind": "task",
+          "name": "sheet:facts"
         }
       ]
     },
@@ -1598,6 +1714,22 @@
         {
           "kind": "task",
           "name": "policy"
+        },
+        {
+          "kind": "task",
+          "name": "policy:inputs"
+        },
+        {
+          "kind": "task",
+          "name": "policy:exemptions"
+        },
+        {
+          "kind": "task",
+          "name": "policy:no-markdown"
+        },
+        {
+          "kind": "task",
+          "name": "policy:trailers"
         }
       ]
     },
@@ -3085,6 +3217,10 @@
         {
           "kind": "task",
           "name": "secrets:scan"
+        },
+        {
+          "kind": "task",
+          "name": "secrets:staged"
         }
       ]
     },
@@ -4465,6 +4601,14 @@
         {
           "kind": "path",
           "path": "tooling/tests/test_plan_report.py"
+        },
+        {
+          "kind": "task",
+          "name": "plan:report"
+        },
+        {
+          "kind": "task",
+          "name": "plan:sheet"
         }
       ]
     },
@@ -4730,6 +4874,104 @@
         {
           "kind": "path",
           "path": "tooling/tests/test_site_types_no_second_copy.py"
+        }
+      ]
+    },
+    {
+      "id": "G.67",
+      "title": "Every task this repository offers is claimed by a step, and an orphan fails the gate",
+      "thread": "G",
+      "phase": "8G",
+      "depends_on": [
+        "G.41",
+        "G.19"
+      ],
+      "branch": null,
+      "source": "46 of 66 tasks are named by no step, including check, lint, test, fmt, commit, sync and pr:merge: they run, they gate every commit, and nothing records why they exist or what depends on them; the matrix only ever checked the other direction, that a step has evidence",
+      "serves": [
+        {
+          "loop": "constrain",
+          "side": "code"
+        },
+        {
+          "loop": "promise",
+          "side": "data"
+        }
+      ],
+      "done_when": [
+        {
+          "kind": "path",
+          "path": "tooling/tests/test_every_task_is_claimed.py"
+        }
+      ]
+    },
+    {
+      "id": "G.68",
+      "title": "A dependency update merges itself, and new work waits for what is already open",
+      "thread": "G",
+      "phase": "8G",
+      "depends_on": [
+        "G.55",
+        "G.67"
+      ],
+      "branch": null,
+      "source": "the sibling recorded four dependency updates sitting unmerged because the task that merges them was an orphan nobody could see; here they are opened by Dependabot, exempted from the trailer rule by G.55, and then left",
+      "serves": [
+        {
+          "loop": "instrument",
+          "side": "code"
+        }
+      ],
+      "done_when": [
+        {
+          "kind": "path",
+          "path": "tooling/tests/test_dependency_updates_merge.py"
+        }
+      ]
+    },
+    {
+      "id": "G.69",
+      "title": "A merged pull request is undone by reverting it, never by rewriting lineage",
+      "thread": "G",
+      "phase": "8G",
+      "depends_on": [
+        "G.40"
+      ],
+      "branch": null,
+      "source": "commit:undo reaches only unpushed commits, so undoing a merged pull request has no path that G.40 permits -- and the one thing a person reaches for under pressure is the one thing the remote refuses",
+      "serves": [
+        {
+          "loop": "instrument",
+          "side": "code"
+        }
+      ],
+      "done_when": [
+        {
+          "kind": "path",
+          "path": "tooling/tests/test_a_merge_is_undone_by_reverting.py"
+        }
+      ]
+    },
+    {
+      "id": "G.70",
+      "title": "A conflicted plan is resolved by id, and a merge is abandoned by task",
+      "thread": "G",
+      "phase": "8G",
+      "depends_on": [
+        "G.44"
+      ],
+      "branch": null,
+      "source": "two branches that each add a step conflict in context/plan.yaml, and the plan has one writer precisely so nobody hand-edits it -- resolving that conflict by hand is the case the writer cannot cover",
+      "serves": [
+        {
+          "loop": "constrain",
+          "side": "code"
+        }
+      ],
+      "done_when": [
+        {
+          "kind": "path",
+          "path": "tooling/tests/test_a_conflicted_plan_resolves_by_id.py"
         }
       ]
     }
