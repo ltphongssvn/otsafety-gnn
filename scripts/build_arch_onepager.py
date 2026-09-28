@@ -55,52 +55,12 @@ FONTS = {
 OUT = REPO_ROOT / "build" / "onepager"
 OUT.mkdir(parents=True, exist_ok=True)
 
-RESEARCH_QUESTION = (
-    "Do the typed <b>relationships</b> in a public, open-source biomedical knowledge "
-    "graph carry information that predicts drug-safety endpoints for protein targets "
-    "&mdash; over and above what is predictable from the graph's bare connectivity "
-    "statistics, and from target-level features that require no graph at all?"
-)
-
-DATA_NOTE = (
-    "<b>DATA</b> &mdash; <b>Open Targets 26.03</b>, open Parquet: <b>target</b> "
-    "(safety nested inside), <b>drug_warning</b> (Tier 1 labels), "
-    "<b>evidence_clinical_precedence</b> (earns a negative), drug_mechanism_of_action, "
-    "openfda_significant_adverse_drug_reactions (Tier 3). Hetionet / PrimeKG for "
-    "replication. Endpoint DAG from <b>EFO</b> / MONDO / HPO; <b>MedDRA</b> is licensed "
-    "and not redistributed."
-)
-
 STACK_NOTE = (
     "<b>STACK</b> &mdash; <b>uv 0.12.7</b> &middot; <b>bun 1.4.2</b> &middot; gh 2.101.0 "
     "&middot; <b>mise 2026.9.9</b>, each the vendor&#39;s artifact for darwin and linux, "
     "with its published <b>sha256</b> in <b>toolchain.json</b>; nix flake check runs "
     "every tool and asserts the version it reports. Astro 7.3.3 &middot; Python 3.13.15 "
     "&middot; PyG &middot; PyKEEN."
-)
-
-CENTRAL_GOAL = (
-    "Establish, under a leakage- and confound-controlled protocol, whether relation-aware "
-    "graph learning over a public biomedical KG yields a usable target-safety "
-    "prioritisation signal &mdash; and quantify how much of any observed performance is "
-    "attributable to the <b>relationships</b>, as opposed to node popularity or non-graph "
-    "target biology. The deliverable is a defensible answer plus its evidence, "
-    "<b>in either direction</b>."
-)
-
-ML_OBJECTIVE = (
-    "Let the KG be a heterogeneous graph <b>G = (V, E, R)</b> with typed nodes and typed "
-    "edges. Let <b>T</b> be the protein targets and <b>S</b> the safety "
-    "endpoints (organ classes / adverse-event terms).<br><br>"
-    "<b>Task:</b> learn <b>f : T &times; S &rarr; [0,1]</b>, the probability that "
-    "modulating target <i>t</i> is associated with endpoint <i>s</i>.<br><br>"
-    "This is <b>multi-label prediction over the target &times; endpoint slice</b>, not "
-    "binary &quot;is this target risky&quot;. The brief says endpoint<b>s</b> &mdash; "
-    "plural &mdash; and organ-class structure is the clinically meaningful unit; a single "
-    "collapsed risky/not-risky label answers a different question.<br><br>"
-    "<b>Evaluation:</b> held-out target&ndash;endpoint pairs under a temporal split (train "
-    "on the graph as of cutoff &tau;, predict associations that became knowable after "
-    "&tau;), plus a target-disjoint cold-start split."
 )
 
 
@@ -111,13 +71,6 @@ SWEEP_RULE = (
     "and most reported GNN wins on biomedical KGs sit inside that band."
 )
 
-
-SCOPE_SECONDARY = (
-    "The brief says &quot;important biomedical endpoints, <b>with a particular focus on</b> "
-    "drug safety&quot;. That phrasing requires the method to be endpoint-agnostic, so the "
-    "same pipeline is run once on a non-safety endpoint (target&ndash;disease association) "
-    "to test whether any success is method-general or safety-specific."
-)
 
 
 # THE ARCHITECTURE IS STATED ONCE, in context/architecture.yaml, and exported to
@@ -150,6 +103,28 @@ BACKEDGE = (
     "degree gate is a loop-breaker, not a metric &mdash; and every verdict is persisted, "
     "because a feedback loop you did not log cannot be audited."
 )
+
+
+
+def _claim() -> Mapping[str, object]:
+    found = _architecture().get("claim")
+    if not isinstance(found, dict):
+        raise SystemExit("REFUSED: the architecture states no claim")
+    return found
+
+
+def _said(key: str) -> str:
+    """One of the claim's sentences, with the terms it names emphasised."""
+    claim = _claim()
+    text = e(str(claim.get(key, "")))
+    terms = claim.get("emphasise")
+    for term in sorted(
+        (t for t in (terms if isinstance(terms, list) else []) if isinstance(t, str)),
+        key=len,
+        reverse=True,
+    ):
+        text = text.replace(e(term), f"<b>{e(term)}</b>")
+    return text
 
 
 def _facts() -> Mapping[str, object]:
@@ -515,17 +490,17 @@ def build_html() -> str:
 <div class="qband">
   <div class="qcell hero">
     <h2>The research question</h2>
-    <div class="qbody">{RESEARCH_QUESTION}</div>
-    <div class="qnote">{DATA_NOTE}</div>
+    <div class="qbody">{_said("question")}</div>
+    <div class="qnote">{_said("data_note")}</div>
   </div>
   <div class="qcell">
     <h2>Central goal</h2>
-    <div class="qbody">{CENTRAL_GOAL}</div>
+    <div class="qbody">{_said("goal")}</div>
     <div class="qnote">{STACK_NOTE}</div>
   </div>
   <div class="qcell">
     <h2>The machine learning objective</h2>
-    <div class="qbody">{ML_OBJECTIVE}</div>
+    <div class="qbody">{_said("objective")}</div>
   </div>
 </div>
 
@@ -568,7 +543,7 @@ def build_html() -> str:
         <div class="sechead">IN SCOPE</div>
         <ul>{scope_items(_strings("scope_in"))}</ul>
         <div class="secondary"><b>Secondary check required by the spec:</b>
-          {SCOPE_SECONDARY}</div>
+          {_said("scope_note")}</div>
       </div>
       <div>
         <div class="sechead out">OUT OF SCOPE</div>

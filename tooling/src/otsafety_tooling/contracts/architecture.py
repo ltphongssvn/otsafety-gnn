@@ -115,6 +115,37 @@ class LadderRule(BaseModel):
     rule: str = Field(min_length=40)
 
 
+class Claim(BaseModel):
+    """What this project asks, why it asks it, and what answering means."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    question: str = Field(min_length=80)
+    goal: str = Field(min_length=80)
+    objective: str = Field(min_length=80)
+    # The data this rests on, and the check the brief's wording requires.
+    data_note: str = Field(min_length=40)
+    scope_note: str = Field(min_length=40)
+    # THE TERMS THAT CARRY THE MEANING, named rather than marked up: a renderer
+    # emphasises these however it emphasises anything.
+    emphasise: tuple[str, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _every_emphasis_is_in_the_prose(self) -> Self:
+        """An annotation pointing at nothing is worse than no annotation.
+
+        A renderer looks each term up to emphasise it; one that appears nowhere
+        is silently skipped, so the term drifts out of the prose and no one
+        learns. That is how the markup and the words came apart in the first
+        place.
+        """
+        prose = " ".join((self.question, self.goal, self.objective))
+        missing = [term for term in self.emphasise if term not in prose]
+        if missing:
+            raise ValueError(f"emphasised terms that appear nowhere in the prose: {missing}")
+        return self
+
+
 class Architecture(BaseModel):
     """The architecture, stated once and read by the sheet, the site and the README."""
 
@@ -129,6 +160,7 @@ class Architecture(BaseModel):
     rungs: tuple[Rung, ...] = Field(min_length=1)
     # WHAT MAKES THE LADDER A COMPARISON rather than a list of runs: identical
     # protocol on every rung, and enough seeds to resolve the difference claimed.
+    claim: Claim
     ladder_rule: LadderRule
     scope_in: tuple[str, ...] = Field(min_length=1)
     scope_out: tuple[str, ...] = Field(min_length=1)

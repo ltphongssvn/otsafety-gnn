@@ -53,13 +53,27 @@ class _ReplaceFunction(cst.CSTTransformer):
 
 
 def replace_function(source: str, name: str, replacement: str) -> str:
-    """Replace a function by NAME, wherever and however it is written."""
+    """Replace a function's BODY, found by name; the name itself never changes.
+
+    READ leave_FunctionDef ABOVE: params, body, returns, asynchronous and
+    decorators are swapped, and `name` is not among them. Twice in one session a
+    caller passed a replacement with a new name and a new signature, and got back
+    the old name wearing the new body -- once a helper that pytest then collected
+    as a test and asked for a fixture. Renaming is a separate edit.
+    """
     try:
         parsed = cst.parse_statement(replacement)
     except cst.ParserSyntaxError as error:
-        raise CodemodRefusedError(f"the replacement for {name} does not parse: {error}") from error
+        raise CodemodRefusedError(
+            f"the replacement for {name} does not parse: {error}. "
+            "This takes ONE function definition: two in a replacement is a syntax "
+            "error here, so replace one and append the rest."
+        ) from error
     if not isinstance(parsed, cst.FunctionDef):
-        raise CodemodRefusedError(f"the replacement for {name} is not a function definition")
+        raise CodemodRefusedError(
+            f"the replacement for {name} is not a function definition; "
+            "this replaces a function's body, and its name stays as it was"
+        )
     transformer = _ReplaceFunction(name, parsed)
     changed = cst.parse_module(source).visit(transformer)
     if transformer.found == 0:
