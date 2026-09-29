@@ -4177,3 +4177,15 @@ candidates:
     behind implementation unless a gate requires every capability marked supported to carry named evidence
   maps_to:
   - G.79
+- source: SESSION
+  ref: 'measured: a release-kind evidence is judged where no tag can exist'
+  text: blind_to returns pr and tag at the index while the release evidence carries kind release, so the skip never applies
+    and F.4 reported its cut tag as missing
+  maps_to:
+  - G.80
+- source: REVIEW2026
+  ref: a loop refuses to act when its view is too old
+  text: automation deciding from a stale or partial view of reality is the hidden tax of platform automation, and the working
+    guard is deterministic with a missing flag treated as unsafe, so stale or empty results never short-circuit a decision
+  maps_to:
+  - G.80

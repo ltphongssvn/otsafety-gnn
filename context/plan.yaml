@@ -2193,6 +2193,18 @@ steps:
       - {loop: constrain, side: code}
     done_when:
       - {kind: path, path: tooling/tests/test_every_stage_names_its_steps.py}
+  - id: G.80
+    title: The blind set names evidence kinds as the contract spells them, proved against the contract itself
+    thread: G
+    phase: 8G
+    depends_on: [G.48]
+    source: BLIND_AT_THE_INDEX holds tag while ReleaseEvidence.kind is release, so the sets never intersect and every release-tag
+      step has read unmet since G.48 landed -- F.4 and F.5 are done, their tags cut, and the plan has been reporting them
+      blocked
+    serves:
+      - {loop: constrain, side: code}
+    done_when:
+      - {kind: path, path: tooling/tests/test_blind_kinds_match_the_contract.py}
 decisions:
   - {id: X.SPIKE, title: 'Reference spike, the original thread B', state: superseded, reason: 'thread B dissolved by the rule
       change moving all execution local: the sandbox prototype became reference reading only and every line is re-derived
