@@ -123,6 +123,22 @@ inline:
   count: 1
   reason: runs the tool whose rule is under test, by the fixed argument list its caller passes, with no shell; the fixture
     is text on stdin and never a path, so nothing the harness runs comes from outside the test that called it
+- path: tooling/src/otsafety_tooling/paths.py
+  rule: S603
+  count: 1
+  reason: asks git for the working tree it is in, by a fixed argument list with no shell; this runs before the package's own
+    git helpers can be imported, since they import REPO_ROOT from here
+- path: tooling/src/otsafety_tooling/paths.py
+  rule: S607
+  count: 1
+  reason: a bare executable name resolved on the PATH that mise and the Nix shell provide; no shell, and the toolchain pins
+    which git that is
+- path: tooling/src/otsafety_tooling/paths.py
+  rule: TID251
+  count: 1
+  reason: 'builds the minimal environment for one git call -- PATH to find it, HOME because git reads the user''s config --
+    rather than reading configuration. The settings model cannot be used here: it imports REPO_ROOT from this module, and
+    so does the scrubber in git/env.py that every other call uses'
 - path: tooling/src/otsafety_tooling/policy/inputs.py
   rule: S603
   count: 1

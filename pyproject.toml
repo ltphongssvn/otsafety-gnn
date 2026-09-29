@@ -8,6 +8,7 @@ dev = [
     "prek>=0.4.14,<1.0.0",
     "typer>=0.27.1,<1.0.0",
     "zizmor>=1.29.0",
+    "mutmut>=3.8.0",
 ]
 
 github-actions = [
@@ -119,6 +120,41 @@ select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "N", "T20", "BLE", "TID251",
 "scripts/bootstrap_toolchain.py" = ["E402"]
 "tooling/tests/**" = ["S101", "S603", "S607", "ANN401"]
 "tooling/src/otsafety_tooling/git/*.py" = ["T201"]
+
+# MUTATION TESTING, SCOPED. A hand-built mutation table is slow, its coverage is
+# uneven, and it misses whatever nobody thought to try -- all three observed here
+# in one run, where six of thirteen hand-aimed mutations never reached the test
+# they were aimed at. mutmut generates them instead.
+#
+# THE POLICY IS NO NEW SURVIVORS, not a perfect score. A survivor is an assertion
+# worth writing, a line worth deleting, or an equivalent mutant worth refactoring
+# away, and only its diff tells the three apart.
+[tool.mutmut]
+source_paths = [
+    "tooling/src/otsafety_tooling/planning/status.py",
+    "tooling/src/otsafety_tooling/contracts/plan.py",
+]
+pytest_add_cli_args_test_selection = ["tooling/tests"]
+max_stack_depth = -1
+debug = true
+also_copy = [
+    "context",
+    "contracts",
+    "policy",
+    "conf",
+    ".github",
+    "scripts",
+    "apps",
+    "python",
+    "tooling/tests",
+    "tooling/pyproject.toml",
+    "mise.toml",
+    "lefthook.yml",
+    "toolchain.json",
+    "flake.nix",
+    "uv.lock",
+    "README.md",
+]
 
 [tool.typos.files]
 extend-exclude = [

@@ -1180,6 +1180,11 @@
       "id": "G.82",
       "first_title": "A cross-thread dependency carries its own reason, on the edge rather than the step",
       "retired": false
+    },
+    {
+      "id": "G.83",
+      "first_title": "A proof is observed failing against a mutant, or it does not count",
+      "retired": false
     }
   ]
 }
