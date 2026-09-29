@@ -152,6 +152,13 @@
             "default": null,
             "title": "Source"
           },
+          "because": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Because",
+            "type": "object"
+          },
           "serves": {
             "items": {
               "additionalProperties": false,

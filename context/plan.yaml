@@ -41,6 +41,7 @@ steps:
     thread: B
     phase: '0'
     depends_on: []
+    because: {}
     serves:
       - {loop: declare, side: data}
     done_when:
@@ -50,6 +51,7 @@ steps:
     thread: B
     phase: '0'
     depends_on: []
+    because: {}
     serves:
       - {loop: declare, side: data}
     done_when:
@@ -59,6 +61,7 @@ steps:
     thread: B
     phase: '0'
     depends_on: []
+    because: {}
     serves:
       - {loop: declare, side: data}
     done_when:
@@ -68,6 +71,7 @@ steps:
     thread: B
     phase: '0'
     depends_on: []
+    because: {}
     serves:
       - {loop: declare, side: data}
     done_when:
@@ -77,6 +81,7 @@ steps:
     thread: B
     phase: '0'
     depends_on: ['0.1']
+    because: {}
     serves:
       - {loop: declare, side: data}
     done_when:
@@ -86,6 +91,7 @@ steps:
     thread: B
     phase: '1'
     depends_on: ['0.3']
+    because: {}
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
@@ -96,6 +102,7 @@ steps:
     thread: B
     phase: '2'
     depends_on: ['1.1']
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -105,6 +112,7 @@ steps:
     thread: B
     phase: '2'
     depends_on: ['2.1']
+    because: {}
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
@@ -117,6 +125,7 @@ steps:
     thread: B
     phase: '3'
     depends_on: ['2.1']
+    because: {}
     serves:
       - {loop: declare, side: code}
     done_when:
@@ -126,6 +135,7 @@ steps:
     thread: B
     phase: '3'
     depends_on: ['3.1']
+    because: {}
     serves:
       - {loop: declare, side: code}
     done_when:
@@ -135,6 +145,7 @@ steps:
     thread: B
     phase: '4'
     depends_on: []
+    because: {}
     serves:
       - {loop: declare, side: data}
     done_when:
@@ -144,6 +155,7 @@ steps:
     thread: B
     phase: '4'
     depends_on: ['4.1']
+    because: {}
     serves:
       - {loop: declare, side: code}
     done_when:
@@ -153,6 +165,7 @@ steps:
     thread: B
     phase: '4'
     depends_on: []
+    because: {}
     serves:
       - {loop: declare, side: data}
     done_when:
@@ -162,6 +175,7 @@ steps:
     thread: B
     phase: '4'
     depends_on: []
+    because: {}
     serves:
       - {loop: declare, side: code}
     done_when:
@@ -171,6 +185,7 @@ steps:
     thread: B
     phase: '6'
     depends_on: ['4.2']
+    because: {}
     serves:
       - {loop: declare, side: code}
       - {loop: declare, side: data}
@@ -181,6 +196,7 @@ steps:
     thread: B
     phase: '6'
     depends_on: ['4.5']
+    because: {}
     serves:
       - {loop: declare, side: code}
     done_when:
@@ -193,6 +209,7 @@ steps:
     thread: B
     phase: '6'
     depends_on: ['6.2']
+    because: {}
     serves:
       - {loop: declare, side: code}
     done_when:
@@ -208,6 +225,7 @@ steps:
     thread: B
     phase: '6'
     depends_on: ['6.3']
+    because: {}
     serves:
       - {loop: promise, side: code}
       - {loop: promise, side: data}
@@ -219,6 +237,7 @@ steps:
     thread: B
     phase: '6'
     depends_on: ['6.3']
+    because: {}
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
@@ -230,6 +249,7 @@ steps:
     thread: B
     phase: '6'
     depends_on: ['6.3']
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -241,6 +261,7 @@ steps:
     thread: B
     phase: '6'
     depends_on: ['6.6']
+    because: {}
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
@@ -251,6 +272,7 @@ steps:
     thread: A
     phase: '7'
     depends_on: []
+    because: {}
     serves:
       - {loop: promise, side: code}
     done_when:
@@ -260,6 +282,7 @@ steps:
     thread: A
     phase: '7'
     depends_on: [A.1]
+    because: {}
     serves:
       - {loop: declare, side: code}
       - {loop: promise, side: code}
@@ -270,6 +293,8 @@ steps:
     thread: C
     phase: '7'
     depends_on: ['6.3']
+    because: {'6.3': 'the deliverable is built by the platform: it needs the task, the toolchain or the evidence root that
+        thread B provides'}
     serves:
       - {loop: declare, side: code}
     done_when:
@@ -285,6 +310,7 @@ steps:
     thread: C
     phase: '7'
     depends_on: ['7.1']
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -297,6 +323,8 @@ steps:
     thread: C
     phase: '7'
     depends_on: ['7.1', '6.4']
+    because: {'6.4': 'the deliverable is built by the platform: it needs the task, the toolchain or the evidence root that
+        thread B provides'}
     serves:
       - {loop: promise, side: data}
     done_when:
@@ -306,6 +334,7 @@ steps:
     thread: C
     phase: '7'
     depends_on: ['7.1', A.2]
+    because: {A.2: 'the page states the research definition, which thread A settles'}
     serves:
       - {loop: promise, side: code}
     done_when:
@@ -315,6 +344,7 @@ steps:
     thread: C
     phase: '7'
     depends_on: ['7.3']
+    because: {}
     serves:
       - {loop: produce, side: data}
       - {loop: promise, side: data}
@@ -325,6 +355,7 @@ steps:
     thread: C
     phase: '7'
     depends_on: ['7.5']
+    because: {}
     serves:
       - {loop: instrument, side: code}
     done_when:
@@ -334,6 +365,7 @@ steps:
     thread: C
     phase: '7'
     depends_on: ['7.1']
+    because: {}
     serves:
       - {loop: promise, side: code}
     done_when:
@@ -343,6 +375,8 @@ steps:
     thread: C
     phase: '7'
     depends_on: [G.2, A.2]
+    because: {G.2: 'the page or sheet renders data a contract validates, so the contract and its export must exist before
+        anything can read them', A.2: 'the page states the research definition, which thread A settles'}
     serves:
       - {loop: promise, side: code}
     done_when:
@@ -352,6 +386,8 @@ steps:
     thread: C
     phase: '8'
     depends_on: ['6.3']
+    because: {'6.3': 'the deliverable is built by the platform: it needs the task, the toolchain or the evidence root that
+        thread B provides'}
     serves:
       - {loop: produce, side: code}
     done_when:
@@ -362,6 +398,7 @@ steps:
     thread: C
     phase: '8'
     depends_on: ['8.1']
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -371,6 +408,7 @@ steps:
     thread: C
     phase: '8'
     depends_on: ['8.2']
+    because: {}
     serves:
       - {loop: declare, side: code}
     done_when:
@@ -380,6 +418,7 @@ steps:
     thread: C
     phase: '8'
     depends_on: ['8.3']
+    because: {}
     serves:
       - {loop: produce, side: code}
       - {loop: produce, side: data}
@@ -391,6 +430,7 @@ steps:
     thread: C
     phase: '8'
     depends_on: ['8.1', '7.1']
+    because: {}
     serves:
       - {loop: promise, side: code}
     done_when:
@@ -401,6 +441,10 @@ steps:
     phase: '8'
     depends_on: [G.0, G.20, G.23]
     branch: feature/sheet-derived-status
+    because: {G.0: 'the page or sheet renders data a contract validates, so the contract and its export must exist before
+        anything can read them', G.20: 'the page or sheet renders data a contract validates, so the contract and its export
+        must exist before anything can read them', G.23: 'the page or sheet renders data a contract validates, so the contract
+        and its export must exist before anything can read them'}
     serves:
       - {loop: promise, side: code}
     done_when:
@@ -410,6 +454,7 @@ steps:
     thread: C
     phase: '8'
     depends_on: ['8.5']
+    because: {}
     serves:
       - {loop: produce, side: code}
     done_when:
@@ -419,6 +464,8 @@ steps:
     thread: C
     phase: '8'
     depends_on: ['8.4', F.10, '8.10', '6.9']
+    because: {F.10: 'the artefact is published by the release path, so the release machinery must exist first', '6.9': 'the
+        deliverable is built by the platform: it needs the task, the toolchain or the evidence root that thread B provides'}
     serves:
       - {loop: instrument, side: code}
       - {loop: promise, side: data}
@@ -429,6 +476,7 @@ steps:
     thread: D
     phase: '8'
     depends_on: []
+    because: {}
     serves:
       - {loop: produce, side: data}
     done_when:
@@ -439,6 +487,7 @@ steps:
     thread: D
     phase: '8'
     depends_on: [D.1]
+    because: {}
     serves:
       - {loop: produce, side: data}
     done_when:
@@ -452,6 +501,7 @@ steps:
     thread: F
     phase: 8F
     depends_on: ['6.1']
+    because: {'6.1': 'the release path runs as tasks on the pinned toolchain, which thread B declares'}
     serves:
       - {loop: declare, side: code}
     done_when:
@@ -462,6 +512,7 @@ steps:
     thread: F
     phase: 8F
     depends_on: [F.1]
+    because: {}
     serves:
       - {loop: instrument, side: code}
       - {loop: instrument, side: data}
@@ -473,6 +524,7 @@ steps:
     thread: F
     phase: 8F
     depends_on: [F.2]
+    because: {}
     serves:
       - {loop: produce, side: code}
       - {loop: promise, side: data}
@@ -487,6 +539,7 @@ steps:
     thread: F
     phase: 8F
     depends_on: [F.3]
+    because: {}
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
@@ -498,6 +551,7 @@ steps:
     thread: F
     phase: 8F
     depends_on: [F.4]
+    because: {}
     serves:
       - {loop: promise, side: data}
     done_when:
@@ -507,6 +561,7 @@ steps:
     thread: F
     phase: 8F
     depends_on: [F.5]
+    because: {}
     serves:
       - {loop: instrument, side: code}
       - {loop: instrument, side: data}
@@ -518,6 +573,7 @@ steps:
     phase: 8F
     depends_on: [F.6]
     source: cs1090a-recsys I5
+    because: {}
     serves:
       - {loop: instrument, side: code}
     done_when:
@@ -528,6 +584,7 @@ steps:
     phase: 8F
     depends_on: []
     source: cs1090a-recsys E11
+    because: {}
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
@@ -539,6 +596,7 @@ steps:
     phase: 8F
     depends_on: [F.5]
     source: cs1090a-recsys F3
+    because: {}
     serves:
       - {loop: promise, side: data}
     done_when:
@@ -549,6 +607,7 @@ steps:
     phase: 8F
     depends_on: [F.9, F.15, E.37]
     source: cs1090a-recsys F1
+    because: {E.37: the release carries an artefact the pipeline produces}
     serves:
       - {loop: promise, side: code}
       - {loop: promise, side: data}
@@ -560,6 +619,7 @@ steps:
     phase: 8F
     depends_on: [F.10, E.37]
     source: cs1090a-recsys F2
+    because: {E.37: the release carries an artefact the pipeline produces}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -570,6 +630,7 @@ steps:
     phase: 8F
     depends_on: []
     source: cs1090a-recsys G4
+    because: {}
     serves:
       - {loop: declare, side: code}
     done_when:
@@ -580,6 +641,7 @@ steps:
     phase: 8F
     depends_on: []
     source: 'end-to-end-batch-data-pipeline-with-spark: exclude-newer'
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -590,6 +652,7 @@ steps:
     phase: 8G
     depends_on: [G.3]
     branch: feature/project-plan
+    because: {}
     serves:
       - {loop: promise, side: code}
       - {loop: promise, side: data}
@@ -601,6 +664,7 @@ steps:
     thread: G
     phase: 8G
     depends_on: []
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -610,6 +674,7 @@ steps:
     thread: G
     phase: 8G
     depends_on: [G.1]
+    because: {}
     serves:
       - {loop: promise, side: code}
     done_when:
@@ -622,6 +687,7 @@ steps:
     phase: 8G
     depends_on: [G.2]
     branch: feature/policy-schema-first
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -633,6 +699,7 @@ steps:
     phase: 8G
     depends_on: [G.3, G.31]
     branch: feature/policy-schema-first
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -643,6 +710,7 @@ steps:
     phase: 8G
     depends_on: [G.4, G.24, G.25, G.26, G.27, G.28, G.33]
     source: cs1090a-recsys E5 E6
+    because: {}
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
@@ -658,6 +726,7 @@ steps:
     phase: 8G
     depends_on: [G.5]
     source: cs1090a-recsys E7
+    because: {}
     serves:
       - {loop: constrain, side: data}
     done_when:
@@ -668,6 +737,7 @@ steps:
     phase: 8G
     depends_on: ['6.7']
     source: cs1090a-recsys E8
+    because: {'6.7': 'the rule judges a platform capability, which must exist to be judged'}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -678,6 +748,7 @@ steps:
     phase: 8G
     depends_on: [G.2, G.27]
     source: cs1090a-recsys E3
+    because: {}
     serves:
       - {loop: promise, side: code}
     done_when:
@@ -688,6 +759,7 @@ steps:
     phase: 8G
     depends_on: ['6.4', G.10]
     source: cs1090a-recsys E2
+    because: {'6.4': 'the rule judges a platform capability, which must exist to be judged'}
     serves:
       - {loop: promise, side: data}
     done_when:
@@ -698,6 +770,7 @@ steps:
     phase: 8G
     depends_on: ['6.4']
     source: cs1090a-recsys E4
+    because: {'6.4': 'the rule judges a platform capability, which must exist to be judged'}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -711,6 +784,7 @@ steps:
     branch: feature/sync-perennial-branches
     source: cs1090a-recsys P11; the branch report failing B001 with main 59 commits behind; an empty branch sync could not
       remove
+    because: {}
     serves:
       - {loop: constrain, side: code}
       - {loop: declare, side: data}
@@ -721,6 +795,7 @@ steps:
     thread: G
     phase: 8G
     depends_on: [G.6]
+    because: {}
     serves:
       - {loop: promise, side: data}
     done_when:
@@ -731,6 +806,7 @@ steps:
     phase: '9'
     depends_on: ['9.1']
     source: cs1090a-recsys E11
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -742,6 +818,7 @@ steps:
     depends_on: []
     source: 'the package is the first thing every later step imports, and it consumes nothing from the release path: it waited
       on G.12 by historical adjacency, which put four steps between this project and its first byte of data'
+    because: {}
     serves:
       - {loop: declare, side: code}
     done_when:
@@ -751,6 +828,7 @@ steps:
     thread: E
     phase: '9'
     depends_on: ['9.1', '9.21']
+    because: {}
     serves:
       - {loop: promise, side: code}
     done_when:
@@ -760,6 +838,8 @@ steps:
     thread: E
     phase: '9'
     depends_on: ['9.1', A.2, G.13]
+    because: {A.2: 'the pipeline implements what the research definition fixed: the question, the release pin, the endpoint',
+      G.13: 'the pipeline''s records are contracts, and its gates are policy, both owned by thread G'}
     serves:
       - {loop: produce, side: data}
     done_when:
@@ -769,6 +849,7 @@ steps:
     thread: E
     phase: '9'
     depends_on: ['9.2', '9.3', '9.32']
+    because: {}
     serves:
       - {loop: produce, side: code}
       - {loop: produce, side: data}
@@ -779,6 +860,7 @@ steps:
     thread: E
     phase: '9'
     depends_on: ['9.4']
+    because: {}
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
@@ -794,6 +876,7 @@ steps:
     depends_on: ['9.4', '9.5']
     source: 'reference spike: linear rank-residualisation still reports |rho| of about 0.21 where the label is a degree threshold,
       so the gate must stratify'
+    because: {}
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
@@ -805,6 +888,7 @@ steps:
     thread: E
     phase: '9'
     depends_on: ['9.2', '9.6']
+    because: {}
     serves:
       - {loop: produce, side: code}
     done_when:
@@ -817,6 +901,7 @@ steps:
     depends_on: ['9.4', '9.7']
     source: 'reference spike: noisy-OR recovers 0.746 against a true 0.75 where naive propagation gives a passenger 0.267;
       Mantel-Haenszel takes a crude ROR of 58.1 to 1.00 [0.67, 1.49]'
+    because: {}
     serves:
       - {loop: produce, side: code}
       - {loop: produce, side: data}
@@ -827,6 +912,7 @@ steps:
     thread: E
     phase: '9'
     depends_on: ['9.7', '9.8', '9.32']
+    because: {}
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
@@ -837,6 +923,7 @@ steps:
     thread: E
     phase: '9'
     depends_on: ['9.9', '9.5', '9.6']
+    because: {}
     serves:
       - {loop: produce, side: code}
     done_when:
@@ -850,6 +937,7 @@ steps:
     thread: E
     phase: '9'
     depends_on: ['9.10', '9.17']
+    because: {}
     serves:
       - {loop: produce, side: code}
       - {loop: produce, side: data}
@@ -860,6 +948,7 @@ steps:
     thread: E
     phase: '9'
     depends_on: ['9.11']
+    because: {}
     serves:
       - {loop: produce, side: data}
     done_when:
@@ -869,6 +958,7 @@ steps:
     thread: E
     phase: '9'
     depends_on: ['9.12', G.5]
+    because: {G.5: 'the pipeline''s records are contracts, and its gates are policy, both owned by thread G'}
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
@@ -880,6 +970,7 @@ steps:
     phase: '9'
     depends_on: ['9.11', '9.29']
     source: 'outstanding since the revised plan: what BIKG and Synaptix actually sell'
+    because: {}
     serves:
       - {loop: produce, side: data}
       - {loop: promise, side: data}
@@ -891,6 +982,7 @@ steps:
     phase: '9'
     depends_on: ['9.13', F.10, '9.18', '9.14', E.36, E.37]
     source: 2026 ML-BOM practice
+    because: {F.10: 'the record is signed and attested by the release path, so the attestation machinery comes first'}
     serves:
       - {loop: promise, side: data}
     done_when:
@@ -901,6 +993,7 @@ steps:
     phase: '10'
     depends_on: ['4.3', '9.1']
     source: cs1090a-recsys G1 G2
+    because: {'9.1': the environment is provisioned for the pipeline that will run in it}
     serves:
       - {loop: declare, side: data}
     done_when:
@@ -911,6 +1004,7 @@ steps:
     phase: '10'
     depends_on: ['10.1']
     source: cs1090a-recsys G3
+    because: {}
     serves:
       - {loop: declare, side: data}
     done_when:
@@ -921,6 +1015,7 @@ steps:
     phase: '10'
     depends_on: ['10.1']
     source: cs1090a-recsys F4
+    because: {}
     serves:
       - {loop: instrument, side: code}
       - {loop: instrument, side: data}
@@ -931,6 +1026,14 @@ steps:
     thread: A
     phase: '11'
     depends_on: ['9.13', '9.20', '9.22', '9.24', '9.25', '10.1', '9.28', '10.5', '10.6']
+    because: {'9.13': the verdict is read off what the pipeline measured; without the run there is nothing to judge, '9.20': the
+        verdict is read off what the pipeline measured; without the run there is nothing to judge, '9.22': the verdict is
+        read off what the pipeline measured; without the run there is nothing to judge, '9.24': the verdict is read off what
+        the pipeline measured; without the run there is nothing to judge, '9.25': the verdict is read off what the pipeline
+        measured; without the run there is nothing to judge, '10.1': 'the run happens on the platform thread B provides, and
+        a verdict needs the run', '9.28': the verdict is read off what the pipeline measured; without the run there is nothing
+        to judge, '10.5': 'the run happens on the platform thread B provides, and a verdict needs the run', '10.6': 'the verdict
+        cites recorded runs, which the tracker holds'}
     serves:
       - {loop: promise, side: data}
     done_when:
@@ -941,6 +1044,7 @@ steps:
     thread: A
     phase: '11'
     depends_on: ['11.1']
+    because: {}
     serves:
       - {loop: promise, side: data}
     done_when:
@@ -950,6 +1054,7 @@ steps:
     thread: A
     phase: '11'
     depends_on: ['11.2']
+    because: {}
     serves:
       - {loop: promise, side: data}
     done_when:
@@ -960,6 +1065,7 @@ steps:
     phase: '11'
     depends_on: ['11.3']
     source: 'sheet scope: required by the brief'
+    because: {}
     serves:
       - {loop: promise, side: data}
     done_when:
@@ -970,6 +1076,7 @@ steps:
     phase: '11'
     depends_on: ['11.3', '9.33']
     source: sheet scope
+    because: {'9.33': the verdict is read off what the pipeline measured; without the run there is nothing to judge}
     serves:
       - {loop: promise, side: data}
     done_when:
@@ -980,6 +1087,8 @@ steps:
     phase: '11'
     depends_on: ['11.4', '11.5', '8.6']
     source: cs1090a-recsys J3
+    because: {'11.4': 'the page states the research definition, which thread A settles', '11.5': 'the page states the research
+        definition, which thread A settles'}
     serves:
       - {loop: promise, side: data}
     done_when:
@@ -991,6 +1100,7 @@ steps:
     phase: '9'
     depends_on: ['9.2']
     source: the as-code and as-data spine, and the one-pager's layers and stages
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -1002,6 +1112,7 @@ steps:
     phase: '9'
     depends_on: ['9.5', '9.6']
     source: the as-code and as-data spine, and the one-pager's layers and stages
+    because: {}
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
@@ -1013,6 +1124,7 @@ steps:
     phase: '9'
     depends_on: ['9.11', G.8]
     source: the as-code and as-data spine, and the one-pager's layers and stages
+    because: {G.8: 'the pipeline''s records are contracts, and its gates are policy, both owned by thread G'}
     serves:
       - {loop: produce, side: data}
       - {loop: promise, side: data}
@@ -1024,6 +1136,8 @@ steps:
     phase: '9'
     depends_on: ['9.13', G.8, G.9]
     source: the as-code and as-data spine, and the one-pager's layers and stages
+    because: {G.8: 'the pipeline''s records are contracts, and its gates are policy, both owned by thread G', G.9: 'the pipeline''s
+        records are contracts, and its gates are policy, both owned by thread G'}
     serves:
       - {loop: constrain, side: data}
     done_when:
@@ -1035,6 +1149,7 @@ steps:
     phase: '9'
     depends_on: ['9.19', '9.15']
     source: the as-code and as-data spine, and the one-pager's layers and stages
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -1045,6 +1160,7 @@ steps:
     phase: '9'
     depends_on: ['9.1']
     source: 'reference spike: 25 tests, not test-driven, carried as expectations'
+    because: {}
     serves:
       - {loop: promise, side: code}
     done_when:
@@ -1055,6 +1171,7 @@ steps:
     phase: '9'
     depends_on: ['9.10', '9.16', '9.23']
     source: the as-code and as-data spine, and the one-pager's layers and stages
+    because: {}
     serves:
       - {loop: produce, side: code}
       - {loop: produce, side: data}
@@ -1066,6 +1183,7 @@ steps:
     phase: '9'
     depends_on: ['9.9', G.8]
     source: the as-code and as-data spine, and the one-pager's layers and stages
+    because: {G.8: 'the pipeline''s records are contracts, and its gates are policy, both owned by thread G'}
     serves:
       - {loop: promise, side: data}
     done_when:
@@ -1076,6 +1194,7 @@ steps:
     phase: '9'
     depends_on: ['9.9', '9.6', '9.31']
     source: the as-code and as-data spine, and the one-pager's layers and stages
+    because: {}
     serves:
       - {loop: produce, side: code}
     done_when:
@@ -1086,6 +1205,7 @@ steps:
     phase: '9'
     depends_on: ['9.9']
     source: the as-code and as-data spine, and the one-pager's layers and stages
+    because: {}
     serves:
       - {loop: produce, side: code}
     done_when:
@@ -1098,6 +1218,8 @@ steps:
     phase: '9'
     depends_on: ['9.19', G.2]
     source: the as-code and as-data spine, and the one-pager's layers and stages
+    because: {'9.19': 'the page shows a record the pipeline produces, so the producing step comes first', G.2: 'the page or
+        sheet renders data a contract validates, so the contract and its export must exist before anything can read them'}
     serves:
       - {loop: promise, side: data}
     done_when:
@@ -1108,6 +1230,7 @@ steps:
     phase: 8F
     depends_on: [F.6]
     source: the as-code and as-data pillars
+    because: {}
     serves:
       - {loop: instrument, side: data}
     done_when:
@@ -1118,6 +1241,7 @@ steps:
     phase: '10'
     depends_on: ['10.1']
     source: the as-code and as-data pillars
+    because: {}
     serves:
       - {loop: declare, side: data}
     done_when:
@@ -1128,6 +1252,7 @@ steps:
     phase: '11'
     depends_on: ['11.3']
     source: the as-code and as-data pillars
+    because: {}
     serves:
       - {loop: produce, side: data}
     done_when:
@@ -1138,6 +1263,7 @@ steps:
     phase: '9'
     depends_on: ['9.11', G.5]
     source: 'first plan, pillar-to-artifact table: Pipeline as Code'
+    because: {G.5: 'the pipeline''s records are contracts, and its gates are policy, both owned by thread G'}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -1148,6 +1274,7 @@ steps:
     phase: '9'
     depends_on: ['9.22', '8.5', '9.30']
     source: 'first plan, pillar-to-artifact table: Workflow as Code'
+    because: {'8.5': the pipeline reads a document the deliverables own}
     serves:
       - {loop: produce, side: code}
     done_when:
@@ -1158,6 +1285,7 @@ steps:
     phase: '9'
     depends_on: ['9.11']
     source: 'first plan, pillar-to-artifact table: Lineage as Code and Data'
+    because: {}
     serves:
       - {loop: produce, side: data}
     done_when:
@@ -1168,6 +1296,7 @@ steps:
     phase: '9'
     depends_on: ['9.1']
     source: 'first plan, outstanding: python -m otsafety.cli did not exist'
+    because: {}
     serves:
       - {loop: declare, side: code}
     done_when:
@@ -1178,6 +1307,7 @@ steps:
     phase: 8G
     depends_on: [G.5]
     source: 'first plan, pillar-to-artifact table: Compliance as Code'
+    because: {}
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
@@ -1190,6 +1320,7 @@ steps:
     phase: 8G
     depends_on: [G.0]
     source: 'first plan, pillar-to-artifact table: Docs as Code'
+    because: {}
     serves:
       - {loop: promise, side: data}
     done_when:
@@ -1200,6 +1331,7 @@ steps:
     phase: '8'
     depends_on: ['9.11']
     source: 'first plan, pillar-to-artifact table: Diagram as Code'
+    because: {'9.11': 'the page shows a record the pipeline produces, so the producing step comes first'}
     serves:
       - {loop: promise, side: code}
     done_when:
@@ -1210,6 +1342,7 @@ steps:
     phase: '10'
     depends_on: ['10.1', '9.30']
     source: 'first plan, pillar-to-artifact table: Infrastructure as Code'
+    because: {'9.30': the environment is provisioned for the pipeline that will run in it}
     serves:
       - {loop: declare, side: code}
     done_when:
@@ -1220,6 +1353,7 @@ steps:
     phase: '6'
     depends_on: ['6.3']
     source: 'commit 16dee9a: deliberately excluded, real work for a feature branch'
+    because: {}
     serves:
       - {loop: promise, side: code}
     done_when:
@@ -1230,6 +1364,7 @@ steps:
     phase: '6'
     depends_on: []
     source: 'commit 16dee9a: deliberately excluded, real work for a feature branch'
+    because: {}
     serves:
       - {loop: promise, side: code}
     done_when:
@@ -1240,6 +1375,7 @@ steps:
     phase: '8'
     depends_on: ['8.3']
     source: SIL OFL 1.1 requires the licence to accompany the fonts
+    because: {}
     serves:
       - {loop: constrain, side: data}
     done_when:
@@ -1250,6 +1386,7 @@ steps:
     phase: 8G
     depends_on: ['6.6']
     source: 'commit 16dee9a: the active layer of the three-part secret protection; cs1090a-recsys E11'
+    because: {'6.6': 'the rule judges a platform capability, which must exist to be judged'}
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
@@ -1262,6 +1399,7 @@ steps:
     phase: 8G
     depends_on: [G.15]
     source: 'commit 16dee9a: the system its .gitignore was copied to serve'
+    because: {}
     serves:
       - {loop: promise, side: code}
     done_when:
@@ -1272,6 +1410,7 @@ steps:
     phase: '10'
     depends_on: ['10.1', D.2]
     source: 'commit 8e40558: an online run with no entity lands in a personal project'
+    because: {'10.1': the tracker runs on the platform and writes to its evidence root}
     serves:
       - {loop: produce, side: data}
     done_when:
@@ -1282,6 +1421,8 @@ steps:
     phase: '7'
     depends_on: ['7.4', G.3]
     source: 'pending since the platform work: stack page missing MLflow and W&B versions'
+    because: {G.3: 'the page or sheet renders data a contract validates, so the contract and its export must exist before
+        anything can read them'}
     serves:
       - {loop: promise, side: data}
     done_when:
@@ -1292,6 +1433,7 @@ steps:
     phase: 8G
     depends_on: [G.9, F.10, E.37]
     source: 'cs1090a-recsys F5: a local chain cannot detect its own truncation'
+    because: {F.10: the rule is carried by the release path, E.37: the rule judges a record the pipeline writes}
     serves:
       - {loop: promise, side: data}
     done_when:
@@ -1302,6 +1444,7 @@ steps:
     phase: 8G
     depends_on: [F.4]
     source: 'promotion PR #17 merged on checks from develop''s push runs, sound only while develop contains main'
+    because: {F.4: the rule is carried by the release path}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -1312,6 +1455,7 @@ steps:
     phase: 8G
     depends_on: [G.0]
     source: the plan drifted from 64 to 92 to 103 steps while assembled from memory
+    because: {}
     serves:
       - {loop: promise, side: code}
       - {loop: promise, side: data}
@@ -1323,6 +1467,7 @@ steps:
     phase: 8F
     depends_on: [F.1]
     source: docker/render.Dockerfile installs pypdf>=5,<7, a range; 2026 reproducible-build practice
+    because: {}
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
@@ -1336,6 +1481,7 @@ steps:
     depends_on: ['9.4', A.2]
     source: the one-pager's and the site's Q2 contrast; conf/config.yaml names different features, so the list is read off
       the Open Targets 26.03 schema, recorded once in the config, and derived by site and sheet
+    because: {A.2: 'the pipeline implements what the research definition fixed: the question, the release pin, the endpoint'}
     serves:
       - {loop: produce, side: code}
       - {loop: produce, side: data}
@@ -1348,6 +1494,7 @@ steps:
     phase: '7'
     depends_on: ['8.5', '9.16']
     source: 'site against sheet: the site states none of 21 pillars and no gate, lost in the TypeScript round-trip'
+    because: {'9.16': 'the page shows a record the pipeline produces, so the producing step comes first'}
     serves:
       - {loop: promise, side: code}
       - {loop: promise, side: data}
@@ -1360,6 +1507,7 @@ steps:
     phase: 8G
     depends_on: [G.2, G.8, G.32, G.30]
     source: 'one source for the plan, the one-pager and the site; 2026 practice: one YAML source, HTML and PDF from one template'
+    because: {}
     serves:
       - {loop: promise, side: code}
       - {loop: promise, side: data}
@@ -1372,6 +1520,10 @@ steps:
     phase: '7'
     depends_on: [G.0, G.20, G.23]
     source: 'one source for the plan, the one-pager and the site; 2026 practice: one YAML source, HTML and PDF from one template'
+    because: {G.0: 'the page or sheet renders data a contract validates, so the contract and its export must exist before
+        anything can read them', G.20: 'the page or sheet renders data a contract validates, so the contract and its export
+        must exist before anything can read them', G.23: 'the page or sheet renders data a contract validates, so the contract
+        and its export must exist before anything can read them'}
     serves:
       - {loop: promise, side: data}
     done_when:
@@ -1382,6 +1534,8 @@ steps:
     phase: '8'
     depends_on: ['8.5', '8.6', G.20, '7.8', '7.9']
     source: 'one source for the plan, the one-pager and the site; 2026 practice: one YAML source, HTML and PDF from one template'
+    because: {G.20: 'the page or sheet renders data a contract validates, so the contract and its export must exist before
+        anything can read them'}
     serves:
       - {loop: produce, side: code}
     done_when:
@@ -1394,6 +1548,7 @@ steps:
     phase: '9'
     depends_on: ['9.2']
     source: 'first plan, phase 6: contracts, then DDD aggregates with invariants, then the Rego skeleton'
+    because: {}
     serves:
       - {loop: promise, side: code}
     done_when:
@@ -1406,6 +1561,7 @@ steps:
     depends_on: [G.5]
     source: 'first plan, working rules: an inline comment on line 1 with the full path; today one test checks it for .gitignore
       alone'
+    because: {}
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
@@ -1418,6 +1574,7 @@ steps:
     depends_on: ['9.4']
     source: 'the site''s data table: secondary graphs replicate the Open Targets result on a different construction of the
       same biology'
+    because: {}
     serves:
       - {loop: produce, side: code}
       - {loop: produce, side: data}
@@ -1429,6 +1586,7 @@ steps:
     phase: 8F
     depends_on: [F.6, F.14]
     source: 'the pillars requirement: Monitoring and Alerting as Code; the site is verified only once, at deploy'
+    because: {}
     serves:
       - {loop: instrument, side: code}
       - {loop: instrument, side: data}
@@ -1440,6 +1598,7 @@ steps:
     phase: 8G
     depends_on: []
     source: cs1090a-recsys P16; observed here at worktree:add
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -1451,6 +1610,7 @@ steps:
     depends_on: [G.0]
     source: '2026 practice: no number typed; every rendered value resolved at build time from a record and re-checked by a
       gate'
+    because: {}
     serves:
       - {loop: promise, side: data}
     done_when:
@@ -1463,6 +1623,8 @@ steps:
     depends_on: ['8.12', '7.11', G.23]
     source: '2026 practice: no number typed; every rendered value resolved at build time from a record and re-checked by a
       gate'
+    because: {G.23: 'the page or sheet renders data a contract validates, so the contract and its export must exist before
+        anything can read them'}
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
@@ -1475,6 +1637,7 @@ steps:
     depends_on: []
     source: 'schema-first as policy, before any more code; 2026 practice: ban the escape hatches outright, close inline bypass,
       enforce in hooks and CI'
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -1486,6 +1649,7 @@ steps:
     depends_on: []
     source: 'schema-first as policy, before any more code; 2026 practice: ban the escape hatches outright, close inline bypass,
       enforce in hooks and CI'
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -1498,6 +1662,7 @@ steps:
     depends_on: []
     source: 'schema-first as policy, before any more code; 2026 practice: ban the escape hatches outright, close inline bypass,
       enforce in hooks and CI'
+    because: {}
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
@@ -1510,6 +1675,7 @@ steps:
     depends_on: []
     source: 'schema-first as policy, before any more code; 2026 practice: ban the escape hatches outright, close inline bypass,
       enforce in hooks and CI'
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -1521,6 +1687,7 @@ steps:
     phase: 8G
     depends_on: []
     source: Git is the record of repository documentation; a Markdown file beside the code drifts from what it describes
+    because: {}
     serves:
       - {loop: constrain, side: code}
       - {loop: constrain, side: data}
@@ -1532,6 +1699,7 @@ steps:
     phase: 8G
     depends_on: []
     source: Git is the record of repository documentation; a Markdown file beside the code drifts from what it describes
+    because: {}
     serves:
       - {loop: promise, side: code}
       - {loop: promise, side: data}
@@ -1545,6 +1713,7 @@ steps:
     depends_on: [G.25]
     source: the types task runs mypy from the root over scripts/ and apps/site/tests/, under the root configuration, which
       G.25 did not reach
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -1555,6 +1724,7 @@ steps:
     phase: 8G
     depends_on: []
     source: the site installs no TypeScript, so Astro strips its types and nothing has ever checked them
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -1567,6 +1737,7 @@ steps:
     depends_on: [G.31]
     source: json-schema-to-zod, abandoned March 2026, emitted z.string().datetime() seven times; astro check fails only on
       errors by default, so the deprecations passed as hints
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -1579,6 +1750,7 @@ steps:
     depends_on: []
     source: provenance held by one line of task configuration and nothing proved it; zizmor ran at latest behind a pinned
       action
+    because: {}
     serves:
       - {loop: constrain, side: code}
       - {loop: instrument, side: data}
@@ -1590,6 +1762,7 @@ steps:
     phase: 8G
     depends_on: []
     source: a standalone mise self-updates normally; auto_update requires self-update to be available
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -1600,6 +1773,7 @@ steps:
     phase: 8G
     depends_on: []
     source: 23 suppressions duplicated the register's reason; 10 still promised a register that already existed
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -1612,6 +1786,7 @@ steps:
     depends_on: [G.29, G.0]
     source: 'G.25 merged yet read as unfinished: its evidence named a file never written under that name, and nothing checked
       the claim'
+    because: {}
     serves:
       - {loop: constrain, side: code}
       - {loop: promise, side: data}
@@ -1623,6 +1798,7 @@ steps:
     phase: 8G
     depends_on: []
     source: 'a fresh worktree failed four of ten gates with astro: command not found'
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -1633,6 +1809,7 @@ steps:
     phase: 8G
     depends_on: []
     source: a test ran bun x astro build and bun fetched astro@latest from the registry
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -1645,6 +1822,7 @@ steps:
     depends_on: [G.29, G.36]
     source: 'the team does not say the setup bug, it says G.38; 2026 traceability practice: ids issued once and never reused,
       links made when the work is made, the matrix generated and drift-gated'
+    because: {}
     serves:
       - {loop: constrain, side: code}
       - {loop: promise, side: data}
@@ -1658,6 +1836,7 @@ steps:
     depends_on: []
     source: reading a command meant grepping its output; 2026 agent-facing practice separates the streams and gives every
       outcome a contract and a deterministic exit code
+    because: {}
     serves:
       - {loop: instrument, side: data}
     done_when:
@@ -1670,6 +1849,7 @@ steps:
     depends_on: [G.33]
     source: repeated edit failures from text anchors and self-inspecting guards; 2026 practice calls agent text-editing non-deterministic
       and unverifiable
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -1681,6 +1861,7 @@ steps:
     depends_on: [G.3]
     source: steps were added by splicing a hand-built YAML block; 2026 practice for a file a program owns is one writer from
       the model, one canonical form, and a drift gate
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -1693,6 +1874,7 @@ steps:
     depends_on: [G.31]
     source: astro check reported an unused React integration and a Vite 8 deprecation behind @astrojs/react; a range in package.json
       lets a build differ between machines
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -1705,6 +1887,7 @@ steps:
     depends_on: [G.29]
     source: worktree:refresh rebased an unpushed branch, so its own commit stopped being reachable while the command reported
       success; the remote declares no ruleset, so develop and main are protected by a local hook alone
+    because: {}
     serves:
       - {loop: constrain, side: code}
       - {loop: promise, side: data}
@@ -1718,6 +1901,7 @@ steps:
     depends_on: [G.30]
     source: unifying the mypy configuration revealed 61 explicit Any in tests that the tooling's own section had exempted
       module-wide; the wandb adapter's seam now has a protocol, as MLflow's already did, and the tests must implement it
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -1729,6 +1913,7 @@ steps:
     depends_on: [G.45]
     source: sixty-one explicit sites accumulated behind a module-wide exemption with no count; disallow_any_explicit never
       sees Callable[..., X] or a bare container, and ANN401 checks only a function argument
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -1740,6 +1925,7 @@ steps:
     depends_on: [G.42]
     source: eslint-effective.ts imported eslint with no node_modules, so bun auto-installed from the registry and held check_all
       for forty-one minutes printing nothing, because subprocess.run carried no timeout
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -1752,6 +1938,7 @@ steps:
     source: staged_facts observed at the index knows no merged pull request, so every pr-kind requirement read as unmet --
       G.2 blocked G.20 while PR 18 had merged long before; 2026 practice calls a negative reading void without a positive
       control
+    because: {}
     serves:
       - {loop: promise, side: data}
     done_when:
@@ -1764,6 +1951,7 @@ steps:
     source: mise run sync could not fast-forward a checkout eleven commits behind, because uv run reconciled the stale lockfile
       before the module started and the merge then found the file dirty -- a task unable to run on exactly the checkout that
       needs it
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -1775,6 +1963,7 @@ steps:
     depends_on: [G.20]
     source: 'site:lint failed with twenty-one no-unsafe errors in a fresh worktree and passed in one where site:types had
       run: Astro writes the types for astro:content only when it syncs, and nothing ordered the two'
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -1787,6 +1976,7 @@ steps:
     source: 'changing the generator''s header left every committed .gen.ts stale and twenty-four tests passed: they check
       for deprecated APIs and loose shapes, and nothing regenerates and compares, so the data export has a drift gate its
       older sibling lacks'
+    because: {}
     serves:
       - {loop: promise, side: data}
     done_when:
@@ -1799,6 +1989,7 @@ steps:
     source: the matrix confirms a path only through pytest.mark.requirement and reads only .py files, so twenty-seven completed
       steps proved by flake.nix, mise.toml, lefthook.yml or TypeScript are unconfirmable by construction; 2026 practice names
       inspection and analysis beside test execution
+    because: {}
     serves:
       - {loop: promise, side: data}
     done_when:
@@ -1810,6 +2001,7 @@ steps:
     depends_on: [G.23]
     source: the sheet claims 383 tests and 11 pull requests while the repository has 774 and 72; the figure was true when
       typed and has drifted ever since, which is the drift plan-as-data exists to end
+    because: {}
     serves:
       - {loop: promise, side: data}
     done_when:
@@ -1822,6 +2014,7 @@ steps:
     source: a Dependabot bump reached develop with no Plan-Step trailer and failed CI on a branch that did not create it;
       a bot cannot name a plan step, so the gate could never pass -- the deterministic consequence of two correct components
       meeting
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -1833,6 +2026,8 @@ steps:
     depends_on: [G.53]
     source: 'byte-identical HTML rendered one page on arm64 and two on an x86-64 runner, in the same pinned image: the layout
       fits with too little headroom, so a sub-pixel difference decides the page count'
+    because: {G.53: 'the page or sheet renders data a contract validates, so the contract and its export must exist before
+        anything can read them'}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -1844,6 +2039,7 @@ steps:
     depends_on: ['8.1']
     source: each render overwrote the last, so two versions could never be compared and a regression in the layout left no
       trace of what it replaced
+    because: {}
     serves:
       - {loop: promise, side: data}
     done_when:
@@ -1855,6 +2051,7 @@ steps:
     depends_on: ['8.4']
     source: the sandbox sheet read better because its renderer substituted the system Liberation Sans and DejaVu Sans Mono;
       vendoring them keeps that look without depending on a machine's font folder
+    because: {}
     serves:
       - {loop: declare, side: code}
     done_when:
@@ -1866,6 +2063,7 @@ steps:
     depends_on: ['8.1']
     source: its labels render at 6.1 to 6.6 point, the floor below which print needs a magnifier, while the column below it
       sits empty; 2026 print guidance puts comfortable secondary text at 8 point with leading a fifth greater again
+    because: {}
     serves:
       - {loop: declare, side: code}
     done_when:
@@ -1878,6 +2076,7 @@ steps:
     source: 2026 reviews of biomedical KG link prediction require type-constrained sampling that avoids impossible combinations,
       and reporting the positive-to-negative ratio, the resampling strategy, and whether models share one negative set; the
       sheet says identical negatives, which is the sharing alone
+    because: {'7.7': the pipeline reads a document the deliverables own}
     serves:
       - {loop: declare, side: code}
       - {loop: promise, side: data}
@@ -1891,6 +2090,7 @@ steps:
     source: 2026 reproducibility checklists name computational-resource reporting beside leakage-aware validation and simpler
       baselines; a rung that took a hundred GPU-hours and one that took two are not comparable on accuracy alone, and nothing
       here records either
+    because: {D.1: the run is recorded through the tracking port}
     serves:
       - {loop: promise, side: data}
     done_when:
@@ -1902,6 +2102,8 @@ steps:
     depends_on: [G.53]
     source: the whole plan is readable only by running a console command; a printable report of every step with its state,
       dependencies, evidence and what is unmet is what a reader or reviewer can carry
+    because: {G.53: 'the page or sheet renders data a contract validates, so the contract and its export must exist before
+        anything can read them'}
     serves:
       - {loop: promise, side: data}
     done_when:
@@ -1915,6 +2117,7 @@ steps:
     depends_on: [G.44, G.26]
     source: 'it is the only context file edited by hand: two hand-edits in one session dropped its path header and the id
       its evidence depends on, breaking four gates, and put an entry in the scoped list where an inline noqa belongs'
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -1927,6 +2130,7 @@ steps:
     source: three steps depend on a model card -- 9.15 writes it, 9.20 refuses it, E.35 feeds it -- and no contract says what
       it must contain; 2026 governance practice is blunt that structural presence is not substantive content, so the schema
       forces disaggregated slices and refuses boilerplate
+    because: {G.2: 'the pipeline''s records are contracts, and its gates are policy, both owned by thread G'}
     serves:
       - {loop: promise, side: code}
       - {loop: constrain, side: data}
@@ -1940,6 +2144,7 @@ steps:
     source: the repository has no front page, and G.28 forbids every Markdown file by suffix -- but its reasoning is that
       nothing checks prose against the code it describes, which a generated file answers; 2026 practice reversed exactly this
       rule, making the README a derived copy with a drift gate
+    because: {'8.5': the rule judges a rendered deliverable}
     serves:
       - {loop: promise, side: data}
       - {loop: constrain, side: code}
@@ -1953,6 +2158,7 @@ steps:
     source: 'all nine layers have an owner in the plan and not one of those links is recorded: the binding is inferable by
       a person reading two documents and by nothing else, so a step could be removed, renamed or retargeted and no gate would
       notice; 2026 provenance practice binds each stage to the next so a link cannot be reordered, removed or inserted undetectably'
+    because: {'8.5': the rule judges a rendered deliverable}
     serves:
       - {loop: promise, side: data}
       - {loop: constrain, side: code}
@@ -1966,6 +2172,8 @@ steps:
     source: it states completed steps, so the commit completing one makes the copy it carries stale before it lands -- three
       pushes refused in one day; 2026 practice removes hard-coded counts from a README in favour of signals that resolve when
       a reader looks, after the same numbers were bumped across four pull requests and conflicted on every rebase
+    because: {G.62: 'the page or sheet renders data a contract validates, so the contract and its export must exist before
+        anything can read them'}
     serves:
       - {loop: constrain, side: data}
     done_when:
@@ -1978,6 +2186,7 @@ steps:
     source: five steps promise a signature or an attestation and not one names a mechanism; the card's attested_by is a bare
       digest, which is a number anyone can type -- 2026 practice is that a predicate document without a signature is a file
       anyone could have written, and that policies must consume the attestation predicate rather than the signature alone
+    because: {}
     serves:
       - {loop: promise, side: code}
       - {loop: constrain, side: data}
@@ -1991,6 +2200,7 @@ steps:
     source: 'the nine layers are modelled and gate-walked, but the conflation at layer 1 lives only inside an English sentence:
       nothing typed says the question is about on-target biology while every observation comes from drug pharmacology, or
       that no engineering closes it'
+    because: {'8.5': the pipeline reads a document the deliverables own}
     serves:
       - {loop: declare, side: code}
       - {loop: constrain, side: data}
@@ -2004,6 +2214,7 @@ steps:
     source: 'a card can name layer 1, call the conflation known, state that the pipeline handles it adequately, and validate:
       the declaration is a formality because nothing compares it with the architecture, where layer 1 is the only layer whose
       gap no engineering closes'
+    because: {}
     serves:
       - {loop: constrain, side: code}
       - {loop: promise, side: data}
@@ -2017,6 +2228,7 @@ steps:
     source: the whole plan is readable in a terminal only by pasting a script, and the sheet's renderer already consumes a
       collected document; a second traversal for the console would drift from the first, so the text is another rendering
       of the same report
+    because: {G.60: the rule judges a rendered deliverable}
     serves:
       - {loop: promise, side: data}
     done_when:
@@ -2029,6 +2241,7 @@ steps:
     source: the sheet shows six rungs and the site types seven, with a prevalence base rate the sheet omits and the no-graph
       control under a second name; the tool versions are typed there a third time beside toolchain.json, which is the divergence
       8.5 closed for the layers reopening one module along
+    because: {}
     serves:
       - {loop: promise, side: code}
       - {loop: constrain, side: data}
@@ -2042,6 +2255,7 @@ steps:
     source: '46 of 66 tasks are named by no step, including check, lint, test, fmt, commit, sync and pr:merge: they run, they
       gate every commit, and nothing records why they exist or what depends on them; the matrix only ever checked the other
       direction, that a step has evidence'
+    because: {}
     serves:
       - {loop: constrain, side: code}
       - {loop: promise, side: data}
@@ -2054,6 +2268,7 @@ steps:
     depends_on: [G.55, G.67]
     source: the sibling recorded four dependency updates sitting unmerged because the task that merges them was an orphan
       nobody could see; here they are opened by Dependabot, exempted from the trailer rule by G.55, and then left
+    because: {}
     serves:
       - {loop: instrument, side: code}
     done_when:
@@ -2065,6 +2280,7 @@ steps:
     depends_on: [G.40]
     source: commit:undo reaches only unpushed commits, so undoing a merged pull request has no path that G.40 permits -- and
       the one thing a person reaches for under pressure is the one thing the remote refuses
+    because: {}
     serves:
       - {loop: instrument, side: code}
     done_when:
@@ -2076,6 +2292,7 @@ steps:
     depends_on: [G.44]
     source: two branches that each add a step conflict in context/plan.yaml, and the plan has one writer precisely so nobody
       hand-edits it -- resolving that conflict by hand is the case the writer cannot cover
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -2088,6 +2305,7 @@ steps:
     source: git opens the connection before pre-push and sends the packfile only after it returns, so a 372-second gate leaves
       the socket idle past the point GitHub hangs it up; the push is then lost after paying the full gate, and nothing says
       whether it was declined or dropped
+    because: {G.7: 'the platform is judged by policy, so the rule exists before the thing it judges'}
     serves:
       - {loop: constrain, side: code}
       - {loop: instrument, side: data}
@@ -2101,6 +2319,7 @@ steps:
     source: the keepalive was put at the top of setup, above the sync that installs the package it calls, so every new worktree
       failed halfway and its retry was refused by the directory the failure left behind; the test asserted the line was present,
       which passes wherever it sits
+    because: {G.38: 'the platform is judged by policy, so the rule exists before the thing it judges'}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -2113,23 +2332,12 @@ steps:
     source: 9.1 waited on G.12 -- a Python workspace member on a policy release tag -- with no recorded reason, and that edge
       alone put four steps between this project and its first byte of data; an edge nothing justifies cannot be reviewed,
       and nothing showed the chain to a goal so it was invisible until someone asked
+    because: {}
     serves:
       - {loop: constrain, side: data}
       - {loop: promise, side: data}
     done_when:
       - {kind: path, path: tooling/tests/test_a_dependency_states_why.py}
-  - id: G.74
-    title: The fifty-seven inherited edges are justified from the commits that created them
-    thread: G
-    phase: 8G
-    depends_on: [G.73]
-    source: fifty-seven steps wait on something and record no reason, so none of those edges can be reviewed; each reason
-      is recoverable from the commit that added the edge, which is slower than inventing one and is the only way the result
-      means anything
-    serves:
-      - {loop: promise, side: data}
-    done_when:
-      - {kind: path, path: tooling/tests/test_every_edge_states_why.py}
   - id: G.75
     title: 'The project''s claim is stated once: question, goal and objective in the document, not in two renderers'
     thread: C
@@ -2138,6 +2346,7 @@ steps:
     source: the research question, the central goal and the machine-learning objective are each typed in the sheet's generator
       and again in the site's TypeScript -- the third instance of the copy that 8.5 closed for the layers and G.66 for the
       ladder, and the one that states what the project is for
+    because: {}
     serves:
       - {loop: promise, side: code}
       - {loop: constrain, side: data}
@@ -2151,6 +2360,7 @@ steps:
     source: three separate copies were found by asking, not by a gate -- the layers, the ladder, then the question itself
       -- so a fourth would last until someone happened to look; 2026 research-infrastructure practice keeps one spine and
       renders from it
+    because: {G.75: the rule judges a rendered deliverable}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -2163,6 +2373,7 @@ steps:
     source: G.76's evidence named a file written before the gate existed and never created, because the gate belongs beside
       the tests it shares a helper with; a path cannot say which test proves the rule, so a file can satisfy the matrix while
       the rule inside it is gone
+    because: {}
     serves:
       - {loop: constrain, side: data}
     done_when:
@@ -2175,6 +2386,7 @@ steps:
     source: 'mise tasks prints sixty-six rows alphabetically, which is a wall rather than a menu: nothing says which three
       to run first, which only read, and which deploy or tag; 2026 practice groups by namespace and puts the content in the
       output, because a pointer to documentation was followed none of eight times'
+    because: {G.67: 'the platform is judged by policy, so the rule exists before the thing it judges'}
     serves:
       - {loop: instrument, side: code}
     done_when:
@@ -2188,6 +2400,7 @@ steps:
     source: G.63 binds every layer to the steps producing its record and a gate walks the chain; the seven stages have no
       such link, so Configuration as Code, Policy as Code and the rest are named on the sheet with nothing saying which step
       builds either side -- an evidence gap, which 2026 audit practice flags exactly as a missing control
+    because: {'8.5': the rule judges a rendered deliverable}
     serves:
       - {loop: promise, side: data}
       - {loop: constrain, side: code}
@@ -2201,6 +2414,7 @@ steps:
     source: BLIND_AT_THE_INDEX holds tag while ReleaseEvidence.kind is release, so the sets never intersect and every release-tag
       step has read unmet since G.48 landed -- F.4 and F.5 are done, their tags cut, and the plan has been reporting them
       blocked
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
@@ -2213,10 +2427,25 @@ steps:
     source: twenty-five call sites write with Path.write_text, which truncates then writes, so an interruption leaves the
       plan, the ledger, the trace or the matrix neither the old file nor the new one -- and this repository's writers run
       unattended, where nobody is watching to notice a half-written record
+    because: {}
     serves:
       - {loop: constrain, side: code}
     done_when:
       - {kind: path, path: tooling/tests/test_records_are_replaced_atomically.py}
+  - id: G.82
+    title: A cross-thread dependency carries its own reason, on the edge rather than the step
+    thread: G
+    phase: 8G
+    depends_on: [G.73]
+    source: 'G.73 asked every step that waits on another to say why, which is over-broad: 2.2 waits on 2.1 because pull requests
+      need GitFlow, and demanding a sentence for that buries the one edge that mattered -- 2026 practice reserves justification
+      for what affects structure or is hard to reverse, and skips the obvious. It is also unsatisfiable as written: source
+      is one field per step, so 11.1 with nine cross-thread dependencies can record one sentence for all of them'
+    because: {}
+    serves:
+      - {loop: constrain, side: data}
+    done_when:
+      - {kind: path, path: tooling/tests/test_a_crossing_edge_says_why.py}
 decisions:
   - {id: X.SPIKE, title: 'Reference spike, the original thread B', state: superseded, reason: 'thread B dissolved by the rule
       change moving all execution local: the sandbox prototype became reference reading only and every line is re-derived
@@ -2299,3 +2528,9 @@ decisions:
       Markdown file beside the code drifts from what it describes}
   - {id: X.TS7, title: TypeScript 7, state: deferred, reason: 'typescript-eslint supports <6.1.0 and @astrojs/check ^5 ||
       ^6, so the site pins 6.0.3; revisit when both ranges include 7', source: 'the registry, September 2026'}
+  - {id: G.74, title: The fifty-seven inherited edges are justified from the commits that created them, state: superseded,
+    reason: 'Superseded by G.82. This existed to carry debt G.73 created by asking every edge to justify itself -- a rule
+      that is over-broad, since 2.2 waits on 2.1 because a pull request needs GitFlow, and unsatisfiable, since source is
+      one field per step while 11.1 waits on nine. G.82 narrows the rule to edges that CROSS threads, which is where the one
+      real defect lived, and puts the reason on the edge. All seventy-two crossing edges now carry one, so there is no backlog
+      left to work down.', source: SESSION}

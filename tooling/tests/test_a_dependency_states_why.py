@@ -26,28 +26,31 @@ from otsafety_tooling.planning.edit import load
 pytestmark = pytest.mark.requirement("G.73")
 
 
-def test_a_step_that_waits_on_something_says_why_it_exists() -> None:
-    """Every edge added from here carries its reason.
+def test_the_narrow_rule_binds_every_crossing_edge() -> None:
+    """G.73 asked every edge to justify itself; G.82 asks the ones that cross.
 
-    FIFTY-SEVEN EXISTING STEPS DO NOT, and backfilling them in this branch would
-    produce plausible prose rather than recovered reasons -- the rubber stamp
-    this repository refused at E.39, one level up. A gate satisfied by inventing
-    content is worse than no gate.
+    THE FIRST RULE WAS OVER-BROAD AND RATCHETED. It demanded a reason for 2.2
+    waiting on 2.1 -- a pull request needs GitFlow -- and, unable to satisfy
+    that for fifty-six edges, bound only the steps issued after itself. A
+    baseline that shrinks when somebody happens to convert one is the failure
+    2026 reports describe: debt never worked down, and live defects found inside
+    the grandfathered set rather than by the gate.
 
-    SO THE RULE BINDS THE STEPS ISSUED SINCE IT WAS WRITTEN, and G.74 records
-    the backfill as its own work, where each reason can be read out of the
-    commit that created the edge rather than guessed.
+    AND IT WAS UNSATISFIABLE AS WRITTEN. `source` is one field per step, and
+    11.1 waits on nine steps across three threads. The reason belongs to the
+    edge, which is what `because` holds -- and every crossing edge carries one
+    now, so there is nothing to grandfather and no ratchet left.
     """
-    from otsafety_tooling.planning.ledger import load_ledger
-
-    issued = {entry.id: index for index, entry in enumerate(load_ledger().issued)}
-    mine = issued.get("G.73", 0)
-    silent = sorted(
-        step.id
-        for step in load().steps
-        if step.depends_on and not (step.source or "").strip() and issued.get(step.id, 0) >= mine
-    )
-    assert silent == [], f"steps issued since this rule and still silent: {silent}"
+    plan = load()
+    by = {step.id: step for step in plan.steps}
+    assert any(step.because for step in plan.steps), "no edge records a reason at all"
+    silent = [
+        f"{step.id}->{named}"
+        for step in plan.steps
+        for named in step.depends_on
+        if named in by and by[named].thread != step.thread and named not in step.because
+    ]
+    assert silent == [], f"the narrow rule is not at zero: {silent[:5]}"
 
 
 def test_the_workspace_member_no_longer_waits_on_a_release() -> None:

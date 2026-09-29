@@ -99,10 +99,23 @@ class Step(_Strict):
     branch: str | None = Field(default=None, pattern=r"^(feature|release|hotfix)/[a-z0-9-]+$")
     # Where the step came from, when another project's plan supplied it.
     source: str | None = None
+    # Why a dependency exists, per dependency. Required where the edge crosses
+    # threads -- a commitment one stream makes to another, which is where a
+    # stale edge costs most and where 9.1 waited on a policy release for no
+    # reason anybody had written down.
+    because: dict[str, str] = Field(default_factory=dict)
     # The loop and side it advances; a step that serves no loop is not in the plan.
     serves: tuple[Serves, ...] = Field(min_length=1)
     # Every item must hold for the step to be done.
     done_when: tuple[Evidence, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _a_reason_names_a_dependency_this_step_has(self) -> Self:
+        """A reason for an edge nobody has is a note pointing at nothing."""
+        dangling = sorted(set(self.because) - set(self.depends_on))
+        if dangling:
+            raise ValueError(f"{self.id} explains {dangling}, which it does not depend on")
+        return self
 
 
 class Decision(_Strict):
