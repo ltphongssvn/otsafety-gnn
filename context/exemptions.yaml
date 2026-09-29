@@ -57,6 +57,11 @@ inline:
   rule: TID251
   count: 1
   reason: 'standard library only: bootstrap runs before any dependency is installed'
+- path: scripts/build_plan_report.py
+  rule: TID251
+  count: 1
+  reason: The plan report's renderer runs inside the pinned image, which carries Playwright and pypdf and not this package,
+    so it cannot call model_validate_json. The collector validates the document against plan-report/v1 before writing it.
 - path: tooling/src/otsafety_tooling/codemod.py
   rule: N802
   count: 1
@@ -113,6 +118,11 @@ inline:
   rule: S607
   count: 4
   reason: a bare executable name resolved on the PATH that mise and the Nix shell provide; no shell
+- path: tooling/src/otsafety_tooling/paired.py
+  rule: S603
+  count: 1
+  reason: runs the tool whose rule is under test, by the fixed argument list its caller passes, with no shell; the fixture
+    is text on stdin and never a path, so nothing the harness runs comes from outside the test that called it
 - path: tooling/src/otsafety_tooling/policy/inputs.py
   rule: S603
   count: 1
@@ -121,6 +131,10 @@ inline:
   rule: S603
   count: 1
   reason: a fixed argument list with no shell; the executable is pinned through toolchain.json
+- path: tooling/src/otsafety_tooling/toolchain_verify.py
+  rule: S603
+  count: 1
+  reason: runs the tool it has just located in a pinned directory, by absolute path, with its declared probe
 - path: tooling/tests/conftest.py
   rule: TID251
   count: 1
@@ -157,13 +171,4 @@ inline:
   rule: E402
   count: 2
   reason: imports after importorskip, so the module still collects where the optional extra is absent
-- path: tooling/src/otsafety_tooling/toolchain_verify.py
-  rule: S603
-  count: 1
-  reason: runs the tool it has just located in a pinned directory, by absolute path, with its declared probe
-- path: scripts/build_plan_report.py
-  rule: TID251
-  count: 1
-  reason: The plan report's renderer runs inside the pinned image, which carries Playwright and pypdf and not this package,
-    so it cannot call model_validate_json. The collector validates the document against plan-report/v1 before writing it.
 eslint: []

@@ -27,6 +27,7 @@ from otsafety_tooling.contracts.plan import (
     PathEvidence,
     PrEvidence,
     ProjectPlan,
+    ProofEvidence,
     ReleaseEvidence,
     TaskEvidence,
 )
@@ -60,6 +61,15 @@ def _holds(evidence: Evidence, facts: Facts) -> bool:
         return evidence.number in facts.merged_prs
     if isinstance(evidence, ReleaseEvidence):
         return evidence.tag in facts.tags
+    if isinstance(evidence, ProofEvidence):
+        # WHAT THIS OBSERVATION CAN HONESTLY SEE, and no more. A verifier that
+        # claims depth it did not run is the failure this distinction exists to
+        # prevent, and a weaker level of evidence must never be reported as a
+        # stronger one. Here that level is STRUCTURAL: the file is in the tree
+        # and defines the named function. Whether it PASSES is the suite's
+        # answer, given by the same gate that reads this -- so nothing is
+        # claimed about a result nobody ran.
+        return evidence.test.partition("::")[0] in facts.paths
     raise TypeError(f"unknown evidence {evidence!r}")
 
 
@@ -159,7 +169,9 @@ def _describe(evidence: Evidence) -> str:
         return f"task {evidence.name} is not in mise.toml"
     if isinstance(evidence, PrEvidence):
         return f"pull request #{evidence.number} is not merged"
-    return f"release {evidence.tag} is not tagged"
+    if isinstance(evidence, ReleaseEvidence):
+        return f"release {evidence.tag} is not tagged"
+    return f"the file holding {evidence.test} is not in the tree"
 
 
 def _kinds_of(*models: type[BaseModel]) -> frozenset[str]:

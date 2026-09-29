@@ -1393,6 +1393,7 @@ steps:
     done_when:
       - {kind: task, name: 'secrets:scan'}
       - {kind: task, name: 'secrets:staged'}
+      - {kind: proof, test: 'tooling/tests/test_secrets_scanned.py::test_gitleaks_is_pinned_like_every_other_tool'}
   - id: G.16
     title: Private vulnerability reporting enabled through the repository-settings contract
     thread: G
@@ -1828,6 +1829,7 @@ steps:
       - {loop: promise, side: data}
     done_when:
       - {kind: path, path: policy/requirements.rego}
+      - {kind: proof, test: 'tooling/tests/test_requirement_identity.py::test_the_ledger_holds_every_id_the_plan_uses'}
   - id: G.42
     title: 'Every command emits a typed outcome: the payload on stdout, progress on stderr, and a refusal carrying a machine
       code rather than prose'
@@ -2378,6 +2380,7 @@ steps:
       - {loop: constrain, side: data}
     done_when:
       - {kind: path, path: tooling/tests/test_evidence_names_a_test.py}
+      - {kind: proof, test: 'tooling/tests/test_evidence_names_a_test.py::test_a_proof_is_an_evidence_kind'}
   - id: G.78
     title: 'One command shows the repository: tasks grouped, the safe ones marked, and where to start'
     thread: B

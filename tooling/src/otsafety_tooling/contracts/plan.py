@@ -84,8 +84,25 @@ class TaskEvidence(_Strict):
     name: str = Field(min_length=1)
 
 
+class ProofEvidence(_Strict):
+    """Done when this named test passes, and it fails when the rule is broken.
+
+    THE ONLY KIND THAT IS NOT INSPECTION. A merged pull request, a file, a
+    declared task and a cut release each show an artefact; none shows that a
+    rule refuses anything. Checking confirms existence, validating confirms
+    effectiveness, and inquiry alone is insufficient evidence of a control.
+
+    path::name, BECAUSE A FILE CANNOT SAY WHICH TEST. G.76 named a file another
+    step already claimed, and the matrix read it as complete and unconfirmed.
+    """
+
+    kind: Literal["proof"]
+    test: str = Field(pattern=r"^[^:]+\.py::[A-Za-z_][A-Za-z0-9_]*$")
+
+
 Evidence = Annotated[
-    PrEvidence | ReleaseEvidence | PathEvidence | TaskEvidence, Field(discriminator="kind")
+    PrEvidence | ReleaseEvidence | PathEvidence | TaskEvidence | ProofEvidence,
+    Field(discriminator="kind"),
 ]
 
 
