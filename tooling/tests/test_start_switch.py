@@ -22,6 +22,8 @@ from otsafety_tooling.git.env import git
 from otsafety_tooling.git.state import Branch, RepositoryState, Worktree, gather
 from otsafety_tooling.git.sync import finished_branch_to_leave, switch_command
 
+pytestmark = pytest.mark.requirement("2.1")
+
 HELD_ELSEWHERE = Path("/nonexistent/worktrees/feature-x")
 HERE = Path("/nonexistent/repo")
 

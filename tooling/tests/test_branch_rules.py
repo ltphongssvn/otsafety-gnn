@@ -10,6 +10,8 @@ import pytest
 from otsafety_tooling.contracts.branch_report import BranchFact, Finding
 from otsafety_tooling.git.branches import MINIMUM_GIT, evaluate, parse_git_version
 
+pytestmark = pytest.mark.requirement("1.1")
+
 SHA = "b" * 40
 
 

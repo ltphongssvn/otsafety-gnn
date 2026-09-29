@@ -32,6 +32,8 @@ from otsafety_tooling.policy.exemptions import (
     problems,
 )
 
+pytestmark = pytest.mark.requirement("G.26")
+
 
 def _register() -> ExemptionRegister:
     return read_yaml(REPO_ROOT / REGISTER, ExemptionRegister)

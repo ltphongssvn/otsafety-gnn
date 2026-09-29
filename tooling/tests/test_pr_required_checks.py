@@ -21,6 +21,8 @@ import pytest
 from otsafety_tooling.git import pr
 from otsafety_tooling.paths import REPO_ROOT
 
+pytestmark = pytest.mark.requirement("G.1")
+
 
 def _check(name: str, conclusion: str | None = "SUCCESS") -> pr.Check:
     return pr.Check.model_validate({"name": name, "conclusion": conclusion})

@@ -249,6 +249,10 @@
         {
           "kind": "task",
           "name": "branches:prune"
+        },
+        {
+          "kind": "proof",
+          "test": "tooling/tests/test_branch_rules.py::test_a_diverged_branch_is_not_also_reported_as_ahead_or_behind"
         }
       ]
     },
@@ -273,6 +277,10 @@
         {
           "kind": "task",
           "name": "start:here"
+        },
+        {
+          "kind": "proof",
+          "test": "tooling/tests/test_start_switch.py::test_an_unknown_branch_is_refused"
         }
       ]
     },
@@ -623,6 +631,10 @@
         {
           "kind": "task",
           "name": "repo:configure"
+        },
+        {
+          "kind": "proof",
+          "test": "tooling/tests/test_repository_settings.py::test_a_different_setting_is_s001_with_both_values"
         }
       ]
     },
@@ -655,6 +667,10 @@
         {
           "kind": "path",
           "path": ".github/dependabot.yml"
+        },
+        {
+          "kind": "proof",
+          "test": "tooling/tests/test_hook_config.py::test_a_missing_lefthook_fails_the_hook"
         }
       ]
     },
@@ -819,6 +835,10 @@
         {
           "kind": "task",
           "name": "e2e:install"
+        },
+        {
+          "kind": "proof",
+          "test": "tooling/tests/test_browser_tests_run_on_linux.py::test_a_workflow_that_skips_the_browser_is_refused"
         }
       ]
     },
@@ -1400,6 +1420,10 @@
         {
           "kind": "release",
           "tag": "v1.0.0"
+        },
+        {
+          "kind": "proof",
+          "test": "tooling/tests/test_pr_promote.py::test_a_promotion_must_target_main"
         }
       ]
     },
@@ -1683,6 +1707,10 @@
         {
           "kind": "pr",
           "number": 16
+        },
+        {
+          "kind": "proof",
+          "test": "tooling/tests/test_pr_required_checks.py::test_a_workflow_that_never_runs_on_pull_requests_is_not_required"
         }
       ]
     },
@@ -4026,6 +4054,10 @@
         {
           "kind": "path",
           "path": "context/exemptions.yaml"
+        },
+        {
+          "kind": "proof",
+          "test": "tooling/tests/test_exemptions.py::test_an_empty_reason_is_refused"
         }
       ]
     },
@@ -4196,6 +4228,10 @@
         {
           "kind": "task",
           "name": "toolchain:verify"
+        },
+        {
+          "kind": "proof",
+          "test": "tooling/tests/test_toolchain_verify.py::test_the_right_version_from_the_wrong_place_is_refused"
         }
       ]
     },
@@ -4218,6 +4254,10 @@
         {
           "kind": "pr",
           "number": 36
+        },
+        {
+          "kind": "proof",
+          "test": "tooling/tests/test_bootstrap.py::test_the_bootstrap_writes_mises_pin_notice_beside_its_prefix"
         }
       ]
     },

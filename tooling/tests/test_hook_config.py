@@ -36,12 +36,16 @@ the test task fail with "Closing comment tag `#}` not found" before bash saw a
 single line.
 """
 
+import pytest
+
 from otsafety_tooling.contracts.files import read_toml, read_yaml
 from otsafety_tooling.contracts.lefthook_config import LefthookConfig
 from otsafety_tooling.contracts.mise_config import MiseConfig, MiseOverlay, MiseTask
 from otsafety_tooling.contracts.release_config import Pyproject
 from otsafety_tooling.contracts.workflow import Workflow
 from otsafety_tooling.paths import REPO_ROOT
+
+pytestmark = pytest.mark.requirement("6.6")
 
 LOCKED_LEFTHOOK = '"$(git rev-parse --show-toplevel)/.venv/bin/lefthook"'
 
