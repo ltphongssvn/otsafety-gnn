@@ -41,6 +41,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Required, TypedDict
 
+from otsafety_tooling import atomic
+
 BLOCK_BYTES = 64 * 1024
 VERSION = re.compile(r"(\d+\.\d+(?:\.\d+)?)")
 
@@ -198,7 +200,7 @@ def write_pin_notice(tool: str, entry: ToolchainEntry, destination: Path) -> lis
     written = destination.parent / notice
     written.parent.mkdir(parents=True, exist_ok=True)
     message = f"{tool} is pinned by toolchain.json in this repository; change its version there."
-    written.write_text(f'message = "{message}"\n')
+    atomic.write_text(written, f'message = "{message}"\n')
     return [written]
 
 

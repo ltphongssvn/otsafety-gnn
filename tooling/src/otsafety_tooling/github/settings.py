@@ -36,6 +36,7 @@ from typing import Protocol
 
 from pydantic import BaseModel, ConfigDict, JsonValue, RootModel, ValidationError
 
+from otsafety_tooling import atomic
 from otsafety_tooling.artifacts import artifacts_root
 from otsafety_tooling.cli import note, result
 from otsafety_tooling.contracts.outcome import Verdict as Outcome
@@ -344,7 +345,7 @@ def _record(
     )
     artifacts.mkdir(parents=True, exist_ok=True)
     path = artifacts / f"{report.generated_at.strftime('%Y%m%dT%H%M%S%fZ')}.json"
-    path.write_text(report.model_dump_json(indent=2) + "\n", encoding="utf-8")
+    atomic.write_text(path, report.model_dump_json(indent=2) + "\n", encoding="utf-8")
 
     _say(f"repository settings: {report.verdict} ({repository})")
     reported: tuple[SettingFinding | ProtectionFinding, ...] = (*findings, *protection)

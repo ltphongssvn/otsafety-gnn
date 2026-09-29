@@ -31,6 +31,7 @@ import json
 from pathlib import Path
 from typing import Protocol
 
+from otsafety_tooling import atomic
 from otsafety_tooling.artifacts import artifacts_root
 from otsafety_tooling.contracts.experiment_run import ExperimentRun
 from otsafety_tooling.paths import REPO_ROOT
@@ -132,5 +133,5 @@ class MlflowTracker:
 
         with tempfile.TemporaryDirectory() as work:
             document = Path(work) / RECORD_FILENAME
-            document.write_text(run.model_dump_json(indent=2) + "\n", encoding="utf-8")
+            atomic.write_text(document, run.model_dump_json(indent=2) + "\n", encoding="utf-8")
             client.log_artifact(run_id, str(document))

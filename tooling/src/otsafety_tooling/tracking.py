@@ -42,6 +42,7 @@ from typing import Protocol
 
 from pydantic import BaseModel, ConfigDict
 
+from otsafety_tooling import atomic
 from otsafety_tooling.contracts.experiment_run import ExperimentRun
 from otsafety_tooling.git.env import git
 from otsafety_tooling.runs import machine_id
@@ -109,7 +110,7 @@ class FileTracker:
         self.directory.mkdir(parents=True, exist_ok=True)
         stamp = run.started_at.strftime("%Y%m%dT%H%M%S%fZ")
         path = self.directory / f"{stamp}-{run.experiment}-{run.id}.json"
-        path.write_text(run.model_dump_json(indent=2) + "\n", encoding="utf-8")
+        atomic.write_text(path, run.model_dump_json(indent=2) + "\n", encoding="utf-8")
 
 
 class FanOutTracker:

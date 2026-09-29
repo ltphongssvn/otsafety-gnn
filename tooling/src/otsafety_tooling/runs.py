@@ -39,6 +39,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import IO
 
+from otsafety_tooling import atomic
 from otsafety_tooling.contracts.run_record import RunRecord
 from otsafety_tooling.git.env import inherited_env
 
@@ -145,7 +146,7 @@ def machine_id(path: Path = MACHINE_ID_PATH) -> str:
             return existing
     generated = str(uuid.uuid4())
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(generated + "\n", encoding="utf-8")
+    atomic.write_text(path, generated + "\n", encoding="utf-8")
     return generated
 
 
@@ -233,7 +234,7 @@ def record_run(
         if on_tty:
             os.close(master)
             os.close(slave)
-        output_file.write_bytes(b"")
+        atomic.write_bytes(output_file, b"")
         total, digest, truncated = 0, hashlib.sha256(b"").hexdigest(), False
         exit_code = NOT_EXECUTABLE
         error_type = "CommandNotExecutable"
@@ -275,7 +276,9 @@ def record_run(
         output_sha256=digest,
         truncated=truncated,
     )
-    (records / f"{base}.json").write_text(record.model_dump_json(indent=2) + "\n", encoding="utf-8")
+    atomic.write_text(
+        (records / f"{base}.json"), record.model_dump_json(indent=2) + "\n", encoding="utf-8"
+    )
     return exit_code
 
 

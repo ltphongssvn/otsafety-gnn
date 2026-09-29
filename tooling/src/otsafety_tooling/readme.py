@@ -19,6 +19,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict
 
+from otsafety_tooling import atomic
 from otsafety_tooling.contracts.architecture import Architecture, Layer
 from otsafety_tooling.contracts.files import read_json, read_yaml
 from otsafety_tooling.contracts.toolchain import Toolchain
@@ -159,7 +160,7 @@ def main() -> int:
 
     target = REPO_ROOT / TARGET
     text = render()
-    target.write_text(text, encoding="utf-8")
+    atomic.write_text(target, text, encoding="utf-8")
     note(f"wrote {TARGET}")
     return result(
         "readme",

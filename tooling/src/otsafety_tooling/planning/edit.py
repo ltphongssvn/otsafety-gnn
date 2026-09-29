@@ -17,6 +17,7 @@ from pathlib import Path
 
 import yaml
 
+from otsafety_tooling import atomic
 from otsafety_tooling.contracts.files import read_yaml
 from otsafety_tooling.contracts.plan import ProjectPlan, Step
 from otsafety_tooling.paths import REPO_ROOT
@@ -74,5 +75,5 @@ def add_step(plan: ProjectPlan, step: Step) -> ProjectPlan:
 
 def save(plan: ProjectPlan, path: Path = PLAN, header: str = "") -> Path:
     """Write the plan in its canonical form, and nothing else."""
-    path.write_text(canonical(plan, header), encoding="utf-8")
+    atomic.write_text(path, canonical(plan, header), encoding="utf-8")
     return path

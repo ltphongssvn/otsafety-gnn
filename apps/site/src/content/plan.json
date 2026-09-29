@@ -5233,6 +5233,30 @@
           "path": "tooling/tests/test_blind_kinds_match_the_contract.py"
         }
       ]
+    },
+    {
+      "id": "G.81",
+      "title": "A record is replaced atomically or not at all: no writer truncates a file in place",
+      "thread": "G",
+      "phase": "8G",
+      "depends_on": [
+        "G.44",
+        "G.3"
+      ],
+      "branch": null,
+      "source": "twenty-five call sites write with Path.write_text, which truncates then writes, so an interruption leaves the plan, the ledger, the trace or the matrix neither the old file nor the new one -- and this repository's writers run unattended, where nobody is watching to notice a half-written record",
+      "serves": [
+        {
+          "loop": "constrain",
+          "side": "code"
+        }
+      ],
+      "done_when": [
+        {
+          "kind": "path",
+          "path": "tooling/tests/test_records_are_replaced_atomically.py"
+        }
+      ]
     }
   ],
   "decisions": [

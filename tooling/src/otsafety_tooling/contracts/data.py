@@ -23,6 +23,7 @@ from pathlib import Path
 
 from pydantic import BaseModel
 
+from otsafety_tooling import atomic
 from otsafety_tooling.contracts.architecture import Architecture
 from otsafety_tooling.contracts.exemptions import ExemptionRegister
 from otsafety_tooling.contracts.files import read_yaml
@@ -68,7 +69,7 @@ def main() -> int:
     written: list[str] = []
     for source in SOURCES:
         path = target / f"{source.name}.json"
-        path.write_text(export(source), encoding="utf-8")
+        atomic.write_text(path, export(source), encoding="utf-8")
         written.append(str(path.relative_to(REPO_ROOT)))
         note(f"wrote {path.relative_to(REPO_ROOT)}")
     return result(

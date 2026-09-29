@@ -45,6 +45,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING, Protocol
 
+from otsafety_tooling import atomic
 from otsafety_tooling.artifacts import artifacts_root
 from otsafety_tooling.contracts.experiment_run import ExperimentRun
 from otsafety_tooling.contracts.settings import settings
@@ -203,7 +204,7 @@ class WandbTracker:
         """Write the experiment-run/v1 document into the run's own files."""
         files.mkdir(parents=True, exist_ok=True)
         document = files / RECORD_FILENAME
-        document.write_text(run.model_dump_json(indent=2) + "\n", encoding="utf-8")
+        atomic.write_text(document, run.model_dump_json(indent=2) + "\n", encoding="utf-8")
         return document
 
     @staticmethod

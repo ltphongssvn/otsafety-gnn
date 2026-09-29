@@ -7,6 +7,7 @@ from datetime import UTC, datetime
 
 from pydantic import BaseModel, ConfigDict
 
+from otsafety_tooling import atomic
 from otsafety_tooling.artifacts import artifacts_root
 from otsafety_tooling.cli import note, result
 from otsafety_tooling.contracts.files import parse_yaml
@@ -42,7 +43,7 @@ def main() -> int:
     folder = artifacts_root(REPO_ROOT) / "plan-status"
     folder.mkdir(parents=True, exist_ok=True)
     record = folder / f"{datetime.now(UTC).strftime('%Y%m%dT%H%M%S%fZ')}.json"
-    record.write_text(status.model_dump_json(), encoding="utf-8")
+    atomic.write_text(record, status.model_dump_json(), encoding="utf-8")
     note(render(plan, status))
     note(f"recorded: {record}")
     done = sum(1 for step in status.steps if step.state == "done")

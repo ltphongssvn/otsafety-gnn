@@ -39,6 +39,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict
 
+from otsafety_tooling import atomic
 from otsafety_tooling.artifacts import artifacts_root
 from otsafety_tooling.cli import note
 from otsafety_tooling.cli import result as emit_result
@@ -294,7 +295,7 @@ def write_report(report: BranchReport, artifacts: Path) -> Path:
     artifacts.mkdir(parents=True, exist_ok=True)
     stamp = report.generated_at.strftime("%Y%m%dT%H%M%S%fZ")
     path = artifacts / f"{stamp}.json"
-    path.write_text(report.model_dump_json(indent=2) + "\n", encoding="utf-8")
+    atomic.write_text(path, report.model_dump_json(indent=2) + "\n", encoding="utf-8")
     return path
 
 

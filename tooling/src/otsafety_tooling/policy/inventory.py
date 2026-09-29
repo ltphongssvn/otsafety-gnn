@@ -13,6 +13,7 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
+from otsafety_tooling import atomic
 from otsafety_tooling.contracts.inventory import Command, CommandInventory
 from otsafety_tooling.paths import REPO_ROOT
 
@@ -84,7 +85,7 @@ def main(argv: list[str] | None = None) -> int:
     inventory = build()
     out = Path(args[0]) if args else artifacts_root(REPO_ROOT) / "policy" / "command-inventory.json"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(inventory.model_dump_json(indent=2) + "\n", encoding="utf-8")
+    atomic.write_text(out, inventory.model_dump_json(indent=2) + "\n", encoding="utf-8")
     silent = [c.module for c in inventory.commands if not c.emits and not c.exempt_because]
     return result(
         "policy:inventory",

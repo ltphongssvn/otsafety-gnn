@@ -14,6 +14,7 @@ from pathlib import Path
 
 import yaml
 
+from otsafety_tooling import atomic
 from otsafety_tooling.contracts.plan_trace import PlanTrace
 from otsafety_tooling.paths import REPO_ROOT
 
@@ -39,5 +40,5 @@ def canonical(trace: PlanTrace) -> str:
 def save_trace(trace: PlanTrace, path: Path | None = None) -> Path:
     """Write the trace in its canonical form, and nothing else."""
     target = path or trace_path()
-    target.write_text(canonical(trace), encoding="utf-8")
+    atomic.write_text(target, canonical(trace), encoding="utf-8")
     return target

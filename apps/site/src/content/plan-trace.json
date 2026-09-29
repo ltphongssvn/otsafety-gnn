@@ -7026,6 +7026,24 @@
         "G.80"
       ],
       "not_a_plan_item": null
+    },
+    {
+      "source": "USER",
+      "ref": "asked: write_text is not atomic for an autonomous mutation loop",
+      "text": "a process interruption at the wrong point can leave partial state, and an agent authorised to modify source without a human typing each command needs generate, validate, write temporary, fsync, atomic replace, hash, verify and record",
+      "maps_to": [
+        "G.81"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "REVIEW2026",
+      "ref": "temp in the same directory, fsync, replace, fsync the parent",
+      "text": "flush pushes only to the operating system cache so fsync is required before the rename; os.replace is atomic on one filesystem, which is why the temporary file must live in the target's own directory or the rename fails across devices; and the parent directory is synced after so the new entry survives power loss",
+      "maps_to": [
+        "G.81"
+      ],
+      "not_a_plan_item": null
     }
   ]
 }

@@ -15,6 +15,7 @@ from pathlib import Path
 
 import yaml
 
+from otsafety_tooling import atomic
 from otsafety_tooling.contracts.files import read_yaml
 from otsafety_tooling.contracts.traceability import IdLedger, IssuedId
 from otsafety_tooling.paths import REPO_ROOT
@@ -56,5 +57,5 @@ def canonical(ledger: IdLedger) -> str:
 def save_ledger(ledger: IdLedger, path: Path | None = None) -> Path:
     """Write the ledger in its canonical form, and nothing else."""
     target = path or ledger_path()
-    target.write_text(canonical(ledger), encoding="utf-8")
+    atomic.write_text(target, canonical(ledger), encoding="utf-8")
     return target
