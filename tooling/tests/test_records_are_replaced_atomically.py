@@ -31,7 +31,14 @@ pytestmark = pytest.mark.requirement("G.81")
 
 # WHERE A TRUNCATING WRITE IS STILL FINE: build output is regenerated wholly and
 # tracked by nothing, so a partial one is discarded rather than believed.
-EXEMPT = ("scripts/build_arch_onepager.py", "scripts/build_plan_report.py")
+EXEMPT = (
+    "scripts/build_arch_onepager.py",
+    "scripts/build_plan_report.py",
+    # RUNS BEFORE THE PACKAGE EXISTS, so it cannot import the helper: it stages,
+    # fsyncs and replaces with the standard library alone, and its own docstring
+    # says so three times.
+    "scripts/bootstrap_toolchain.py",
+)
 
 
 def test_writing_replaces_rather_than_truncates(tmp_path: Path) -> None:

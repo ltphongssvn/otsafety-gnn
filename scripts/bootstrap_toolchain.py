@@ -25,8 +25,24 @@ this project removes.
 
 from __future__ import annotations
 
+import sys
+
+# THE INTERPRETER FLOOR, ENFORCED BEFORE ANY IMPORT THAT DEPENDS ON IT.
+MINIMUM = (3, 11)
+if sys.version_info < MINIMUM:
+    running = ".".join(str(part) for part in sys.version_info[:3])
+    wanted = ".".join(str(part) for part in MINIMUM)
+    sys.stderr.write(
+        f"REFUSED: this bootstrap needs Python {wanted} or newer.\n"
+        f"  running {running} at {sys.executable}\n"
+        "  nothing was installed. Point it at a newer interpreter:\n"
+        "    python3.13 scripts/bootstrap_toolchain.py\n"
+    )
+    raise SystemExit(2)
+
 import hashlib
 import json
+import os
 import platform
 import re
 import shutil
@@ -40,8 +56,6 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Required, TypedDict
-
-from otsafety_tooling import atomic
 
 BLOCK_BYTES = 64 * 1024
 VERSION = re.compile(r"(\d+\.\d+(?:\.\d+)?)")
@@ -200,7 +214,24 @@ def write_pin_notice(tool: str, entry: ToolchainEntry, destination: Path) -> lis
     written = destination.parent / notice
     written.parent.mkdir(parents=True, exist_ok=True)
     message = f"{tool} is pinned by toolchain.json in this repository; change its version there."
-    atomic.write_text(written, f'message = "{message}"\n')
+    # THE SAME GUARANTEE, IN THE STANDARD LIBRARY ONLY: stage beside the target
+    # so the replace stays on one filesystem, fsync, replace, and sync the
+    # directory. otsafety_tooling.atomic cannot be imported here.
+    handle, staged = tempfile.mkstemp(dir=written.parent, prefix=f".{written.name}.")
+    try:
+        with os.fdopen(handle, "w", encoding="utf-8") as writing:
+            writing.write(f'message = "{message}"\n')
+            writing.flush()
+            os.fsync(writing.fileno())
+        os.replace(staged, written)
+    except BaseException:
+        Path(staged).unlink(missing_ok=True)
+        raise
+    opened = os.open(written.parent, os.O_RDONLY)
+    try:
+        os.fsync(opened)
+    finally:
+        os.close(opened)
     return [written]
 
 

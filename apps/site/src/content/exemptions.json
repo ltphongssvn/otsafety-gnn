@@ -24,6 +24,13 @@
       "reason": "T201 bootstrap CLIs print what they install; S603 runs a just-installed binary's --version by fixed argument list; S310 downloads a URL from toolchain.json and the next line verifies its sha256; S202 extracts inside a temporary directory an archive whose sha256 was verified first"
     },
     {
+      "glob": "scripts/bootstrap_toolchain.py",
+      "rules": [
+        "E402"
+      ],
+      "reason": "The interpreter floor is checked BEFORE the imports it protects, because typing.Required needs 3.11 and this script runs under whatever python3 a bare machine has. An ImportError from inside the import block names a symbol rather than the reason, and byte-compiling would not catch it because compilation does not resolve imports. E402 requires imports first; a bootstrap cannot."
+    },
+    {
       "glob": "scripts/build_arch_onepager.py",
       "rules": [
         "C408",
@@ -34,6 +41,13 @@
       "reason": "Style rules on a generator preserved verbatim: a rewrite to the house style once silently dropped five of the sheet's nine sections. TID251 is not a style rule and is declared for its own reason: json.loads is banned in favour of model_validate_json, and this renderer runs inside an image carrying Playwright and pypdf alone, so it cannot import the contract. The facts it reads are collected and validated against sheet-facts/v1 by the tooling before they are written."
     },
     {
+      "glob": "tooling/src/otsafety_tooling/git/*.py",
+      "rules": [
+        "T201"
+      ],
+      "reason": "the git package's command-line entry points print by design"
+    },
+    {
       "glob": "tooling/tests/**",
       "rules": [
         "S101",
@@ -42,13 +56,6 @@
         "ANN401"
       ],
       "reason": "S101 is pytest's assert; S603/S607 run pinned tools by fixed argument list with no shell; ANN401 test spies and payload builders record whatever an untyped library is handed, and typing them would restate that library's untyped surface in the test"
-    },
-    {
-      "glob": "tooling/src/otsafety_tooling/git/*.py",
-      "rules": [
-        "T201"
-      ],
-      "reason": "the git package's command-line entry points print by design"
     }
   ],
   "inline": [
