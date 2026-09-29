@@ -3415,6 +3415,10 @@
         {
           "kind": "task",
           "name": "secrets:staged"
+        },
+        {
+          "kind": "proof",
+          "test": "tooling/tests/test_secrets_scanned.py::test_gitleaks_is_pinned_like_every_other_tool"
         }
       ]
     },
@@ -4338,6 +4342,10 @@
         {
           "kind": "path",
           "path": "policy/requirements.rego"
+        },
+        {
+          "kind": "proof",
+          "test": "tooling/tests/test_requirement_identity.py::test_the_ledger_holds_every_id_the_plan_uses"
         }
       ]
     },
@@ -5445,6 +5453,10 @@
         {
           "kind": "path",
           "path": "tooling/tests/test_evidence_names_a_test.py"
+        },
+        {
+          "kind": "proof",
+          "test": "tooling/tests/test_evidence_names_a_test.py::test_a_proof_is_an_evidence_kind"
         }
       ]
     },

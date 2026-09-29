@@ -278,6 +278,28 @@
                   ],
                   "title": "TaskEvidence",
                   "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "description": "Done when this named test passes, and it fails when the rule is broken.\n\nTHE ONLY KIND THAT IS NOT INSPECTION. A merged pull request, a file, a\ndeclared task and a cut release each show an artefact; none shows that a\nrule refuses anything. Checking confirms existence, validating confirms\neffectiveness, and inquiry alone is insufficient evidence of a control.\n\npath::name, BECAUSE A FILE CANNOT SAY WHICH TEST. G.76 named a file another\nstep already claimed, and the matrix read it as complete and unconfirmed.",
+                  "properties": {
+                    "kind": {
+                      "const": "proof",
+                      "title": "Kind",
+                      "type": "string"
+                    },
+                    "test": {
+                      "pattern": "^[^:]+\\.py::[A-Za-z_][A-Za-z0-9_]*$",
+                      "title": "Test",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "test"
+                  ],
+                  "title": "ProofEvidence",
+                  "type": "object"
                 }
               ]
             },
