@@ -1175,6 +1175,11 @@
       "id": "G.81",
       "first_title": "A record is replaced atomically or not at all: no writer truncates a file in place",
       "retired": false
+    },
+    {
+      "id": "G.82",
+      "first_title": "A cross-thread dependency carries its own reason, on the edge rather than the step",
+      "retired": false
     }
   ]
 }

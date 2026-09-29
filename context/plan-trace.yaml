@@ -4202,3 +4202,15 @@ candidates:
     and the parent directory is synced after so the new entry survives power loss
   maps_to:
   - G.81
+- source: SESSION
+  ref: 'measured: twenty-four crossing edges, and one field to explain them'
+  text: of 276 edges, 72 cross a thread boundary and 24 of those record nothing, while the step carries a single source field
+    that cannot hold a reason per edge
+  maps_to:
+  - G.82
+- source: REVIEW2026
+  ref: justify what is hard to reverse, skip the obvious
+  text: record only choices affecting structure or costly to reverse; blurring that produces hundreds of notes in which the
+    real decisions are lost, and the signal is buried under noise
+  maps_to:
+  - G.82
