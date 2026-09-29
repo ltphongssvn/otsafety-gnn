@@ -4214,3 +4214,16 @@ candidates:
     real decisions are lost, and the signal is buried under noise
   maps_to:
   - G.82
+- source: SESSION
+  ref: 'observed: name-matching bound the wrong test four times'
+  text: matching a step to a test by shared words sent 7.2 to the serving image and G.34 to Railway's version pin, and the
+    same instrument missed three layer owners at G.63 and bound two false links at G.79
+  maps_to:
+  - G.83
+- source: REVIEW2026
+  ref: a test counts only once observed failing against a mutant
+  text: every acceptance gate is a counter and none measures whether a test is capable of failing, so a test passing against
+    a mutant is tautological and does not count; mutate the thing under test, rerun that single test, require a failure, restore,
+    and scope it rather than mutating the whole suite
+  maps_to:
+  - G.83

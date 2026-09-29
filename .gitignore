@@ -125,6 +125,12 @@ packages/*/reports/
 packages/*/.stryker-tmp/
 /playwright/.cache/
 
+# mutmut's scratch tree: a whole copy of the source with a mutant in every
+# function. Every scanner here lists files through git with --exclude-standard,
+# so this one line keeps the copy out of all of them at once -- without it the
+# exemption scan read 9,868 suppressions that exist only in the copy.
+mutants/
+
 # Stryker mutation-testing temporary artifacts (large; never commit)
 .stryker-tmp/
 **/.stryker-tmp/

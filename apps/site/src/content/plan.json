@@ -5634,6 +5634,32 @@
           "path": "tooling/tests/test_a_crossing_edge_says_why.py"
         }
       ]
+    },
+    {
+      "id": "G.83",
+      "title": "A proof is observed failing against a mutant, or it does not count",
+      "thread": "G",
+      "phase": "8G",
+      "depends_on": [
+        "G.77"
+      ],
+      "branch": null,
+      "source": "every gate accepting a test here measures quantity and none measures whether the test CAN fail: the five assertions written for 7.2 were all true negatives and passed identically against a rule examining nothing, and a proof chosen by name-matching -- which failed four times, at G.63, G.79, 7.2 and G.34 -- survives mutation of the thing it claims to guard, so one harness catches both -- BLOCKED UPSTREAM: mutmut 3.8 resolves its source directory as ./, src/ or source/ alone, and this uv workspace keeps the package at tooling/src, so every mutant is reported as covered by no test; the configuration here is complete and waits on the tool",
+      "because": {
+        "G.77": "the proof kind is what this mutates; without a named test there is nothing to run"
+      },
+      "serves": [
+        {
+          "loop": "constrain",
+          "side": "code"
+        }
+      ],
+      "done_when": [
+        {
+          "kind": "path",
+          "path": "mutants/mutmut-cicd-stats.json"
+        }
+      ]
     }
   ],
   "decisions": [

@@ -22,7 +22,43 @@ ROOT_MARKER = "toolchain.json"
 
 
 def locate_root(anchor: Path) -> Path:
-    """The repository root three levels above `anchor`'s package, or raise."""
+    """The working tree this file is in, ASKED OF GIT rather than counted off.
+
+    UP-THREE WAS WRONG AND MUTATION TESTING PROVED IT. mutmut copies the source
+    into ./mutants and runs the suite from there, so __file__ lands in the
+    scratch tree -- and because that copy carries toolchain.json, the marker
+    check passed and a wrong root was returned in silence. The guard was
+    defeated by the very copy that made the suite runnable.
+
+    --show-toplevel ANSWERS "THE TREE I AM IN", which is what this wants: it is
+    right in a linked worktree and right in the main checkout. artifacts_root
+    asks a DIFFERENT question -- where the MAIN checkout is, so evidence
+    outlives a removed worktree -- and rightly uses `git worktree list`, which
+    reports the whole clone wherever it runs.
+    """
+    import os
+    import subprocess
+
+    minimal = {
+        key: value
+        for key, value in os.environ.items()  # noqa: TID251
+        if key in ("PATH", "HOME")
+    }
+    located = subprocess.run(  # noqa: S603
+        ["git", "-C", str(anchor.resolve().parent), "rev-parse", "--show-toplevel"],  # noqa: S607
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=10,
+        env=minimal,
+    )
+    if located.returncode == 0 and located.stdout.strip():
+        found = Path(located.stdout.strip())
+        if (found / ROOT_MARKER).is_file():
+            return found
+
+    # NO GIT, OR NOT A REPOSITORY: an installed wheel or a released archive.
+    # Counting parents is the fallback, and the marker must still be there.
     root = anchor.resolve().parents[3]
     if not (root / ROOT_MARKER).is_file():
         raise RuntimeError(
@@ -33,4 +69,10 @@ def locate_root(anchor: Path) -> Path:
     return root
 
 
-REPO_ROOT = locate_root(Path(__file__))
+def __getattr__(name: str) -> Path:
+    """REPO_ROOT, found once and cached, rather than on every import."""
+    if name != "REPO_ROOT":
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    found = locate_root(Path(__file__))
+    globals()["REPO_ROOT"] = found
+    return found
