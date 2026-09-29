@@ -150,6 +150,22 @@
               }
             ],
             "title": "Gate"
+          },
+          "code_by": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Code By",
+            "type": "array"
+          },
+          "data_by": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Data By",
+            "type": "array"
           }
         },
         "required": [
@@ -158,7 +174,9 @@
           "source",
           "as_code",
           "as_data",
-          "gate"
+          "gate",
+          "code_by",
+          "data_by"
         ],
         "title": "Stage",
         "type": "object"

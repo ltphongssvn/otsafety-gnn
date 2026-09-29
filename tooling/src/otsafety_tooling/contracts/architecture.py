@@ -69,6 +69,25 @@ class Stage(BaseModel):
     as_code: str = Field(min_length=3)
     as_data: str = Field(min_length=3)
     gate: Literal["HALT", "REJECT"] | None = None
+    # Which steps build the as-code side, and which produce the as-data record.
+    code_by: tuple[str, ...] = Field(min_length=1)
+    data_by: tuple[str, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _a_stage_does_not_build_and_record_with_one_step(self) -> Self:
+        """The two sides are different work, so one step cannot be both.
+
+        A stage whose code and data sides name the same single step is a row
+        that looks bound and is not: nothing separates declaring the rule from
+        recording what it decided, which is the whole point of the pair.
+        """
+        both = set(self.code_by) & set(self.data_by)
+        if both:
+            raise ValueError(
+                f"stage {self.id} names {sorted(both)} on both sides: a step that "
+                f"declares the rule and also produces its record verifies itself"
+            )
+        return self
 
 
 class Question(BaseModel):

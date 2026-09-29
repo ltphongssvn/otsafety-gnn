@@ -1160,6 +1160,11 @@
       "id": "G.78",
       "first_title": "One command shows the repository: tasks grouped, the safe ones marked, and where to start",
       "retired": false
+    },
+    {
+      "id": "G.79",
+      "first_title": "Each execution stage names the steps that build its as-code side and its as-data record",
+      "retired": false
     }
   ]
 }

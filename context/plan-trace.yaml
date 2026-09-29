@@ -4158,3 +4158,22 @@ candidates:
     itself
   maps_to:
   - G.78
+- source: USER
+  ref: 'asked: is every infrastructure capability and as-code to as-data pair in the plan'
+  text: review whether the Nix and uv environments, mise tasks, toolchain pinning, hooks, CI gates, Pydantic contracts, JSON
+    schemas, policy enforcement, OPA and Rego, provenance and evidence records, release machinery, supply-chain verification,
+    attestation and traceability are each in the plan, along with the seven as-code to as-data pairs
+  maps_to:
+  - G.79
+- source: SESSION
+  ref: 'audited: sixteen capabilities present, the seven stages unbound'
+  text: each capability was searched for by name and every one had steps, while the Stage contract carries id, title, source,
+    as_code, as_data and gate and no link to any step at all
+  maps_to:
+  - G.79
+- source: REVIEW2026
+  ref: an evidence gap is flagged as a missing control
+  text: a control that works but cannot be shown to work counts the same as one that is absent, and a capability matrix drifts
+    behind implementation unless a gate requires every capability marked supported to carry named evidence
+  maps_to:
+  - G.79
