@@ -30,6 +30,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, ValidationError
 
+from otsafety_tooling import atomic
 from otsafety_tooling.artifacts import artifacts_root
 from otsafety_tooling.cli import note, result
 from otsafety_tooling.contracts.branch_prune import PruneDecision, PruneRecord, Verdict
@@ -148,7 +149,7 @@ def _record(
     )
     records.mkdir(parents=True, exist_ok=True)
     path = records / f"{record.generated_at.strftime('%Y%m%dT%H%M%S%fZ')}.json"
-    path.write_text(record.model_dump_json(indent=2) + "\n", encoding="utf-8")
+    atomic.write_text(path, record.model_dump_json(indent=2) + "\n", encoding="utf-8")
 
     mode = "applied" if applied else "plan"
     _say(f"branch prune ({mode}): {record.verdict}, evidence {source or '(none)'}")

@@ -17,6 +17,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
+from otsafety_tooling import atomic
 from otsafety_tooling.artifacts import artifacts_root
 from otsafety_tooling.cli import result
 from otsafety_tooling.contracts.files import read_yaml
@@ -177,7 +178,7 @@ def main(argv: list[str]) -> int:
         Path(argv[0]) if argv else artifacts_root(REPO_ROOT) / "policy" / "requirement-matrix.json"
     )
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(matrix.model_dump_json(indent=2) + "\n", encoding="utf-8")
+    atomic.write_text(out, matrix.model_dump_json(indent=2) + "\n", encoding="utf-8")
     return result(
         "plan:matrix",
         "success",

@@ -13,6 +13,7 @@ refused mise. Both refusals installed nothing, which is the behaviour these
 tests fix in place.
 """
 
+import ast
 import importlib.util
 import sys
 from pathlib import Path
@@ -205,3 +206,75 @@ def test_the_bootstrap_writes_mises_pin_notice_beside_its_prefix(tmp_path: Path)
         tmp_path / "local" / "lib" / "mise" / "mise-self-update-instructions.toml"
     ).read_text()
     assert written.startswith("message = ") and "toolchain.json" in written
+
+
+def test_the_interpreter_floor_is_checked_before_it_is_needed() -> None:
+    """A bootstrap refuses an old interpreter; it does not die inside an import.
+
+    typing.Required arrived in 3.11 and this script exists to run under whatever
+    python3 a bare machine has -- 3.9.6 on the laptop that found this. An
+    ImportError from within the import block names a symbol rather than the
+    reason, and byte-compiling the tree would not catch it because compilation
+    does not resolve imports.
+
+    SO THE CHECK COMES FIRST, textually. Everything the floor protects is
+    imported after it, which is the only ordering that works when the failure
+    mode is the import itself.
+    """
+    source = (REPO_ROOT / "scripts" / "bootstrap_toolchain.py").read_text(encoding="utf-8")
+    tree = ast.parse(source)
+
+    guard = next(
+        (
+            node
+            for node in tree.body
+            if isinstance(node, ast.If) and "version_info" in ast.unparse(node.test)
+        ),
+        None,
+    )
+    assert guard is not None, "the bootstrap declares no interpreter floor"
+
+    needs_new = [
+        node.lineno
+        for node in tree.body
+        if isinstance(node, ast.ImportFrom)
+        and node.module == "typing"
+        and any(alias.name in {"Required", "LiteralString", "Self"} for alias in node.names)
+    ]
+    assert needs_new, "nothing here needs the floor; the guard would be decoration"
+    assert guard.lineno < min(needs_new), (
+        f"the floor is checked at line {guard.lineno}, after the import at {min(needs_new)}"
+    )
+
+
+def test_an_old_interpreter_is_refused_by_name() -> None:
+    """THE REFUSAL, exercised -- and hermetic, so the gate that merges sees it.
+
+    THE FIRST VERSION WENT LOOKING FOR AN OLD INTERPRETER on this host. That
+    test passes on a laptop with Command Line Tools and skips in a Nix sandbox
+    and on every runner, which is the shape 2026 practice names outright: keyed
+    to the host, it runs where nothing gates and is silent where everything
+    does.
+
+    SO THE CONDITION IS CONSTRUCTED, NOT FOUND. The interpreter is the one Nix
+    provides; only its reported version is replaced, before the script's body
+    runs. Same answer on a laptop, a runner and a sandbox.
+    """
+    import subprocess
+    import sys
+
+    script = REPO_ROOT / "scripts" / "bootstrap_toolchain.py"
+    harness = (
+        "import sys, collections;"
+        "V = collections.namedtuple('v', 'major minor micro releaselevel serial');"
+        "sys.version_info = V(3, 9, 6, 'final', 0);"
+        f"exec(compile(open({str(script)!r}).read(), {str(script)!r}, 'exec'))"
+    )
+    refused = subprocess.run(
+        [sys.executable, "-c", harness], capture_output=True, text=True, check=False
+    )
+    assert refused.returncode == 2, (
+        f"exit {refused.returncode}, not a refusal: {refused.stderr[-300:]}"
+    )
+    assert "3.9.6" in refused.stderr, "the refusal does not name the version it found"
+    assert "nothing was installed" in refused.stderr

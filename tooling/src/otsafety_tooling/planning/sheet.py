@@ -14,6 +14,7 @@ import re
 from pathlib import Path
 from typing import Literal
 
+from otsafety_tooling import atomic
 from otsafety_tooling.contracts.files import read_toml
 from otsafety_tooling.contracts.mise_config import MiseConfig
 from otsafety_tooling.contracts.sheet_facts import PhaseFact, SheetFacts, ThreadFact
@@ -115,7 +116,7 @@ def main() -> int:
 
     target = REPO_ROOT / TARGET
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(export(), encoding="utf-8")
+    atomic.write_text(target, export(), encoding="utf-8")
     seen = collect()
     note(f"wrote {TARGET}")
     return result(

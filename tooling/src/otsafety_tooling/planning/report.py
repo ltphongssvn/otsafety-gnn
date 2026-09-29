@@ -8,6 +8,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
+from otsafety_tooling import atomic
 from otsafety_tooling.contracts.plan_report import PhaseRows, PlanReport, StepRow
 from otsafety_tooling.contracts.sheet_facts import ThreadFact as ThreadRatio
 from otsafety_tooling.paths import REPO_ROOT
@@ -193,7 +194,7 @@ def main() -> int:
 
     target = REPO_ROOT / TARGET
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(export(), encoding="utf-8")
+    atomic.write_text(target, export(), encoding="utf-8")
     seen = collect()
     note(render_text(seen, collect_facts().threads))
     note(f"wrote {TARGET}")

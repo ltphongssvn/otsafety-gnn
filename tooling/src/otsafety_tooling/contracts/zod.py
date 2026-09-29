@@ -18,6 +18,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, JsonValue, TypeAdapter
 
+from otsafety_tooling import atomic
 from otsafety_tooling.cli import note, result
 from otsafety_tooling.paths import REPO_ROOT
 
@@ -254,7 +255,7 @@ def generate(target: Path = TARGET) -> list[str]:
     for file in sorted(SOURCE.glob("*.schema.json")):
         out = target / f"{file.name.removesuffix('.schema.json')}.gen.ts"
         name, code = module(file, out)
-        out.write_text(code, encoding="utf-8")
+        atomic.write_text(out, code, encoding="utf-8")
         written.append(f"wrote {out.name} ({name})")
     return written
 

@@ -32,6 +32,7 @@ from pathlib import Path
 from pydantic import BaseModel, ConfigDict, JsonValue
 
 import otsafety_tooling.contracts as _package
+from otsafety_tooling import atomic
 from otsafety_tooling.cli import note, result
 from otsafety_tooling.paths import REPO_ROOT
 
@@ -173,7 +174,9 @@ def main() -> int:
     for contract in EXPORTED:
         path = REPO_ROOT / schema_path(contract)
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(json_schema(contract), indent=2) + "\n", encoding="utf-8")
+        atomic.write_text(
+            path, json.dumps(json_schema(contract), indent=2) + "\n", encoding="utf-8"
+        )
         written.append(str(path.relative_to(REPO_ROOT)))
         note(f"wrote {path.relative_to(REPO_ROOT)}")
     return result(
