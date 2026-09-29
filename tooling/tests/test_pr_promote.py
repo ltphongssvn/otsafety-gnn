@@ -18,6 +18,8 @@ import pytest
 
 from otsafety_tooling.git import pr
 
+pytestmark = pytest.mark.requirement("F.4")
+
 
 def _pull(base: str) -> pr.PullRequest:
     return pr.PullRequest.model_validate({"number": 7, "state": "OPEN", "baseRefName": base})

@@ -29,6 +29,8 @@ from otsafety_tooling.contracts.repository_settings import (
 from otsafety_tooling.git.ghcli import NotAuthenticatedError
 from otsafety_tooling.github.settings import check, compare, configure
 
+pytestmark = pytest.mark.requirement("6.5")
+
 POLICY: dict[str, bool] = {
     "allow_merge_commit": True,
     "allow_squash_merge": False,

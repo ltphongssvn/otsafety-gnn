@@ -20,6 +20,8 @@ from otsafety_tooling.git.env import scrubbed_env
 from otsafety_tooling.paths import REPO_ROOT
 from otsafety_tooling.toolchain_verify import problems
 
+pytestmark = pytest.mark.requirement("G.33")
+
 CHAIN = read_json(REPO_ROOT / "toolchain.json", Toolchain)
 
 

@@ -23,6 +23,8 @@ import pytest
 
 from otsafety_tooling.paths import REPO_ROOT
 
+pytestmark = pytest.mark.requirement("G.34")
+
 
 class _Plan(Protocol):
     """The plan bootstrap_toolchain makes for one tool."""

@@ -97,6 +97,7 @@ steps:
       - {loop: constrain, side: data}
     done_when:
       - {kind: task, name: 'branches:prune'}
+      - {kind: proof, test: 'tooling/tests/test_branch_rules.py::test_a_diverged_branch_is_not_also_reported_as_ahead_or_behind'}
   - id: '2.1'
     title: 'GitFlow: feature branches cut from origin/develop by task'
     thread: B
@@ -107,6 +108,7 @@ steps:
       - {loop: constrain, side: code}
     done_when:
       - {kind: task, name: 'start:here'}
+      - {kind: proof, test: 'tooling/tests/test_start_switch.py::test_an_unknown_branch_is_refused'}
   - id: '2.2'
     title: Merges by verified pull request, as merge commits
     thread: B
@@ -244,6 +246,7 @@ steps:
     done_when:
       - {kind: path, path: contracts/repository-settings.json}
       - {kind: task, name: 'repo:configure'}
+      - {kind: proof, test: 'tooling/tests/test_repository_settings.py::test_a_different_setting_is_s001_with_both_values'}
   - id: '6.6'
     title: lefthook, test-tooling CI, zizmor and Dependabot
     thread: B
@@ -256,6 +259,7 @@ steps:
       - {kind: path, path: lefthook.yml}
       - {kind: path, path: .github/workflows/zizmor.yml}
       - {kind: path, path: .github/dependabot.yml}
+      - {kind: proof, test: 'tooling/tests/test_hook_config.py::test_a_missing_lefthook_fails_the_hook'}
   - id: '6.7'
     title: Every gate in one pass, every failure reported
     thread: B
@@ -318,6 +322,7 @@ steps:
       - {kind: task, name: 'site:smoke'}
       - {kind: task, name: 'test:e2e'}
       - {kind: task, name: 'e2e:install'}
+      - {kind: proof, test: 'tooling/tests/test_browser_tests_run_on_linux.py::test_a_workflow_that_skips_the_browser_is_refused'}
   - id: '7.3'
     title: Evidence page from run records and verdicts
     thread: C
@@ -546,6 +551,7 @@ steps:
     done_when:
       - {kind: pr, number: 17}
       - {kind: release, tag: v1.0.0}
+      - {kind: proof, test: 'tooling/tests/test_pr_promote.py::test_a_promotion_must_target_main'}
   - id: F.5
     title: A fix released from its tag, v1.0.1; its deployment is proven by F.6
     thread: F
@@ -669,6 +675,7 @@ steps:
       - {loop: constrain, side: code}
     done_when:
       - {kind: pr, number: 16}
+      - {kind: proof, test: 'tooling/tests/test_pr_required_checks.py::test_a_workflow_that_never_runs_on_pull_requests_is_not_required'}
   - id: G.2
     title: Pydantic to JSON Schema to Zod, drift-gated
     thread: G
@@ -1669,6 +1676,7 @@ steps:
       - {loop: constrain, side: data}
     done_when:
       - {kind: path, path: context/exemptions.yaml}
+      - {kind: proof, test: 'tooling/tests/test_exemptions.py::test_an_empty_reason_is_refused'}
   - id: G.27
     title: 'Generated Zod holds no z.any() or z.unknown(): a shape the generator cannot express fails the gate'
     thread: G
@@ -1757,6 +1765,7 @@ steps:
       - {loop: instrument, side: data}
     done_when:
       - {kind: task, name: 'toolchain:verify'}
+      - {kind: proof, test: 'tooling/tests/test_toolchain_verify.py::test_the_right_version_from_the_wrong_place_is_refused'}
   - id: G.34
     title: 'mise cannot update itself past its pin: a notice beside every install makes self-update and auto-update refuse'
     thread: G
@@ -1768,6 +1777,7 @@ steps:
       - {loop: constrain, side: code}
     done_when:
       - {kind: pr, number: 36}
+      - {kind: proof, test: 'tooling/tests/test_bootstrap.py::test_the_bootstrap_writes_mises_pin_notice_beside_its_prefix'}
   - id: G.35
     title: A suppression carries its code alone; its reason lives only in the register, and the floor refuses a description
     thread: G
