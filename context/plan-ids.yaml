@@ -723,3 +723,6 @@ issued:
 - id: G.79
   first_title: Each execution stage names the steps that build its as-code side and its as-data record
   retired: false
+- id: G.80
+  first_title: The blind set names evidence kinds as the contract spells them, proved against the contract itself
+  retired: false

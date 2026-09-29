@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from pathlib import Path
-from typing import Final
+from typing import Final, get_args
 
 from pydantic import BaseModel, ConfigDict, RootModel
 
@@ -162,10 +162,24 @@ def _describe(evidence: Evidence) -> str:
     return f"release {evidence.tag} is not tagged"
 
 
+def _kinds_of(*models: type[BaseModel]) -> frozenset[str]:
+    """The kind strings these evidence models discriminate on, from the models.
+
+    A Literal gives static checking and no runtime set, so the set gets typed a
+    second time -- which is how this constant said tag while the contract said
+    release, and every release-tagged step read unmet for as long as that stood.
+    Naming the CLASSES repeats something the type checker verifies; naming the
+    strings repeats something nothing verifies.
+    """
+    return frozenset(
+        kind for model in models for kind in get_args(model.model_fields["kind"].annotation)
+    )
+
+
 # WHAT A FACT SET CANNOT SEE, rather than what it failed to find. staged_facts
-# observes the index: a merged pull request and a tag cannot exist there, so an
-# empty set for those kinds means unobserved, never absent.
-BLIND_AT_THE_INDEX: Final = frozenset({"pr", "tag"})
+# observes the index: a merged pull request and a release tag cannot exist
+# there, so an empty set for those kinds means unobserved, never absent.
+BLIND_AT_THE_INDEX: Final = _kinds_of(PrEvidence, ReleaseEvidence)
 
 
 def blind_to(facts: Facts) -> frozenset[str]:
