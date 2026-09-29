@@ -167,7 +167,14 @@
       "source": "conf/config.yaml + pinned OT release hash",
       "as_code": "Configuration as Code",
       "as_data": "Config as Data",
-      "gate": null
+      "gate": null,
+      "code_by": [
+        "A.2",
+        "9.3"
+      ],
+      "data_by": [
+        "9.4"
+      ]
     },
     {
       "id": "1",
@@ -175,7 +182,14 @@
       "source": "Pydantic v2 · Edge, SafetyLabel, Split",
       "as_code": "Schema as Code",
       "as_data": "Contracts as Data",
-      "gate": null
+      "gate": null,
+      "code_by": [
+        "9.2",
+        "9.32"
+      ],
+      "data_by": [
+        "9.23"
+      ]
     },
     {
       "id": "2",
@@ -183,7 +197,15 @@
       "source": "leakage DL1/2/3 · degree null · neg-controls",
       "as_code": "Policy as Code",
       "as_data": "Verdict as Data",
-      "gate": "HALT"
+      "gate": "HALT",
+      "code_by": [
+        "9.5",
+        "9.6",
+        "9.17"
+      ],
+      "data_by": [
+        "9.18"
+      ]
     },
     {
       "id": "3",
@@ -191,7 +213,14 @@
       "source": "GBM | ComplEx | SAGE/GAT | R-GCN/HGT",
       "as_code": "Model Config as Code",
       "as_data": "Lineage as Data",
-      "gate": null
+      "gate": null,
+      "code_by": [
+        "9.10",
+        "9.25"
+      ],
+      "data_by": [
+        "9.29"
+      ]
     },
     {
       "id": "4",
@@ -199,7 +228,14 @@
       "source": "identical split, negatives, endpoints",
       "as_code": "Pipeline as Code",
       "as_data": "Metrics as Data",
-      "gate": null
+      "gate": null,
+      "code_by": [
+        "9.22",
+        "9.28"
+      ],
+      "data_by": [
+        "9.12"
+      ]
     },
     {
       "id": "5",
@@ -207,7 +243,14 @@
       "source": "OPA/Rego · Δ(rung 5 − rung 4)",
       "as_code": "SLO as Code",
       "as_data": "Decision as Data",
-      "gate": "REJECT"
+      "gate": "REJECT",
+      "code_by": [
+        "9.13",
+        "9.16"
+      ],
+      "data_by": [
+        "9.19"
+      ]
     },
     {
       "id": "6",
@@ -215,7 +258,15 @@
       "source": "promote / reject + evidence chain",
       "as_code": "Governance as Code",
       "as_data": "Attestation as Data",
-      "gate": null
+      "gate": null,
+      "code_by": [
+        "E.36",
+        "E.37"
+      ],
+      "data_by": [
+        "9.15",
+        "9.14"
+      ]
     }
   ],
   "questions": [

@@ -145,38 +145,75 @@ stages:
   as_code: Configuration as Code
   as_data: Config as Data
   id: '0'
+  code_by:
+  - A.2
+  - '9.3'
+  data_by:
+  - '9.4'
 - title: VALIDATED CONTRACT
   source: Pydantic v2 · Edge, SafetyLabel, Split
   as_code: Schema as Code
   as_data: Contracts as Data
   id: '1'
+  code_by:
+  - '9.2'
+  - '9.32'
+  data_by:
+  - '9.23'
 - title: AUDIT GATE
   source: leakage DL1/2/3 · degree null · neg-controls
   as_code: Policy as Code
   as_data: Verdict as Data
   gate: HALT
   id: '2'
+  code_by:
+  - '9.5'
+  - '9.6'
+  - '9.17'
+  data_by:
+  - '9.18'
 - title: MODEL FACTORY
   source: GBM | ComplEx | SAGE/GAT | R-GCN/HGT
   as_code: Model Config as Code
   as_data: Lineage as Data
   id: '3'
+  code_by:
+  - '9.10'
+  - '9.25'
+  data_by:
+  - '9.29'
 - title: TRAINING · 5 SEEDS
   source: identical split, negatives, endpoints
   as_code: Pipeline as Code
   as_data: Metrics as Data
   id: '4'
+  code_by:
+  - '9.22'
+  - '9.28'
+  data_by:
+  - '9.12'
 - title: PROMOTION GATE
   source: OPA/Rego · Δ(rung 5 − rung 4)
   as_code: SLO as Code
   as_data: Decision as Data
   gate: REJECT
   id: '5'
+  code_by:
+  - '9.13'
+  - '9.16'
+  data_by:
+  - '9.19'
 - title: SIGNED MODEL CARD
   source: promote / reject + evidence chain
   as_code: Governance as Code
   as_data: Attestation as Data
   id: '6'
+  code_by:
+  - E.36
+  - E.37
+  data_by:
+  - '9.15'
+  - '9.14'
 questions:
 - id: Q1
   title: Is there any signal beyond node popularity?
