@@ -224,3 +224,58 @@ def test_no_open_update_is_a_success_not_a_refusal() -> None:
 
     decided = decide_all([])
     assert decided.merging == () and decided.waiting == ()
+
+
+def test_the_command_emits_an_envelope(monkeypatch: pytest.MonkeyPatch) -> None:
+    """ONLY gh IS STUBBED: it is the one external boundary, a subprocess.
+
+    The first version replaced open_updates and merge_one -- my own functions
+    -- so neither body ran, and open_updates called a function that did not
+    exist while eighteen tests stayed green. Never mock your own code calling
+    your own code; over-mocking produces tests that pass while the code is
+    broken.
+    """
+    from otsafety_tooling.git import deps
+
+    monkeypatch.setattr(deps, "gh", lambda *args, check=True: "[]")
+    assert deps.main([]) == 0
+
+
+def test_a_held_update_never_reaches_the_merge(monkeypatch: pytest.MonkeyPatch) -> None:
+    """THE CONSEQUENCE, not the arithmetic: nothing merges what the rule held.
+
+    gh is stubbed with what the real command prints, so open_updates, kind_of,
+    read_update, may_merge and decide_all all execute. merge_existing is the
+    only other seam replaced, because merging for real would need a network and
+    a repository -- it is the boundary this command acts through.
+    """
+    from otsafety_tooling.git import deps
+
+    listed = (
+        '[{"number":1,"author":{"login":"app/dependabot"},'
+        '"files":[{"path":"apps/site/bun.lock"}]},'
+        '{"number":68,"author":{"login":"app/dependabot"},'
+        '"files":[{"path":".github/workflows/test-site.yml"}]},'
+        '{"number":99,"author":{"login":"ltphongssvn"},"files":[]}]'
+    )
+    bodies = {
+        "1": "  update-type: version-update:semver-patch",
+        "68": "  update-type: version-update:semver-major",
+    }
+
+    def fake_gh(*args: str, check: bool = True) -> str:
+        if args[:2] == ("pr", "list"):
+            return listed
+        return bodies[args[2]]
+
+    merged: list[int] = []
+
+    def fake_merge(number: int) -> int:
+        merged.append(number)
+        return 0
+
+    monkeypatch.setattr(deps, "gh", fake_gh)
+    monkeypatch.setattr(deps, "merge_existing", fake_merge)
+
+    assert deps.main([]) == 0
+    assert merged == [1], f"the rule held 68 back and something merged it anyway: {merged}"
