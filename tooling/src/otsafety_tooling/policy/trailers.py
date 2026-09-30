@@ -27,6 +27,7 @@ from pydantic import BaseModel, ConfigDict
 from otsafety_tooling.cli import result
 from otsafety_tooling.contracts.files import parse_yaml
 from otsafety_tooling.contracts.plan import ProjectPlan
+from otsafety_tooling.git.deps import BOT_COMMIT_ADDRESSES
 from otsafety_tooling.git.env import git
 from otsafety_tooling.paths import REPO_ROOT
 from otsafety_tooling.planning.status import staged_facts, unmet
@@ -84,7 +85,7 @@ def claimed_done(message: str) -> list[str]:
     return [value for key, value in _trailers(_as_stored(message)) if key.lower() == DONE.lower()]
 
 
-DEPENDENCY_BOTS = frozenset({"49699333+dependabot[bot]@users.noreply.github.com"})
+DEPENDENCY_BOTS = BOT_COMMIT_ADDRESSES
 
 
 def problems(
