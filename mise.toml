@@ -858,6 +858,19 @@ run = "uv run --no-sync python -m otsafety_tooling.git.pr"
 description = "Merge the dependency updates the rule allows; a major or a workflow change waits"
 run = "uv run --no-sync python -m otsafety_tooling.git.deps"
 
+[tasks."history:log"]
+description = "Find every commit whose message says a thing, or read one whole by its sha"
+# TWO VERBS, PARSED BY THE MODULE:
+#
+#   mise run history:log atomic          which commits say it
+#   mise run history:log show <sha>      one of them, whole
+#
+# A SEARCH NAMES WHICH; A READ FETCHES ONE. Carrying every matched body put
+# 83,525 bytes in one envelope, past the 64 KiB the run records hold
+# themselves to; identifiers and subjects are 7,832.
+raw_args = true
+run = 'uv run --no-sync python -m otsafety_tooling.git.history'
+
 [tasks."pr:merge"]
 description = "Verify and merge an existing PR into develop by number, without checking it out"
 # For Dependabot updates and branches opened on another machine. The same

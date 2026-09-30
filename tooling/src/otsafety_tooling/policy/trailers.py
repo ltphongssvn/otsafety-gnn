@@ -29,6 +29,7 @@ from otsafety_tooling.contracts.files import parse_yaml
 from otsafety_tooling.contracts.plan import ProjectPlan
 from otsafety_tooling.git.deps import BOT_COMMIT_ADDRESSES
 from otsafety_tooling.git.env import git
+from otsafety_tooling.git.history import LOG_FORMAT, parse_log
 from otsafety_tooling.paths import REPO_ROOT
 from otsafety_tooling.planning.status import staged_facts, unmet
 
@@ -135,18 +136,23 @@ def plan_steps(root: Path, ref: str) -> frozenset[str]:
 
 
 def commits_since_cutoff(root: Path) -> list[tuple[str, str, bool, str]]:
-    """(sha, message, is_merge, author) for every commit from the cutoff to HEAD."""
-    shown = git("log", "--format=%H%x00%P%x00%ae%x00%B%x1e", f"{CUTOFF}^..HEAD", cwd=root)
+    """(sha, message, is_merge, author) for every commit from the cutoff to HEAD.
+
+    READ THROUGH THE ONE HISTORY READER. This framed its records with the ASCII
+    record separator and its fields with NUL, which assumes a commit body never
+    contains \x1e. A commit message is arbitrary bytes, so anyone who can write
+    a commit could split one record into two -- and this function decides
+    whether every commit names a plan step, so a forged record is a forged
+    claim about the history. NUL frames both now, and the field count is the
+    frame: a short or forged record is discarded rather than half-read.
+    """
+    shown = git("log", f"--format={LOG_FORMAT}", f"{CUTOFF}^..HEAD", cwd=root)
     if shown.returncode != 0:
         raise SystemExit(f"cannot read history since {CUTOFF}: {shown.stderr.strip()}")
-    out: list[tuple[str, str, bool, str]] = []
-    for record in shown.stdout.split("\x1e"):
-        record = record.strip("\n")
-        if not record:
-            continue
-        sha, parents, author, message = record.split("\x00", 3)
-        out.append((sha, message, len(parents.split()) > 1, author))
-    return out
+    return [
+        (commit.sha, commit.message, commit.is_merge, commit.author)
+        for commit in parse_log(shown.stdout)
+    ]
 
 
 def main(argv: list[str]) -> int:
