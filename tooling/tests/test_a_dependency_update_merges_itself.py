@@ -279,3 +279,24 @@ def test_a_held_update_never_reaches_the_merge(monkeypatch: pytest.MonkeyPatch) 
 
     assert deps.main([]) == 0
     assert merged == [1], f"the rule held 68 back and something merged it anyway: {merged}"
+
+
+def test_the_task_exists_and_calls_the_module() -> None:
+    """EVERY OPERATION IS A TASK. A command reachable only by a raw invocation
+    is one nobody runs the same way twice, and this repository's rule is that
+    git and gh are never called by hand.
+    """
+    from otsafety_tooling.contracts.files import read_toml
+    from otsafety_tooling.contracts.mise_config import MiseConfig
+    from otsafety_tooling.paths import REPO_ROOT
+
+    tasks = read_toml(REPO_ROOT / "mise.toml", MiseConfig).tasks
+    assert "deps:merge" in tasks, "the command has no task, so it can only be run raw"
+    assert "otsafety_tooling.git.deps" in (tasks["deps:merge"].run or "")
+
+
+def test_the_task_says_what_it_changes() -> None:
+    """A task that merges pull requests is not a read: the tour must mark it."""
+    from otsafety_tooling.tour import CHANGES_THE_WORLD
+
+    assert "deps:merge" in CHANGES_THE_WORLD

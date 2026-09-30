@@ -34,6 +34,7 @@ CHANGES_THE_WORLD = frozenset(
         "pr",
         "pr:merge",
         "deploy:site",
+        "deps:merge",
         "release:promote",
         "release:version",
         "repo:configure",

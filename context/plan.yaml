@@ -2284,7 +2284,8 @@ steps:
     serves:
       - {loop: instrument, side: code}
     done_when:
-      - {kind: path, path: tooling/tests/test_dependency_updates_merge.py}
+      - {kind: task, name: 'deps:merge'}
+      - {kind: proof, test: 'tooling/tests/test_a_dependency_update_merges_itself.py::test_a_held_update_never_reaches_the_merge'}
   - id: G.69
     title: A merged pull request is undone by reverting it, never by rewriting lineage
     thread: G
