@@ -22,6 +22,7 @@ bumps, and why this repository pins every action to a commit SHA.
 from __future__ import annotations
 
 import re
+from collections.abc import Sequence
 from typing import Literal, cast
 
 from pydantic import BaseModel, ConfigDict, JsonValue, PositiveInt
@@ -161,6 +162,38 @@ def read_update(reported: JsonValue, *, commit_body: str, previous: str | None =
         kind=kind_of(commit_body, previous=previous),
         touches_workflows=any(f.path.startswith(WORKFLOWS) for f in shape.files),
     )
+
+
+class Held(_Strict):
+    """An update left for a person, with the reason it was left."""
+
+    number: PositiveInt
+    why: str
+
+
+class Decided(_Strict):
+    """Every open update, split by what the rule allows.
+
+    BOTH SIDES ARE CARRIED. A command reporting only what it merged hides what
+    it left, which is how a major bump sits for weeks with nobody reminded that
+    it is waiting. The envelope names the ones held back and why.
+    """
+
+    merging: tuple[Update, ...] = ()
+    waiting: tuple[Held, ...] = ()
+
+
+def decide_all(updates: Sequence[Update]) -> Decided:
+    """Judge every open update; nothing to merge is an outcome, not a failure."""
+    merging: list[Update] = []
+    waiting: list[Held] = []
+    for update in updates:
+        verdict = may_merge(update)
+        if verdict.allowed:
+            merging.append(update)
+        else:
+            waiting.append(Held(number=update.number, why=verdict.why))
+    return Decided(merging=tuple(merging), waiting=tuple(waiting))
 
 
 def may_merge(update: Update) -> Verdict:

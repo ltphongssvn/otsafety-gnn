@@ -197,3 +197,30 @@ def test_a_pull_request_from_a_person_is_refused_before_anything_else() -> None:
             {"number": 10, "author": {"login": "ltphongssvn"}, "files": []},
             commit_body="  update-type: version-update:semver-patch",
         )
+
+
+def test_the_command_reports_a_verdict_for_every_open_update() -> None:
+    """Every update is judged and said aloud, merged or not.
+
+    A COMMAND THAT ONLY REPORTS WHAT IT DID hides the ones it left, which is
+    how a major bump sits unnoticed for weeks. The envelope carries both.
+    """
+    from otsafety_tooling.git.deps import Update, decide_all
+
+    decided = decide_all(
+        [
+            Update.model_validate({"number": 1, "kind": "patch", "touches_workflows": False}),
+            Update.model_validate({"number": 68, "kind": "major", "touches_workflows": True}),
+        ]
+    )
+    assert [d.number for d in decided.merging] == [1]
+    assert [d.number for d in decided.waiting] == [68]
+    assert decided.waiting[0].why
+
+
+def test_no_open_update_is_a_success_not_a_refusal() -> None:
+    """Nothing to merge is an outcome, not a failure."""
+    from otsafety_tooling.git.deps import decide_all
+
+    decided = decide_all([])
+    assert decided.merging == () and decided.waiting == ()
