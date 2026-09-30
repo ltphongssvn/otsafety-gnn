@@ -854,6 +854,10 @@ description = "Open (or reuse) a PR into develop and block until it is merged"
 # merge happened. See tooling/src/otsafety_tooling/git/pr.py.
 run = "uv run --no-sync python -m otsafety_tooling.git.pr"
 
+[tasks."deps:merge"]
+description = "Merge the dependency updates the rule allows; a major or a workflow change waits"
+run = "uv run --no-sync python -m otsafety_tooling.git.deps"
+
 [tasks."pr:merge"]
 description = "Verify and merge an existing PR into develop by number, without checking it out"
 # For Dependabot updates and branches opened on another machine. The same
