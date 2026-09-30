@@ -2492,6 +2492,25 @@ steps:
     done_when:
       - {kind: task, name: 'history:log'}
       - {kind: proof, test: 'tooling/tests/test_history_cannot_be_forged.py::test_a_body_holding_the_record_separator_forges_nothing'}
+  - id: G.85
+    title: The SLSA Source Level is computed from evidence and attested, never asserted
+    thread: G
+    phase: 8G
+    depends_on: [E.37, G.5, '6.5']
+    source: 'SLSA v1.2 approved the Source Track in November 2025, and its requirement is explicit: an attestation MUST state
+      the level of any revision at L1 or above, so a repository claiming a level without one claims nothing checkable. This
+      repository already meets much of L2 and L3 -- history rewriting banned, branch protection and required checks as data
+      -- and says so nowhere a consumer could verify. L4 needs two reviewers and is honestly out of reach for one maintainer,
+      which the attestation must state rather than quietly omit'
+    because: {E.37: the envelope and statement shapes an attestation is written in are declared there, G.5: 'the rule judges
+        the evidence, and the policy engine is what runs it', '6.5': branch protection as data is the evidence a control was
+        enforced}
+    serves:
+      - {loop: constrain, side: data}
+    done_when:
+      - {kind: task, name: 'slsa:source'}
+      - {kind: path, path: policy/slsa.rego}
+      - {kind: proof, test: 'tooling/tests/test_the_source_level_is_attested.py::test_a_level_is_computed_not_claimed'}
 decisions:
   - {id: X.SPIKE, title: 'Reference spike, the original thread B', state: superseded, reason: 'thread B dissolved by the rule
       change moving all execution local: the sandbox prototype became reference reading only and every line is re-derived

@@ -4240,3 +4240,16 @@ candidates:
     field count becomes the frame
   maps_to:
   - G.84
+- source: REVIEW2026
+  ref: SLSA v1.2 Source Track, approved November 2025
+  text: four levels from version control through history and provenance and enforced technical controls to two-party review;
+    an attestation must state the level of any revision at level one or above, and source provenance must be created as the
+    branch is updated so the record is contemporaneous
+  maps_to:
+  - G.85
+- source: SESSION
+  ref: the policy reads configuration and cannot see the controls
+  text: fourteen declared policy inputs, none of them a record of branch protection, required checks or whether history was
+    ever rewritten, so a source-track rule would have nothing to judge
+  maps_to:
+  - G.85
