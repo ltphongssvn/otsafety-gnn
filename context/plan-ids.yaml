@@ -735,3 +735,6 @@ issued:
 - id: G.83
   first_title: A proof is observed failing against a mutant, or it does not count
   retired: false
+- id: G.84
+  first_title: History is read as records through one reader, and a commit body cannot forge one
+  retired: false

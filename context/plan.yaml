@@ -2476,6 +2476,21 @@ steps:
       - {loop: constrain, side: code}
     done_when:
       - {kind: path, path: mutants/mutmut-cicd-stats.json}
+  - id: G.84
+    title: History is read as records through one reader, and a commit body cannot forge one
+    thread: G
+    phase: 8G
+    depends_on: [G.29]
+    source: 'reading history was the one operation with no task, so every question about what this repository had already
+      solved was answered with a raw git log and a grep -- run differently each time and recorded nowhere. Building it found
+      a live defect: commits_since_cutoff framed its records with the ASCII record separator, which a commit body may contain,
+      and that function decides whether every commit names a plan step'
+    because: {G.29: the trailer rule is what reads the history this framing protects}
+    serves:
+      - {loop: constrain, side: code}
+    done_when:
+      - {kind: task, name: 'history:log'}
+      - {kind: proof, test: 'tooling/tests/test_history_cannot_be_forged.py::test_a_body_holding_the_record_separator_forges_nothing'}
 decisions:
   - {id: X.SPIKE, title: 'Reference spike, the original thread B', state: superseded, reason: 'thread B dissolved by the rule
       change moving all execution local: the sandbox prototype became reference reading only and every line is re-derived

@@ -7080,6 +7080,24 @@
         "G.83"
       ],
       "not_a_plan_item": null
+    },
+    {
+      "source": "SESSION",
+      "ref": "every operation is a task, and reading history was not one",
+      "text": "questions about prior solutions were answered with raw git log and grep, which the rule forbids and which leaves no record of what was asked",
+      "maps_to": [
+        "G.84"
+      ],
+      "not_a_plan_item": null
+    },
+    {
+      "source": "REVIEW2026",
+      "ref": "a commit body can forge a record boundary",
+      "text": "a parser separating records with the ASCII record separator assumes that byte never appears in commit metadata, but a commit message is arbitrary bytes; NUL frames both fields and records because git refuses NUL in a message, and the field count becomes the frame",
+      "maps_to": [
+        "G.84"
+      ],
+      "not_a_plan_item": null
     }
   ]
 }

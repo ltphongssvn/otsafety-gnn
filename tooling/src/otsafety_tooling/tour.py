@@ -86,6 +86,7 @@ ABOUT: dict[str, str] = {
     "toolchain": "proving every tool is the pinned binary",
     "nix": "the reproducible environment",
     "deps": "dependency resolution",
+    "history": "what this repository has already said about a thing",
     "branches": "branch state as data",
     "wandb": "Weights and Biases, beside MLflow",
     "ml": "the machine-learning extra",
