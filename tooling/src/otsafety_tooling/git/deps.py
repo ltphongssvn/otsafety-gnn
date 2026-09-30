@@ -22,15 +22,17 @@ bumps, and why this repository pins every action to a commit SHA.
 from __future__ import annotations
 
 import re
-from typing import Literal
+from typing import Literal, cast
 
-from pydantic import BaseModel, ConfigDict, PositiveInt
+from pydantic import BaseModel, ConfigDict, JsonValue, PositiveInt
 
 # ONE ACTOR, TWO IDENTIFIERS. gh reports a pull request's author as
 # "app/dependabot"; a commit carries "49699333+dependabot[bot]@users.noreply
 # .github.com". Neither string contains the other, so a rule written against one
 # cannot recognise the other -- and the trailer policy learned the address form
 # first, separately. Both are declared here, and that policy reads this set.
+UpdateKind = Literal["patch", "minor", "major"]
+
 BOT = "app/dependabot"
 BOT_COMMIT_ADDRESSES = frozenset({"49699333+dependabot[bot]@users.noreply.github.com"})
 
@@ -48,7 +50,7 @@ _STATED = re.compile(r"update-type:\s*version-update:semver-(patch|minor|major)"
 _VERSION = re.compile(r"dependency-version:\s*([0-9]+)")
 
 
-def kind_of(commit_body: str, previous: str | None = None) -> str:
+def kind_of(commit_body: str, previous: str | None = None) -> UpdateKind:
     """The update's size, taken from the trailer Dependabot writes.
 
     NOTHING PARSES THE PROSE. Dependabot states the type in a machine-readable
@@ -66,7 +68,9 @@ def kind_of(commit_body: str, previous: str | None = None) -> str:
             "no update-type trailer: the size of this update is unstated, and an "
             "unstated update is not a patch"
         )
-    stated = found.group(1)
+    # THE REGEX CAPTURES EXACTLY THE THREE, so the cast states what the
+    # pattern already guarantees rather than widening the return to str.
+    stated: UpdateKind = cast("UpdateKind", found.group(1))
 
     if previous is None:
         return stated
@@ -87,6 +91,28 @@ class _Strict(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
 
+class _Author(_Strict):
+    login: str
+
+
+class _ChangedFile(_Strict):
+    path: str
+
+
+class PullRequestShape(BaseModel):
+    """What gh --json reports, as much of it as this rule reads.
+
+    extra="ignore": gh returns many fields beyond these three, and forbidding
+    them would refuse a pull request for carrying information we do not need.
+    """
+
+    model_config = ConfigDict(frozen=True, extra="ignore")
+
+    number: PositiveInt
+    author: _Author
+    files: tuple[_ChangedFile, ...] = ()
+
+
 class Update(_Strict):
     """One open dependency pull request, as the verdict needs to see it.
 
@@ -95,7 +121,7 @@ class Update(_Strict):
     """
 
     number: PositiveInt
-    kind: Literal["patch", "minor", "major"]
+    kind: UpdateKind
     touches_workflows: bool
 
 
@@ -104,6 +130,37 @@ class Verdict(_Strict):
 
     allowed: bool
     why: str
+
+
+class NotTheBotError(RuntimeError):
+    """This pull request is not a dependency update, so no verdict applies."""
+
+
+WORKFLOWS = ".github/workflows/"
+
+
+def read_update(reported: JsonValue, *, commit_body: str, previous: str | None = None) -> Update:
+    """One open pull request as gh reports it, read into the shape a verdict needs.
+
+    FROM THE JSON, NOT THE HUMAN OUTPUT. gh --json gives the author's login, the
+    number and the changed paths; its default rendering is for a terminal and
+    changes with the tool.
+
+    THE AUTHOR IS CHECKED FIRST, and a person's pull request raises rather than
+    returning "not allowed": a verdict about whether a dependency update may
+    merge says nothing about work somebody wrote.
+    """
+    shape = PullRequestShape.model_validate(reported)
+    if not is_the_bot(shape.author.login):
+        raise NotTheBotError(
+            f"PR #{shape.number} is by {shape.author.login}, not {BOT}: "
+            "this rule judges dependency updates and nothing else"
+        )
+    return Update(
+        number=shape.number,
+        kind=kind_of(commit_body, previous=previous),
+        touches_workflows=any(f.path.startswith(WORKFLOWS) for f in shape.files),
+    )
 
 
 def may_merge(update: Update) -> Verdict:
