@@ -149,3 +149,51 @@ def test_the_bot_is_named_as_github_reports_it() -> None:
     assert DEPENDENCY_BOTS is BOT_COMMIT_ADDRESSES, (
         "the trailer policy keeps its own copy of the bot's address"
     )
+
+
+def test_an_open_update_is_read_from_what_gh_reports() -> None:
+    """The fields are taken from gh's JSON, not from its human output."""
+    from otsafety_tooling.git.deps import read_update
+
+    update = read_update(
+        {
+            "number": 68,
+            "author": {"login": "app/dependabot"},
+            "files": [{"path": ".github/workflows/test-site.yml"}],
+        },
+        commit_body=(
+            "- dependency-name: actions/upload-artifact\n"
+            "  dependency-version: 7.0.1\n"
+            "  update-type: version-update:semver-major"
+        ),
+        previous="4.6.2",
+    )
+    assert update.number == 68
+    assert update.kind == "major"
+    assert update.touches_workflows
+
+
+def test_a_pull_request_changing_no_workflow_says_so() -> None:
+    from otsafety_tooling.git.deps import read_update
+
+    update = read_update(
+        {
+            "number": 9,
+            "author": {"login": "app/dependabot"},
+            "files": [{"path": "apps/site/bun.lock"}],
+        },
+        commit_body="  update-type: version-update:semver-patch",
+    )
+    assert not update.touches_workflows
+    assert update.kind == "patch"
+
+
+def test_a_pull_request_from_a_person_is_refused_before_anything_else() -> None:
+    """Not merely 'not allowed': it is not a dependency update at all."""
+    from otsafety_tooling.git.deps import NotTheBotError, read_update
+
+    with pytest.raises(NotTheBotError):
+        read_update(
+            {"number": 10, "author": {"login": "ltphongssvn"}, "files": []},
+            commit_body="  update-type: version-update:semver-patch",
+        )
