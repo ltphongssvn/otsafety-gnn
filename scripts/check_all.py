@@ -59,6 +59,12 @@ ANYWHERE, LOCAL = "anywhere", "local"
 BOUND = 600
 
 GATES: list[tuple[str, list[str], str, bool]] = [
+    # BEFORE EVERYTHING, AND IT COSTS MILLISECONDS. Every gate below answers a
+    # question about the tree this branch forked from; if the base has moved,
+    # those answers are about a repository that no longer exists. Cheapest
+    # first is the ordering 2026 practice settles on, and a freshness check
+    # running late reports on state the run itself has already changed.
+    ("start:fresh", ["mise", "run", "start:fresh"], ANYWHERE, True),
     # FIRST: every later gate runs on tools proved to be the pinned binaries.
     ("toolchain:verify", ["mise", "run", "toolchain:verify"], ANYWHERE, True),
     ("lint", ["mise", "run", "lint"], ANYWHERE, True),

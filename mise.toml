@@ -626,6 +626,10 @@ esac
 echo "on $branch (not protected)"
 '''
 
+[tasks."start:fresh"]
+description = "Refuse this branch if origin/develop has moved since it was cut"
+run = "uv run --no-sync python -m otsafety_tooling.git.freshness"
+
 [tasks."start:here"]
 description = "Cut a feature branch from origin/develop in THIS shell"
 # PRINTS the command instead of running it: a task runs in a subshell and

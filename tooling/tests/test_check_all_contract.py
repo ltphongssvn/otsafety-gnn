@@ -74,18 +74,21 @@ def _fake(results: dict[str, int], envelopes: dict[str, str] | None = None) -> _
 def test_every_gate_passing_is_one_envelope(
     monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
+    """THE EXPECTED LIST IS DERIVED, NOT RESTATED.
+
+    This named four gates in order, so adding one to the aggregate failed here
+    for no reason but the restatement -- the hand-written-list fragility that
+    already cost the pre-push hook eight gates. The fast set is read from GATES
+    itself; what this asserts is that every fast gate appears, in that order.
+    """
     module = _module()
     monkeypatch.setattr(module.subprocess, "run", _fake({}))
     code = module.main(["--fast"])
     envelope = _envelope(capsys.readouterr().out)
     assert code == 0 and envelope.command == "check"
     assert envelope.code == "gates_passed"
-    assert [gate["name"] for gate in _gates(envelope)] == [
-        "toolchain:verify",
-        "lint",
-        "types",
-        "test",
-    ]
+    expected = [name for name, _, _, fast in module.GATES if fast]
+    assert [gate["name"] for gate in _gates(envelope)] == expected
     assert all(gate["passed"] for gate in _gates(envelope))
 
 
@@ -104,7 +107,12 @@ def test_a_failing_gate_is_refused_and_named(
 def test_a_gates_own_envelope_is_carried(
     monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    """The gate's verdict is data it already produced; the aggregate keeps it."""
+    """The gate's verdict is data it already produced; the aggregate keeps it.
+
+    THE GATE IS NAMED, NOT POSITIONAL. This read gates[0] and expected
+    toolchain:verify, so it broke when a cheaper gate moved ahead of it -- a
+    test that asserts an ordering it does not care about.
+    """
     module = _module()
     inner = (
         '{"contract":"command-outcome/v1","command":"toolchain:verify","outcome":"success",'
@@ -113,8 +121,8 @@ def test_a_gates_own_envelope_is_carried(
     monkeypatch.setattr(module.subprocess, "run", _fake({}, {"toolchain:verify": inner}))
     module.main(["--fast"])
     envelope = _envelope(capsys.readouterr().out)
-    first = _gates(envelope)[0]
-    assert first["outcome"] == {"code": "tools_pinned", "outcome": "success"}
+    carried = next(g for g in _gates(envelope) if g["name"] == "toolchain:verify")
+    assert carried["outcome"] == {"code": "tools_pinned", "outcome": "success"}
 
 
 def test_every_gate_is_bounded_in_time() -> None:
