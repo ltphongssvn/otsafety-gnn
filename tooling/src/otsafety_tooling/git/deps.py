@@ -22,10 +22,15 @@ bumps, and why this repository pins every action to a commit SHA.
 from __future__ import annotations
 
 import re
+import sys
 from collections.abc import Sequence
 from typing import Literal, cast
 
 from pydantic import BaseModel, ConfigDict, JsonValue, PositiveInt
+
+from otsafety_tooling.cli import CommandRefused, note, refusal
+from otsafety_tooling.cli import result as emit_result
+from otsafety_tooling.git.pr import gh, merge_existing
 
 # ONE ACTOR, TWO IDENTIFIERS. gh reports a pull request's author as
 # "app/dependabot"; a commit carries "49699333+dependabot[bot]@users.noreply
@@ -218,3 +223,87 @@ def may_merge(update: Update) -> Verdict:
         allowed=True,
         why=f"PR #{update.number} is a {update.kind} bump touching no workflow",
     )
+
+
+class UpdatesDecided(_Strict):
+    """What the run merged and what it left, both named."""
+
+    merged: tuple[int, ...]
+    waiting: tuple[Held, ...]
+
+
+OPEN_FIELDS = "number,author,files"
+
+
+class _OpenList(BaseModel):
+    """gh returns a JSON ARRAY; a model parses it, because raw parsing is banned.
+
+    RootModel IS THE SHAPE FOR A TOP-LEVEL ARRAY. files.py reads paths and YAML
+    strings and has no reader for a JSON string, and pr.py meets the same
+    boundary with model_validate_json on the model itself.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    entries: tuple[PullRequestShape, ...]
+
+
+def open_updates() -> tuple[Update, ...]:
+    """Every open pull request the bot opened, read through the model.
+
+    THE COMMIT BODY CARRIES THE UPDATE TYPE, so each pull request is asked for
+    its commits as well: gh does not put the trailer in the pull request's own
+    fields, and the body's prose is for people.
+    """
+    listed = _OpenList.model_validate_json(
+        '{"entries": ' + gh("pr", "list", "--state", "open", "--json", OPEN_FIELDS) + "}"
+    )
+    out: list[Update] = []
+    for shape in listed.entries:
+        if not is_the_bot(shape.author.login):
+            continue
+        body = gh(
+            "pr", "view", str(shape.number), "--json", "commits", "--jq", ".commits[].messageBody"
+        )
+        out.append(
+            Update(
+                number=shape.number,
+                kind=kind_of(body),
+                touches_workflows=any(f.path.startswith(WORKFLOWS) for f in shape.files),
+            )
+        )
+    return tuple(out)
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Judge every open update, merge what the rule allows, and say what waits."""
+    try:
+        return _dispatch(argv)
+    except CommandRefused as error:
+        return refusal("deps:merge", error)
+
+
+def _dispatch(argv: list[str] | None = None) -> int:
+    args = sys.argv[1:] if argv is None else argv
+    if args:
+        raise CommandRefused("usage", "usage: python -m otsafety_tooling.git.deps")
+
+    decided = decide_all(open_updates())
+    for update in decided.merging:
+        note(f"merging PR #{update.number}: a {update.kind} bump touching no workflow")
+        merge_existing(update.number)
+    for held in decided.waiting:
+        note(f"waiting: {held.why}")
+
+    merged = tuple(u.number for u in decided.merging)
+    return emit_result(
+        "deps:merge",
+        "success",
+        "updates_decided",
+        f"{len(merged)} merged, {len(decided.waiting)} waiting for a person",
+        UpdatesDecided(merged=merged, waiting=decided.waiting),
+    )
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
