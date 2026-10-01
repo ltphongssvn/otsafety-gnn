@@ -747,3 +747,6 @@ issued:
 - id: G.87
   first_title: Whether the evidence establishes the claim is reviewed, recorded, and never gated
   retired: false
+- id: G.88
+  first_title: A change to several files is validated whole and published together, or not at all
+  retired: false

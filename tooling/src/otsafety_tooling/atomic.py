@@ -23,6 +23,10 @@ THE SEQUENCE, AND WHY EACH STEP IS THERE:
 A FAILURE BEFORE THE REPLACE TOUCHES NOTHING. The staged file is removed and the
 original stands, which is the whole guarantee: a reader sees the complete old
 record or the complete new one, never a fragment of either.
+
+STAGING AND PUBLISHING ARE SEPARATE STEPS, so a change to several files can
+stage all of them before publishing any. write_bytes is the two in sequence and
+behaves exactly as it did before they were split.
 """
 
 from __future__ import annotations
@@ -39,6 +43,23 @@ def write_text(path: Path, text: str, *, encoding: str = "utf-8") -> None:
 
 def write_bytes(path: Path, data: bytes) -> None:
     """Replace `path` with `data`, atomically, or leave it as it was."""
+    staged = stage(path, data)
+    try:
+        os.replace(staged, path)
+    except BaseException:
+        # NOTHING PARTIAL IS PUBLISHED. The staged file goes and the original
+        # stands exactly as it was.
+        staged.unlink(missing_ok=True)
+        raise
+    sync_directory(path.parent)
+
+
+def stage(path: Path, data: bytes) -> Path:
+    """Write `data` beside `path`, flushed, synced and carrying its mode.
+
+    Returns the staged file, which nobody reads until it is published over
+    `path`. On any failure the staged file is removed and nothing else changed.
+    """
     folder = path.parent
     folder.mkdir(parents=True, exist_ok=True)
     # THE MODE TO RESTORE, read before anything is staged: mkstemp creates at
@@ -53,15 +74,18 @@ def write_bytes(path: Path, data: bytes) -> None:
             os.fsync(writing.fileno())
         if mode is not None:
             os.chmod(staged, mode)
-        os.replace(staged, path)
     except BaseException:
-        # NOTHING PARTIAL IS PUBLISHED. The staged file goes and the original
-        # stands exactly as it was.
         Path(staged).unlink(missing_ok=True)
         raise
+    return Path(staged)
 
-    # THE RENAME IS ATOMIC TO ANOTHER PROCESS AND NOT YET DURABLE. Syncing the
-    # directory is what makes the new entry survive losing power here.
+
+def sync_directory(folder: Path) -> None:
+    """Make a directory's entries durable.
+
+    THE RENAME IS ATOMIC TO ANOTHER PROCESS AND NOT YET DURABLE. Syncing the
+    directory is what makes the new entry survive losing power here.
+    """
     opened = os.open(folder, os.O_RDONLY)
     try:
         os.fsync(opened)
