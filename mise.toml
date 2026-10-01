@@ -76,6 +76,18 @@ description = "Resolve new or changed dependencies into uv.lock, upgrading nothi
 # exactly this lock with --locked. Upgrades are a separate, deliberate task.
 run = "uv lock"
 
+[tasks."deps:install"]
+description = "Install exactly what uv.lock names: the project, its workspace members and its dev tools"
+# FOR A RUNNER, WHICH NEEDS NO HOOKS AND NO SITE. setup does all three for a
+# person; CI wants the environment alone.
+#
+# A TASK, SO IT SHARES THE GATES' CACHE. The workflow ran this as a raw command,
+# outside mise, so on the runner it wrote uv's default cache while every gate,
+# run through mise under the ood profile, read UV_CACHE_DIR from inside the
+# checkout. The offline type check then found none of the wheels the install
+# had just downloaded. Run here, both read the same cache by construction.
+run = "uv sync --frozen"
+
 # --- Onboarding ---------------------------------------------------------------
 
 [tasks.setup]

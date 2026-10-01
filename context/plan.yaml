@@ -222,6 +222,7 @@ steps:
       - {kind: task, name: 'nix:flake-check'}
       - {kind: task, name: 'start:check'}
       - {kind: task, name: 'start:switch'}
+      - {kind: task, name: 'deps:install'}
   - id: '6.4'
     title: Evidence root and run records with live PTY output
     thread: B

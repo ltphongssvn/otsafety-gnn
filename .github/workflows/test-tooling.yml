@@ -63,8 +63,12 @@ jobs:
       # a task must not change what is installed merely by starting. uv sync
       # installs the project and its workspace members as editable packages, and
       # --frozen holds the committed lockfile exactly.
+      # THROUGH THE TASK, SO THE INSTALL AND THE GATES READ ONE CACHE. As a raw
+      # command this ran outside mise and wrote uv's default cache, while the
+      # gates read the ood profile's cache inside the checkout -- so the offline
+      # type check could not find a wheel installed two steps earlier.
       - name: Install the Python environment from uv.lock
-        run: uv sync --frozen
+        run: mise run deps:install
 
       - name: Prove the toolchain
         run: mise run toolchain:verify

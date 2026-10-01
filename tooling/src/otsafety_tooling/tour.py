@@ -37,6 +37,7 @@ CHANGES_THE_WORLD = frozenset(
         "deps:merge",
         "slsa:source",
         "review:install",
+        "deps:install",
         "release:promote",
         "release:version",
         "repo:configure",
