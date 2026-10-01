@@ -741,3 +741,6 @@ issued:
 - id: G.85
   first_title: The SLSA Source Level is computed from evidence and attested, never asserted
   retired: false
+- id: G.86
+  first_title: A decision is signed, verified from its signature, and the trail is queryable
+  retired: false

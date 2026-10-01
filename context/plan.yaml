@@ -2493,7 +2493,7 @@ steps:
       - {kind: task, name: 'history:log'}
       - {kind: proof, test: 'tooling/tests/test_history_cannot_be_forged.py::test_a_body_holding_the_record_separator_forges_nothing'}
   - id: G.85
-    title: The SLSA Source Level is computed from evidence and attested, never asserted
+    title: The SLSA Source Level is computed from evidence and enforced by policy
     thread: G
     phase: 8G
     depends_on: [E.37, G.5, '6.5']
@@ -2501,7 +2501,9 @@ steps:
       the level of any revision at L1 or above, so a repository claiming a level without one claims nothing checkable. This
       repository already meets much of L2 and L3 -- history rewriting banned, branch protection and required checks as data
       -- and says so nowhere a consumer could verify. L4 needs two reviewers and is honestly out of reach for one maintainer,
-      which the attestation must state rather than quietly omit'
+      which the attestation must state rather than quietly omit -- the title first said ''and attested'', which its acceptance
+      criteria never tested: a task, a Rego rule and a test cannot observe a signature. Attestation, verification and the
+      audit trail are their own step'
     because: {E.37: the envelope and statement shapes an attestation is written in are declared there, G.5: 'the rule judges
         the evidence, and the policy engine is what runs it', '6.5': branch protection as data is the evidence a control was
         enforced}
@@ -2511,6 +2513,21 @@ steps:
       - {kind: task, name: 'slsa:source'}
       - {kind: path, path: policy/slsa.rego}
       - {kind: proof, test: 'tooling/tests/test_the_source_level_is_attested.py::test_a_level_is_computed_not_claimed'}
+  - id: G.86
+    title: A decision is signed, verified from its signature, and the trail is queryable
+    thread: G
+    phase: 8G
+    depends_on: [G.85, E.37]
+    source: the Source Level is measured, recorded and enforced, and nothing signs the record. A predicate document without
+      a signature is a file anyone could have written, which is what E.37 established the envelope shapes for; nothing reads
+      one back, so a tampered record is indistinguishable from an honest one; and the append-only trail accumulates with no
+      way to ask what it holds, which is a drawer rather than an audit
+    because: {G.85: 'the decision record this signs is written there, and judged by its policy', E.37: the envelope and statement
+        shapes a signature is carried in are declared there}
+    serves:
+      - {loop: constrain, side: data}
+    done_when:
+      - {kind: task, name: 'slsa:verify'}
 decisions:
   - {id: X.SPIKE, title: 'Reference spike, the original thread B', state: superseded, reason: 'thread B dissolved by the rule
       change moving all execution local: the sandbox prototype became reference reading only and every line is re-derived
