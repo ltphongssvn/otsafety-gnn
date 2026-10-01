@@ -19,19 +19,39 @@
           },
           "digest": {
             "additionalProperties": false,
-            "description": "How a subject is bound: by content, not by name.\n\nSHA-256 IS REQUIRED AND NOT MERELY ALLOWED. An empty digest map validates\nagainst a looser schema and binds the attestation to nothing at all.",
+            "description": "How a subject is bound: by content, not by name.\n\nTWO ALGORITHMS, BECAUSE TWO KINDS OF SUBJECT. A file is bound by the SHA-256\nof its bytes. A git revision is not a file, and the DigestSet specification\ndefines gitCommit for exactly that -- the lowercase hex SHA-1 or SHA-256 of\na commit object -- which v1.1.0 added to the pre-defined algorithms so a\nrevision could be a subject at all. SLSA's own Source VSA binds its subject\nthat way. Hashing a forty-character revision as file content would produce\na number no verifier ever computes.\n\nONE OF THEM IS REQUIRED. An empty digest map validates against a looser\nschema and binds the attestation to nothing.\n\nTHE COST IS KNOWN IN ADVANCE: sigstore-python rejects a statement whose\nsubject uses gitCommit, because its own DigestSet is restricted to SHA-2\nand SHA-3. Signing one through that client means giving up the DSSE\nenvelope -- something the signing step must answer rather than discover.",
             "properties": {
               "sha256": {
-                "pattern": "^[0-9a-f]{64}$",
-                "title": "Sha256",
-                "type": "string"
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Sha256"
+              },
+              "gitCommit": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9a-f]{40}$|^[0-9a-f]{64}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Gitcommit"
               }
             },
-            "required": [
-              "sha256"
-            ],
             "title": "Digest",
-            "type": "object"
+            "type": "object",
+            "required": [
+              "sha256",
+              "gitCommit"
+            ]
           }
         },
         "required": [
@@ -52,7 +72,7 @@
     },
     "predicate": {
       "additionalProperties": {
-        "type": "string"
+        "x-json-value": true
       },
       "minProperties": 1,
       "title": "Predicate",

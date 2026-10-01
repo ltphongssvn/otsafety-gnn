@@ -9,9 +9,8 @@ written, and that the signature is what gives it evidentiary value.
 
 THE SHAPE IS THE ONE THE ECOSYSTEM ALREADY VERIFIES. A DSSE envelope pins the
 exact bytes being signed. Inside it an in-toto statement names its subjects as
-file-path and digest pairs under a declared predicate type, and carries the
-predicate itself -- which is where sigstore's model-transparency project stores
-model card information. Nothing here is invented: a verifier that knows DSSE and
+name and digest pairs under a declared predicate type, and carries the
+predicate itself. Nothing here is invented: a verifier that knows DSSE and
 in-toto can check this without knowing anything about this repository.
 
 IDENTITY RATHER THAN A KEY SOMEONE KEEPS. Keyless signing binds a short-lived
@@ -29,25 +28,60 @@ the record of why it shipped must be one nobody can quietly revise afterwards.
 
 from __future__ import annotations
 
-from typing import ClassVar, Literal
+from typing import ClassVar, Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field
-
-# THE STATEMENT AND PAYLOAD TYPES ARE FIXED BY THE SPECIFICATION, not chosen
-# here, and each is written where it is used: a module constant is str, and that
-# widens the Literal the field declares.
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    JsonValue,
+    model_serializer,
+    model_validator,
+)
 
 
 class Digest(BaseModel):
     """How a subject is bound: by content, not by name.
 
-    SHA-256 IS REQUIRED AND NOT MERELY ALLOWED. An empty digest map validates
-    against a looser schema and binds the attestation to nothing at all.
+    TWO ALGORITHMS, BECAUSE TWO KINDS OF SUBJECT. A file is bound by the SHA-256
+    of its bytes. A git revision is not a file, and the DigestSet specification
+    defines gitCommit for exactly that -- the lowercase hex SHA-1 or SHA-256 of
+    a commit object -- which v1.1.0 added to the pre-defined algorithms so a
+    revision could be a subject at all. SLSA's own Source VSA binds its subject
+    that way. Hashing a forty-character revision as file content would produce
+    a number no verifier ever computes.
+
+    ONE OF THEM IS REQUIRED. An empty digest map validates against a looser
+    schema and binds the attestation to nothing.
+
+    THE COST IS KNOWN IN ADVANCE: sigstore-python rejects a statement whose
+    subject uses gitCommit, because its own DigestSet is restricted to SHA-2
+    and SHA-3. Signing one through that client means giving up the DSSE
+    envelope -- something the signing step must answer rather than discover.
     """
 
-    model_config = ConfigDict(frozen=True, extra="forbid")
+    model_config = ConfigDict(frozen=True, extra="forbid", populate_by_name=True)
 
-    sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    # The wire name is the specification's; the attribute stays usable here.
+    git_commit: str | None = Field(
+        default=None, alias="gitCommit", pattern=r"^[0-9a-f]{40}$|^[0-9a-f]{64}$"
+    )
+
+    @model_validator(mode="after")
+    def _binds_to_something(self) -> Self:
+        if self.sha256 is None and self.git_commit is None:
+            raise ValueError("a digest with no algorithm binds the attestation to nothing")
+        return self
+
+    @model_serializer
+    def _only_the_algorithms_present(self) -> dict[str, str]:
+        """The map the specification describes: names to digests, nothing else."""
+        return {
+            name: value
+            for name, value in (("sha256", self.sha256), ("gitCommit", self.git_commit))
+            if value is not None
+        }
 
 
 class Subject(BaseModel):
@@ -74,7 +108,13 @@ class InTotoStatement(BaseModel):
     subject: tuple[Subject, ...] = Field(min_length=1)
     # A VERIFIER SELECTS ON THIS, so it is an absolute URI rather than a word.
     predicate_type: str = Field(alias="predicateType", pattern=r"^https://\S+$")
-    predicate: dict[str, str] = Field(min_length=1)
+    # THE PREDICATE IS AN ARBITRARY OBJECT, as the specification says: its
+    # predicateType selects the schema, and the statement layer does not know
+    # it. dict[str, str] could not carry a verdict beside an observation and a
+    # time, so a decision had to be flattened into strings to fit -- the
+    # statement being narrower than the framework it implements. Each predicate
+    # is validated by ITS OWN typed model before it is placed here.
+    predicate: dict[str, JsonValue] = Field(min_length=1)
 
 
 class Signature(BaseModel):
