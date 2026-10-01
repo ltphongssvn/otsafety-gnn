@@ -4278,3 +4278,16 @@ candidates:
     and prompt hash, reports variance across repeats rather than smoothing it, and is never an accountability authority
   maps_to:
   - G.87
+- source: SESSION
+  ref: each file atomic, the change not
+  text: multi-file edits were written one file at a time from scripts outside the repository, so a refusal on a later file
+    left earlier ones changed and the repository describing a state no step authorised
+  maps_to:
+  - G.88
+- source: REVIEW2026
+  ref: validate and stage every file before publishing any
+  text: check an optimistic hash and validate every candidate before staging or changing any target, re-check immediately
+    before commit, roll back a committed prefix from in-memory originals, and test it by injecting failures; POSIX gives no
+    cross-path transaction, so a process killed mid-commit is outside the guarantee
+  maps_to:
+  - G.88

@@ -5804,6 +5804,38 @@
           "name": "review:install"
         }
       ]
+    },
+    {
+      "id": "G.88",
+      "title": "A change to several files is validated whole and published together, or not at all",
+      "thread": "G",
+      "phase": "8G",
+      "depends_on": [
+        "G.81",
+        "G.3"
+      ],
+      "branch": null,
+      "source": "every multi-file change this session went through an unreviewed script in /tmp that edited and wrote each file in turn, validating whatever was remembered that time: one parsed the TOML it changed and wrote the workflow YAML unchecked, though a contract for workflows existed. A refusal on the last file would have left the first ones written, describing a task no step claimed. Each file was atomic; the change was not",
+      "because": {
+        "G.81": "a single record is already replaced atomically; this composes those into one change",
+        "G.3": "each candidate is validated through its contract by the sanctioned parsers"
+      },
+      "serves": [
+        {
+          "loop": "constrain",
+          "side": "code"
+        }
+      ],
+      "done_when": [
+        {
+          "kind": "path",
+          "path": "tooling/src/otsafety_tooling/changeset.py"
+        },
+        {
+          "kind": "proof",
+          "test": "tooling/tests/test_a_change_commits_whole.py::test_one_invalid_file_writes_nothing"
+        }
+      ]
     }
   ],
   "decisions": [
