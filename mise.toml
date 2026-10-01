@@ -173,13 +173,19 @@ description = "Strict static type check of the tooling, for both platforms it ru
 # `dir` would start `nix develop` in tooling/, where it has to search upward for
 # flake.nix. `uv run --directory` moves only mypy, which reads its settings
 # from tooling/pyproject.toml.
+#
+# THE ENVIRONMENT CI HAS, ON EVERY MACHINE. Isolated, from the lock, every
+# workspace member, no extras: the runner type-checks before installing any,
+# and a laptop checking its own .venv passed what the runner refused. An
+# undeclared optional import now fails here, before the push. The working
+# .venv and its extras are untouched; --offline keeps the gate off the network.
 run = '''
 set -euo pipefail
-uv run --no-sync --directory tooling mypy --config-file ../pyproject.toml --platform darwin src tests
-uv run --no-sync --directory tooling mypy --config-file ../pyproject.toml --platform linux src tests
+uv run --isolated --frozen --offline --all-packages --directory tooling --project .. mypy --config-file ../pyproject.toml --platform darwin src tests
+uv run --isolated --frozen --offline --all-packages --directory tooling --project .. mypy --config-file ../pyproject.toml --platform linux src tests
 # scripts/ IS STANDALONE: it has no package settings of its own, and it
 # runs before anything is installed, so it is checked strictly as a file.
-uv run --no-sync mypy --config-file pyproject.toml scripts apps/site/tests
+uv run --isolated --frozen --offline --all-packages mypy --config-file pyproject.toml scripts apps/site/tests
 '''
 
 [tasks.test]
