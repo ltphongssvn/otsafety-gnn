@@ -5764,6 +5764,38 @@
           "name": "slsa:verify"
         }
       ]
+    },
+    {
+      "id": "G.87",
+      "title": "Whether the evidence establishes the claim is reviewed, recorded, and never gated",
+      "thread": "G",
+      "phase": "8G",
+      "depends_on": [
+        "G.85",
+        "G.47"
+      ],
+      "branch": null,
+      "source": "the vocabulary rule answers whether a title's words have evidence of a compatible KIND; it cannot answer whether that evidence establishes what the sentence claims. That needs a reader. It must not be a gate: non-determinism in a language model persists even under greedy decoding, originating before the sampling step, so a judge that flips once makes a gate that blocks the same change twice -- and a gate's whole value is that its answer can be reproduced",
+      "because": {
+        "G.85": "the vocabulary rule is the deterministic floor this runs behind, on what it passed",
+        "G.47": "no gate reaches the network, which is why this produces evidence rather than a verdict"
+      },
+      "serves": [
+        {
+          "loop": "constrain",
+          "side": "data"
+        }
+      ],
+      "done_when": [
+        {
+          "kind": "task",
+          "name": "plan:review"
+        },
+        {
+          "kind": "path",
+          "path": "tooling/src/otsafety_tooling/contracts/semantic_review.py"
+        }
+      ]
     }
   ],
   "decisions": [

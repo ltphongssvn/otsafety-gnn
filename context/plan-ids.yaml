@@ -744,3 +744,6 @@ issued:
 - id: G.86
   first_title: A decision is signed, verified from its signature, and the trail is queryable
   retired: false
+- id: G.87
+  first_title: Whether the evidence establishes the claim is reviewed, recorded, and never gated
+  retired: false

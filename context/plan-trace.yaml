@@ -4265,3 +4265,16 @@ candidates:
     acceptance criteria against the claim before execution rather than trusting the report afterwards
   maps_to:
   - G.86
+- source: SESSION
+  ref: three questions of increasing strength about a claim
+  text: does the id appear; does a title's vocabulary have evidence of a compatible kind; does that evidence establish everything
+    the sentence claims -- the first two are mechanical and the third needs a reader
+  maps_to:
+  - G.87
+- source: REVIEW2026
+  ref: a judge cannot be a gate because it cannot be reproduced
+  text: non-determinism persists at temperature zero and under forced greedy decoding because it originates in the forward
+    pass; a judge that flips once blocks the same change twice, so the review records a contract of model id, rubric version
+    and prompt hash, reports variance across repeats rather than smoothing it, and is never an accountability authority
+  maps_to:
+  - G.87
