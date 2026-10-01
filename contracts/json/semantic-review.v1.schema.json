@@ -27,7 +27,8 @@
         "covered",
         "partial",
         "uncovered",
-        "unreadable"
+        "unreadable",
+        "split"
       ],
       "title": "Finding",
       "type": "string"

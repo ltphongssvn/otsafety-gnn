@@ -91,6 +91,7 @@ jobs:
         run: |
           mise run ml:install
           mise run wandb:install
+          mise run review:install
 
       - name: Confirm W&B is offline here, so no run needs a key
         run: mise run wandb:check

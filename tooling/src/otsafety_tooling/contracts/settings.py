@@ -42,6 +42,7 @@ class ProjectSettings(BaseSettings):
     wandb_entity: str | None = Field(default=None, alias="WANDB_ENTITY")
     wandb_api_key: SecretStr | None = Field(default=None, alias="WANDB_API_KEY")
     wandb_dir: Path | None = Field(default=None, alias="WANDB_DIR")
+    anthropic_api_key: SecretStr | None = Field(default=None, alias="ANTHROPIC_API_KEY")
 
     @model_validator(mode="after")
     def _online_lands_somewhere(self) -> Self:

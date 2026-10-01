@@ -41,6 +41,16 @@ exists for, silently dropped. A response format constrains the answer and
 keeps the thinking. That format cannot express string lengths or numeric
 bounds, so this contract enforces them after the response arrives.
 
+AGREEMENT IS NOT ACCURACY. A model can agree with itself out of a shared bias
+as readily as out of being right, and the most consistent frontier models are
+the worst case: self-consistency near 0.8 on most items, and nearly half of
+those wrong. So "unanimous" reports that the repeats matched and nothing more.
+It is never a confidence, and nothing here may present it as one.
+
+REPEATED TRIALS, NOT A PANEL. Asking one judge several times measures how
+stable that judge is; it is not several independent reviewers agreeing, and
+the record says "repeats" for that reason.
+
 DISAGREEMENT IS THE FINDING, NOT NOISE TO SMOOTH. Repeats that split are
 exactly what a reader needs, so the count that agreed travels with the count
 that ran, and no single run becomes the authority. A prompted model is not an
@@ -70,6 +80,12 @@ DATELESS = re.compile(r"^claude-[a-z]+-(?P<major>\d+)(?:-(?P<minor>\d+))?$")
 FIRST_DATELESS_PINNED = (4, 6)
 
 JUDGE_MODEL = "claude-fable-5-1"
+
+# FIVE, AND WHY NOT MORE. Recovering a judge's reference verdict by majority
+# with 95% probability takes about eleven trials on average; five is a cost
+# trade-off against a frontier model's price, odd so a binary split cannot tie.
+# The record carries the count, so a reader sees five and weighs it as five.
+DEFAULT_REPEATS = 5
 FALLBACK_MODEL = "claude-opus-5-5"
 
 
@@ -136,6 +152,6 @@ class SemanticReview(BaseModel):
     # A CLOSED VOCABULARY, because a free-text verdict is prose a harness would
     # have to parse back into a decision -- which is precisely where a
     # judge-driven gate flips on wording rather than on substance.
-    finding: Literal["covered", "partial", "uncovered", "unreadable"]
+    finding: Literal["covered", "partial", "uncovered", "unreadable", "split"]
     rationale: str = Field(min_length=1)
     judge: Judge

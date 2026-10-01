@@ -2544,6 +2544,7 @@ steps:
     done_when:
       - {kind: task, name: 'plan:review'}
       - {kind: path, path: tooling/src/otsafety_tooling/contracts/semantic_review.py}
+      - {kind: task, name: 'review:install'}
 decisions:
   - {id: X.SPIKE, title: 'Reference spike, the original thread B', state: superseded, reason: 'thread B dissolved by the rule
       change moving all execution local: the sandbox prototype became reference reading only and every line is re-derived

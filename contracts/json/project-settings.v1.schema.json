@@ -74,6 +74,20 @@
       ],
       "default": null,
       "title": "Wandb Dir"
+    },
+    "ANTHROPIC_API_KEY": {
+      "anyOf": [
+        {
+          "format": "password",
+          "type": "string",
+          "writeOnly": true
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Anthropic Api Key"
     }
   },
   "title": "ProjectSettings",

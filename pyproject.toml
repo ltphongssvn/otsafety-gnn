@@ -68,7 +68,9 @@ init_typed = true
 # imported inside a function still needs saying so to the type checker.
 # mlflow AND wandb JOIN THEM from the tooling package's own section, which is
 # removed: mypy does not merge configurations, so every override belongs here.
-module = ["playwright.*", "pytest_playwright.*", "pypdf.*", "mlflow.*", "wandb.*"]
+# anthropic JOINS THEM, the fourth time: the review extra is optional, and the
+# type check runs on a runner before any extra is installed.
+module = ["playwright.*", "pytest_playwright.*", "pypdf.*", "mlflow.*", "wandb.*", "anthropic.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]

@@ -255,6 +255,13 @@ description = "Install the wandb extra: Weights & Biases, a first-class tracker 
 # --inexact, like every install task: add this extra without evicting the others.
 run = "uv sync --extra wandb --inexact"
 
+[tasks."review:install"]
+description = "Install the review extra: the Claude SDK the semantic reviewer calls"
+# --inexact, like every install task: add this extra without evicting the others.
+# OPTIONAL BY DESIGN. The reviewer is never a gate -- a language model cannot be
+# reproduced -- so no gate needs this, and a fresh checkout does not install it.
+run = "uv sync --extra review --inexact"
+
 [tasks."e2e:install"]
 description = "Install Playwright and the browser the acceptance tests drive"
 # SEPARATE FROM site:install, AND IT MUST BE. Bundling the two meant the browser
