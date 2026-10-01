@@ -4253,3 +4253,15 @@ candidates:
     ever rewritten, so a source-track rule would have nothing to judge
   maps_to:
   - G.85
+- source: SESSION
+  ref: a step closed on a claim its evidence never tested
+  text: G.85's title said attested while its acceptance criteria named a task, a Rego file and a test, none of which can observe
+    a signature; the criteria must be checked against the claim before the work rather than after
+  maps_to:
+  - G.86
+- source: REVIEW2026
+  ref: records that can carry a check that refuses
+  text: tasks marked complete despite missing artifacts are the failure mode of agent-driven work, and the remedy is validating
+    acceptance criteria against the claim before execution rather than trusting the report afterwards
+  maps_to:
+  - G.86
