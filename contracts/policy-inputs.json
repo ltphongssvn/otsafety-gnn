@@ -3,47 +3,58 @@
   "inputs": [
     {
       "path": "pyproject.toml",
-      "why": "the bans, floors and per-file ignores this policy proves present"
+      "why": "the bans, floors and per-file ignores this policy proves present",
+      "generated": null
     },
     {
       "path": "tooling/pyproject.toml",
-      "why": "the tooling's own settings, including the registered requirement marker"
+      "why": "the tooling's own settings, including the registered requirement marker",
+      "generated": null
     },
     {
       "path": "lefthook.yml",
-      "why": "the floors: what every commit and push must run"
+      "why": "the floors: what every commit and push must run",
+      "generated": null
     },
     {
       "path": ".github/workflows/test-site.yml",
-      "why": "the ceilings CI must run, and its checkout depth"
+      "why": "the ceilings CI must run, and its checkout depth",
+      "generated": null
     },
     {
       "path": ".github/workflows/test-tooling.yml",
-      "why": "the ceilings CI must run, and its checkout depth"
+      "why": "the ceilings CI must run, and its checkout depth",
+      "generated": null
     },
     {
       "path": ".github/workflows/zizmor.yml",
-      "why": "the workflow scanner, pinned rather than latest"
+      "why": "the workflow scanner, pinned rather than latest",
+      "generated": null
     },
     {
       "path": "context/exemptions.yaml",
-      "why": "every declared exemption, checked both ways"
+      "why": "every declared exemption, checked both ways",
+      "generated": null
     },
     {
       "path": "context/sources.yaml",
-      "why": "every data source, its terms, and the artefacts a closed one withholds"
+      "why": "every data source, its terms, and the artefacts a closed one withholds",
+      "generated": null
     },
     {
       "path": "conf/config.yaml",
-      "why": "the ingestion contract, whose MedDRA slot stays empty"
+      "why": "the ingestion contract, whose MedDRA slot stays empty",
+      "generated": null
     },
     {
       "path": "context/plan-ids.yaml",
-      "why": "the ledger: every id ever issued, never reused"
+      "why": "the ledger: every id ever issued, never reused",
+      "generated": null
     },
     {
       "path": "contracts/policy-inputs.json",
-      "why": "this manifest, so the Rego derives what it requires from it"
+      "why": "this manifest, so the Rego derives what it requires from it",
+      "generated": null
     },
     {
       "path": "policy/eslint-effective.json",
@@ -59,6 +70,11 @@
       "path": "policy/command-inventory.json",
       "why": "every command, and whether it reports as data",
       "generated": "uv run python -m otsafety_tooling.policy.inventory"
+    },
+    {
+      "path": "policy/slsa-source.json",
+      "why": "the SLSA Source Level measured of this repository, and the controls it judged",
+      "generated": "uv run python -m otsafety_tooling.slsa.source"
     }
   ]
 }

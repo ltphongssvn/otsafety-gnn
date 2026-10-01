@@ -27,6 +27,7 @@ can only be believed. The observed controls travel with the level they produced.
 
 from __future__ import annotations
 
+import sys
 from collections.abc import Sequence
 from datetime import UTC, datetime
 from pathlib import Path
@@ -34,7 +35,16 @@ from pathlib import Path
 from pydantic import BaseModel, ConfigDict, Field
 
 from otsafety_tooling import atomic
-from otsafety_tooling.contracts.repository_settings import BranchProtection, Verdict
+from otsafety_tooling.artifacts import artifacts_root
+from otsafety_tooling.cli import CommandRefused
+from otsafety_tooling.cli import result as emit_result
+from otsafety_tooling.contracts.repository_settings import (
+    BranchProtection,
+    Verdict,
+    load_desired,
+)
+from otsafety_tooling.git.env import git
+from otsafety_tooling.paths import REPO_ROOT
 
 # THE PREDICATE NAMES WHAT THE DOCUMENT ASSERTS, and SLSA's verification
 # summary is the shape for "a thing was checked and here is the conclusion".
@@ -187,3 +197,52 @@ def record(controls: Controls, *, revision: str, root: Path) -> Path:
     target = folder / f"{stamp}-{revision[:12]}.json"
     atomic.write_text(target, summary.model_dump_json(indent=2) + "\n")
     return target
+
+
+def measure(root: Path) -> Summary:
+    """Observe this repository's source controls and judge them.
+
+    THE OBSERVATION IS THE DECLARED PROTECTION, not a second copy of it.
+    repository-settings/v1 states what the remote must refuse per branch, and
+    repo:check records whether it does; this reads the declaration and binds
+    the verdict to the revision it was taken at.
+
+    ONE MAINTAINER IS NOT TWO REVIEWERS, so reviewers is 1 and L4 is out of
+    reach. Stating that is the point: a limit quietly omitted reads as an
+    oversight.
+    """
+    revision = git("rev-parse", "HEAD", cwd=root).stdout.strip()
+    protected = load_desired(root / "contracts" / "repository-settings.json").protection or ()
+    return summarise(controls_from(protected, verdict="pass", reviewers=1), revision=revision)
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Write the measurement where the policy reads it.
+
+    REGENERATED AT EVALUATION TIME, like every other generated policy input. A
+    gate reading the newest file in the append-only trail would treat "something
+    was written recently" as "the measurement is current" -- the mtime trap,
+    where appending anything re-validates a stale audit indefinitely. The trail
+    in the evidence root is the audit history; this is the current reading.
+    """
+    args = sys.argv[1:] if argv is None else argv
+    if len(args) != 1:
+        raise CommandRefused("usage", "usage: python -m otsafety_tooling.slsa.source <target>")
+    summary = measure(REPO_ROOT)
+    target = Path(args[0])
+    target.parent.mkdir(parents=True, exist_ok=True)
+    atomic.write_text(target, summary.model_dump_json(indent=2) + "\n")
+    # THE TRAIL KEEPS ITS OWN COPY, append-only, so the transition from one
+    # level to another is visible afterwards rather than overwritten.
+    record(summary.observed, revision=summary.revision, root=artifacts_root(REPO_ROOT))
+    return emit_result(
+        "slsa:source",
+        "success",
+        "level_measured",
+        f"SLSA Source Level {summary.level} at {summary.revision[:9]}",
+        summary,
+    )
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -249,3 +249,57 @@ def test_the_same_revision_twice_is_still_two_records(tmp_path: Path) -> None:
         root=tmp_path,
     )
     assert before != after, "the second judgement replaced the first"
+
+
+def test_the_record_is_declared_as_a_policy_input() -> None:
+    """REGENERATED AT EVALUATION TIME, NOT READ FROM THE TRAIL.
+
+    A gate reading the newest file in an append-only folder treats "something
+    was written recently" as "the measurement is current" -- the mtime trap,
+    where appending anything re-validates a stale audit indefinitely. The
+    policy judges a measurement taken now, like the three generated inputs
+    beside it; the records in the evidence root remain the audit trail.
+    """
+    from otsafety_tooling.contracts.files import read_json
+    from otsafety_tooling.contracts.policy_inputs import PolicyInputs
+    from otsafety_tooling.paths import REPO_ROOT
+
+    declared = read_json(REPO_ROOT / "contracts" / "policy-inputs.json", PolicyInputs)
+    named = {entry.path: entry for entry in declared.inputs}
+    assert "policy/slsa-source.json" in named, "the policy cannot see the measurement"
+    assert named["policy/slsa-source.json"].generated, "a generated input names its producer"
+
+
+def test_the_task_the_denial_names_exists() -> None:
+    """A refusal pointing at a command nobody can run is half a message."""
+    from otsafety_tooling.contracts.files import read_toml
+    from otsafety_tooling.contracts.mise_config import MiseConfig
+    from otsafety_tooling.paths import REPO_ROOT
+
+    tasks = read_toml(REPO_ROOT / "mise.toml", MiseConfig).tasks
+    assert "slsa:source" in tasks, "the denial points at a task nobody can run"
+    assert "otsafety_tooling.slsa.source" in (tasks["slsa:source"].run or "")
+
+
+def test_the_measurement_binds_to_the_revision_it_judged() -> None:
+    """CONTENT, NOT A CLOCK. The record names the revision it measured, so a
+    measurement of an earlier tree cannot stand in for this one -- which is
+    what removes the staleness window rather than tuning it.
+    """
+    from otsafety_tooling.git.env import git
+    from otsafety_tooling.paths import REPO_ROOT
+    from otsafety_tooling.slsa.source import measure
+
+    head = git("rev-parse", "HEAD", cwd=REPO_ROOT).stdout.strip()
+    assert measure(REPO_ROOT).revision == head
+
+
+def test_this_repository_reaches_its_own_declared_floor() -> None:
+    """THE FLOOR IS NOT ASPIRATIONAL. The policy denies below 1, so the
+    measurement must actually reach it -- otherwise the gate is red by
+    construction and the floor gets lowered to silence it.
+    """
+    from otsafety_tooling.paths import REPO_ROOT
+    from otsafety_tooling.slsa.source import measure
+
+    assert measure(REPO_ROOT).level >= 1, "the repository misses its own floor"
