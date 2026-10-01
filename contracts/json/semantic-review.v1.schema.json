@@ -1,0 +1,91 @@
+{
+  "additionalProperties": false,
+  "description": "One reading of whether a step's evidence establishes its claim.",
+  "properties": {
+    "contract": {
+      "const": "semantic-review/v1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "reviewed_at": {
+      "format": "date-time",
+      "title": "Reviewed At",
+      "type": "string"
+    },
+    "step": {
+      "minLength": 1,
+      "title": "Step",
+      "type": "string"
+    },
+    "claim": {
+      "minLength": 1,
+      "title": "Claim",
+      "type": "string"
+    },
+    "finding": {
+      "enum": [
+        "covered",
+        "partial",
+        "uncovered",
+        "unreadable"
+      ],
+      "title": "Finding",
+      "type": "string"
+    },
+    "rationale": {
+      "minLength": 1,
+      "title": "Rationale",
+      "type": "string"
+    },
+    "judge": {
+      "additionalProperties": false,
+      "description": "What produced a finding, in enough detail to ask for it again.",
+      "properties": {
+        "model": {
+          "title": "Model",
+          "type": "string"
+        },
+        "rubric": {
+          "pattern": "^[a-z0-9-]+/v\\d+$",
+          "title": "Rubric",
+          "type": "string"
+        },
+        "prompt_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Prompt Sha256",
+          "type": "string"
+        },
+        "repeats": {
+          "exclusiveMinimum": 0,
+          "title": "Repeats",
+          "type": "integer"
+        },
+        "agreed": {
+          "exclusiveMinimum": 0,
+          "title": "Agreed",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "model",
+        "rubric",
+        "prompt_sha256",
+        "repeats",
+        "agreed"
+      ],
+      "title": "Judge",
+      "type": "object"
+    }
+  },
+  "required": [
+    "contract",
+    "reviewed_at",
+    "step",
+    "claim",
+    "finding",
+    "rationale",
+    "judge"
+  ],
+  "title": "SemanticReview",
+  "type": "object"
+}
