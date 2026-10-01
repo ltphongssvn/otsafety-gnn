@@ -76,6 +76,18 @@ description = "Resolve new or changed dependencies into uv.lock, upgrading nothi
 # exactly this lock with --locked. Upgrades are a separate, deliberate task.
 run = "uv lock"
 
+[tasks."deps:install"]
+description = "Install exactly what uv.lock names: the project, its workspace members and its dev tools"
+# FOR A RUNNER, WHICH NEEDS NO HOOKS AND NO SITE. setup does all three for a
+# person; CI wants the environment alone.
+#
+# A TASK, SO IT SHARES THE GATES' CACHE. The workflow ran this as a raw command,
+# outside mise, so on the runner it wrote uv's default cache while every gate,
+# run through mise under the ood profile, read UV_CACHE_DIR from inside the
+# checkout. The offline type check then found none of the wheels the install
+# had just downloaded. Run here, both read the same cache by construction.
+run = "uv sync --frozen"
+
 # --- Onboarding ---------------------------------------------------------------
 
 [tasks.setup]
@@ -173,13 +185,19 @@ description = "Strict static type check of the tooling, for both platforms it ru
 # `dir` would start `nix develop` in tooling/, where it has to search upward for
 # flake.nix. `uv run --directory` moves only mypy, which reads its settings
 # from tooling/pyproject.toml.
+#
+# THE ENVIRONMENT CI HAS, ON EVERY MACHINE. Isolated, from the lock, every
+# workspace member, no extras: the runner type-checks before installing any,
+# and a laptop checking its own .venv passed what the runner refused. An
+# undeclared optional import now fails here, before the push. The working
+# .venv and its extras are untouched; --offline keeps the gate off the network.
 run = '''
 set -euo pipefail
-uv run --no-sync --directory tooling mypy --config-file ../pyproject.toml --platform darwin src tests
-uv run --no-sync --directory tooling mypy --config-file ../pyproject.toml --platform linux src tests
+uv run --isolated --frozen --offline --all-packages --directory tooling --project .. mypy --config-file ../pyproject.toml --platform darwin src tests
+uv run --isolated --frozen --offline --all-packages --directory tooling --project .. mypy --config-file ../pyproject.toml --platform linux src tests
 # scripts/ IS STANDALONE: it has no package settings of its own, and it
 # runs before anything is installed, so it is checked strictly as a file.
-uv run --no-sync mypy --config-file pyproject.toml scripts apps/site/tests
+uv run --isolated --frozen --offline --all-packages mypy --config-file pyproject.toml scripts apps/site/tests
 '''
 
 [tasks.test]
@@ -254,6 +272,13 @@ uv run --no-sync wandb sync --sync-all
 description = "Install the wandb extra: Weights & Biases, a first-class tracker beside MLflow"
 # --inexact, like every install task: add this extra without evicting the others.
 run = "uv sync --extra wandb --inexact"
+
+[tasks."review:install"]
+description = "Install the review extra: the Claude SDK the semantic reviewer calls"
+# --inexact, like every install task: add this extra without evicting the others.
+# OPTIONAL BY DESIGN. The reviewer is never a gate -- a language model cannot be
+# reproduced -- so no gate needs this, and a fresh checkout does not install it.
+run = "uv sync --extra review --inexact"
 
 [tasks."e2e:install"]
 description = "Install Playwright and the browser the acceptance tests drive"

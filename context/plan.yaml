@@ -222,6 +222,7 @@ steps:
       - {kind: task, name: 'nix:flake-check'}
       - {kind: task, name: 'start:check'}
       - {kind: task, name: 'start:switch'}
+      - {kind: task, name: 'deps:install'}
   - id: '6.4'
     title: Evidence root and run records with live PTY output
     thread: B
@@ -2544,6 +2545,7 @@ steps:
     done_when:
       - {kind: task, name: 'plan:review'}
       - {kind: path, path: tooling/src/otsafety_tooling/contracts/semantic_review.py}
+      - {kind: task, name: 'review:install'}
   - id: G.88
     title: A change to several files is validated whole and published together, or not at all
     thread: G

@@ -68,7 +68,11 @@ init_typed = true
 # imported inside a function still needs saying so to the type checker.
 # mlflow AND wandb JOIN THEM from the tooling package's own section, which is
 # removed: mypy does not merge configurations, so every override belongs here.
-module = ["playwright.*", "pytest_playwright.*", "pypdf.*", "mlflow.*", "wandb.*"]
+# anthropic JOINS THEM, the fourth time: the review extra is optional, and the
+# type check runs on a runner before any extra is installed. httpx2 is its
+# transport, imported directly by the review tests. The types task now checks
+# in the runner's environment, so a name missing here fails on the laptop first.
+module = ["playwright.*", "pytest_playwright.*", "pypdf.*", "mlflow.*", "wandb.*", "anthropic.*", "httpx2.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]

@@ -56,6 +56,7 @@ e2e = [
     # own page count, so a sheet that silently becomes two pages fails the build.
     "pypdf>=5,<7",
 ]
+review = ['anthropic>=1.8,<1.9'] # an optional extra: the reviewer is never a gate, and a checkout need not install it
 
 [dependency-groups]
 dev = [

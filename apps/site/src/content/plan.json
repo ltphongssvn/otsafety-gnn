@@ -567,6 +567,10 @@
         {
           "kind": "task",
           "name": "start:switch"
+        },
+        {
+          "kind": "task",
+          "name": "deps:install"
         }
       ]
     },
@@ -5794,6 +5798,10 @@
         {
           "kind": "path",
           "path": "tooling/src/otsafety_tooling/contracts/semantic_review.py"
+        },
+        {
+          "kind": "task",
+          "name": "review:install"
         }
       ]
     },
