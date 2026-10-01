@@ -626,6 +626,17 @@ esac
 echo "on $branch (not protected)"
 '''
 
+[tasks."slsa:source"]
+description = "Measure this repository's SLSA Source Level from its own evidence, and record it"
+# REGENERATED AT EVALUATION TIME, like every other generated policy input: a
+# gate reading the newest file in the append-only trail would read "written
+# recently" as "current", which is how appending anything revalidates a stale
+# audit. The trail keeps the history; this is the current reading.
+usage = '''
+arg "<target>" help="Where to write the measurement, e.g. .artifacts/policy/slsa-source.json"
+'''
+run = 'uv run --no-sync python -m otsafety_tooling.slsa.source "${usage_target?}"'
+
 [tasks."start:fresh"]
 description = "Refuse this branch if origin/develop has moved since it was cut"
 run = "uv run --no-sync python -m otsafety_tooling.git.freshness"
